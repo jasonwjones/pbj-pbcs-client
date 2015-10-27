@@ -1,4 +1,4 @@
-# PBCS Java Client
+# PBCS Java Client (PBJ)
 
 The PBCS Java Client (PBJ) project is an open source project to implement a high-quality, easy to 
 use, and robust API for working with Oracle's Planning and Budgeting Cloud Service (PBCS) via its 
@@ -39,6 +39,26 @@ mvn install
 This will build the project and install it to your local machine. You can then include it 
 as just any other dependency in your own project. 
 
+### Notes on Samples in Test Folder
+
+The samples all derive from a common base class `AbstractIntegrationTest` that loads in details for a PBCS server from a local file on your computer. By default, the location of this file is here:
+
+```
+System.getProperty("user.home") +"/pbcs-client.properties";
+```
+
+The contents of this file should look something like this:
+
+```
+server=example-pbcs.pbcs.us2.oraclecloud.com
+identityDomain=examplecorp
+username=jason@example.com
+password=yourpass
+appName=appname
+```
+
+Note that all of the above values are fictitious. You will need to put in your own information to connect to your PBCS isntance. Your username will typically if not always be an email address. Specifying the appName is optional but it's used in a few examples.
+
 ## Planning API vs LCM API
 
 There are effectively two REST APIs that can be interacted with for PBCS: One is a Hyperion Planning
@@ -51,9 +71,20 @@ worked with separately. For example, a full use-case of exporting and downloadin
 
 ### Working
 
+- Getting an application
+- Getting the API info
+- Launching business rule
+- Refreshing a cube
+- Getting job definitions
+- Getting a job status
+- Exporting a data file (but not subsequently downloading it, yet)
 
+### Next to be developed
 
-### Not Implemented (Yet)
+- Downloading exported file from LCM service
+- Rule sets
+- Plan type maps
+- Other things you launch
 
 ## About
 
