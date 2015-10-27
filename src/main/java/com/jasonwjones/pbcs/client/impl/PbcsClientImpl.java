@@ -9,7 +9,6 @@ import org.apache.http.impl.client.HttpClients;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
-import com.jasonwjones.pbcs.AuthHttpComponentsClientHttpRequestFactory;
 import com.jasonwjones.pbcs.api.v3.Api;
 import com.jasonwjones.pbcs.api.v3.Application;
 import com.jasonwjones.pbcs.api.v3.Applications;

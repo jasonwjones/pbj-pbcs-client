@@ -2,9 +2,6 @@ https://plantastic-test-keyperformanceideas.pbcs.us2.oraclecloud.com/HyperionPla
 
 authentiation: identitydomain dot username
 
-keyperformanceideas.jjones@keyperformanceideas.com
-Ja$on200
-
 TODO:
 
 Separate URL structure for LCM stuff
@@ -39,7 +36,8 @@ List files:
 	"application/x-www-form-urlencoded"
 	
 	URL: https://plantastic-test-keyperformanceideas.pbcs.us2.oraclecloud.com/interop/rest/11.1.2.3.600/applicationsnapshots
-	curl -X GET -s -w "%{http_code}" -u "keyperformanceideas.jjones@keyperformanceideas.com:Ja\$on200" -o test.txt -H "Content-Type: application/x-www-form-urlencoded" -D respHeader.txt https://plantastic-test-keyperformanceideas.pbcs.us2.oraclecloud.com/interop/rest/11.1.2.3.600/applicationsnapshots
+	Note: Curl calls where the PW has a $ in it need to escape it!
+	curl -X GET -s -w "%{http_code}" -u "keyperformanceideas.jjones@keyperformanceideas.com:removed" -o test.txt -H "Content-Type: application/x-www-form-urlencoded" -D respHeader.txt https://plantastic-test-keyperformanceideas.pbcs.us2.oraclecloud.com/interop/rest/11.1.2.3.600/applicationsnapshots
 
 Issues:
 	GET on a non-existent job status ID throws 500 (would expect 404)

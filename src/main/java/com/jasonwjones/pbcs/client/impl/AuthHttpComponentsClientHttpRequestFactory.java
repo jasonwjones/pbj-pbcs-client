@@ -1,4 +1,4 @@
-package com.jasonwjones.pbcs;
+package com.jasonwjones.pbcs.client.impl;
 
 import java.net.URI;
 
@@ -15,6 +15,13 @@ import org.apache.http.protocol.HttpContext;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 
+/**
+ * Used internally to ensure that HTTP requests have credentials in them. Surely
+ * there's a better built-in way to handle this?
+ * 
+ * @author jasonwjones
+ *
+ */
 public class AuthHttpComponentsClientHttpRequestFactory extends HttpComponentsClientHttpRequestFactory {
 
 	protected HttpHost host;

@@ -8,7 +8,6 @@ import org.apache.http.impl.client.HttpClients;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
-import com.jasonwjones.pbcs.AuthHttpComponentsClientHttpRequestFactory;
 import com.jasonwjones.pbcs.client.PbcsApi;
 import com.jasonwjones.pbcs.client.PbcsClient;
 import com.jasonwjones.pbcs.client.exceptions.PbcsNoSuchClientException;

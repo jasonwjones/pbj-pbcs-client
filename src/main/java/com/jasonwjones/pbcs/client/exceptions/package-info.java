@@ -1,7 +1,6 @@
 /**
+ * Exceptions for the PBCS Client
  * 
- */
-/**
  * @author jasonwjones
  *
  */

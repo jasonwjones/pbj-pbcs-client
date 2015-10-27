@@ -1,7 +1,6 @@
 /**
+ * Main implementation of the PBCS Client API.
  * 
- */
-/**
  * @author jasonwjones
  *
  */

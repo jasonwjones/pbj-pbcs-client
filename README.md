@@ -24,6 +24,21 @@ The PBCS Java Client is packaged as a Maven project. And is best to include in y
 as a Maven dependency. If you absolutely have to include this project manually in your own project,
 you will need to gather up the proper dependencies and add those to your project. 
 
+To get started, first clone the the PBJ repository to your local machine:
+
+```
+git clone https://github.com/jasonwjones/pbcs-client
+```
+
+Then `cd` into the folder and run a Maven install:
+
+```
+mvn install
+```
+
+This will build the project and install it to your local machine. You can then include it 
+as just any other dependency in your own project. 
+
 ## Planning API vs LCM API
 
 There are effectively two REST APIs that can be interacted with for PBCS: One is a Hyperion Planning
@@ -31,6 +46,14 @@ specific API (at version 'v3' as of this writing) and the other is an API for LC
 this writing the LCM API version is 11.1.2.3.600. To the extent possible, the PBJ tries to hide the
 underlying details of these APIs from the user. Sometimes its inevitable that these APIs must be
 worked with separately. For example, a full use-case of exporting and downloading a file  
+
+## Development Status
+
+### Working
+
+
+
+### Not Implemented (Yet)
 
 ## About
 
