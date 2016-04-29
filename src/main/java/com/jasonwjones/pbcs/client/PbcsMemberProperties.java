@@ -1,10 +1,12 @@
 package com.jasonwjones.pbcs.client;
 
+import java.util.List;
+
 public interface PbcsMemberProperties {
 
 	public String getName();
 	
-	public boolean hasChildren();
+	public List<? extends PbcsMemberProperties> getChildren();
 	
 	public String getDescription();
 	

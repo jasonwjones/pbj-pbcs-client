@@ -22,6 +22,7 @@ import com.jasonwjones.pbcs.client.PbcsJobStatus;
 import com.jasonwjones.pbcs.client.PbcsJobType;
 import com.jasonwjones.pbcs.client.PbcsMemberProperties;
 import com.jasonwjones.pbcs.client.exceptions.PbcsClientException;
+import com.jasonwjones.pbcs.client.impl.models.PbcsMemberPropertiesImpl;
 
 public class PbcsApplicationImpl implements PbcsApplication {
 	
@@ -94,8 +95,23 @@ public class PbcsApplicationImpl implements PbcsApplication {
 		
 	}
 
+	// example from CREST
+//	public void integrationScenarioImportDataRunCalcCopyToAso() throws Exception { 
+	//uploadFile("data.csv");
+//	}
+//	executeJob("IMPORT_DATA", "loadingq1data", "{importFileName:data.csv}"); executeJob("CUBE_REFRESH", null, null);
+//	executeJob("PLAN_TYPE_MAP", "CampaignToReporting", "{clearData:false}");
 	@Override
 	public void launchDataImport(String dataImportName) {
+		logger.info("Launcing import data job: {}", dataImportName);
+		String url = this.context.getBaseUrl() + "applications/{application}/jobs";
+		JobLaunchPayload payload = new JobLaunchPayload("IMPORT_DATA", dataImportName);
+		// can add 'importFileName' to parameters on payload object if we want
+		// (the name of a CSV, ZIP, or TXT file). In case of ZIP, the ZIP can contain 1+ CSV files
+		// such as data1-3, data2-3, data3-3.csv, etc.
+		//ResponseEntity<JobLaunchResponse> output = this.context.getTemplate().postForEntity(url, payload, JobLaunchResponse.class, appMap);
+		ResponseEntity<String> output = this.context.getTemplate().postForEntity(url, payload, String.class, appMap);
+		System.out.println("import resp: " + output.getBody());
 		// TODO Auto-generated method stub
 		
 	}
@@ -137,16 +153,84 @@ public class PbcsApplicationImpl implements PbcsApplication {
 		return application.getType();
 	}
 
+	/**
+	 * CREST doc:
+	 * Adds a new member to the application outline in the specified dimension and plan type and under the specified parent member.
+Prerequisite: The parent member must be enabled for dynamic children and a cube refresh must have happened after the parent was enabled.
+	 */
+	
+	// TODO: currently getting a BAD request 400 possibly because it's not enable dynamic chidlren.
 	@Override
 	public PbcsMemberProperties addMember(String dimensionName, String memberName, String parentName) {
+		String url = this.context.getBaseUrl() + "applications/{application}/dimensions/{dimName}/members";
+		
+		MemberAdd ma = new MemberAdd(memberName, parentName);
+//		Map<String, String> request = new HashMap<String, String>();
+//		request.put("memberName", memberName);
+//		request.put("parentName", parentName);
+		
+		//{"status":400,"detail":
+		//"Error occurred when adding member. Cannot add member
+		//<North America> because its parent <Enterprise Global>
+		//is not enabled for dynamic children.",
+		//"message":"com.hyperion.planning.HspRuntimeException: Error occurred when adding member. Cannot add member <North America> because its parent <Enterprise Global> is not enabled for dynamic children.","localizedMessage":"com.hyperion.planning.HspRuntimeException: Error occurred when adding member. Cannot add member <North America> because its parent <Enterprise Global> is not enabled for dynamic children."}
+		
+		this.context.getTemplate().setErrorHandler(new MyResponseErrorHandler());
+		ResponseEntity<String> resp = this.context.getTemplate().postForEntity(url, ma, String.class, application.getName(), dimensionName);
+		
+		System.out.println("Add response: " + resp.getBody());
+		//ResponseEntity<PbcsMemberPropertiesImpl> memberResponse = this.context.getTemplate().getForEntity(url, PbcsMemberPropertiesImpl.class, application.getName(), dimensionName, memberName);
+		//return memberResponse.getBody();
+
 		// TODO Auto-generated method stub
 		return null;
 	}
 
+	// TODO: Assert not null on args
 	@Override
-	public PbcsMemberProperties getMemberProperties(String dimensionName, String memberName) {
-		// TODO Auto-generated method stub
-		return null;
+	public PbcsMemberProperties getMember(String dimensionName, String memberName) {
+		logger.info("Fetching member properties for {} from dimension {}", memberName, dimensionName);
+		String url = this.context.getBaseUrl() + "applications/{application}/dimensions/{dimName}/members/{member}";
+		ResponseEntity<PbcsMemberPropertiesImpl> memberResponse = this.context.getTemplate().getForEntity(url, PbcsMemberPropertiesImpl.class, application.getName(), dimensionName, memberName);
+		return memberResponse.getBody();
+	}
+	
+	public void getUserPreferences() {
+		logger.info("Fetching user preferences for current user");
+		String url = this.context.getBaseUrl() + "applications/{application}/userpreferences";
+		ResponseEntity<String> userPrefs = this.context.getTemplate().getForEntity(url, String.class, application.getName());
+		System.out.println("User prefs: " + userPrefs.getBody());
+	}
+	
+	private static class MemberAdd {
+		
+		private String memberName;
+		
+		private String parentName;
+
+		public MemberAdd(String memberName, String parentName) {
+			super();
+			this.memberName = memberName;
+			this.parentName = parentName;
+		}
+
+		public String getMemberName() {
+			return memberName;
+		}
+
+		public void setMemberName(String memberName) {
+			this.memberName = memberName;
+		}
+
+		public String getParentName() {
+			return parentName;
+		}
+
+		public void setParentName(String parentName) {
+			this.parentName = parentName;
+		}
+		
+		
 	}
 	
 }

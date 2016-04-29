@@ -1,5 +1,7 @@
 package com.jasonwjones.pbcs.client;
 
+import com.jasonwjones.pbcs.interop.InteropClient;
+
 /**
  * Temp 
  * 
@@ -8,7 +10,15 @@ package com.jasonwjones.pbcs.client;
  */
 public class PbcsClientFactory {
 
-	public PbcsClient connect(String server, String identityDomain, String username, String password) {
+	public PbcsPlanningClient connect(String server, String identityDomain, String username, String password) {
+		return null;
+	}
+	
+	public PbcsPlanningClient connect(PbcsConnection connection) {
+		return null;
+	}
+	
+	public InteropClient createInteropClient(PbcsConnection conncetion) {
 		return null;
 	}
 	

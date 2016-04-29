@@ -3,6 +3,9 @@ package com.jasonwjones.pbcs.test;
 import java.io.FileReader;
 import java.util.Properties;
 
+import com.jasonwjones.pbcs.client.PbcsConnection;
+import com.jasonwjones.pbcs.client.impl.PbcsConnectionImpl;
+
 public abstract class AbstractIntegrationTest {
 
 	private static final String PROPS = System.getProperty("user.home") +"/pbcs-client.properties";
@@ -12,6 +15,8 @@ public abstract class AbstractIntegrationTest {
 	protected static final String username;
 	protected static final String password;
 	protected static final String appName;
+	
+	protected static PbcsConnection connection;
 	
 	static {
 		Properties properties = new Properties();
@@ -26,6 +31,15 @@ public abstract class AbstractIntegrationTest {
 		username = properties.getProperty("username");
 		password = properties.getProperty("password");
 		appName = properties.getProperty("appName");
+		connection = PbcsConnectionImpl.fromProperties(properties);
+	}
+			
+	public static String repeat(String text, int times) {
+		StringBuilder sb = new StringBuilder(times * text.length());
+		for (int i = 0; i < times; i++) {
+			sb.append(text);
+		}
+		return sb.toString();
 	}
 	
 }

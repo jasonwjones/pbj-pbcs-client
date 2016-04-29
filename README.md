@@ -18,6 +18,52 @@ Behind the scenes, the PBCS Java Client takes care of the details of connecting,
 proper REST method, and returning the result (in the above example, the result is ignored, but it
 could be returned in order to determine the status of the call and its ID).
 
+## Why this project?
+
+There are many reasons for this project. The introduction of a REST API to manage data and metadata
+for Hyperion Planning (and more!) is exciting for a number of reasons.
+
+The REST API will allow a multitude of programming languages to easily interact with PBCS. 
+Effectively this means that clients won't be limited to whatever official API (Java libraries) are
+made available from Oracle themselves. 
+
+Building a library on top of the REST API allows us to build a library with an fluent, easily 
+comprehensible, well-crafted, and expressive syntax. For example, the amount of code needed to 
+simply connect to PBCS and launch a business rule is many lines because we have to connect, find the
+right endpoint, open an HTTP connection, submit a payload, parse the results, disconnect, and more.
+It's verbose. An expressive API, however, allows us to very easily perform this action:
+
+```
+PbcsClient client = new PbcsClientImpl(server, identityDomain, username, password);
+PbcsApplication app = client.getApplication("Vision");
+app.launchBusinessRule("AggAll"); 
+```
+
+That said, Java is one of the "languages of the enterprise" owing to having good tooling support,
+various language features, and broad set of libraries. One such feature in the Java ecosystem is the
+Maven build system, for example. In short, Maven is a project management technology that allows for
+easily specifying and managing dependencies, testing, compiling, and deploying software. Among other
+things, Maven helps solve "JAR hell" in the Java ecosystem by making it trivial to specify a set
+of libraries that a project depends on, and in turn the libraries that those projects depend on.
+
+Unfortunately, common Oracle Java components like their JDBC driver for Oracle databases and their
+Essbase API are not available in what is called Maven Central, which is akin to a global collection
+of Java libraries. In practice this means that just a few extra steps have to be taken to 
+incorporate this functionality into a project. It's not bad but it's less than ideal. 
+
+Having a REST API (or more specifically, just a web API) obviates the need for relying on a JAR file
+that might have some licensing restriction that prevents it from being used easily in a project. 
+This means that we can publish a library to Maven Central or any other repository, and other people
+and groups can simply include it in their own Java projects and easily start using it.  
+
+The point of the PBJ (PBCS Java API) project can be summarized with the following core principals:
+
+ * PBJ is available in Maven Central and can be easily utilized in any enterprise Java project
+ * PBJ is open source under the Apache Software License 2.0 
+ * PBJ provides a fluent, expressive, and clean API for interacting with the PBCS REST API
+ * PBJ serves as a common, high-quality platform for Java/Groovy/Jython programmers to easily use 
+   PBCS without reinventing the wheel.   
+
 ## Getting Started
 
 The PBCS Java Client is packaged as a Maven project. And is best to include in your own Java projects
@@ -67,6 +113,17 @@ this writing the LCM API version is 11.1.2.3.600. To the extent possible, the PB
 underlying details of these APIs from the user. Sometimes its inevitable that these APIs must be
 worked with separately. For example, a full use-case of exporting and downloading a file  
 
+## Functionality Overview
+
+### LCM (Interop)
+
+* Get LCM API versions
+* Upload and download files
+* List files
+* Delete files
+* Get information about services
+* Recreate a service
+
 ## Development Status
 
 ### Working
@@ -85,6 +142,23 @@ worked with separately. For example, a full use-case of exporting and downloadin
 - Rule sets
 - Plan type maps
 - Other things you launch
+
+### Not implemented (not currently part of plans)
+
+- Managing Planning Units (PUs, history, filters, status)
+
+## Helping out
+
+REST documentation: https://docs.oracle.com/cloud/latest/pbcs_common/CREST.pdf
+
+Other links:
+
+http://john-goodwin.blogspot.com/2015/09/planning-rest-api.html
+
+## To Do
+
+- Specify alternate REST API version if needed for Planning and LCM clients
+- Publish to Maven Central
 
 ## About
 

@@ -9,7 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
 import com.jasonwjones.pbcs.client.PbcsApi;
-import com.jasonwjones.pbcs.client.PbcsClient;
+import com.jasonwjones.pbcs.client.PbcsPlanningClient;
 import com.jasonwjones.pbcs.client.exceptions.PbcsNoSuchClientException;
 import com.jasonwjones.pbcs.interop.InteropClient;
 
@@ -46,7 +46,7 @@ public class PbcsContext {
 	// should be v3 or something
 	// output of page will be 'Not Found' if there's no such client
 	// note: 404 will be thrown for no such API version (good!)
-	public PbcsClient getClient(String version) throws PbcsNoSuchClientException {
+	public PbcsPlanningClient getClient(String version) throws PbcsNoSuchClientException {
 		return null;
 	}
 	

@@ -1,8 +1,7 @@
 /**
+ * Default implementation of LCM/Interop interfaces
  * 
- */
-/**
- * @author jasonwjones
+ * @author Jason Jones
  *
  */
 package com.jasonwjones.pbcs.interop.impl;

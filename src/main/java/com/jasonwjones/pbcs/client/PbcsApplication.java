@@ -3,6 +3,12 @@ package com.jasonwjones.pbcs.client;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Models a PBCS application such as a Planning or an HFM application.
+ * 
+ * @author jasonwjones
+ *
+ */
 public interface PbcsApplication {
 
 	/**
@@ -34,7 +40,7 @@ public interface PbcsApplication {
 	 * Fetches the status of a job with the given ID
 	 * 
 	 * @param jobId the ID of the job
-	 * @return
+	 * @return a job status
 	 */
 	public PbcsJobStatus getJobStatus(Integer jobId);
 
@@ -44,6 +50,7 @@ public interface PbcsApplication {
 	 * 
 	 * @param ruleName the name of the business rule exactly as it appears in
 	 *            the application
+	 * @return a job launch result
 	 */
 	public PbcsJobLaunchResult launchBusinessRule(String ruleName);
 
@@ -54,25 +61,15 @@ public interface PbcsApplication {
 	 * @param ruleName the name of the business rule exactly as it appears in
 	 *            the application
 	 * @param parameters the parameters to pass along
+	 * @return a job launch result
 	 */
 	public PbcsJobLaunchResult launchBusinessRule(String ruleName, Map<String, String> parameters);
 
 	public void launchRuleSet(String ruleSetName);
-	// also add with params
-
-	// launchPlanTypeMap, +parameters
 
 	public void launchDataImport(String dataImportName);
-	// + parameters
 
 	public PbcsJobLaunchResult exportData(String exportName);
-	// + parameters
-
-	// importData
-	// importData with parameters
-
-	// export metadata
-	// + parameters
 
 	public PbcsJobLaunchResult refreshCube();
 
@@ -82,14 +79,20 @@ public interface PbcsApplication {
 	 * seemed to work even when the refresh name was actually different.
 	 * 
 	 * @param cubeRefreshName the CUBE_REFRESH name
+	 * @return a job launch result
 	 */
 	public PbcsJobLaunchResult refreshCube(String cubeRefreshName);
 
 	public PbcsMemberProperties addMember(String dimensionName, String memberName, String parentName);
 
-	public PbcsMemberProperties getMemberProperties(String dimensionName, String memberName);
+	public PbcsMemberProperties getMember(String dimensionName, String memberName);
 
-	// TODO: Planning Units
+	public void getUserPreferences();
 
-	// getUserPreferences
+//	/**
+//	 * Not implemented (stubbed out for future implementation). Also needed:
+//	 * Planning Units
+//	 */
+//	public void launchPlanTypeMap();
+
 }

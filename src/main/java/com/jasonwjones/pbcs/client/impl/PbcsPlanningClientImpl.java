@@ -14,10 +14,11 @@ import com.jasonwjones.pbcs.api.v3.Application;
 import com.jasonwjones.pbcs.api.v3.Applications;
 import com.jasonwjones.pbcs.client.PbcsApi;
 import com.jasonwjones.pbcs.client.PbcsApplication;
-import com.jasonwjones.pbcs.client.PbcsClient;
+import com.jasonwjones.pbcs.client.PbcsConnection;
+import com.jasonwjones.pbcs.client.PbcsPlanningClient;
 import com.jasonwjones.pbcs.client.exceptions.PbcsClientException;
 
-public class PbcsClientImpl implements PbcsClient {
+public class PbcsPlanningClientImpl implements PbcsPlanningClient {
 
 	private RestContext context;
 	
@@ -35,7 +36,11 @@ public class PbcsClientImpl implements PbcsClient {
 	
 	private static String defaultVersion = "v3";
 	
-	public PbcsClientImpl(String server, String identityDomain, String username, String password) throws PbcsClientException {
+	public PbcsPlanningClientImpl(PbcsConnection connection) {
+		
+	}
+	
+	public PbcsPlanningClientImpl(String server, String identityDomain, String username, String password) throws PbcsClientException {
 		HttpClient httpClient = HttpClients.createDefault();
 
 		final HttpHost httpHost = new HttpHost(server, PORT, SCHEME);

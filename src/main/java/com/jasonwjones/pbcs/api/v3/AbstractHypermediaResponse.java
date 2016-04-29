@@ -16,6 +16,10 @@ public abstract class AbstractHypermediaResponse<E> {
 	
 	private String type;
 	
+	// these might only be on LCM (interop) stuff, 0 is success, -1 is in progress
+	// , "+ve" is failed and has an error... maybe.
+	// TODO (?) status (integer), details: (?)
+	
 	public List<E> getItems() {
 		return items;
 	}

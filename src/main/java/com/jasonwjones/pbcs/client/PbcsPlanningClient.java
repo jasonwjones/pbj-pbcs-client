@@ -10,7 +10,7 @@ import com.jasonwjones.pbcs.client.exceptions.PbcsClientException;
  * @author jasonwjones
  *
  */
-public interface PbcsClient {
+public interface PbcsPlanningClient {
 
 	public PbcsApi getApi();
 	

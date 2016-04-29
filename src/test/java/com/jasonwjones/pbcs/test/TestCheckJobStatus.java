@@ -1,18 +1,20 @@
 package com.jasonwjones.pbcs.test;
 
 import com.jasonwjones.pbcs.client.PbcsApplication;
-import com.jasonwjones.pbcs.client.PbcsClient;
+import com.jasonwjones.pbcs.client.PbcsPlanningClient;
 import com.jasonwjones.pbcs.client.PbcsJobStatus;
 import com.jasonwjones.pbcs.client.exceptions.PbcsClientException;
-import com.jasonwjones.pbcs.client.impl.PbcsClientImpl;
+import com.jasonwjones.pbcs.client.impl.PbcsPlanningClientImpl;
 
 public class TestCheckJobStatus extends AbstractIntegrationTest {
 
 	public static void main(String[] args) {
 		try {
-			PbcsClient client = new PbcsClientImpl(server, identityDomain, username, password);
+			PbcsPlanningClient client = new PbcsPlanningClientImpl(server, identityDomain, username, password);
 			PbcsApplication app = client.getApplication(appName);
-			PbcsJobStatus jobStatus = app.getJobStatus(558);
+			//import resp: {"status":-1,"details":null,"jobId":95,"descriptiveStatus":"Processing","jobName":"ForecastData","links":[{"rel":"self","href":"https://pbcsloaner1svc-pbcsloaner1.pbcs.us2.oraclecloud.com/HyperionPlanning/rest/v3/applications/Vision/jobs/95","action":"GET"},{"rel":"job-details","href":"https://pbcsloaner1svc-pbcsloaner1.pbcs.us2.oraclecloud.com/HyperionPlanning/rest/v3/applications/Vision/jobs/95/details","action":"GET"}]}
+
+			PbcsJobStatus jobStatus = app.getJobStatus(95);
 			System.out.println("Job status: " + jobStatus);
 		} catch (PbcsClientException e) {
 			System.out.println("Error: " + e.getMessage());
