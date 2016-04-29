@@ -1,7 +1,7 @@
 package com.jasonwjones.pbcs.test;
 
-import com.jasonwjones.pbcs.client.PbcsPlanningClient;
-import com.jasonwjones.pbcs.client.impl.PbcsPlanningClientImpl;
+import com.jasonwjones.pbcs.PbcsClient;
+import com.jasonwjones.pbcs.PbcsClientFactory;
 
 public class TestGetApis extends AbstractIntegrationTest {
 
@@ -9,7 +9,8 @@ public class TestGetApis extends AbstractIntegrationTest {
 //		PbcsContext client = new PbcsContext(server, identityDomain, username, password);
 //		List<PbcsApi> apis = client.getApis();
 		
-		PbcsPlanningClient client = new PbcsPlanningClientImpl(server, identityDomain, username, password);
+		PbcsClient client = new PbcsClientFactory().createClient(connection);
+
 		System.out.println("API: " + client.getApi());
 
 		

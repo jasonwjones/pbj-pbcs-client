@@ -19,7 +19,8 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import com.jasonwjones.pbcs.api.v3.HypermediaLink;
 import com.jasonwjones.pbcs.api.v3.ServiceDefinitionWrapper;
-import com.jasonwjones.pbcs.client.exceptions.PbcsClientException;
+import com.jasonwjones.pbcs.client.PbcsConnection;
+import com.jasonwjones.pbcs.client.PbcsServiceConfiguration;
 import com.jasonwjones.pbcs.client.impl.AuthHttpComponentsClientHttpRequestFactory;
 import com.jasonwjones.pbcs.client.impl.RestContext;
 import com.jasonwjones.pbcs.interop.InteropClient;
@@ -27,41 +28,31 @@ import com.jasonwjones.pbcs.interop.InteropClient;
 public class InteropClientImpl implements InteropClient {
 
 	private static final Logger logger = LoggerFactory.getLogger(InteropClientImpl.class);
-	
-	private RestContext context;
-	
+		
 	private RestTemplate restTemplate;
 
 	private String baseUrl;
+		
+	private PbcsServiceConfiguration serviceConfiguration;
 	
-	//private PbcsApi api;
-	
-	// URL(String.format("%s/interop/rest/%s/applicationsnapshots/%s/contents?q={chunkSize:%d,isFirst:%b,isLast:%b}", serverUrl, apiVersion, fileName, lastChunk.length, isFirst, isLast));
-	//private static String PATH = "/HyperionPlanning/rest/";
-	private static String PATH = "/interop/rest/";
-	
-	private static String SCHEME = "https";
-	
-	private static int PORT = 443;
-	
-	private static String defaultVersion = "11.1.2.3.600";
-	
-	public InteropClientImpl(String server, String identityDomain, String username, String password) throws PbcsClientException {
+	public InteropClientImpl(PbcsConnection connection, PbcsServiceConfiguration serviceConfiguration) {
+		this.serviceConfiguration = serviceConfiguration;
+		
 		logger.info("Initializing PBCS API");
 		HttpClient httpClient = HttpClients.createDefault();
 
-		final HttpHost httpHost = new HttpHost(server, PORT, SCHEME);
-		final String fullUsername = identityDomain + "." + username;
+		final HttpHost httpHost = new HttpHost(connection.getServer(), serviceConfiguration.getPort(), serviceConfiguration.getScheme());
+		final String fullUsername = connection.getIdentityDomain() + "." + connection.getUsername();
 		final AuthHttpComponentsClientHttpRequestFactory requestFactory = new AuthHttpComponentsClientHttpRequestFactory(
-				httpClient, httpHost, fullUsername, password);
+				httpClient, httpHost, fullUsername, connection.getPassword());
 		
-		this.baseUrl = SCHEME + "://" + server + PATH; // + defaultVersion; // + "/" + "applicationsnapshots";
+		this.baseUrl = serviceConfiguration.getScheme() + "://" + connection.getServer() + serviceConfiguration.getInteropRestApiPath(); // + defaultVersion; // + "/" + "applicationsnapshots";
 		this.restTemplate = new RestTemplate(requestFactory);
-		this.context = new RestContext(restTemplate, baseUrl);
+		//this.context = new RestContext(restTemplate, baseUrl);
 		
 		// post to base url brings back a JSON object with *links* such as to 
 		// applicationsnapshots and others
-		ResponseEntity<String> checkApi = restTemplate.getForEntity(baseUrl + defaultVersion, String.class);
+		ResponseEntity<String> checkApi = restTemplate.getForEntity(baseUrl + serviceConfiguration.getInteropApiVersion(), String.class);
 		System.out.println("Content: " + checkApi.getBody());
 		
 		logger.info("Initialized");
@@ -82,7 +73,6 @@ public class InteropClientImpl implements InteropClient {
 //		}
 //		
 		//Vision SS 14 Feb 2016
-		
 	}
 	
 	public void getApiVersions() {
@@ -93,7 +83,7 @@ public class InteropClientImpl implements InteropClient {
 	
 	
 	public List<ApplicationSnapshot> listFiles() {
-		ResponseEntity<ApplicationSnapshotsWrapper> snaps = restTemplate.getForEntity(baseUrl + defaultVersion + "/applicationsnapshots", ApplicationSnapshotsWrapper.class);
+		ResponseEntity<ApplicationSnapshotsWrapper> snaps = restTemplate.getForEntity(baseUrl + serviceConfiguration.getInteropApiVersion() + "/applicationsnapshots", ApplicationSnapshotsWrapper.class);
 		return snaps.getBody().getItems();
 	}
 	
@@ -108,11 +98,12 @@ public class InteropClientImpl implements InteropClient {
 		//File uploadFile = new File(filename);
 		String url = String.format("/applicationsnapshots/%s/contents?q={chunkSize:%d,isFirst:%b,isLast:%b}", filename, data.length, true, true);
 
-		URI uri = UriComponentsBuilder.fromHttpUrl(this.baseUrl + defaultVersion + url).build().toUri();
+		URI uri = UriComponentsBuilder.fromHttpUrl(this.baseUrl + serviceConfiguration.getInteropApiVersion() + url).build().toUri();
 		HttpHeaders headers = new HttpHeaders();
 		HttpEntity<byte[]> entity = new HttpEntity<byte[]>(new byte[]{'a'}, headers);
 		headers.set("Content-Type", "application/octet-stream");
 		ResponseEntity<String> response = restTemplate.exchange(uri, HttpMethod.POST, entity, String.class);
+		logger.info("Headers (upload): " + response.getHeaders());
 		System.out.println("Code: " + response.getStatusCode().value());
 		System.out.println("Response: " + response.getBody());
 	}
@@ -122,7 +113,7 @@ public class InteropClientImpl implements InteropClient {
 		logger.info("Requested file download: {}", filename);
 		// TODO Auto-generated method stub
 		
-		String url = this.baseUrl + defaultVersion + String.format("/applicationsnapshots/%s/contents", filename);
+		String url = this.baseUrl + serviceConfiguration.getInteropApiVersion() + String.format("/applicationsnapshots/%s/contents", filename);
 		ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
 		
 		logger.info("Headers: " + response.getHeaders());
@@ -144,12 +135,12 @@ public class InteropClientImpl implements InteropClient {
 	// switch to using the exchange() method to get the details
 	public void deleteFile(String filename) {
 		logger.info("Deleting {}", filename);
-		restTemplate.delete(baseUrl + defaultVersion + "/applicationsnapshots/{filename}", filename);
+		restTemplate.delete(baseUrl + serviceConfiguration.getInteropApiVersion() + "/applicationsnapshots/{filename}", filename);
 	}
 	
 	public void listServices() {
 		logger.info("Listing services");
-		ResponseEntity<ServiceDefinitionWrapper> response = restTemplate.getForEntity(baseUrl + defaultVersion + "/services", ServiceDefinitionWrapper.class);
+		ResponseEntity<ServiceDefinitionWrapper> response = restTemplate.getForEntity(baseUrl + serviceConfiguration.getInteropApiVersion() + "/services", ServiceDefinitionWrapper.class);
 		System.out.println("Code: " + response.getStatusCode().value());
 		System.out.println("Response: " + response.getBody());
 		

@@ -1,7 +1,7 @@
 /**
  * Exceptions for the PBCS Client
  * 
- * @author jasonwjones
+ * @author Jason Jones
  *
  */
 package com.jasonwjones.pbcs.client.exceptions;

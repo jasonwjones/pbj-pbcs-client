@@ -191,7 +191,9 @@ Prerequisite: The parent member must be enabled for dynamic children and a cube 
 	public PbcsMemberProperties getMember(String dimensionName, String memberName) {
 		logger.info("Fetching member properties for {} from dimension {}", memberName, dimensionName);
 		String url = this.context.getBaseUrl() + "applications/{application}/dimensions/{dimName}/members/{member}";
+		logger.info("Body: {}", this.context.getTemplate().getForEntity(url, String.class, application.getName(), dimensionName, memberName).getBody());
 		ResponseEntity<PbcsMemberPropertiesImpl> memberResponse = this.context.getTemplate().getForEntity(url, PbcsMemberPropertiesImpl.class, application.getName(), dimensionName, memberName);
+		logger.info("Headers: " + memberResponse.getHeaders());
 		return memberResponse.getBody();
 	}
 	

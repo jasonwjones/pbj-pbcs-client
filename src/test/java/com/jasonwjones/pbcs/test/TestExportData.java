@@ -1,15 +1,16 @@
 package com.jasonwjones.pbcs.test;
 
+import com.jasonwjones.pbcs.PbcsClient;
+import com.jasonwjones.pbcs.PbcsClientFactory;
 import com.jasonwjones.pbcs.client.PbcsApplication;
-import com.jasonwjones.pbcs.client.PbcsPlanningClient;
 import com.jasonwjones.pbcs.client.PbcsJobLaunchResult;
 import com.jasonwjones.pbcs.client.PbcsJobStatus;
-import com.jasonwjones.pbcs.client.impl.PbcsPlanningClientImpl;
 
 public class TestExportData extends AbstractIntegrationTest {
 
 	public static void main(String[] args) throws Exception {
-		PbcsPlanningClient client = new PbcsPlanningClientImpl(server, identityDomain, username, password);
+		PbcsClient client = new PbcsClientFactory().createClient(connection);
+
 		PbcsApplication app = client.getApplication(appName);
 		PbcsJobLaunchResult result = app.exportData("exportplantasticact01");
 		

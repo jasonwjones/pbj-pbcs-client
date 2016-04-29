@@ -64,6 +64,12 @@ The point of the PBJ (PBCS Java API) project can be summarized with the followin
  * PBJ serves as a common, high-quality platform for Java/Groovy/Jython programmers to easily use 
    PBCS without reinventing the wheel.   
 
+## Technical Highlights
+
+ * Logging using SLF4J logging API
+ * Mavenized project available in Maven Central
+ * Extensible 
+
 ## Getting Started
 
 The PBCS Java Client is packaged as a Maven project. And is best to include in your own Java projects
@@ -159,6 +165,8 @@ http://john-goodwin.blogspot.com/2015/09/planning-rest-api.html
 
 - Specify alternate REST API version if needed for Planning and LCM clients
 - Publish to Maven Central
+- Enhance upload behavior with file already exists
+- Add default service config params to factory as public final statics
 
 ## About
 

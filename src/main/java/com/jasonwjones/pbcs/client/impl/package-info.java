@@ -1,7 +1,7 @@
 /**
  * Main implementation of the PBCS Client API.
  * 
- * @author jasonwjones
+ * @author Jason Jones
  *
  */
 package com.jasonwjones.pbcs.client.impl;

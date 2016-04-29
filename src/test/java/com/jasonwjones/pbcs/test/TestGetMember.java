@@ -1,13 +1,13 @@
 package com.jasonwjones.pbcs.test;
 
-import com.jasonwjones.pbcs.client.PbcsPlanningClient;
+import com.jasonwjones.pbcs.PbcsClient;
+import com.jasonwjones.pbcs.PbcsClientFactory;
 import com.jasonwjones.pbcs.client.PbcsMemberProperties;
-import com.jasonwjones.pbcs.client.impl.PbcsPlanningClientImpl;
 
 public class TestGetMember extends AbstractIntegrationTest {
 
 	public static void main(String[] args) {
-		PbcsPlanningClient client = new PbcsPlanningClientImpl(server, identityDomain, username, password);
+		PbcsClient client = new PbcsClientFactory().createClient(connection);
 		PbcsMemberProperties member = client.getApplication(appName).getMember("Period", "YearTotal");
 		
 		printMember(member, 0);		

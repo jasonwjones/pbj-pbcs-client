@@ -2,17 +2,18 @@ package com.jasonwjones.pbcs.test;
 
 import java.util.List;
 
+import com.jasonwjones.pbcs.PbcsClient;
+import com.jasonwjones.pbcs.PbcsClientFactory;
 import com.jasonwjones.pbcs.client.PbcsApplication;
-import com.jasonwjones.pbcs.client.PbcsPlanningClient;
 import com.jasonwjones.pbcs.client.PbcsJobDefinition;
-import com.jasonwjones.pbcs.client.impl.PbcsPlanningClientImpl;
 
 public class TestListJobs extends AbstractIntegrationTest {
 
 	public static void main(String[] args) {
 		String template = "%-30s %-20s%n";
 				
-		PbcsPlanningClient client = new PbcsPlanningClientImpl(server, identityDomain, username, password);
+		PbcsClient client = new PbcsClientFactory().createClient(connection);
+
 		
 		List<PbcsApplication> apps = client.getApplications();
 		for (PbcsApplication app : apps) {

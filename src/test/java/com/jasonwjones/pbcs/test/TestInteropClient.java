@@ -3,14 +3,16 @@ package com.jasonwjones.pbcs.test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.jasonwjones.pbcs.interop.impl.InteropClientImpl;
+import com.jasonwjones.pbcs.PbcsClient;
+import com.jasonwjones.pbcs.PbcsClientFactory;
 
 public class TestInteropClient extends AbstractIntegrationTest {
 
 	private static final Logger logger = LoggerFactory.getLogger(TestInteropClient.class);
 	
 	public static void main(String[] args) {
-		InteropClientImpl client = new InteropClientImpl(server, identityDomain, username, password);
+		PbcsClient client = new PbcsClientFactory().createClient(connection);
+		//InteropClientImpl client = new InteropClientImpl(server, identityDomain, username, password);
 		//client.getApiVersions();
 		//client.downloadFile("ForecastData.txt");
 		
