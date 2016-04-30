@@ -68,7 +68,9 @@ The point of the PBJ (PBCS Java API) project can be summarized with the followin
 
  * Logging using SLF4J logging API
  * Mavenized project available in Maven Central
- * Extensible 
+ * Extensible
+ * Fluent domain-specific language
+ * Error handling 
 
 ## Getting Started
 
@@ -167,6 +169,12 @@ http://john-goodwin.blogspot.com/2015/09/planning-rest-api.html
 - Publish to Maven Central
 - Enhance upload behavior with file already exists
 - Add default service config params to factory as public final statics
+- Synchronous job execution
+- Move HTTP client request factory method to service config object so interop and p client can both use
+
+## Examples
+
+
 
 ## About
 

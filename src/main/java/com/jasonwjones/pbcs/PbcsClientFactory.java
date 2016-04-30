@@ -56,7 +56,7 @@ public class PbcsClientFactory {
 	 * port), the API version for Planning is "v3", and the endpoint path for
 	 * the API is /HyperionPlanning/rest/. These values should almost always be
 	 * valid, but there may come a point where one of them needs to change, most
-	 * likely the Plannign API version, if/when it gets bumped to v4.
+	 * likely the Planning API version, if/when it gets bumped to v4.
 	 * 
 	 * <p>
 	 * Users needing advanced control over the configuration of their service

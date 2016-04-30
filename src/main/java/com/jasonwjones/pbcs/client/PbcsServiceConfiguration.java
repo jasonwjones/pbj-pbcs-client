@@ -1,5 +1,7 @@
 package com.jasonwjones.pbcs.client;
 
+import org.springframework.http.client.ClientHttpRequestFactory;
+
 public interface PbcsServiceConfiguration {
 
 	public String getScheme();
@@ -13,5 +15,9 @@ public interface PbcsServiceConfiguration {
 	public String getInteropApiVersion();
 	
 	public String getInteropRestApiPath();
+	
+	public Boolean isSkipApiCheck();
+	
+	public ClientHttpRequestFactory createRequestFactory(PbcsConnection connection);
 	
 }

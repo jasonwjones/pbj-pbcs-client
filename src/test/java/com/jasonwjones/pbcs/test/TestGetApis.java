@@ -6,17 +6,12 @@ import com.jasonwjones.pbcs.PbcsClientFactory;
 public class TestGetApis extends AbstractIntegrationTest {
 
 	public static void main(String[] args) {
-//		PbcsContext client = new PbcsContext(server, identityDomain, username, password);
-//		List<PbcsApi> apis = client.getApis();
-		
-		PbcsClient client = new PbcsClientFactory().createClient(connection);
-
-		System.out.println("API: " + client.getApi());
-
-		
-//		PbcsClient client = new PbcsClientImpl(server, identityDomain, username, password);
-//		PbcsApplication app = client.getApplication(appName);
-//		app.launchBusinessRule("AggAll");
+		try {
+			PbcsClient client = new PbcsClientFactory().createClient(connection);
+			System.out.println("API: " + client.getApi());
+		} catch (Exception e) {
+			System.out.println("Error connecting to PBCS: " + e.getMessage());
+		}
 	}
 	
 }

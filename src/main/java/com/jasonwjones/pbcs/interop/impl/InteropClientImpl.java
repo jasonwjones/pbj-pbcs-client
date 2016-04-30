@@ -2,11 +2,9 @@ package com.jasonwjones.pbcs.interop.impl;
 
 import java.io.File;
 import java.net.URI;
+import java.util.Collections;
 import java.util.List;
 
-import org.apache.http.HttpHost;
-import org.apache.http.client.HttpClient;
-import org.apache.http.impl.client.HttpClients;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
@@ -21,8 +19,6 @@ import com.jasonwjones.pbcs.api.v3.HypermediaLink;
 import com.jasonwjones.pbcs.api.v3.ServiceDefinitionWrapper;
 import com.jasonwjones.pbcs.client.PbcsConnection;
 import com.jasonwjones.pbcs.client.PbcsServiceConfiguration;
-import com.jasonwjones.pbcs.client.impl.AuthHttpComponentsClientHttpRequestFactory;
-import com.jasonwjones.pbcs.client.impl.RestContext;
 import com.jasonwjones.pbcs.interop.InteropClient;
 
 public class InteropClientImpl implements InteropClient {
@@ -36,26 +32,17 @@ public class InteropClientImpl implements InteropClient {
 	private PbcsServiceConfiguration serviceConfiguration;
 	
 	public InteropClientImpl(PbcsConnection connection, PbcsServiceConfiguration serviceConfiguration) {
+		logger.info("Initializing PBCS Interop API");
 		this.serviceConfiguration = serviceConfiguration;
-		
-		logger.info("Initializing PBCS API");
-		HttpClient httpClient = HttpClients.createDefault();
-
-		final HttpHost httpHost = new HttpHost(connection.getServer(), serviceConfiguration.getPort(), serviceConfiguration.getScheme());
-		final String fullUsername = connection.getIdentityDomain() + "." + connection.getUsername();
-		final AuthHttpComponentsClientHttpRequestFactory requestFactory = new AuthHttpComponentsClientHttpRequestFactory(
-				httpClient, httpHost, fullUsername, connection.getPassword());
-		
 		this.baseUrl = serviceConfiguration.getScheme() + "://" + connection.getServer() + serviceConfiguration.getInteropRestApiPath(); // + defaultVersion; // + "/" + "applicationsnapshots";
-		this.restTemplate = new RestTemplate(requestFactory);
-		//this.context = new RestContext(restTemplate, baseUrl);
+		this.restTemplate = new RestTemplate(serviceConfiguration.createRequestFactory(connection));
 		
 		// post to base url brings back a JSON object with *links* such as to 
 		// applicationsnapshots and others
-		ResponseEntity<String> checkApi = restTemplate.getForEntity(baseUrl + serviceConfiguration.getInteropApiVersion(), String.class);
-		System.out.println("Content: " + checkApi.getBody());
+		//ResponseEntity<String> checkApi = restTemplate.getForEntity(baseUrl + serviceConfiguration.getInteropApiVersion(), String.class);
+		//System.out.println("Content: " + checkApi.getBody());
 		
-		logger.info("Initialized");
+		//logger.info("Initialized");
 //		ResponseEntity<String> snapshots = restTemplate.getForEntity(baseUrl + defaultVersion + "/applicationsnapshots", String.class);
 //		System.out.println("Content: " + snapshots.getBody());
 //
@@ -83,8 +70,8 @@ public class InteropClientImpl implements InteropClient {
 	
 	
 	public List<ApplicationSnapshot> listFiles() {
-		ResponseEntity<ApplicationSnapshotsWrapper> snaps = restTemplate.getForEntity(baseUrl + serviceConfiguration.getInteropApiVersion() + "/applicationsnapshots", ApplicationSnapshotsWrapper.class);
-		return snaps.getBody().getItems();
+		ResponseEntity<ApplicationSnapshotsWrapper> snaps = restTemplate.getForEntity(baseUrl + serviceConfiguration.getInteropApiVersion() + "/applicationsnapshots", ApplicationSnapshotsWrapper.class);		
+		return Collections.unmodifiableList(snaps.getBody().getItems());
 	}
 	
 	public ApplicationSnapshotInfo getFileInfo(String filename) {

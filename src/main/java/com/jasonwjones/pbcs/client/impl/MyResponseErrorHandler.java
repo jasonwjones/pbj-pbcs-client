@@ -8,12 +8,19 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.web.client.ResponseErrorHandler;
 
+import com.jasonwjones.pbcs.client.exceptions.PbcsClientException;
+
 public class MyResponseErrorHandler implements ResponseErrorHandler {
 	private static final Logger log = LoggerFactory.getLogger(MyResponseErrorHandler.class);
 
 	@Override
 	public void handleError(ClientHttpResponse response) throws IOException {
 		log.error("Response error: {} {}", response.getStatusCode(), response.getStatusText());
+		if (response.getStatusCode().value() == 404) {
+			throw new PbcsClientException("Couldn't find endpoint");	
+		} else if (response.getStatusCode().value() == 503) {
+			throw new PbcsClientException("Service currently unavailable; likely in maintenance mode");
+		}
 	}
 
 	@Override

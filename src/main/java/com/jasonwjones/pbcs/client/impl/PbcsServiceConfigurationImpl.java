@@ -1,5 +1,11 @@
 package com.jasonwjones.pbcs.client.impl;
 
+import org.apache.http.HttpHost;
+import org.apache.http.client.HttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.springframework.http.client.ClientHttpRequestFactory;
+
+import com.jasonwjones.pbcs.client.PbcsConnection;
 import com.jasonwjones.pbcs.client.PbcsServiceConfiguration;
 
 public class PbcsServiceConfigurationImpl implements PbcsServiceConfiguration {
@@ -15,6 +21,8 @@ public class PbcsServiceConfigurationImpl implements PbcsServiceConfiguration {
 	private String interopApiVersion;
 	
 	private String interopRestApiPath;
+	
+	private Boolean skipApiCheck = false;
 	
 	@Override
 	public String getScheme() {
@@ -69,5 +77,23 @@ public class PbcsServiceConfigurationImpl implements PbcsServiceConfiguration {
 	public void setInteropRestApiPath(String interopRestApiPath) {
 		this.interopRestApiPath = interopRestApiPath;
 	}
+	
+	public Boolean isSkipApiCheck() {
+		return skipApiCheck;
+	}
 
+	public void setSkipApiCheck(Boolean skipApiCheck) {
+		this.skipApiCheck = skipApiCheck;
+	}
+
+	@Override
+	public ClientHttpRequestFactory createRequestFactory(PbcsConnection connection) {
+		HttpClient httpClient = HttpClients.createDefault();
+		final HttpHost httpHost = new HttpHost(connection.getServer(), port, scheme);
+		final String fullUsername = connection.getIdentityDomain() + "." + connection.getUsername();
+		final AuthHttpComponentsClientHttpRequestFactory requestFactory = new AuthHttpComponentsClientHttpRequestFactory(
+				httpClient, httpHost, fullUsername, connection.getPassword());
+		return requestFactory;
+	}
+	
 }

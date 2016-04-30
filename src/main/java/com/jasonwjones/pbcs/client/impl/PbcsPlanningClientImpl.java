@@ -3,9 +3,8 @@ package com.jasonwjones.pbcs.client.impl;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.http.HttpHost;
-import org.apache.http.client.HttpClient;
-import org.apache.http.impl.client.HttpClients;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
@@ -31,49 +30,55 @@ import com.jasonwjones.pbcs.client.exceptions.PbcsClientException;
  */
 public class PbcsPlanningClientImpl implements PbcsPlanningClient {
 
+	private static final Logger logger = LoggerFactory.getLogger(PbcsPlanningClientImpl.class);
+	
 	private RestContext context;
 
 	private RestTemplate restTemplate;
 
 	private String baseUrl;
 
-	private PbcsApi api;
-
 	private PbcsServiceConfiguration serviceConfig;
 	
-	//private static String PATH = "/HyperionPlanning/rest/";
-
-	//private static String SCHEME = "https";
-
-	//private static int PORT = 443;
-
-	//private static String defaultVersion = "v3";
-
+	// TODO: Provide option to skip initial check (default should check)
 	public PbcsPlanningClientImpl(PbcsConnection connection, PbcsServiceConfiguration serviceConfiguration) throws PbcsClientException {
 		this.serviceConfig = serviceConfiguration;
-		
-		HttpClient httpClient = HttpClients.createDefault();
-
-		final HttpHost httpHost = new HttpHost(connection.getServer(), serviceConfig.getPort(), serviceConfig.getScheme());
-		final String fullUsername = connection.getIdentityDomain() + "." + connection.getUsername();
-		final AuthHttpComponentsClientHttpRequestFactory requestFactory = new AuthHttpComponentsClientHttpRequestFactory(
-				httpClient, httpHost, fullUsername, connection.getPassword());
-
 		this.baseUrl = serviceConfig.getScheme() + "://" + connection.getServer() + serviceConfig.getPlanningRestApiPath() + serviceConfig.getPlanningApiVersion() + "/";
-		this.restTemplate = new RestTemplate(requestFactory);
+		this.restTemplate = new RestTemplate(serviceConfiguration.createRequestFactory(connection));
+		this.restTemplate.setErrorHandler(new MyResponseErrorHandler());
 		this.context = new RestContext(restTemplate, baseUrl);
 
 		// perform a call to the API to validate that we are actually connected
 		// if this doesn't work then we can throw an exception to the caller and
-		// they'll
-		// know the connection didn't work
-		ResponseEntity<Api> checkApi = restTemplate.getForEntity(baseUrl, Api.class);
-		this.api = new PbcsApiImpl(checkApi.getBody());
+		// they'll know the connection didn't work
+		
+		if (!serviceConfiguration.isSkipApiCheck()) {
+			try {
+				PbcsApi api = getApi();
+				if (!api.isLatest()) {
+					logger.warn("PBCS indicates that the current API ({}) is not the latest available", api.getVersion());
+				} else {
+					logger.info("PBCS indicated that the current API ({}) is latest available", api.getVersion());
+				}
+			} catch (PbcsClientException e) {
+				logger.error("Problem initializing PBCS API. This likely means the server name or a connection parameter is invalid.");
+				throw e;
+			}
+		} else {
+			logger.info("Skipping initialization API check");
+		}
 	}
 
 	@Override
 	public PbcsApi getApi() {
-		return this.api;
+		//try {
+		logger.info("Checking API from base URL {}", baseUrl);
+		ResponseEntity<Api> checkApi = restTemplate.getForEntity(baseUrl, Api.class);
+		return new PbcsApiImpl(checkApi.getBody());
+		//} catch (PbcsClientException e) {
+		//	logger.error("Couldn't get API)");
+		//	return null;
+		//}
 	}
 
 	@Override
