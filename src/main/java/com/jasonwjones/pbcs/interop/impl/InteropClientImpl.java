@@ -1,7 +1,11 @@
 package com.jasonwjones.pbcs.interop.impl;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -95,13 +99,38 @@ public class InteropClientImpl implements InteropClient {
 		System.out.println("Response: " + response.getBody());
 	}
 	
+	// upload local txt to zip
+	public void uploadFile(String remoteFilename, List<String> localFiles) {
+	}
+	
 	@Override
 	public File downloadFile(String filename) {
+		return downloadFile(filename, filename);
+	}
+	
+	// Should return a rich object:
+	// File getFile()
+	// extract(String targetDir)
+	// etc.
+	@Override
+	public File downloadFile(String filename, String localFilename) {
 		logger.info("Requested file download: {}", filename);
 		// TODO Auto-generated method stub
 		
+		File localFile = new File(localFilename);
+		if (localFile.isDirectory()) {
+			logger.info("Will download {} to local folder {}", filename, localFile);
+		} else {
+			
+		}
+		
 		String url = this.baseUrl + serviceConfiguration.getInteropApiVersion() + String.format("/applicationsnapshots/%s/contents", filename);
-		ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
+		//ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
+		
+		HttpHeaders headers = new HttpHeaders();
+	    headers.setAccept(Arrays.asList(MediaType.APPLICATION_OCTET_STREAM));
+		HttpEntity<String> entity = new HttpEntity<String>(headers);
+		ResponseEntity<byte[]> response = restTemplate.exchange(url, HttpMethod.GET, entity, byte[].class);
 		
 		logger.info("Headers: " + response.getHeaders());
 		
@@ -115,6 +144,13 @@ public class InteropClientImpl implements InteropClient {
 		System.out.println("Code: " + response.getStatusCode().value());
 		System.out.println("Response: " + response.getBody());
 
+		try {
+			// "/Users/jasonwjones/Desktop/"
+			Files.write(Paths.get(localFilename), response.getBody());
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		return null;
 	}
 

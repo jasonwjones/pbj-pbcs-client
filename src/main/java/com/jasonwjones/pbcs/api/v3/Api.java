@@ -6,6 +6,9 @@ public class Api {
 
 	private String version;
 	
+	/**
+	 * Apparently is either "active" or "deprecated"
+	 */
 	private String lifecycle;
 	
 	private boolean isLatest;

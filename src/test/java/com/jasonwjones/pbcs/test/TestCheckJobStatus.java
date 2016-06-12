@@ -14,7 +14,7 @@ public class TestCheckJobStatus extends AbstractIntegrationTest {
 			PbcsApplication app = client.getApplication(appName);
 			//import resp: {"status":-1,"details":null,"jobId":95,"descriptiveStatus":"Processing","jobName":"ForecastData","links":[{"rel":"self","href":"https://pbcsloaner1svc-pbcsloaner1.pbcs.us2.oraclecloud.com/HyperionPlanning/rest/v3/applications/Vision/jobs/95","action":"GET"},{"rel":"job-details","href":"https://pbcsloaner1svc-pbcsloaner1.pbcs.us2.oraclecloud.com/HyperionPlanning/rest/v3/applications/Vision/jobs/95/details","action":"GET"}]}
 
-			PbcsJobStatus jobStatus = app.getJobStatus(95);
+			PbcsJobStatus jobStatus = app.getJobStatus(121);
 			System.out.println("Job status: " + jobStatus);
 		} catch (PbcsClientException e) {
 			System.out.println("Error: " + e.getMessage());

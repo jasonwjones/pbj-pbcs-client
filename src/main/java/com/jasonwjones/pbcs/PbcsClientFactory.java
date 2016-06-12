@@ -1,8 +1,10 @@
 package com.jasonwjones.pbcs;
 
 import com.jasonwjones.pbcs.client.PbcsConnection;
+import com.jasonwjones.pbcs.client.PbcsPlanningClient;
 import com.jasonwjones.pbcs.client.PbcsServiceConfiguration;
 import com.jasonwjones.pbcs.client.impl.PbcsConnectionImpl;
+import com.jasonwjones.pbcs.client.impl.PbcsPlanningClientImpl;
 import com.jasonwjones.pbcs.client.impl.PbcsServiceConfigurationImpl;
 
 public class PbcsClientFactory {
@@ -32,6 +34,10 @@ public class PbcsClientFactory {
 	 */
 	public PbcsClient createClient(PbcsConnection connection, PbcsServiceConfiguration serviceConfiguration) {
 		return new PbcsClientImpl(connection, serviceConfiguration);
+	}
+	
+	public PbcsPlanningClient createPlanningClient(PbcsConnection connection) {
+		return new PbcsPlanningClientImpl(connection, createDefaultServiceConfiguration());
 	}
 
 	/**

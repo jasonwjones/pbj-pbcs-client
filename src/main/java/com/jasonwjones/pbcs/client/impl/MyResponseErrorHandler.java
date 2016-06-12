@@ -16,10 +16,18 @@ public class MyResponseErrorHandler implements ResponseErrorHandler {
 	@Override
 	public void handleError(ClientHttpResponse response) throws IOException {
 		log.error("Response error: {} {}", response.getStatusCode(), response.getStatusText());
+		
+		log.error("Headers: {}", response.getHeaders());
+		
 		if (response.getStatusCode().value() == 404) {
-			throw new PbcsClientException("Couldn't find endpoint");	
+			throw new PbcsClientException("Couldn't find endpoint");
+		} else if (response.getStatusCode().value() == 400) { // Bad Request
+			// TODO: what if there is an error creating the error?
+			throw PbcsClientException.createException(response);
 		} else if (response.getStatusCode().value() == 503) {
 			throw new PbcsClientException("Service currently unavailable; likely in maintenance mode");
+		} else if (response.getStatusCode().value() == 401) {
+			throw new PbcsClientException("Unable to login to PBCS due to invalid credentials");
 		}
 	}
 

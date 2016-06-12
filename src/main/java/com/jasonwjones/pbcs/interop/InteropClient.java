@@ -25,6 +25,8 @@ public interface InteropClient {
 	 */
 	public File downloadFile(String filename) throws PbcsClientException;
 
+	public File downloadFile(String filename, String localFilename);
+	
 	/**
 	 * Uploads a file to PBCS so that it can be imported.
 	 * 

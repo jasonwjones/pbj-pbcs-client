@@ -20,6 +20,7 @@ public class PbcsClientImpl implements PbcsClient {
 	
 	private InteropClient interopClient;
 	
+	// TODO: Option to defer and lazily initialize
 	public PbcsClientImpl(PbcsConnection connection, PbcsServiceConfiguration serviceConfiguration) {
 		this.planningClient = new PbcsPlanningClientImpl(connection, serviceConfiguration);
 		this.interopClient = new InteropClientImpl(connection, serviceConfiguration);
@@ -43,6 +44,11 @@ public class PbcsClientImpl implements PbcsClient {
 	@Override
 	public File downloadFile(String filename) throws PbcsClientException {
 		return interopClient.downloadFile(filename);
+	}
+
+	@Override
+	public File downloadFile(String filename, String localFilename) throws PbcsClientException {
+		return interopClient.downloadFile(filename, localFilename);
 	}
 
 	@Override

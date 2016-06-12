@@ -1,0 +1,27 @@
+﻿Product, Parent, Alias: Default, Alias: English, Valid For Consolidations, Data Storage, Two Pass Calculation, Description, Formula, UDA, Smart List, Data Type, Hierarchy Type, Enable for Dynamic Children, Number of Possible Dynamic Children, Access Granted to Member Creator, Plan Type (Plan1), Aggregation (Plan1), Data Storage (Plan1), Formula (Plan1), Plan Type (VisASO), Aggregation (VisASO), Data Storage (VisASO), Formula (VisASO), Solve Order (VisASO), Plan Type (Vis1ASO), Aggregation (Vis1ASO), Data Storage (Vis1ASO), Formula (Vis1ASO), Solve Order (Vis1ASO)
+P_TP,Product,Total Product,Total Product,false,dynamic calc,false,,<none>,,,unspecified,stored,,,,true,+,dynamic calc,<none>,true,+,dynamic calc,<none>,0,true,+,dynamic calc,<none>,0
+P_000,P_TP,No Product,No Product,false,store,false,,<none>,,,unspecified,none,,,,true,+,store,<none>,true,+,store,<none>,0,true,+,store,<none>,0
+P_TP1,P_TP,Computer Equipment,Computer Equipment,false,dynamic calc,false,,<none>,,,unspecified,none,,,,true,+,dynamic calc,<none>,true,+,dynamic calc,<none>,0,true,+,dynamic calc,<none>,0
+P_100,P_TP1,Product X,Product X,false,store,false,,<none>,,,unspecified,none,,,,true,+,store,<none>,true,+,store,<none>,0,true,+,store,<none>,0
+P_110,P_TP1,Sentinal Standard Notebook,Sentinal Standard Notebook,false,store,false,,<none>,,,unspecified,none,,,,true,+,store,<none>,true,+,store,<none>,0,true,+,store,<none>,0
+P_120,P_TP1,Sentinal Custom Notebook,Sentinal Custom Notebook,false,store,false,,<none>,,,unspecified,none,,,,true,+,store,<none>,true,+,store,<none>,0,true,+,store,<none>,0
+P_130,P_TP1,Envoy Standard Netbook,Envoy Standard Netbook,false,store,false,,<none>,,,unspecified,none,,,,true,+,store,<none>,true,+,store,<none>,0,true,+,store,<none>,0
+P_140,P_TP1,Envoy Custom Netbook,Envoy Custom Netbook,false,store,false,,<none>,,,unspecified,none,,,,true,+,store,<none>,true,+,store,<none>,0,true,+,store,<none>,0
+P_150,P_TP1,Other Computer,Other Computer,false,store,false,,<none>,,,unspecified,none,,,,true,+,store,<none>,true,+,store,<none>,0,true,+,store,<none>,0
+P_160,P_TP1,Tablet Computer,Tablet Computer,false,store,false,,<none>,,,unspecified,none,,,,true,+,store,<none>,true,+,store,<none>,0,true,+,store,<none>,0
+P_170,P_TP1,Tricorder,Tricorder,false,store,false,,<none>,,,unspecified,none,,,,true,+,store,<none>,true,+,store,<none>,0,true,+,store,<none>,0
+P_TP2,P_TP,Computer Accessories,Computer Accessories,false,dynamic calc,false,,<none>,,,unspecified,none,,,,true,+,dynamic calc,<none>,true,+,dynamic calc,<none>,0,true,+,dynamic calc,<none>,0
+P_200,P_TP2,Accessories,Accessories,false,store,false,,<none>,,,unspecified,none,,,,true,+,store,<none>,true,+,store,<none>,0,true,+,store,<none>,0
+P_210,P_TP2,Keyboard,Keyboard,false,store,false,,<none>,,,unspecified,none,,,,true,+,store,<none>,true,+,store,<none>,0,true,+,store,<none>,0
+P_220,P_TP2,Software Suite,Software Suite,false,store,false,,<none>,,,unspecified,none,,,,true,+,store,<none>,true,+,store,<none>,0,true,+,store,<none>,0
+P_230,P_TP2,Monitor,Monitor,false,store,false,,<none>,,,unspecified,none,,,,true,+,store,<none>,true,+,store,<none>,0,true,+,store,<none>,0
+P_240,P_TP2,Modem,Modem,false,store,false,,<none>,,,unspecified,none,,,,true,+,store,<none>,true,+,store,<none>,0,true,+,store,<none>,0
+P_250,P_TP2,Network Card,Network Card,false,store,false,,<none>,,,unspecified,none,,,,true,+,store,<none>,true,+,store,<none>,0,true,+,store,<none>,0
+P_260,P_TP2,Game,Game,false,store,false,,<none>,,,unspecified,none,,,,true,+,store,<none>,true,+,store,<none>,0,true,+,store,<none>,0
+P_270,P_TP2,Camera,Camera,false,store,false,,<none>,,,unspecified,none,,,,true,+,store,<none>,true,+,store,<none>,0,true,+,store,<none>,0
+P_280,P_TP2,Television,Television,false,store,false,,<none>,,,unspecified,none,,,,true,+,store,<none>,true,+,store,<none>,0,true,+,store,<none>,0
+P_TP3,P_TP,Computer Services,Computer Services,false,dynamic calc,false,,<none>,,,unspecified,none,,,,true,+,dynamic calc,<none>,true,+,dynamic calc,<none>,0,true,+,dynamic calc,<none>,0
+P_291,P_TP3,Training_P_291,Training_P_291,false,store,false,,<none>,,,unspecified,none,,,,true,+,store,<none>,true,+,store,<none>,0,true,+,store,<none>,0
+P_292,P_TP3,Miscellaneous_P_292,Miscellaneous_P_292,false,store,false,,<none>,,,unspecified,none,,,,true,+,store,<none>,true,+,store,<none>,0,true,+,store,<none>,0
+P_293,P_TP3,Maintenance_P_293,Maintenance_P_293,false,store,false,,<none>,,,unspecified,none,,,,true,+,store,<none>,true,+,store,<none>,0,true,+,store,<none>,0
+P_294,P_TP3,Consulting_P_294,Consulting_P_294,false,store,false,,<none>,,,unspecified,none,,,,true,+,store,<none>,true,+,store,<none>,0,true,+,store,<none>,0

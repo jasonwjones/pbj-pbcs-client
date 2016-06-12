@@ -34,6 +34,17 @@ public abstract class AbstractIntegrationTest {
 		connection = PbcsConnectionImpl.fromProperties(properties);
 	}
 			
+	public static Properties loadLoginProperties() {
+		Properties properties = new Properties();
+		try {
+			properties.load(new FileReader(PROPS));
+		} catch (Exception e) {
+			System.out.println("Couldn't load properties...");
+			System.out.println("Looking for a file at " + PROPS + " containing server/domain/user/pw");
+		}
+		return properties;
+	}
+	
 	public static String repeat(String text, int times) {
 		StringBuilder sb = new StringBuilder(times * text.length());
 		for (int i = 0; i < times; i++) {

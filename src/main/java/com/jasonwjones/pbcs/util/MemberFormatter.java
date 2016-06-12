@@ -4,7 +4,7 @@ import com.jasonwjones.pbcs.client.PbcsMemberProperties;
 
 /**
  * Utility class with convenient functions for formatting the textual display of
- * members represented by the {@link PcsMemberProperties} object.
+ * members represented by the {@link PbcsMemberProperties} object.
  * 
  * @author Jason Jones
  *

@@ -100,4 +100,9 @@ public class PbcsMemberPropertiesImpl implements PbcsMemberProperties {
 		this.twoPass = twoPass;
 	}
 
+	@Override
+	public boolean isLeaf() {
+		return getChildren().isEmpty();
+	}
+		
 }

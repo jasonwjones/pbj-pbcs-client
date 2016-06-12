@@ -35,5 +35,10 @@ public class PbcsJobLaunchResultImpl implements PbcsJobLaunchResult {
 	public String toString() {
 		return jobLaunchResponse.toString();
 	}
+
+	@Override
+	public void waitUntilFinished() {
+		throw new UnsupportedOperationException("Not implemented yet");
+	}
 	
 }

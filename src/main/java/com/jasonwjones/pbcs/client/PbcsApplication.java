@@ -69,6 +69,10 @@ public interface PbcsApplication {
 
 	public void launchDataImport(String dataImportName);
 
+	public PbcsJobLaunchResult importMetadata(String metadataImportName, String dataFile);
+	
+	public PbcsJobLaunchResult importMetadata(String metadataImportName);
+	
 	public PbcsJobLaunchResult exportData(String exportName);
 
 	public PbcsJobLaunchResult refreshCube();
@@ -83,6 +87,8 @@ public interface PbcsApplication {
 	 */
 	public PbcsJobLaunchResult refreshCube(String cubeRefreshName);
 
+	//public PbcsJobLaunchResult refreshCubeSynchronous(String cubeRefreshName, SyncProps props);
+	
 	public PbcsMemberProperties addMember(String dimensionName, String memberName, String parentName);
 
 	public PbcsMemberProperties getMember(String dimensionName, String memberName);
@@ -93,6 +99,12 @@ public interface PbcsApplication {
 //	 * Not implemented (stubbed out for future implementation). Also needed:
 //	 * Planning Units
 //	 */
+	// TODO: Plan Type Map, copy data from ASO/BSO or vice versa
+	// params: {"jobType":"PLAN_TYPE_MAP","jobName":"MapReporting","parameters":{"cubeLinkName":"name","clearData":true}}
 //	public void launchPlanTypeMap();
+	// TODO: Launch Metadata Import
+	// TODO: Export Metadata
+	
+	public void exportMetadata(String jobName, String exportFileName);
 
 }

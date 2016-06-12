@@ -10,4 +10,6 @@ public interface PbcsJobLaunchResult {
 	
 	public String getJobName();
 	
+	public void waitUntilFinished();
+	
 }

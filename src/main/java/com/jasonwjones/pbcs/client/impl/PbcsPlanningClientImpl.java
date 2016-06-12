@@ -71,14 +71,9 @@ public class PbcsPlanningClientImpl implements PbcsPlanningClient {
 
 	@Override
 	public PbcsApi getApi() {
-		//try {
 		logger.info("Checking API from base URL {}", baseUrl);
 		ResponseEntity<Api> checkApi = restTemplate.getForEntity(baseUrl, Api.class);
 		return new PbcsApiImpl(checkApi.getBody());
-		//} catch (PbcsClientException e) {
-		//	logger.error("Couldn't get API)");
-		//	return null;
-		//}
 	}
 
 	@Override
