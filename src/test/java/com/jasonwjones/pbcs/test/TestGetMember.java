@@ -8,10 +8,13 @@ public class TestGetMember extends AbstractIntegrationTest {
 
 	public static void main(String[] args) {
 		PbcsClient client = new PbcsClientFactory().createClient(connection);
-		PbcsMemberProperties member = client.getApplication(appName).getMember("Period", "YearTotal");
+		PbcsMemberProperties member = client
+				.getApplication(appName)
+				.getMember("Period", "YearTotal");
 		
 		printMember(member, 0);		
 	}
+	
 	
 	private static void printMember(PbcsMemberProperties member, int level) {
 		System.out.print(repeat("    ", level));
