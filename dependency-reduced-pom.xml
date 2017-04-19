@@ -10,7 +10,7 @@
   <groupId>com.jasonwjones.pbcs</groupId>
   <artifactId>pbj-pbcs-client</artifactId>
   <name>PBJ - The PBCS REST API Java Client</name>
-  <version>1.0.2-SNAPSHOT</version>
+  <version>1.0.3-SNAPSHOT</version>
   <description>PBJ is a Java client for working with the REST API exposed by Oracle's Planning and Budgeting Cloud Service (PBCS).</description>
   <url>https://github.com/jasonwjones/pbcs-client</url>
   <inceptionYear>2015</inceptionYear>
