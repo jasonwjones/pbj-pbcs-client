@@ -76,6 +76,12 @@ public class PbcsPlanningClientImpl implements PbcsPlanningClient {
 		return new PbcsApiImpl(checkApi.getBody());
 	}
 
+	public String get(String url) {
+		logger.info("Getting from test URL", url);
+		ResponseEntity<String> checkApi = restTemplate.getForEntity(baseUrl + url, String.class);
+		return checkApi.getBody();
+	}
+	
 	@Override
 	public List<PbcsApplication> getApplications() {
 		String url = this.baseUrl + "applications";

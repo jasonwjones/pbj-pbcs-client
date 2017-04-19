@@ -3,6 +3,9 @@ package com.jasonwjones.pbcs.client;
 import java.util.List;
 import java.util.Map;
 
+import com.jasonwjones.pbcs.api.v3.dataslices.DataSlice;
+import com.jasonwjones.pbcs.api.v3.dataslices.ExportDataSlice;
+
 /**
  * Models a PBCS application such as a Planning or an HFM application.
  * 
@@ -70,9 +73,9 @@ public interface PbcsApplication {
 	public void launchDataImport(String dataImportName);
 
 	public PbcsJobLaunchResult importMetadata(String metadataImportName, String dataFile);
-	
+
 	public PbcsJobLaunchResult importMetadata(String metadataImportName);
-	
+
 	public PbcsJobLaunchResult exportData(String exportName);
 
 	public PbcsJobLaunchResult refreshCube();
@@ -87,24 +90,35 @@ public interface PbcsApplication {
 	 */
 	public PbcsJobLaunchResult refreshCube(String cubeRefreshName);
 
-	//public PbcsJobLaunchResult refreshCubeSynchronous(String cubeRefreshName, SyncProps props);
-	
+	// public PbcsJobLaunchResult refreshCubeSynchronous(String cubeRefreshName,
+	// SyncProps props);
+
 	public PbcsMemberProperties addMember(String dimensionName, String memberName, String parentName);
 
 	public PbcsMemberProperties getMember(String dimensionName, String memberName);
 
 	public void getUserPreferences();
 
-//	/**
-//	 * Not implemented (stubbed out for future implementation). Also needed:
-//	 * Planning Units
-//	 */
+	// /**
+	// * Not implemented (stubbed out for future implementation). Also needed:
+	// * Planning Units
+	// */
 	// TODO: Plan Type Map, copy data from ASO/BSO or vice versa
-	// params: {"jobType":"PLAN_TYPE_MAP","jobName":"MapReporting","parameters":{"cubeLinkName":"name","clearData":true}}
-//	public void launchPlanTypeMap();
+	// params:
+	// {"jobType":"PLAN_TYPE_MAP","jobName":"MapReporting","parameters":{"cubeLinkName":"name","clearData":true}}
+	// public void launchPlanTypeMap();
 	// TODO: Launch Metadata Import
 	// TODO: Export Metadata
-	
+
 	public void exportMetadata(String jobName, String exportFileName);
+
+	/**
+	 * Exports a data slice from the cube.
+	 * 
+	 * @param planType the plan type to export from
+	 * @param dataSlice the export data slice definition
+	 * @return a data slice object (pov, headers, rows) of the results
+	 */
+	public DataSlice exportDataSlice(String planType, ExportDataSlice dataSlice);
 
 }

@@ -44,12 +44,12 @@ public class PbcsClientException extends RuntimeException {
 	 * @param response
 	 * @return
 	 */
-	public static PbcsClientException createException(ClientHttpResponse response) {
+	public static PbcsClientException createException(ClientHttpResponse response, String responseBody) {
 		// TODO: static
 		ObjectMapper mapper = new ObjectMapper();
 		try {
 				// eats the stream, we can't use it for something else...
-				PbcsErrorResponse errorResponse = mapper.readValue(response.getBody(), PbcsErrorResponse.class);
+				PbcsErrorResponse errorResponse = mapper.readValue(responseBody, PbcsErrorResponse.class);
 				return new PbcsClientException(errorResponse.getDetail());
 		} catch (JsonParseException e) {
 			return new PbcsClientException("PBJ General Error", e);

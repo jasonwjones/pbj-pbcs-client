@@ -51,3 +51,49 @@ List files:
 Issues:
 	GET on a non-existent job status ID throws 500 (would expect 404)
 	Details on EXPORT_DATA job is "Outline load finished successfully"
+	
+	
+	
+{
+
+"exportPlanningData" : false,
+
+"gridDefinition" : {
+
+"suppressMissingBlocks" : true,
+
+"pov" : {
+
+"dimensions" : [ "HSP_View", "Year", "Scenario", "Version", "Entity", "Product" ],
+
+"members" : [ [ "BaseData" ], [ "FY15" ], [ "Plan" ], [ "Working" ], [ "410" ], [ "P_160" ] ]
+
+},
+
+"columns" : [ {
+
+"dimensions" : [ "Period" ],
+
+"members" : [ [ "IDescendants(Q1)" ] ]
+
+}, {
+
+"dimensions" : [ "Period" ],
+
+"members" : [ [ "IDescendants(Q2)" ] ]
+
+} ],
+
+"rows" : [ {
+
+"dimensions" : [ "Account" ],
+
+"members" : [ [ "Project Number", "Request Date", "Project Type", "Project Investment" ] ]
+
+} ]
+
+}
+
+}
+
+	

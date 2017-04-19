@@ -15,6 +15,8 @@ import com.jasonwjones.pbcs.api.v3.JobDefinition;
 import com.jasonwjones.pbcs.api.v3.JobDefinitionsWrapper;
 import com.jasonwjones.pbcs.api.v3.JobLaunchPayload;
 import com.jasonwjones.pbcs.api.v3.JobLaunchResponse;
+import com.jasonwjones.pbcs.api.v3.dataslices.DataSlice;
+import com.jasonwjones.pbcs.api.v3.dataslices.ExportDataSlice;
 import com.jasonwjones.pbcs.client.PbcsApplication;
 import com.jasonwjones.pbcs.client.PbcsJobDefinition;
 import com.jasonwjones.pbcs.client.PbcsJobLaunchResult;
@@ -272,6 +274,22 @@ public class PbcsApplicationImpl implements PbcsApplication {
 		// JobLaunchResponse.class, appMap);
 		ResponseEntity<String> output = this.context.getTemplate().postForEntity(url, payload, String.class, appMap);
 		System.out.println("export resp: " + output.getBody());
+	}
+
+	public void getTest() {
+		logger.info("Fetching test");
+		String url = this.context.getBaseUrl() + "applications/{application}/userpreferences";
+		ResponseEntity<String> userPrefs = this.context.getTemplate().getForEntity(url, String.class,
+				application.getName());
+		System.out.println("User prefs: " + userPrefs.getBody());
+	}
+
+	public DataSlice exportDataSlice(String planType, ExportDataSlice dataSlice) {
+		logger.info("Exporting data slice from plan type {}", planType);
+		String url = this.context.getBaseUrl() + "applications/{application}/plantypes/{planType}/exportdataslice";
+		ResponseEntity<DataSlice> slice = this.context.getTemplate().postForEntity(url, dataSlice, DataSlice.class, application.getName(), planType);
+		logger.info("Slice: {}", slice);
+		return slice.getBody();
 	}
 
 	private static class MemberAdd {

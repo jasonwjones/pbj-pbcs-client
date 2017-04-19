@@ -14,33 +14,14 @@ public class TestInteropDownloadFile extends AbstractIntegrationTest {
 	
 	public static void main(String[] args) {
 		PbcsClient client = new PbcsClientFactory().createClient(connection);
-		//InteropClientImpl client = new InteropClientImpl(server, identityDomain, username, password);
-		//client.getApiVersions();
-		//client.downloadFile("ForecastData.txt");
-		
 		logger.info("Downloading file");
-		//File export = client.downloadFile("ExportProduct.zip");
-		File export = client.downloadFile("ForecastData.txt");
-		
-		//client.listFiles();
-		
-		//client.downloadFile("doesntexist.csv");
-
 		logger.info("File count: {}", client.listFiles().size());
-		//client.downloadFile("test.csv");
-		//client.deleteFile("test.csv");
-		//logger.info("File count: {}", client.listFiles().size());
 		
-//		client.listServices();
+		File downloaded = client.downloadFile("vision data 17-03-07");
+		//File downloaded = client.downloadFile("apr/2017-02-28 08_31_41");
 		
 		
-//		PbcsClient client = new PbcsClientImpl(server, identityDomain, username, password);
-//		PbcsApplication app = client.getApplication(appName);
-//		app.launchBusinessRule("AggAll");
-
-//		PbcsClient client = new PbcsClientImpl(server, identityDomain, username, password);
-//		PbcsApplication app = client.getApplication(appName);
-//		app.launchBusinessRule("AggAll");
+		//apr/2017-02-28 08_31_41
 	}
 	
 }

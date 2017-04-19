@@ -1,31 +1,45 @@
 package com.jasonwjones.pbcs.test;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.jasonwjones.pbcs.PbcsClient;
 import com.jasonwjones.pbcs.PbcsClientFactory;
-import com.jasonwjones.pbcs.interop.impl.ApplicationSnapshot;
 
-public class TestInteropListFiles extends AbstractIntegrationTest {
+public class TestUploadFile extends AbstractIntegrationTest {
 
-	private static final Logger logger = LoggerFactory.getLogger(TestInteropListFiles.class);
+	private static final Logger logger = LoggerFactory.getLogger(TestUploadFile.class);
 	
-	public static void main(String[] args) {
+	public static void main(String[] args) throws FileNotFoundException, IOException {
 		PbcsClient client = new PbcsClientFactory().createClient(connection);
 		//InteropClientImpl client = new InteropClientImpl(server, identityDomain, username, password);
 		//client.getApiVersions();
 		//client.downloadFile("ForecastData.txt");
 		
-		//client.uploadFile("test.csv");
-		for (ApplicationSnapshot file : client.listFiles()) {
-			System.out.println("File: " + file.getName());
-		}
+		client.deleteFile("test.csv");
+		logger.info("File count: {}", client.listFiles().size());
+		client.uploadFile("test.csv");
+		//client.listFiles();
 		
 		//client.downloadFile("doesntexist.csv");
 
-		//logger.info("File count: {}", client.listFiles().size());
-		//client.downloadFile("test.csv");
+		logger.info("File count: {}", client.listFiles().size());
+		File downloaded = client.downloadFile("test.csv");
+		
+        BufferedReader b = new BufferedReader(new FileReader(downloaded));
+        String readLine = "";
+        System.out.println("Reading file using Buffered Reader");
+
+        while ((readLine = b.readLine()) != null) {
+            System.out.println(readLine);
+        }
+		b.close();
 		//client.deleteFile("test.csv");
 		//logger.info("File count: {}", client.listFiles().size());
 		

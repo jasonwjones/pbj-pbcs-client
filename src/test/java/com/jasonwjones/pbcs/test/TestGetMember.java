@@ -19,6 +19,7 @@ public class TestGetMember extends AbstractIntegrationTest {
 	private static void printMember(PbcsMemberProperties member, int level) {
 		System.out.print(repeat("    ", level));
 		System.out.println(member.getName());
+
 		for (PbcsMemberProperties child : member.getChildren()) {
 			printMember(child, level + 1);
 		}

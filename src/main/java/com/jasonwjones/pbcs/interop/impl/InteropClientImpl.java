@@ -1,14 +1,17 @@
 package com.jasonwjones.pbcs.interop.impl;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URI;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
@@ -23,6 +26,7 @@ import com.jasonwjones.pbcs.api.v3.HypermediaLink;
 import com.jasonwjones.pbcs.api.v3.ServiceDefinitionWrapper;
 import com.jasonwjones.pbcs.client.PbcsConnection;
 import com.jasonwjones.pbcs.client.PbcsServiceConfiguration;
+import com.jasonwjones.pbcs.client.exceptions.PbcsClientException;
 import com.jasonwjones.pbcs.interop.InteropClient;
 
 public class InteropClientImpl implements InteropClient {
@@ -84,23 +88,34 @@ public class InteropClientImpl implements InteropClient {
 	
 	@Override
 	public void uploadFile(String filename) {
-		byte[] data = new byte[]{'a'};
-		
-		//File uploadFile = new File(filename);
-		String url = String.format("/applicationsnapshots/%s/contents?q={chunkSize:%d,isFirst:%b,isLast:%b}", filename, data.length, true, true);
+		File fileToUpload = new File(filename);
+		if (!fileToUpload.exists()) {
+			logger.error("File {} does not exist");
+			throw new PbcsClientException("File to upload does not exist: " + filename);
+		} else {
+			logger.info("Found local file");
+		}
 
-		URI uri = UriComponentsBuilder.fromHttpUrl(this.baseUrl + serviceConfiguration.getInteropApiVersion() + url).build().toUri();
-		HttpHeaders headers = new HttpHeaders();
-		HttpEntity<byte[]> entity = new HttpEntity<byte[]>(new byte[]{'a'}, headers);
-		headers.set("Content-Type", "application/octet-stream");
-		ResponseEntity<String> response = restTemplate.exchange(uri, HttpMethod.POST, entity, String.class);
-		logger.info("Headers (upload): " + response.getHeaders());
-		System.out.println("Code: " + response.getStatusCode().value());
-		System.out.println("Response: " + response.getBody());
+		try {
+			String filenameOnly = SimpleFilenameUtils.getName(filename);
+			logger.info("Source file {} will be {} on target", filename, filenameOnly);
+			byte[] data = readFileToBytes(filename);
+			String url = String.format("/applicationsnapshots/%s/contents?q={chunkSize:%d,isFirst:%b,isLast:%b}", filenameOnly, data.length, true, true);
+
+			URI uri = UriComponentsBuilder.fromHttpUrl(this.baseUrl + serviceConfiguration.getInteropApiVersion() + url).build().toUri();
+			HttpHeaders headers = new HttpHeaders();
+			HttpEntity<byte[]> entity = new HttpEntity<byte[]>(data, headers);
+			headers.set("Content-Type", "application/octet-stream");
+			ResponseEntity<String> response = restTemplate.exchange(uri, HttpMethod.POST, entity, String.class);
+			logger.info("Response: {}", response.getBody());
+		} catch (IOException e) {
+			throw new PbcsClientException("Couldn't read/upload file", e);
+		}
 	}
 	
 	// upload local txt to zip
 	public void uploadFile(String remoteFilename, List<String> localFiles) {
+		throw new RuntimeException("Not implemented yet");
 	}
 	
 	@Override
@@ -139,19 +154,20 @@ public class InteropClientImpl implements InteropClient {
 		
 		logger.info("Canonical file extension for local file: {}", extension); 
 		
-		System.out.println("Content-Type: " + response.getHeaders().getContentType());
-		System.out.println("Is JSON: " + response.getHeaders().getContentType().isCompatibleWith(MediaType.APPLICATION_JSON));
-		System.out.println("Code: " + response.getStatusCode().value());
-		System.out.println("Response: " + response.getBody());
+//		System.out.println("Content-Type: " + response.getHeaders().getContentType());
+//		System.out.println("Is JSON: " + response.getHeaders().getContentType().isCompatibleWith(MediaType.APPLICATION_JSON));
+//		System.out.println("Code: " + response.getStatusCode().value());
+//		System.out.println("Response: " + response.getBody());
 
 		try {
-			// "/Users/jasonwjones/Desktop/"
-			Files.write(Paths.get(localFilename), response.getBody());
+			File outputFile = new File(localFilename);
+			// TODO: add file extension if the target file does not end with it
+			FileUtils.writeByteArrayToFile(outputFile, response.getBody());
+			return outputFile;
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error("Unable to write local file", e);
+			throw new PbcsClientException("Unable to write downloaded file", e);
 		}
-		return null;
 	}
 
 	// TODO: apparently PBCS REST API returns a JSON payload so we might need to 
@@ -173,6 +189,8 @@ public class InteropClientImpl implements InteropClient {
 		
 	}
 
+//	public void e
+	
 	@Override
 	public void LcmExport() {
 		// TODO Auto-generated method stub
@@ -183,6 +201,16 @@ public class InteropClientImpl implements InteropClient {
 	public void LcmImport() {
 		// TODO Auto-generated method stub
 		
+	}
+	
+	private byte[] readFileToBytes(String filename) throws IOException {
+		File fff = new File(filename);
+	    FileInputStream fileInputStream = new FileInputStream(fff);
+	    int byteLength = (int) fff.length(); //bytecount of the file-content
+	    byte[] filecontent = new byte[byteLength];
+	    fileInputStream.read(filecontent, 0, byteLength);
+	    fileInputStream.close();
+	    return filecontent;
 	}
 	
 }

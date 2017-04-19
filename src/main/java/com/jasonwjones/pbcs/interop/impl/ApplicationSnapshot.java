@@ -52,4 +52,10 @@ public class ApplicationSnapshot {
 		this.size = size;
 	}
 
+	@Override
+	public String toString() {
+		return "ApplicationSnapshot [lastModifiedTime=" + lastModifiedTime + ", name=" + name + ", type=" + type
+				+ ", size=" + size + "]";
+	}
+	
 }

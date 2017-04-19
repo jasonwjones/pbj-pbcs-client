@@ -8,11 +8,8 @@ public class TestAddMember extends AbstractIntegrationTest {
 
 	public static void main(String[] args) {
 		PbcsClient client = new PbcsClientFactory().createClient(connection);
-
-		//PbcsMemberProperties member = 
-		client.getApplication(appName).addMember("Entity", "North America", "Enterprise Global");
-		
-		//printMember(member, 0);		
+		PbcsMemberProperties member = client.getApplication(appName).addMember("Entity", "North America", "Enterprise Global");
+		printMember(member, 0);		
 	}
 	
 	private static void printMember(PbcsMemberProperties member, int level) {

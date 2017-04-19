@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Package>
+    <LOCALE>en_US</LOCALE>
+    <User name="" password=""/>
+    <Task>
+        <Source type="FileSystem" filePath="/HP-Vision"/>
+        <Target type="Application" product="HP" project="Planning" application="Vision"/>
+        <Artifact recursive="false" parentPath="/Essbase Data" pattern="Plan1"/>
+    </Task>
+</Package>

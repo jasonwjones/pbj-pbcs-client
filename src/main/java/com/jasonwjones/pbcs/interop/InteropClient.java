@@ -14,9 +14,16 @@ import com.jasonwjones.pbcs.interop.impl.ApplicationSnapshot;
  */
 public interface InteropClient {
 
+	public static final String LCM = "LCM";
+
+	public static final String EXTERNAL = "EXTERNAL";
+
 	/**
 	 * Download a file that has been previously uploaded or otherwise exists
-	 * from an export.
+	 * from an export. Note that it's possible for a file to show on the
+	 * application snapshot listing (such as provided by {@link #listFiles()})
+	 * but not be able to download that file. This seems to be a quirk in the
+	 * REST API such that folders themselves are considered files of type LCM.
 	 * 
 	 * @param filename the name of the file, such as "export.txt"
 	 * @return a File object with a handle to the downloaded file
@@ -26,7 +33,7 @@ public interface InteropClient {
 	public File downloadFile(String filename) throws PbcsClientException;
 
 	public File downloadFile(String filename, String localFilename);
-	
+
 	/**
 	 * Uploads a file to PBCS so that it can be imported.
 	 * 
@@ -42,7 +49,9 @@ public interface InteropClient {
 	public void deleteFile(String filename);
 
 	/**
-	 * Return a list of files available on the remote system.
+	 * Return a list of files available on the remote system. Note that this
+	 * includes both LCM snapshot files as well as regular files that exist on
+	 * the system.
 	 * 
 	 * @return a list of available files
 	 */
