@@ -208,6 +208,10 @@
 									</excludes>
 									-->
 								</relocation>
+								<relocation>
+									<pattern>org.springframework</pattern>
+									<shadedPattern>org.shaded.springframework</shadedPattern>
+								</relocation>
 							</relocations>
 						</configuration>
 					</execution>

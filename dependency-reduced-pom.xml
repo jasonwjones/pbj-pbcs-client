@@ -107,6 +107,10 @@
                   <pattern>org.apache.http</pattern>
                   <shadedPattern>org.shaded.apache.http</shadedPattern>
                 </relocation>
+                <relocation>
+                  <pattern>org.springframework</pattern>
+                  <shadedPattern>org.shaded.springframework</shadedPattern>
+                </relocation>
               </relocations>
             </configuration>
           </execution>
