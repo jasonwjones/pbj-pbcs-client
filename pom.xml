@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.jasonwjones.pbcs</groupId>
 	<artifactId>pbj-pbcs-client</artifactId>
-	<version>1.0.2-SNAPSHOT</version>
+	<version>1.0.3-SNAPSHOT</version>
 	<name>PBJ - The PBCS REST API Java Client</name>
 	<parent>
 		<groupId>org.springframework.boot</groupId>
@@ -207,6 +207,10 @@
 										<exclude>org.codehaus.plexus.util.xml.pull.*</exclude>
 									</excludes>
 									-->
+								</relocation>
+								<relocation>
+									<pattern>org.springframework</pattern>
+									<shadedPattern>org.shaded.springframework</shadedPattern>
 								</relocation>
 							</relocations>
 						</configuration>
