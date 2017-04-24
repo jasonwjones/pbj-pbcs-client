@@ -105,24 +105,22 @@ public class PbcsApplicationImpl implements PbcsApplication {
 		return importMetadata(metadataImportName, null);
 	}
 
-	
 	@Override
 	public PbcsJobLaunchResult importMetadata(String metadataImportName, String dataFile) {
-		logger.info("Launcing metadata import data job: {}", metadataImportName);
+		logger.info("Launching metadata import data job: {}", metadataImportName);
 		String url = this.context.getBaseUrl() + "applications/{application}/jobs";
 		JobLaunchPayload payload = new JobLaunchPayload("IMPORT_METADATA", metadataImportName);
 
+		// "parameters" var is optional if not specifying. If it's specified,
+		// then it should
+		// be a zip file
 		if (dataFile != null) {
 			Map<String, String> params = new HashMap<String, String>();
 			params.put("importZipFileName", dataFile);
 			payload.setParameters(params);
 		}
-		logger.info("Post to URL: {}", url);
-		ResponseEntity<String> output = this.context.getTemplate().postForEntity(url, payload, String.class, appMap);
-		System.out.println("import resp: " + output.getBody());
-
-		// TODO Auto-generated method stub
-		return null;
+		ResponseEntity<JobLaunchResponse> output = this.context.getTemplate().postForEntity(url, payload, JobLaunchResponse.class, appMap);
+		return new PbcsJobLaunchResultImpl(output.getBody());
 	}
 
 	// example from CREST
@@ -241,10 +239,8 @@ public class PbcsApplicationImpl implements PbcsApplication {
 	public PbcsMemberProperties getMember(String dimensionName, String memberName) {
 		logger.info("Fetching member properties for {} from dimension {}", memberName, dimensionName);
 		String url = this.context.getBaseUrl() + "applications/{application}/dimensions/{dimName}/members/{member}";
-		logger.info("Body: {}", this.context.getTemplate()
-				.getForEntity(url, String.class, application.getName(), dimensionName, memberName).getBody());
-		ResponseEntity<PbcsMemberPropertiesImpl> memberResponse = this.context.getTemplate().getForEntity(url,
-				PbcsMemberPropertiesImpl.class, application.getName(), dimensionName, memberName);
+		logger.info("Body: {}", this.context.getTemplate().getForEntity(url, String.class, application.getName(), dimensionName, memberName).getBody());
+		ResponseEntity<PbcsMemberPropertiesImpl> memberResponse = this.context.getTemplate().getForEntity(url, PbcsMemberPropertiesImpl.class, application.getName(), dimensionName, memberName);
 		logger.info("Headers: " + memberResponse.getHeaders());
 		return memberResponse.getBody();
 	}

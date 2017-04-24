@@ -24,6 +24,7 @@ public class MyResponseErrorHandler implements ResponseErrorHandler {
 		// ClientHttpResponse would eat it and make subsequent attempts fail
 		String responseBody = inputStreamToString(response.getBody());
 		log.error("Headers: {}", response.getHeaders());
+		log.error("Status: {} ({})", response.getStatusCode().value(), response.getStatusText());
 		log.error("Body: {}", responseBody);
 		
 		if (response.getStatusCode().value() == 404) {

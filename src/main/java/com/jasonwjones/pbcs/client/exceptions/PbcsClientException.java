@@ -35,7 +35,21 @@ public class PbcsClientException extends RuntimeException {
 	 *    "status":400,"message":"com.hyperion.planning.InvalidDimensionException: The dimension Time is invalid.",
 	 *    "localizedMessage":"com.hyperion.planning.InvalidDimensionException: The dimension Time is invalid."
 	 * }
+	 * 
+	 * </pre>
+	 * 
+	 * Or like this (from importMetadata):
+	 * <pre>
+	 * {@code
+	 * {
+	 *     "descriptiveStatus":"Error",
+	 *     "jobId":-1,
+	 *     "status":1,
+	 *     "details":null,
+	 *     "jobName":null,
+	 *     "links":null}
 	 * }
+	 * 
 	 * </pre>
 	 * 
 	 * With headers:
@@ -47,17 +61,17 @@ public class PbcsClientException extends RuntimeException {
 	public static PbcsClientException createException(ClientHttpResponse response, String responseBody) {
 		// TODO: static
 		ObjectMapper mapper = new ObjectMapper();
-		try {
+//		try {
 				// eats the stream, we can't use it for something else...
-				PbcsErrorResponse errorResponse = mapper.readValue(responseBody, PbcsErrorResponse.class);
-				return new PbcsClientException(errorResponse.getDetail());
-		} catch (JsonParseException e) {
-			return new PbcsClientException("PBJ General Error", e);
-		} catch (JsonMappingException e) {
-			return new PbcsClientException("PBJ General Error", e);
-		} catch (IOException e) {
-			return new PbcsClientException("PBJ General Error", e);
-		}
+				//PbcsErrorResponse errorResponse = mapper.readValue(responseBody, PbcsErrorResponse.class);
+				return new PbcsClientException(responseBody);
+//		} catch (JsonParseException e) {
+//			return new PbcsClientException("PBJ General Error", e);
+//		} catch (JsonMappingException e) {
+//			return new PbcsClientException("PBJ General Error", e);
+//		} catch (IOException e) {
+//			return new PbcsClientException("PBJ General Error", e);
+//		}
 	
 	}
 
