@@ -35,6 +35,7 @@ public class PbcsClientException extends RuntimeException {
 	 *    "status":400,"message":"com.hyperion.planning.InvalidDimensionException: The dimension Time is invalid.",
 	 *    "localizedMessage":"com.hyperion.planning.InvalidDimensionException: The dimension Time is invalid."
 	 * }
+	 * }
 	 * 
 	 * </pre>
 	 * 
@@ -49,14 +50,15 @@ public class PbcsClientException extends RuntimeException {
 	 *     "jobName":null,
 	 *     "links":null}
 	 * }
-	 * 
+	 * }
 	 * </pre>
 	 * 
 	 * With headers:
 	 * 
 	 * Headers: {Date=[Wed, 04 May 2016 17:42:26 GMT], Server=[Oracle-Application-Server-11g], X-EPM_ACTION=[Member Retrieve], X-EPM_FUNCTION=[Planning], X-EPM_OBJECT=[], X-Powered-By=[Servlet/2.5 JSP/2.1], Vary=[Accept-Encoding,User-Agent], Connection=[close], Transfer-Encoding=[chunked], Content-Type=[application/json; charset=UTF-8], Content-Language=[en]}
-	 * @param response
-	 * @return
+	 * @param response the response object
+	 * @param responseBody the textual response body
+	 * @return a new exception
 	 */
 	public static PbcsClientException createException(ClientHttpResponse response, String responseBody) {
 		// TODO: static
