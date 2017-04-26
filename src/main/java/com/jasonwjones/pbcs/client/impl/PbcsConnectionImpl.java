@@ -2,6 +2,7 @@ package com.jasonwjones.pbcs.client.impl;
 
 import java.util.Properties;
 
+import org.apache.commons.codec.binary.Base64;
 import org.springframework.util.Assert;
 
 import com.jasonwjones.pbcs.client.PbcsConnection;
@@ -27,14 +28,48 @@ public class PbcsConnectionImpl implements PbcsConnection {
 	 * @param password the password for the user
 	 */
 	public PbcsConnectionImpl(String server, String identityDomain, String username, String password) {
+		this(server, identityDomain, username);
+		Assert.hasText(password, "Password may not be empty");
+		this.password = password;
+	}
+
+	/**
+	 * Builds a new PBCS Connection object. None of the fields may be null or
+	 * otherwise empty, otherwise an IllegalArgumentException will be thrown.
+	 * 
+	 * <p>
+	 * This overload constructor is provided as a convenience and meant to be
+	 * used immediately afterwith with the {@link #withBase64Password(String)}
+	 * method to set the password.
+	 * 
+	 * @param server the server, not including http and not containing anything
+	 *            after the TLD
+	 * @param identityDomain the identity domain for the user
+	 * @param username the username to connect with
+	 */
+	public PbcsConnectionImpl(String server, String identityDomain, String username) {
 		Assert.hasText(server, "Server name may not be empty");
 		Assert.hasText(identityDomain, "Identity domain may not be empty");
 		Assert.hasText(username, "Username may not be empty");
-		Assert.hasText(password, "Password may not be empty");
 		this.server = server;
 		this.identityDomain = identityDomain;
 		this.username = username;
-		this.password = password;
+	}
+
+	/**
+	 * Returns this connection object updated with a new password that is
+	 * provided as a string with Base64 encoding. This is not meant to provide
+	 * robust security, but rather to allow for putting passwords into other
+	 * scripts/code that might otherwise be exposed via a screenshot or during
+	 * editing (like a Jython script in ODI/FDMEE).
+	 * 
+	 * @param encodedPassword the Base64 (UTF-8) encoded password.
+	 * @return an updated connection object with the password set to the decoded
+	 *         value of the given string
+	 */
+	public PbcsConnectionImpl withBase64Password(String encodedPassword) {
+		this.password = new String(Base64.decodeBase64(encodedPassword));
+		return this;
 	}
 
 	@Override

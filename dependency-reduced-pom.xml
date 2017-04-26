@@ -94,7 +94,6 @@
       </plugin>
       <plugin>
         <artifactId>maven-shade-plugin</artifactId>
-        <version>3.0.0</version>
         <executions>
           <execution>
             <phase>package</phase>
@@ -185,6 +184,12 @@
       <version>2.5</version>
       <scope>provided</scope>
     </dependency>
+    <dependency>
+      <groupId>com.beust</groupId>
+      <artifactId>jcommander</artifactId>
+      <version>1.48</version>
+      <scope>provided</scope>
+    </dependency>
   </dependencies>
   <reporting>
     <plugins>
@@ -207,6 +212,7 @@
   </distributionManagement>
   <properties>
     <github.global.server>github</github.global.server>
+    <start-class>com.jasonwjones.pbcs.cli.PbjCli</start-class>
   </properties>
 </project>
 

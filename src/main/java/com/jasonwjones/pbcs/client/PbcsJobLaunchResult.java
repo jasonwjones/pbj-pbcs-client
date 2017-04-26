@@ -5,6 +5,7 @@ public interface PbcsJobLaunchResult {
 	/**
 	 * Status for job:
 	 * 
+	 * <pre>
 	 * -1 = in progress
 	 *  0 = success
 	 *  1 = error
@@ -12,7 +13,9 @@ public interface PbcsJobLaunchResult {
 	 *  3 = cancelled
 	 *  4 = invalid parameter
 	 *  Integer.MAX_VALUE = unknown
-	 * @return
+	 *  </pre>
+	 *  
+	 * @return the numeric status for the job, as defined by the PBCS REST API specs
 	 */
 	public Integer getStatus();
 

@@ -82,10 +82,19 @@
 			<artifactId>commons-io</artifactId>
 			<version>2.5</version>
 		</dependency>
+		<dependency>
+			<groupId>com.beust</groupId>
+			<artifactId>jcommander</artifactId>
+			<version>1.48</version>
+		</dependency>
 	</dependencies>
 
 	<properties>
 		<github.global.server>github</github.global.server>
+		<!-- gets Spring Boot package phase to set main class entry for runnable JAR. Trying to 
+		     use Maven Shade to do this doesn't work (likely because of overrides Spring makes in
+		     the parent POM -->
+		<start-class>com.jasonwjones.pbcs.cli.PbjCli</start-class>
 	</properties>
 
 	<reporting>
@@ -189,14 +198,13 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-shade-plugin</artifactId>
-				<version>3.0.0</version>
 				<executions>
 					<execution>
 						<phase>package</phase>
 						<goals>
 							<goal>shade</goal>
 						</goals>
-						<configuration> 
+						<configuration>
 							<relocations>
 								<relocation>
 									<pattern>org.apache.http</pattern>
