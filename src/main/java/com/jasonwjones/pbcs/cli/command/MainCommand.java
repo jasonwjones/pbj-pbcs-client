@@ -15,6 +15,12 @@ public class MainCommand {
 	@Parameter(names = {"--conn-properties", "-C"}, converter = PropertiesConverter.class, required = false)
 	private Properties connectionProperties;
 
+	@Parameter(names = {"--debug-logging"}, required = false)
+	private boolean debugLogging = false;
+
+	@Parameter(names = {"--no-logging"}, required = false)
+	private boolean loggingOff = false;
+	
 	public Properties getConfigFile() {
 		return connectionProperties;
 	}
@@ -22,6 +28,24 @@ public class MainCommand {
 	public void setConfigFile(Properties configFile) {
 		this.connectionProperties = configFile;
 	}
+
+	public boolean isDebugLogging() {
+		return debugLogging;
+	}
+
+	public void setDebugLogging(boolean debugLogging) {
+		this.debugLogging = debugLogging;
+	}
+
+	public boolean isLoggingOff() {
+		return loggingOff;
+	}
+
+	public void setLoggingOff(boolean loggingOff) {
+		this.loggingOff = loggingOff;
+	}
+
+
 
 	public static class PropertiesConverter implements IStringConverter<Properties> {
 		@Override
