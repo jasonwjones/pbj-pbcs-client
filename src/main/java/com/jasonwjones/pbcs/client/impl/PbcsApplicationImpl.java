@@ -8,6 +8,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.Assert;
 import org.springframework.web.client.HttpServerErrorException;
 
 import com.jasonwjones.pbcs.api.v3.Application;
@@ -234,14 +235,16 @@ public class PbcsApplicationImpl implements PbcsApplication {
 		return null;
 	}
 
-	// TODO: Assert not null on args
 	@Override
 	public PbcsMemberProperties getMember(String dimensionName, String memberName) {
+		Assert.hasText(dimensionName, "Must specify a dimension name");
+		Assert.hasText(memberName, "Must specify a member name");
+	
 		logger.info("Fetching member properties for {} from dimension {}", memberName, dimensionName);
 		String url = this.context.getBaseUrl() + "applications/{application}/dimensions/{dimName}/members/{member}";
-		logger.info("Body: {}", this.context.getTemplate().getForEntity(url, String.class, application.getName(), dimensionName, memberName).getBody());
+		logger.debug("Body: {}", this.context.getTemplate().getForEntity(url, String.class, application.getName(), dimensionName, memberName).getBody());
 		ResponseEntity<PbcsMemberPropertiesImpl> memberResponse = this.context.getTemplate().getForEntity(url, PbcsMemberPropertiesImpl.class, application.getName(), dimensionName, memberName);
-		logger.info("Headers: " + memberResponse.getHeaders());
+		logger.debug("Headers: " + memberResponse.getHeaders());
 		return memberResponse.getBody();
 	}
 
