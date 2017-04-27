@@ -209,12 +209,6 @@
 								<relocation>
 									<pattern>org.apache.http</pattern>
 									<shadedPattern>org.shaded.apache.http</shadedPattern>
-									<!-- 
-									<excludes>
-										<exclude>org.codehaus.plexus.util.xml.Xpp3Dom</exclude>
-										<exclude>org.codehaus.plexus.util.xml.pull.*</exclude>
-									</excludes>
-									-->
 								</relocation>
 								<relocation>
 									<pattern>org.springframework</pattern>
