@@ -51,7 +51,7 @@ public class GridDefinition {
 	 * array for all of the columns, one element per column. The object in that
 	 * array is one or more strings that extend down the sheet.
 	 * 
-	 * @param columns
+	 * @param columns the column definition
 	 */
 	public void setColumns(List<DimensionMembers> columns) {
 		this.columns = columns;

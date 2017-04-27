@@ -7,21 +7,21 @@ import com.jasonwjones.pbcs.client.PbcsJobLaunchResult;
 import com.jasonwjones.pbcs.client.PbcsJobStatus;
 
 public class TestExportData extends AbstractIntegrationTest {
-
+	
 	public static void main(String[] args) throws Exception {
 		PbcsClient client = new PbcsClientFactory().createClient(connection);
 
-		PbcsApplication app = client.getApplication(appName);
-		PbcsJobLaunchResult result = app.exportData("exportplantasticact01");
-		
-		System.out.println("Result: "+ result);
-		
+		PbcsApplication app = client.getApplication("MDP_Demo");
+		PbcsJobLaunchResult result = app.importMetadata("Test");
+
+		System.out.println("Result: " + result);
+
 		while (result.getStatus() == -1) {
 			Thread.sleep(2000);
 			PbcsJobStatus status = app.getJobStatus(result.getJobId());
 			System.out.println("Status: " + status);
 		}
-		
+
 	}
 
 }
