@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.ParameterException;
 import com.jasonwjones.pbcs.PbcsClientFactory;
+import com.jasonwjones.pbcs.cli.command.DownloadFileCommand;
 import com.jasonwjones.pbcs.cli.command.EncodePasswordCommand;
 import com.jasonwjones.pbcs.cli.command.GetMemberCommand;
 import com.jasonwjones.pbcs.cli.command.ListApplicationsCommand;
@@ -36,6 +37,7 @@ public class PbjCli {
 		commands.put("get-member", new GetMemberCommand());
 		commands.put("encode-password", new EncodePasswordCommand());
 		commands.put("list-applications", new ListApplicationsCommand());
+		commands.put("download-file", new DownloadFileCommand());
 
 		for (Map.Entry<String, ?> command : commands.entrySet()) {
 			jc.addCommand(command.getKey(), command.getValue());
