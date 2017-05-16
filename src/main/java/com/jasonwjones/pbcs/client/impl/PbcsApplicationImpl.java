@@ -16,6 +16,9 @@ import com.jasonwjones.pbcs.api.v3.JobDefinition;
 import com.jasonwjones.pbcs.api.v3.JobDefinitionsWrapper;
 import com.jasonwjones.pbcs.api.v3.JobLaunchPayload;
 import com.jasonwjones.pbcs.api.v3.JobLaunchResponse;
+import com.jasonwjones.pbcs.api.v3.SubstitutionVariable;
+import com.jasonwjones.pbcs.api.v3.SubstitutionVariablesWrapper;
+import com.jasonwjones.pbcs.api.v3.SubstiutionVariableUpdateWrapper;
 import com.jasonwjones.pbcs.api.v3.dataslices.DataSlice;
 import com.jasonwjones.pbcs.api.v3.dataslices.ExportDataSlice;
 import com.jasonwjones.pbcs.client.PbcsApplication;
@@ -63,8 +66,13 @@ public class PbcsApplicationImpl implements PbcsApplication {
 
 	@Override
 	public List<PbcsJobDefinition> getJobDefinitions(PbcsJobType jobType) {
-		// TODO Auto-generated method stub
-		return null;
+		List<PbcsJobDefinition> filteredJobDefinitinos = new ArrayList<PbcsJobDefinition>();
+		for (PbcsJobDefinition currentDef : getJobDefinitions()) {
+			if (currentDef.getJobType().equals(jobType.name())) {
+				filteredJobDefinitinos.add(currentDef);
+			}
+		}
+		return filteredJobDefinitinos;
 	}
 
 	@Override
@@ -190,6 +198,30 @@ public class PbcsApplicationImpl implements PbcsApplication {
 		return application.getType();
 	}
 
+	@Override
+	public List<SubstitutionVariable> getSubstitutionVariables() {
+		logger.info("Getting job definitions for {}", application.getName());
+		String url = this.context.getBaseUrl() + "applications/{application}/substitutionvariables";
+		ResponseEntity<SubstitutionVariablesWrapper> vars = this.context.getTemplate().getForEntity(url, SubstitutionVariablesWrapper.class, appMap);
+		return vars.getBody().getItems();
+	}
+	
+	@Override
+	public SubstitutionVariable getSubstitutionVariable(String name) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
+	@Override
+	public void updateSubstitutionVariables(List<SubstitutionVariable> variables) {
+		String url = this.context.getBaseUrl() + "applications/{application}/substitutionvariables"; 
+		SubstiutionVariableUpdateWrapper subs = new SubstiutionVariableUpdateWrapper();
+		subs.setItems(variables);
+		ResponseEntity<String> resp = this.context.getTemplate().postForEntity(url, subs, String.class, appMap);
+		logger.info("Response: {}", resp.getHeaders());
+		System.out.println(resp.getBody());		
+	}
+	
 	/**
 	 * CREST doc: Adds a new member to the application outline in the specified
 	 * dimension and plan type and under the specified parent member.
@@ -291,6 +323,11 @@ public class PbcsApplicationImpl implements PbcsApplication {
 		return slice.getBody();
 	}
 
+	@Override
+	public List<SubstitutionVariable> getSubstitutionVariablesForPlan(String planType) {
+		throw new RuntimeException("Not implemented");
+	}
+	
 	private static class MemberAdd {
 
 		private String memberName;

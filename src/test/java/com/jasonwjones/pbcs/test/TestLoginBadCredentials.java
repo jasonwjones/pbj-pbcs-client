@@ -16,6 +16,7 @@ public class TestLoginBadCredentials extends AbstractIntegrationTest {
 			PbcsClient client = new PbcsClientFactory().createClient(connection);
 			System.out.println("API: " + client.getApi());
 		} catch (Exception e) {
+			System.out.println("Error class: " + e.getClass().getCanonicalName());
 			System.out.println("Error connecting to PBCS: " + e.getMessage());
 		}
 	}

@@ -13,6 +13,8 @@ import com.jasonwjones.pbcs.cli.command.DownloadFileCommand;
 import com.jasonwjones.pbcs.cli.command.EncodePasswordCommand;
 import com.jasonwjones.pbcs.cli.command.GetMemberCommand;
 import com.jasonwjones.pbcs.cli.command.ListApplicationsCommand;
+import com.jasonwjones.pbcs.cli.command.ListFilesCommand;
+import com.jasonwjones.pbcs.cli.command.ListVariablesCommand;
 import com.jasonwjones.pbcs.cli.command.MainCommand;
 import com.jasonwjones.pbcs.cli.command.PbjCliCommand;
 import com.jasonwjones.pbcs.client.impl.PbcsConnectionImpl;
@@ -38,6 +40,8 @@ public class PbjCli {
 		commands.put("encode-password", new EncodePasswordCommand());
 		commands.put("list-applications", new ListApplicationsCommand());
 		commands.put("download-file", new DownloadFileCommand());
+		commands.put("list-variables", new ListVariablesCommand());
+		commands.put("list-files", new ListFilesCommand());
 
 		for (Map.Entry<String, ?> command : commands.entrySet()) {
 			jc.addCommand(command.getKey(), command.getValue());

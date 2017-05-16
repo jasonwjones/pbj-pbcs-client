@@ -3,6 +3,7 @@ package com.jasonwjones.pbcs.client;
 import java.util.List;
 import java.util.Map;
 
+import com.jasonwjones.pbcs.api.v3.SubstitutionVariable;
 import com.jasonwjones.pbcs.api.v3.dataslices.DataSlice;
 import com.jasonwjones.pbcs.api.v3.dataslices.ExportDataSlice;
 
@@ -121,4 +122,12 @@ public interface PbcsApplication {
 	 */
 	public DataSlice exportDataSlice(String planType, ExportDataSlice dataSlice);
 
+	public List<SubstitutionVariable> getSubstitutionVariables();
+
+	public SubstitutionVariable getSubstitutionVariable(String name);
+
+	public List<SubstitutionVariable> getSubstitutionVariablesForPlan(String planType);
+	
+	public void updateSubstitutionVariables(List<SubstitutionVariable> variables);
+	
 }

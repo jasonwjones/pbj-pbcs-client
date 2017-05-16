@@ -3,23 +3,23 @@ package com.jasonwjones.pbcs.api.v3;
 import java.util.List;
 
 /**
- * Base class to extend that provides structure for the typical repsonses that are a JSON
- * map with a "links" item and additional items specific to that call
+ * Base class to extend that provides structure for the typical repsonses that
+ * are a JSON map with a "links" item and additional items specific to that call
+ * 
  * @author jasonwjones
  *
  */
 public abstract class AbstractHypermediaResponse<E> {
-	
+
 	private List<E> items;
-	
+
 	private List<HypermediaLink> links;
-	
+
 	private String type;
-	
-	// these might only be on LCM (interop) stuff, 0 is success, -1 is in progress
-	// , "+ve" is failed and has an error... maybe.
+
+	// these might only be on LCM (interop) stuff, 0 is success, -1 is in
+	// progress, "+ve" is failed and has an error... maybe.
 	// TODO (?) status (integer), details: (?)
-	
 	public List<E> getItems() {
 		return items;
 	}
@@ -43,5 +43,5 @@ public abstract class AbstractHypermediaResponse<E> {
 	public void setType(String type) {
 		this.type = type;
 	}
-	
+
 }

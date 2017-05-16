@@ -4,9 +4,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URI;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -23,6 +20,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import com.jasonwjones.pbcs.api.v3.HypermediaLink;
+import com.jasonwjones.pbcs.api.v3.MaintenanceWindow;
 import com.jasonwjones.pbcs.api.v3.ServiceDefinitionWrapper;
 import com.jasonwjones.pbcs.client.PbcsConnection;
 import com.jasonwjones.pbcs.client.PbcsServiceConfiguration;
@@ -76,13 +74,18 @@ public class InteropClientImpl implements InteropClient {
 		System.out.println("Respo: " + response.getBody());
 	}
 	
-	
 	public List<ApplicationSnapshot> listFiles() {
 		ResponseEntity<ApplicationSnapshotsWrapper> snaps = restTemplate.getForEntity(baseUrl + serviceConfiguration.getInteropApiVersion() + "/applicationsnapshots", ApplicationSnapshotsWrapper.class);		
 		return Collections.unmodifiableList(snaps.getBody().getItems());
 	}
 	
-	public ApplicationSnapshotInfo getFileInfo(String filename) {
+	public ApplicationSnapshotInfo getSnapshotDetails(String name) {
+		//ResponseEntity<ApplicationSnapshotInfo> snaps = restTemplate.getForEntity(baseUrl + serviceConfiguration.getInteropApiVersion() + "/applicationsnapshots", ApplicationSnapshotsWrapper.class);
+		//ResponseEntity<String> snap = restTemplate.getForEntity(baseUrl + serviceConfiguration.getInteropApiVersion() + "/applicationsnapshots/" + name, String.class);
+		ResponseEntity<ApplicationSnapshotInfoWrapper> snap = restTemplate.getForEntity(baseUrl + serviceConfiguration.getInteropApiVersion() + "/applicationsnapshots/" + name, ApplicationSnapshotInfoWrapper.class);
+
+		//restTemplate.delete(baseUrl + serviceConfiguration.getInteropApiVersion() + "/applicationsnapshots/" + name);
+		System.out.println(snap.getBody());
 		return null;
 	}
 	
@@ -187,6 +190,13 @@ public class InteropClientImpl implements InteropClient {
 			System.out.println(link);
 		}
 		
+	}
+	
+	//@Override
+	public MaintenanceWindow getMaintenanceWindow() {
+		ResponseEntity<String> response  = restTemplate.getForEntity(baseUrl + serviceConfiguration.getInteropApiVersion() + "/dailymaintenance", String.class);
+		System.out.println("Response: " + response.getBody());
+		return null;
 	}
 
 //	public void e

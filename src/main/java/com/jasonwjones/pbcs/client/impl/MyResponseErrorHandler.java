@@ -41,9 +41,7 @@ public class MyResponseErrorHandler implements ResponseErrorHandler {
 
 	@Override
 	public boolean hasError(ClientHttpResponse response) throws IOException {
-		// log.info("Whatever");
 		return isError(response.getStatusCode());
-		// return false;
 	}
 
 	public static boolean isError(HttpStatus status) {
@@ -65,4 +63,5 @@ public class MyResponseErrorHandler implements ResponseErrorHandler {
 		}
 		return out.toString();
 	}
+	
 }

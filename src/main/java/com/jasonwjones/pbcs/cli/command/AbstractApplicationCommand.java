@@ -2,11 +2,12 @@ package com.jasonwjones.pbcs.cli.command;
 
 import com.beust.jcommander.Parameter;
 import com.jasonwjones.pbcs.PbcsClient;
+import com.jasonwjones.pbcs.client.PbcsApplication;
 
 // no command annotation since subclasses will implement
 public abstract class AbstractApplicationCommand implements PbjCliCommand {
 
-	@Parameter(names = "--filename", required = true)
+	@Parameter(names = "--application", required = true)
 	private String application;
 	
 	public String getApplication() {
@@ -23,6 +24,10 @@ public abstract class AbstractApplicationCommand implements PbjCliCommand {
 	}
 
 	@Override
-	public abstract void execute(PbcsClient client);
-
+	public void execute(PbcsClient client) {
+		executeForApp(client.getApplication(application));
+	}
+	
+	public abstract void executeForApp(PbcsApplication application);
+		
 }

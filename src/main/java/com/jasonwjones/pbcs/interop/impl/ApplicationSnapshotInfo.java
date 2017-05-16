@@ -2,32 +2,48 @@ package com.jasonwjones.pbcs.interop.impl;
 
 public class ApplicationSnapshotInfo {
 
-	// TODO: canExport, canImport, etc.
+	private boolean canDownload;
 	
+	private boolean canUpload;
 	
-	/**
-	 * Only set if EXTERNAL
-	 */
-	private Long lastModifiedTime;
-
+	private boolean canExport;
+	
+	private boolean canImport;
+	
 	private String name;
-
-	/**
-	 * Possible values: LCM, EXTERNAL
-	 */
+	
 	private String type;
 
-	/**
-	 * Only set if EXTERNAL
-	 */
-	private Long size;
-
-	public Long getLastModifiedTime() {
-		return lastModifiedTime;
+	public boolean isCanDownload() {
+		return canDownload;
 	}
 
-	public void setLastModifiedTime(Long lastModifiedTime) {
-		this.lastModifiedTime = lastModifiedTime;
+	public void setCanDownload(boolean canDownload) {
+		this.canDownload = canDownload;
+	}
+
+	public boolean isCanUpload() {
+		return canUpload;
+	}
+
+	public void setCanUpload(boolean canUpload) {
+		this.canUpload = canUpload;
+	}
+
+	public boolean isCanExport() {
+		return canExport;
+	}
+
+	public void setCanExport(boolean canExport) {
+		this.canExport = canExport;
+	}
+
+	public boolean isCanImport() {
+		return canImport;
+	}
+
+	public void setCanImport(boolean canImport) {
+		this.canImport = canImport;
 	}
 
 	public String getName() {
@@ -44,14 +60,6 @@ public class ApplicationSnapshotInfo {
 
 	public void setType(String type) {
 		this.type = type;
-	}
-
-	public Long getSize() {
-		return size;
-	}
-
-	public void setSize(Long size) {
-		this.size = size;
 	}
 
 }

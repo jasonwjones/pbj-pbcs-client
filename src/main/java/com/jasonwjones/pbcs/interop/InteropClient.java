@@ -3,8 +3,10 @@ package com.jasonwjones.pbcs.interop;
 import java.io.File;
 import java.util.List;
 
+import com.jasonwjones.pbcs.api.v3.MaintenanceWindow;
 import com.jasonwjones.pbcs.client.exceptions.PbcsClientException;
 import com.jasonwjones.pbcs.interop.impl.ApplicationSnapshot;
+import com.jasonwjones.pbcs.interop.impl.ApplicationSnapshotInfo;
 
 /**
  * Main interface for LCM operations.
@@ -57,6 +59,10 @@ public interface InteropClient {
 	 */
 	public List<ApplicationSnapshot> listFiles();
 
+	public ApplicationSnapshotInfo getSnapshotDetails(String name); 
+	
+	//public MaintenanceWindow getMaintenanceWindow();
+	
 	/**
 	 * TODO: Implement LCM Export functionality.
 	 */
