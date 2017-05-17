@@ -1,6 +1,6 @@
 package com.jasonwjones.pbcs.cli.command;
 
-import java.util.List;
+import java.util.Set;
 
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
@@ -23,7 +23,7 @@ public class ListVariablesCommand extends AbstractApplicationCommand {
 	
 	@Override
 	public void executeForApp(PbcsApplication application) {
-		List<SubstitutionVariable> variables = application.getSubstitutionVariables();
+		Set<SubstitutionVariable> variables = application.getSubstitutionVariables();
 		for (SubstitutionVariable variable : variables) {
 			System.out.printf(formatTemplate, variable.getPlanType(), variable.getName(), variable.getValue());
 		}

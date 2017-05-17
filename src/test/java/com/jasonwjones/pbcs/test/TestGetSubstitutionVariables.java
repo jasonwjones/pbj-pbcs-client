@@ -1,6 +1,6 @@
 package com.jasonwjones.pbcs.test;
 
-import java.util.List;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,7 +20,7 @@ public class TestGetSubstitutionVariables extends AbstractIntegrationTest {
 		PbcsApplication app = client.getApplication("MDP_Demo");
 		
 		PbcsApplicationImpl app2 = (PbcsApplicationImpl) app;
-		List<SubstitutionVariable> vars = app2.getSubstitutionVariables();
+		Set<SubstitutionVariable> vars = app2.getSubstitutionVariables();
 		
 		System.out.println("Count of variables: " + vars.size());
 		for (SubstitutionVariable var : vars) {
