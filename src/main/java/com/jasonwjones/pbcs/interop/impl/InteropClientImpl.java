@@ -2,6 +2,7 @@ package com.jasonwjones.pbcs.interop.impl;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.util.Arrays;
@@ -9,8 +10,10 @@ import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -221,6 +224,46 @@ public class InteropClientImpl implements InteropClient {
 	    fileInputStream.read(filecontent, 0, byteLength);
 	    fileInputStream.close();
 	    return filecontent;
+	}
+
+	@Override
+	public File downloadFileViaStream(String filename) throws PbcsClientException {
+		return downloadFileViaStream(filename, filename);
+	}
+
+	@Override
+	public File downloadFileViaStream(String filename, String localFilename) {
+		logger.info("Requested file download: {}", filename);
+		File localFile = new File(localFilename);
+		if (localFile.isDirectory()) {
+			logger.info("Will download {} to local folder {}", filename, localFile);
+		} else {
+
+		}
+
+		String url = this.baseUrl + serviceConfiguration.getInteropApiVersion()
+				+ String.format("/applicationsnapshots/%s/contents", filename);
+
+
+		HttpHeaders headers = new HttpHeaders();
+		headers.setAccept(Arrays.asList(MediaType.APPLICATION_OCTET_STREAM));
+		HttpEntity<String> entity = new HttpEntity<String>(headers);
+		ResponseEntity<Resource> responseEntity = restTemplate.exchange(url, HttpMethod.GET, entity, Resource.class);
+		logger.info("Headers: " + responseEntity.getHeaders());
+
+		// likely to be zip or csv (can it be xml?)
+		String extension = responseEntity.getHeaders().get("fileExtension").get(0);
+
+		logger.info("Canonical file extension for local file: {}", extension);
+
+		try {
+			File outputFile = new File(localFilename);
+			IOUtils.copy(responseEntity.getBody().getInputStream(), new FileOutputStream(outputFile));
+			return outputFile;
+		} catch (IOException e) {
+			logger.error("Unable to write local file", e);
+			throw new PbcsClientException("Unable to write downloaded file", e);
+		}
 	}
 	
 }

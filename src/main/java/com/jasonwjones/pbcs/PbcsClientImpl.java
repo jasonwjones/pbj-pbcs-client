@@ -83,6 +83,16 @@ public class PbcsClientImpl implements PbcsClient {
 		throw new UnsupportedOperationException("Operation not supported yet");
 	}
 
+	@Override
+	public File downloadFileViaStream(String filename) throws PbcsClientException {
+		return interopClient.downloadFileViaStream(filename);
+	}
+
+	@Override
+	public File downloadFileViaStream(String filename, String localFilename) {
+		return interopClient.downloadFileViaStream(filename, localFilename);
+	}
+
 //	@Override
 //	public MaintenanceWindow getMaintenanceWindow() {
 //		return interopClient.getMaintenanceWindow();
