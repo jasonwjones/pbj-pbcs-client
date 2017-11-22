@@ -8,6 +8,9 @@ import java.net.URI;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map.Entry;
+
+import javax.management.relation.RelationSupportMBean;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -19,6 +22,10 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.ClientHttpRequest;
+import org.springframework.http.client.ClientHttpResponse;
+import org.springframework.web.client.RequestCallback;
+import org.springframework.web.client.ResponseExtractor;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -245,20 +252,31 @@ public class InteropClientImpl implements InteropClient {
 				+ String.format("/applicationsnapshots/%s/contents", filename);
 
 
-		HttpHeaders headers = new HttpHeaders();
+		final HttpHeaders headers = new HttpHeaders();
 		headers.setAccept(Arrays.asList(MediaType.APPLICATION_OCTET_STREAM));
-		HttpEntity<String> entity = new HttpEntity<String>(headers);
-		ResponseEntity<Resource> responseEntity = restTemplate.exchange(url, HttpMethod.GET, entity, Resource.class);
-		logger.info("Headers: " + responseEntity.getHeaders());
-
-		// likely to be zip or csv (can it be xml?)
-		String extension = responseEntity.getHeaders().get("fileExtension").get(0);
-
-		logger.info("Canonical file extension for local file: {}", extension);
-
 		try {
-			File outputFile = new File(localFilename);
-			IOUtils.copy(responseEntity.getBody().getInputStream(), new FileOutputStream(outputFile));
+		final File outputFile = File.createTempFile(localFilename, "");
+		restTemplate.execute(url, HttpMethod.GET, new RequestCallback() {
+			
+			@Override
+			public void doWithRequest(ClientHttpRequest request) throws IOException {
+				for (Entry<String, List<String>> header:headers.entrySet()) {
+					request.getHeaders().put(header.getKey(), header.getValue());
+				}
+				
+				
+			}
+		}, new ResponseExtractor<Void>() {
+
+			@Override
+			public Void extractData(ClientHttpResponse response) throws IOException {
+				IOUtils.copy(response.getBody(), new FileOutputStream(outputFile));
+				return null;
+			}
+		});
+		
+
+		
 			return outputFile;
 		} catch (IOException e) {
 			logger.error("Unable to write local file", e);
