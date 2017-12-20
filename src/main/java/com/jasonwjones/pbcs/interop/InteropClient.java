@@ -35,18 +35,25 @@ public interface InteropClient {
 	public File downloadFile(String filename) throws PbcsClientException;
 
 	public File downloadFile(String filename, String localFilename);
+	
 	/**
-	 * This is usefull for downloading large files - whole content is streamed to disk
+	 * This is useful for downloading large files - whole content is streamed to
+	 * disk
+	 * 
 	 * @param filename remote filename in cloud
-	 * @return
-	 * @throws PbcsClientException
+	 * @return an object representing the downloaded file
+	 * @throws PbcsClientException if an error occurs
 	 */
+	
 	public File downloadFileViaStream(String filename) throws PbcsClientException;
+	
 	/**
-	 * This is usefull for downloading large files - whole content is streamed to disk
+	 * This is useful for downloading large files - whole content is streamed to
+	 * disk
+	 * 
 	 * @param filename remote filename in cloud
 	 * @param localFilename filename on disk
-	 * @return
+	 * @return an object representing the downloaded file
 	 */
 	public File downloadFileViaStream(String filename, String localFilename);
 

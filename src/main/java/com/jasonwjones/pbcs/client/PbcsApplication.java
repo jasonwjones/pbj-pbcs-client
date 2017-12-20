@@ -138,7 +138,6 @@ public interface PbcsApplication {
 	 * 
 	 * @param name the name of the variable to fetch
 	 * @return the variable object, if it exists
-	 * @throws PbcsNoSuchVariableException if the variable does not exist
 	 */
 	public SubstitutionVariable getSubstitutionVariable(String name);
 
