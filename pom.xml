@@ -86,9 +86,8 @@
 
 	<properties>
 		<github.global.server>github</github.global.server>
-		<!-- gets Spring Boot package phase to set main class entry for runnable JAR. Trying to 
-		     use Maven Shade to do this doesn't work (likely because of overrides Spring makes in
-		     the parent POM -->
+		<!-- gets Spring Boot package phase to set main class entry for runnable JAR. Trying to use Maven Shade to do this doesn't work (likely because 
+			of overrides Spring makes in the parent POM -->
 		<start-class>com.jasonwjones.pbcs.cli.PbjCli</start-class>
 	</properties>
 
@@ -115,15 +114,7 @@
 		</repository>
 	</distributionManagement>
 
-	<!-- <distributionManagement> <site> <id>ftp-jasonwjones-developer</id> 
-		<url>ftp://developer.jasonwjones.com/pbj-pbcs-java-client</url> <name>foo</name> 
-		</site> <repository> <id>ftp-jasonwjones-developer</id> <url>ftp://developer.jasonwjones.com/pbj-pbcs-java-client</url> 
-		<name>foo</name> </repository> </distributionManagement> -->
-
 	<build>
-		<!-- <extensions> <extension> <groupId>org.apache.maven.wagon</groupId> 
-			<artifactId>wagon-ftp</artifactId> <version>2.10</version> </extension> </extensions> -->
-
 		<pluginManagement>
 			<plugins>
 				<plugin>
@@ -136,15 +127,19 @@
 						<arguments>-Psonatype-oss-release</arguments>
 					</configuration>
 				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-site-plugin</artifactId>
+					<version>3.7</version>
+				</plugin>
 			</plugins>
 		</pluginManagement>
 
 		<plugins>
-			<!-- <plugin> <groupId>org.apache.maven.plugins</groupId> <artifactId>maven-deploy-plugin</artifactId> 
-				<configuration> <skip>true</skip> </configuration> </plugin> -->
-			<!-- <plugin> <groupId>org.sonatype.plugins</groupId> <artifactId>nexus-staging-maven-plugin</artifactId> 
-				<version>1.6.6</version> <extensions>true</extensions> <configuration> <serverId>ossrh</serverId> 
-				<nexusUrl>http://oss.sonatype:8081/nexus/</nexusUrl> </configuration> </plugin> -->
+			<!-- <plugin> <groupId>org.apache.maven.plugins</groupId> <artifactId>maven-deploy-plugin</artifactId> <configuration> <skip>true</skip> </configuration> 
+				</plugin> -->
+			<!-- <plugin> <groupId>org.sonatype.plugins</groupId> <artifactId>nexus-staging-maven-plugin</artifactId> <version>1.6.6</version> <extensions>true</extensions> 
+				<configuration> <serverId>ossrh</serverId> <nexusUrl>http://oss.sonatype:8081/nexus/</nexusUrl> </configuration> </plugin> -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-resources-plugin</artifactId>
