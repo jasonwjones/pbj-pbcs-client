@@ -1,9 +1,14 @@
 package com.jasonwjones.pbcs.client.impl;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +21,9 @@ import com.jasonwjones.pbcs.api.v3.JobDefinition;
 import com.jasonwjones.pbcs.api.v3.JobDefinitionsWrapper;
 import com.jasonwjones.pbcs.api.v3.JobLaunchPayload;
 import com.jasonwjones.pbcs.api.v3.JobLaunchResponse;
+import com.jasonwjones.pbcs.api.v3.SubstitutionVariable;
+import com.jasonwjones.pbcs.api.v3.SubstitutionVariablesWrapper;
+import com.jasonwjones.pbcs.api.v3.SubstiutionVariableUpdateWrapper;
 import com.jasonwjones.pbcs.api.v3.dataslices.DataSlice;
 import com.jasonwjones.pbcs.api.v3.dataslices.ExportDataSlice;
 import com.jasonwjones.pbcs.client.PbcsApplication;
@@ -25,6 +33,7 @@ import com.jasonwjones.pbcs.client.PbcsJobStatus;
 import com.jasonwjones.pbcs.client.PbcsJobType;
 import com.jasonwjones.pbcs.client.PbcsMemberProperties;
 import com.jasonwjones.pbcs.client.exceptions.PbcsClientException;
+import com.jasonwjones.pbcs.client.exceptions.PbcsNoSuchVariableException;
 import com.jasonwjones.pbcs.client.impl.models.PbcsMemberPropertiesImpl;
 
 public class PbcsApplicationImpl implements PbcsApplication {
@@ -63,8 +72,13 @@ public class PbcsApplicationImpl implements PbcsApplication {
 
 	@Override
 	public List<PbcsJobDefinition> getJobDefinitions(PbcsJobType jobType) {
-		// TODO Auto-generated method stub
-		return null;
+		List<PbcsJobDefinition> filteredJobDefinitinos = new ArrayList<PbcsJobDefinition>();
+		for (PbcsJobDefinition currentDef : getJobDefinitions()) {
+			if (currentDef.getJobType().equals(jobType.name())) {
+				filteredJobDefinitinos.add(currentDef);
+			}
+		}
+		return filteredJobDefinitinos;
 	}
 
 	@Override
@@ -190,6 +204,41 @@ public class PbcsApplicationImpl implements PbcsApplication {
 		return application.getType();
 	}
 
+	@Override
+	public Set<SubstitutionVariable> getSubstitutionVariables() {
+		logger.info("Getting job definitions for {}", application.getName());
+		String url = this.context.getBaseUrl() + "applications/{application}/substitutionvariables";
+		ResponseEntity<SubstitutionVariablesWrapper> response = this.context.getTemplate().getForEntity(url, SubstitutionVariablesWrapper.class, appMap);
+		return new HashSet<SubstitutionVariable>(response.getBody().getItems()); 
+	}
+	
+	@Override
+	public SubstitutionVariable getSubstitutionVariable(String variableName) {
+		logger.info("Retrieving value of substitution variable");
+		for (SubstitutionVariable var : getSubstitutionVariables()) {
+			if (var.getName().equals(variableName)) {
+				return var;
+			}
+		}
+		throw new PbcsNoSuchVariableException(application.getName(), variableName);
+	}
+	
+	@Override
+	public void updateSubstitutionVariables(Collection<SubstitutionVariable> variables) {
+		String url = this.context.getBaseUrl() + "applications/{application}/substitutionvariables"; 
+		SubstiutionVariableUpdateWrapper subs = new SubstiutionVariableUpdateWrapper();
+		subs.setItems(new ArrayList<SubstitutionVariable>(variables));
+		ResponseEntity<String> resp = this.context.getTemplate().postForEntity(url, subs, String.class, appMap);
+		//logger.info("Response: {}", resp.getHeaders());
+		//System.out.println(resp.getBody());		
+	}
+	
+	@Override
+	public void updateSubstitutionVariable(String name, String value) {
+		Collection<SubstitutionVariable> var = Arrays.asList(new SubstitutionVariable(name, value));
+		updateSubstitutionVariables(var);
+	}
+	
 	/**
 	 * CREST doc: Adds a new member to the application outline in the specified
 	 * dimension and plan type and under the specified parent member.
@@ -291,6 +340,12 @@ public class PbcsApplicationImpl implements PbcsApplication {
 		return slice.getBody();
 	}
 
+//	@Override
+//	public List<SubstitutionVariable> getSubstitutionVariablesForPlan(String planType) {
+//		throw new RuntimeException("Not implemented");
+//
+//	}
+	
 	private static class MemberAdd {
 
 		private String memberName;

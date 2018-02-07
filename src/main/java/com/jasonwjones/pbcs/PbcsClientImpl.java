@@ -3,6 +3,7 @@ package com.jasonwjones.pbcs;
 import java.io.File;
 import java.util.List;
 
+import com.jasonwjones.pbcs.api.v3.MaintenanceWindow;
 import com.jasonwjones.pbcs.client.PbcsApi;
 import com.jasonwjones.pbcs.client.PbcsApplication;
 import com.jasonwjones.pbcs.client.PbcsConnection;
@@ -12,6 +13,7 @@ import com.jasonwjones.pbcs.client.exceptions.PbcsClientException;
 import com.jasonwjones.pbcs.client.impl.PbcsPlanningClientImpl;
 import com.jasonwjones.pbcs.interop.InteropClient;
 import com.jasonwjones.pbcs.interop.impl.ApplicationSnapshot;
+import com.jasonwjones.pbcs.interop.impl.ApplicationSnapshotInfo;
 import com.jasonwjones.pbcs.interop.impl.InteropClientImpl;
 
 public class PbcsClientImpl implements PbcsClient {
@@ -65,6 +67,11 @@ public class PbcsClientImpl implements PbcsClient {
 	public List<ApplicationSnapshot> listFiles() {
 		return interopClient.listFiles();
 	}
+	
+	@Override
+	public ApplicationSnapshotInfo getSnapshotDetails(String name) {
+		return interopClient.getSnapshotDetails(name);
+	}
 
 	@Override
 	public void LcmExport() {
@@ -75,5 +82,20 @@ public class PbcsClientImpl implements PbcsClient {
 	public void LcmImport() {
 		throw new UnsupportedOperationException("Operation not supported yet");
 	}
+
+	@Override
+	public File downloadFileViaStream(String filename) throws PbcsClientException {
+		return interopClient.downloadFileViaStream(filename);
+	}
+
+	@Override
+	public File downloadFileViaStream(String filename, String localFilename) {
+		return interopClient.downloadFileViaStream(filename, localFilename);
+	}
+
+//	@Override
+//	public MaintenanceWindow getMaintenanceWindow() {
+//		return interopClient.getMaintenanceWindow();
+//	}
 
 }

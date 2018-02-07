@@ -163,6 +163,7 @@ example, the Apache `http-client` library is renamed and the Spring Framework pa
 
  * [Oracle REST documentation](https://docs.oracle.com/cloud/latest/pbcs_common/CREST.pdf)
  * [John Goodwin blog article on REST API](http://john-goodwin.blogspot.com/2015/09/planning-rest-api.html)
+ * [Newer? Oracle EPM REST docs](https://docs.oracle.com/cloud/latest/epm-common/PREST/PREST.pdf)
 
 
 ## Old To-Do list (move to Issues)

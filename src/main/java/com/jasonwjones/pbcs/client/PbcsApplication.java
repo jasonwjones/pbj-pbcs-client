@@ -1,8 +1,11 @@
 package com.jasonwjones.pbcs.client;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
+import com.jasonwjones.pbcs.api.v3.SubstitutionVariable;
 import com.jasonwjones.pbcs.api.v3.dataslices.DataSlice;
 import com.jasonwjones.pbcs.api.v3.dataslices.ExportDataSlice;
 
@@ -120,5 +123,40 @@ public interface PbcsApplication {
 	 * @return a data slice object (pov, headers, rows) of the results
 	 */
 	public DataSlice exportDataSlice(String planType, ExportDataSlice dataSlice);
+
+	/**
+	 * Gets all substitution variables in the application
+	 * 
+	 * @return a list of the substitution variables, an empty list if there are
+	 *         none
+	 */
+	public Set<SubstitutionVariable> getSubstitutionVariables();
+
+	/**
+	 * Fetch a substitution variable with a particular name from this
+	 * application
+	 * 
+	 * @param name the name of the variable to fetch
+	 * @return the variable object, if it exists
+	 */
+	public SubstitutionVariable getSubstitutionVariable(String name);
+
+	/**
+	 * Update a set of substitution variables. This does not replace all of the
+	 * variables in the application, it just updates the ones that have been
+	 * specified in the collection (contrary to what the REST API docs seem to
+	 * imply)
+	 * 
+	 * @param variables the variables to update
+	 */
+	public void updateSubstitutionVariables(Collection<SubstitutionVariable> variables);
+
+	/**
+	 * Convenience method to update a single substitution variable value.
+	 * 
+	 * @param name the name of the variable
+	 * @param value the value of the variable
+	 */
+	public void updateSubstitutionVariable(String name, String value);
 
 }

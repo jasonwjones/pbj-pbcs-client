@@ -3,8 +3,10 @@ package com.jasonwjones.pbcs.interop;
 import java.io.File;
 import java.util.List;
 
+import com.jasonwjones.pbcs.api.v3.MaintenanceWindow;
 import com.jasonwjones.pbcs.client.exceptions.PbcsClientException;
 import com.jasonwjones.pbcs.interop.impl.ApplicationSnapshot;
+import com.jasonwjones.pbcs.interop.impl.ApplicationSnapshotInfo;
 
 /**
  * Main interface for LCM operations.
@@ -33,6 +35,27 @@ public interface InteropClient {
 	public File downloadFile(String filename) throws PbcsClientException;
 
 	public File downloadFile(String filename, String localFilename);
+	
+	/**
+	 * This is useful for downloading large files - whole content is streamed to
+	 * disk
+	 * 
+	 * @param filename remote filename in cloud
+	 * @return an object representing the downloaded file
+	 * @throws PbcsClientException if an error occurs
+	 */
+	
+	public File downloadFileViaStream(String filename) throws PbcsClientException;
+	
+	/**
+	 * This is useful for downloading large files - whole content is streamed to
+	 * disk
+	 * 
+	 * @param filename remote filename in cloud
+	 * @param localFilename filename on disk
+	 * @return an object representing the downloaded file
+	 */
+	public File downloadFileViaStream(String filename, String localFilename);
 
 	/**
 	 * Uploads a file to PBCS so that it can be imported.
@@ -57,6 +80,10 @@ public interface InteropClient {
 	 */
 	public List<ApplicationSnapshot> listFiles();
 
+	public ApplicationSnapshotInfo getSnapshotDetails(String name); 
+	
+	//public MaintenanceWindow getMaintenanceWindow();
+	
 	/**
 	 * TODO: Implement LCM Export functionality.
 	 */

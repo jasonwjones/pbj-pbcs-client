@@ -9,8 +9,12 @@ import org.slf4j.LoggerFactory;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.ParameterException;
 import com.jasonwjones.pbcs.PbcsClientFactory;
+import com.jasonwjones.pbcs.cli.command.DownloadFileCommand;
 import com.jasonwjones.pbcs.cli.command.EncodePasswordCommand;
 import com.jasonwjones.pbcs.cli.command.GetMemberCommand;
+import com.jasonwjones.pbcs.cli.command.ListApplicationsCommand;
+import com.jasonwjones.pbcs.cli.command.ListFilesCommand;
+import com.jasonwjones.pbcs.cli.command.ListVariablesCommand;
 import com.jasonwjones.pbcs.cli.command.MainCommand;
 import com.jasonwjones.pbcs.cli.command.PbjCliCommand;
 import com.jasonwjones.pbcs.client.impl.PbcsConnectionImpl;
@@ -28,23 +32,37 @@ public class PbjCli {
 
 	public static void main(String[] args) {
 		
-		// Set logger level dynamically. TODO: add -v flag for debug output
-		Logger root = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
-		root.setLevel(Level.INFO);
-		
 		MainCommand main = new MainCommand();
 		JCommander jc = new JCommander(main);
 		
 		Map<String, PbjCliCommand> commands = new HashMap<String, PbjCliCommand>();
 		commands.put("get-member", new GetMemberCommand());
 		commands.put("encode-password", new EncodePasswordCommand());
+		commands.put("list-applications", new ListApplicationsCommand());
+		commands.put("download-file", new DownloadFileCommand());
+		commands.put("list-variables", new ListVariablesCommand());
+		commands.put("list-files", new ListFilesCommand());
 
 		for (Map.Entry<String, ?> command : commands.entrySet()) {
 			jc.addCommand(command.getKey(), command.getValue());
 		}
 		
 		try {
-			jc.parse(args);			
+			jc.parse(args);
+			
+			if (!main.isDebugLogging()) {
+				Logger root = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
+				root.setLevel(Level.DEBUG);
+			} else {
+				Logger root = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
+				root.setLevel(Level.DEBUG);				
+			}
+			
+			if (main.isLoggingOff()) {
+				Logger root = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
+				root.setLevel(Level.OFF);				
+			}
+			
 			String command = jc.getParsedCommand();
 			if (command != null && !command.isEmpty()) {
 				if (commands.containsKey(command)) {
