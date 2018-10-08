@@ -3,6 +3,7 @@ package com.jasonwjones.pbcs;
 import java.io.File;
 import java.util.List;
 
+import com.jasonwjones.pbcs.client.JobConfiguration;
 import com.jasonwjones.pbcs.client.PbcsApi;
 import com.jasonwjones.pbcs.client.PbcsApplication;
 import com.jasonwjones.pbcs.client.PbcsConnection;
@@ -14,6 +15,7 @@ import com.jasonwjones.pbcs.interop.InteropClient;
 import com.jasonwjones.pbcs.interop.impl.ApplicationSnapshot;
 import com.jasonwjones.pbcs.interop.impl.ApplicationSnapshotInfo;
 import com.jasonwjones.pbcs.interop.impl.InteropClientImpl;
+import org.springframework.web.client.ResponseErrorHandler;
 
 public class PbcsClientImpl implements PbcsClient {
 
@@ -48,6 +50,11 @@ public class PbcsClientImpl implements PbcsClient {
 	}
 
 	@Override
+	public String LcmImport(JobConfiguration job) {
+		return interopClient.LcmImport(job);
+	}
+
+	@Override
 	public File downloadFile(String filename, String localFilename) throws PbcsClientException {
 		return interopClient.downloadFile(filename, localFilename);
 	}
@@ -68,6 +75,11 @@ public class PbcsClientImpl implements PbcsClient {
 	}
 
 	@Override
+	public void setErrorHandler(ResponseErrorHandler handler) {
+		interopClient.setErrorHandler(handler);
+	}
+
+	@Override
 	public List<ApplicationSnapshot> listFiles() {
 		return interopClient.listFiles();
 	}
@@ -82,10 +94,6 @@ public class PbcsClientImpl implements PbcsClient {
 		throw new UnsupportedOperationException("Operation not supported yet");
 	}
 
-	@Override
-	public void LcmImport() {
-		throw new UnsupportedOperationException("Operation not supported yet");
-	}
 
 	@Override
 	public File downloadFileViaStream(String filename) throws PbcsClientException {

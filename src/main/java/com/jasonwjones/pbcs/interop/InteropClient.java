@@ -3,9 +3,11 @@ package com.jasonwjones.pbcs.interop;
 import java.io.File;
 import java.util.List;
 
+import com.jasonwjones.pbcs.client.JobConfiguration;
 import com.jasonwjones.pbcs.client.exceptions.PbcsClientException;
 import com.jasonwjones.pbcs.interop.impl.ApplicationSnapshot;
 import com.jasonwjones.pbcs.interop.impl.ApplicationSnapshotInfo;
+import org.springframework.web.client.ResponseErrorHandler;
 
 /**
  * Main interface for LCM operations.
@@ -34,35 +36,38 @@ public interface InteropClient {
 	public File downloadFile(String filename) throws PbcsClientException;
 
 	public File downloadFile(String filename, String localFilename);
+
+	public String LcmImport(JobConfiguration job);
+
 	/**
-	 * This is usefull for downloading large files - whole content is streamed to disk
+	 * This is useful for downloading large files - whole content is streamed to
+	 * disk
+	 * 
 	 * @param filename remote filename in cloud
-	 * @return
-	 * @throws PbcsClientException
+	 * @return an object representing the downloaded file
+	 * @throws PbcsClientException if an error occurs
 	 */
+	
 	public File downloadFileViaStream(String filename) throws PbcsClientException;
+	
 	/**
-	 * This is usefull for downloading large files - whole content is streamed to disk
+	 * This is useful for downloading large files - whole content is streamed to
+	 * disk
+	 * 
 	 * @param filename remote filename in cloud
 	 * @param localFilename filename on disk
-	 * @return
+	 * @return an object representing the downloaded file
 	 */
 	public File downloadFileViaStream(String filename, String localFilename);
 
+	void uploadFile(String filename, String remoteDir);
+
 	/**
-	 * Uploads a file to PBCS so that it can be imported. By default this uploads to inbox
+	 * Uploads a file to PBCS so that it can be imported.
 	 * 
 	 * @param filename the local name of the file to upload
 	 */
 	public void uploadFile(String filename);
-
-	/**
-	 * Uploads a file to PBCS so that it can be imported. This uploads to direcotry that is chosen
-	 *
-	 * @param filename the local name of the file to upload
-	 * @param directory the dir to which this uploads to
-	 */
-	public void uploadFile(String filename, String directory);
 
 	/**
 	 * Deletes the file (snapshot) with the given name.
@@ -70,6 +75,8 @@ public interface InteropClient {
 	 * @param filename the name of the file to delete
 	 */
 	public void deleteFile(String filename);
+
+	void setErrorHandler(ResponseErrorHandler handler);
 
 	/**
 	 * Return a list of files available on the remote system. Note that this
@@ -89,6 +96,5 @@ public interface InteropClient {
 	 */
 	public void LcmExport();
 
-	public void LcmImport();
 
 }

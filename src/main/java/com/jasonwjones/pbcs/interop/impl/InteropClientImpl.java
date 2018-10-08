@@ -7,16 +7,23 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
 
-import javax.management.relation.RelationSupportMBean;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jasonwjones.pbcs.api.v3.HypermediaLink;
+import com.jasonwjones.pbcs.api.v3.MaintenanceWindow;
+import com.jasonwjones.pbcs.api.v3.ServiceDefinitionWrapper;
+import com.jasonwjones.pbcs.client.JobConfiguration;
+import com.jasonwjones.pbcs.client.PbcsConnection;
+import com.jasonwjones.pbcs.client.PbcsServiceConfiguration;
+import com.jasonwjones.pbcs.client.exceptions.PbcsClientException;
+import com.jasonwjones.pbcs.interop.InteropClient;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.io.Resource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -25,17 +32,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.ClientHttpRequest;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.web.client.RequestCallback;
+import org.springframework.web.client.ResponseErrorHandler;
 import org.springframework.web.client.ResponseExtractor;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
-
-import com.jasonwjones.pbcs.api.v3.HypermediaLink;
-import com.jasonwjones.pbcs.api.v3.MaintenanceWindow;
-import com.jasonwjones.pbcs.api.v3.ServiceDefinitionWrapper;
-import com.jasonwjones.pbcs.client.PbcsConnection;
-import com.jasonwjones.pbcs.client.PbcsServiceConfiguration;
-import com.jasonwjones.pbcs.client.exceptions.PbcsClientException;
-import com.jasonwjones.pbcs.interop.InteropClient;
 
 public class InteropClientImpl implements InteropClient {
 
@@ -77,7 +77,11 @@ public class InteropClientImpl implements InteropClient {
 //		
 		//Vision SS 14 Feb 2016
 	}
-	
+	@Override
+	public void setErrorHandler(ResponseErrorHandler handler){
+		restTemplate.setErrorHandler(handler);
+	}
+
 	public void getApiVersions() {
 		logger.info("Listing REST API versions");
 		ResponseEntity<String> response = restTemplate.getForEntity(baseUrl, String.class);
@@ -98,7 +102,7 @@ public class InteropClientImpl implements InteropClient {
 		System.out.println(snap.getBody());
 		return null;
 	}
-
+	@Override
 	public void uploadFile(String filename, String remoteDir) {
 		File fileToUpload = new File(filename);
 		if (!fileToUpload.exists()) {
@@ -133,7 +137,6 @@ public class InteropClientImpl implements InteropClient {
 	public void uploadFile(String filename) {
 		uploadFile(filename, "inbox");
 	}
-	
 	// upload local txt to zip
 	public void uploadFile(String remoteFilename, List<String> localFiles) {
 		throw new RuntimeException("Not implemented yet");
@@ -226,8 +229,20 @@ public class InteropClientImpl implements InteropClient {
 	}
 
 	@Override
-	public void LcmImport() {
-		// TODO Auto-generated method stub
+	public String LcmImport(JobConfiguration job) {
+		try {
+			ObjectMapper mapper = new ObjectMapper();
+			String jobJson = mapper.writeValueAsString(job);
+			HttpHeaders headers = new HttpHeaders();
+			headers.setContentType(MediaType.APPLICATION_JSON);
+			HttpEntity<?> requestEntity = new HttpEntity<Object>(jobJson, headers);
+			ResponseEntity<String> responseEntity = restTemplate.exchange(this.baseUrl.replace("/interop/rest/", "") + "/aif/rest/V1/jobs", HttpMethod.POST, requestEntity, String.class, new HashMap<String, Object>());
+			return responseEntity.toString();
+		}
+
+		catch (Exception e){
+			throw new RuntimeException(e);
+		}
 		
 	}
 	
