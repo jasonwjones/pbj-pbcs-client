@@ -98,9 +98,8 @@ public class InteropClientImpl implements InteropClient {
 		System.out.println(snap.getBody());
 		return null;
 	}
-	
-	@Override
-	public void uploadFile(String filename) {
+
+	public void uploadFile(String filename, String remoteDir) {
 		File fileToUpload = new File(filename);
 		if (!fileToUpload.exists()) {
 			logger.error("File {} does not exist");
@@ -113,7 +112,7 @@ public class InteropClientImpl implements InteropClient {
 			String filenameOnly = SimpleFilenameUtils.getName(filename);
 			logger.info("Source file {} will be {} on target", filename, filenameOnly);
 			byte[] data = readFileToBytes(filename);
-			String url = String.format("/applicationsnapshots/%s/contents?q={chunkSize:%d,isFirst:%b,isLast:%b}", filenameOnly, data.length, true, true);
+			String url = String.format("/applicationsnapshots/%s/contents?q={chunkSize:%d,isFirst:%b,isLast:%b,extDirPath:"+remoteDir+"}", filenameOnly, data.length, true, true);
 
 			URI uri = UriComponentsBuilder.fromHttpUrl(this.baseUrl + serviceConfiguration.getInteropApiVersion() + url).build().toUri();
 			HttpHeaders headers = new HttpHeaders();
@@ -124,6 +123,15 @@ public class InteropClientImpl implements InteropClient {
 		} catch (IOException e) {
 			throw new PbcsClientException("Couldn't read/upload file", e);
 		}
+	}
+
+	/***
+	 *
+	 * @param filename the local name of the file to upload
+	 */
+	@Override
+	public void uploadFile(String filename) {
+		uploadFile(filename, "inbox");
 	}
 	
 	// upload local txt to zip

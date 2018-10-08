@@ -3,7 +3,6 @@ package com.jasonwjones.pbcs;
 import java.io.File;
 import java.util.List;
 
-import com.jasonwjones.pbcs.api.v3.MaintenanceWindow;
 import com.jasonwjones.pbcs.client.PbcsApi;
 import com.jasonwjones.pbcs.client.PbcsApplication;
 import com.jasonwjones.pbcs.client.PbcsConnection;
@@ -56,6 +55,11 @@ public class PbcsClientImpl implements PbcsClient {
 	@Override
 	public void uploadFile(String filename) {
 		interopClient.uploadFile(filename);
+	}
+
+	@Override
+	public void uploadFile(String filename, String directory) {
+		interopClient.uploadFile(filename, directory);
 	}
 
 	@Override
