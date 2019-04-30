@@ -78,7 +78,9 @@ public class DimensionMembers {
 		this.dimensions = dimensions;
 		this.members = new ArrayList<List<String>>();
 		for (String member : members) {
-			this.members.add(Arrays.asList(member));
+			List<String> newList = new ArrayList<String>();
+			newList.add(member);
+			this.members.add(newList);
 		}
 	}
 
@@ -87,6 +89,23 @@ public class DimensionMembers {
 		dm.dimensions = dimensions;
 		dm.members = members;
 		return dm;
+	}
+	
+	public static DimensionMembers ofDimAndMembers(String... dimMembers) {
+		if (dimMembers.length % 2 != 0) {
+			throw new IllegalArgumentException("Number of passed members should be even as each two arguments is a dimension name and member");
+		}
+		List<String> dimensions = new ArrayList<String>();
+		List<String> members = new ArrayList<String>();
+		
+		for (int i = 0; i < dimMembers.length; i++) {
+			if (i % 2 == 0) {
+				dimensions.add(dimMembers[i]);
+			} else {
+				members.add(dimMembers[i]);
+			}
+		}
+		return new DimensionMembers(dimensions, members);
 	}
 
 	/**
@@ -107,6 +126,10 @@ public class DimensionMembers {
 	public static DimensionMembers of(String... members) {
 		return new DimensionMembers(null, Arrays.asList(members));
 	}
+	
+	public static DimensionMembers ofSingleDimension(String... members) {
+		return of(wrap(mutableList(members)));
+	}
 
 	public List<String> getDimensions() {
 		return dimensions;
@@ -123,7 +146,21 @@ public class DimensionMembers {
 	public void setMembers(List<List<String>> members) {
 		this.members = members;
 	}
+	
+	
 
+//	public void addFirst(String member) {
+//		this.members.
+//	}
+	
+	public void addFirst(List<String> addMembers) {
+		this.members.add(0, addMembers);
+	}
+	
+	public void addToFirst(List<String> addMembers) {
+		this.members.get(0).addAll(addMembers);
+	}
+	
 	public DimensionMembers withMemberReplacement(String oldMember, String newDefinition) {
 		for (List<String> memberList : members) {
 			for (int index = 0; index < memberList.size(); index++) {
@@ -136,4 +173,22 @@ public class DimensionMembers {
 		return null;
 	}
 
+//	public static List<List<String>> listOfList(String... items) {
+//		
+//	}
+	
+	public static List<String> mutableList(String... items) {
+		List<String> list = new ArrayList<String>();
+		for (String item : items) {
+			list.add(item);
+		}
+		return list;
+	}
+	
+	public static List<List<String>> wrap(List<String> list) {
+		List<List<String>> lists = new ArrayList<List<String>>();
+		lists.add(list);
+		return lists;
+	}
+	
 }

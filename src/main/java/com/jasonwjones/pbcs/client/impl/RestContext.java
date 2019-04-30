@@ -8,6 +8,8 @@ public class RestContext {
 	
 	private String baseUrl;
 	
+	private String aifBaseUrl;
+	
 	public RestContext(RestTemplate template, String baseUrl) {
 		this.template = template;
 		this.baseUrl = baseUrl;
@@ -20,5 +22,17 @@ public class RestContext {
 	public String getBaseUrl() {
 		return baseUrl;
 	}
+
+	public void setAifBaseUrl(String aifBaseUrl) {
+		this.aifBaseUrl = aifBaseUrl;
+	}
 	
+	public String gtAifBaseUrl() {
+		return this.aifBaseUrl;
+	}
+	
+	public String getAifUrl(String suffix) {
+		return this.aifBaseUrl + suffix;
+	}
+		
 }

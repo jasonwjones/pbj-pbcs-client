@@ -3,6 +3,7 @@ package com.jasonwjones.pbcs.client.impl.models;
 import java.util.Collections;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.jasonwjones.pbcs.client.PbcsMemberProperties;
 
 public class PbcsMemberPropertiesImpl implements PbcsMemberProperties {
@@ -21,10 +22,13 @@ public class PbcsMemberPropertiesImpl implements PbcsMemberProperties {
 
 	private String dataStorage;
 
+	@JsonProperty("dimName")
 	private String dimensionName;
 
 	private boolean twoPass;
 
+	private List<String> usedIn;
+	
 	public String getName() {
 		return name;
 	}
@@ -104,5 +108,31 @@ public class PbcsMemberPropertiesImpl implements PbcsMemberProperties {
 	public boolean isLeaf() {
 		return getChildren().isEmpty();
 	}
-		
+
+	@Override
+	public List<String> getUsedIn() {
+		return usedIn;
+	}
+	
+	public void setUsedIn(List<String> usedIn) {
+		this.usedIn = usedIn;
+	}
+
+	@Override
+	public int getLevel() {
+		if (children == null || children.isEmpty()) {
+			return 0;
+		} else {
+			int minLevel = -1;
+			for (PbcsMemberProperties child : children) {
+				if (minLevel == -1) {
+					minLevel = child.getLevel();
+				} else {
+					minLevel = Math.min(minLevel, child.getLevel());
+				}
+			}
+			return minLevel + 1;
+		}
+	}
+	
 }

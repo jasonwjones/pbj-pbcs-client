@@ -16,6 +16,10 @@ public interface PbcsServiceConfiguration {
 	
 	public String getInteropRestApiPath();
 	
+	public String getAifRestApiVersion();
+	
+	public String getAifRestApiPath();
+	
 	public Boolean isSkipApiCheck();
 	
 	public ClientHttpRequestFactory createRequestFactory(PbcsConnection connection);

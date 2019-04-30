@@ -24,7 +24,7 @@ public class PbcsClientException extends RuntimeException {
 	public PbcsClientException(String message, Throwable cause) {
 		super(message, cause);
 	}
-
+	
 	/**
 	 * Might get HTTP body like this:
 	 * 
@@ -63,21 +63,20 @@ public class PbcsClientException extends RuntimeException {
 	public static PbcsClientException createException(ClientHttpResponse response, String responseBody) {
 		// TODO: static
 		ObjectMapper mapper = new ObjectMapper();
-//		try {
-				// eats the stream, we can't use it for something else...
-				//PbcsErrorResponse errorResponse = mapper.readValue(responseBody, PbcsErrorResponse.class);
-				return new PbcsClientException(responseBody);
-//		} catch (JsonParseException e) {
-//			return new PbcsClientException("PBJ General Error", e);
-//		} catch (JsonMappingException e) {
-//			return new PbcsClientException("PBJ General Error", e);
-//		} catch (IOException e) {
-//			return new PbcsClientException("PBJ General Error", e);
-//		}
+		try {
+			PbcsErrorResponse errorResponse = mapper.readValue(responseBody, PbcsErrorResponse.class);
+			return new PbcsGeneralException(errorResponse);
+		} catch (JsonParseException e) {
+			return new PbcsClientException("PBJ General Error", e);
+		} catch (JsonMappingException e) {
+			return new PbcsClientException("PBJ General Error", e);
+		} catch (IOException e) {
+			return new PbcsClientException("PBJ General Error", e);
+		}
 	
 	}
 
-	private static class PbcsErrorResponse {
+	public static class PbcsErrorResponse {
 
 		private String detail;
 		private int status;
@@ -115,6 +114,7 @@ public class PbcsClientException extends RuntimeException {
 		public void setLocalizedMessage(String localizedMessage) {
 			this.localizedMessage = localizedMessage;
 		}
+		
 	}
 
 }

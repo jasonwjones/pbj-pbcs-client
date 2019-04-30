@@ -17,7 +17,7 @@ public class TestInteropDownloadFile extends AbstractIntegrationTest {
 		logger.info("Downloading file");
 		logger.info("File count: {}", client.listFiles().size());
 		
-		File downloaded = client.downloadFile("vision data 17-03-07");
+		//File downloaded = client.downloadFile("vision data 17-03-07");
 		//File downloaded = client.downloadFile("apr/2017-02-28 08_31_41");
 		
 		

@@ -159,4 +159,12 @@ public interface PbcsApplication {
 	 */
 	public void updateSubstitutionVariable(String name, String value);
 
+	public List<PbcsDimension> getDimensions();
+	
+	public PbcsDimension getDimension(String dimensionName);
+	
+	public List<PbcsDimension> getDimensions(String planType);
+	
+	public List<PbcsPlanType> getPlanTypes();
+	
 }

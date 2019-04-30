@@ -1,5 +1,6 @@
 package com.jasonwjones.pbcs.api.v3.dataslices;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -20,6 +21,14 @@ public class GridDefinition {
 
 	private List<DimensionMembers> rows;
 
+	public GridDefinition() {}
+	
+	public GridDefinition(List<String> pov, List<List<String>> columns, List<List<String>> rows) {
+		this.pov = new DimensionMembers(pov);
+		this.columns = Arrays.asList(DimensionMembers.of(columns));
+		this.rows = Arrays.asList(DimensionMembers.of(rows));
+	}
+	
 	public boolean isSuppressMissingBlocks() {
 		return suppressMissingBlocks;
 	}

@@ -14,18 +14,20 @@ import org.springframework.web.client.ResponseErrorHandler;
 import com.jasonwjones.pbcs.client.exceptions.PbcsClientException;
 
 public class MyResponseErrorHandler implements ResponseErrorHandler {
-	private static final Logger log = LoggerFactory.getLogger(MyResponseErrorHandler.class);
+	
+	private static final Logger logger = LoggerFactory.getLogger(MyResponseErrorHandler.class);
 
 	@Override
 	public void handleError(ClientHttpResponse response) throws IOException {
-		log.error("Response error: {} {}", response.getStatusCode(), response.getStatusText());
+		//logger.error("Response error: {} {}", response.getStatusCode(), response.getStatusText());
 				
 		// pull the response body and pass separately since the first read of the stream off of
 		// ClientHttpResponse would eat it and make subsequent attempts fail
 		String responseBody = inputStreamToString(response.getBody());
-		log.error("Headers: {}", response.getHeaders());
-		log.error("Status: {} ({})", response.getStatusCode().value(), response.getStatusText());
-		log.error("Body: {}", responseBody);
+		
+//		logger.error("Headers: {}", response.getHeaders());
+//		logger.error("Status: {} ({})", response.getStatusCode().value(), response.getStatusText());
+//		logger.error("Body: {}", responseBody);
 		
 		if (response.getStatusCode().value() == 404) {
 			throw new PbcsClientException("Couldn't find endpoint");

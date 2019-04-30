@@ -48,7 +48,7 @@ public class InteropClientImpl implements InteropClient {
 	private PbcsServiceConfiguration serviceConfiguration;
 	
 	public InteropClientImpl(PbcsConnection connection, PbcsServiceConfiguration serviceConfiguration) {
-		logger.info("Initializing PBCS Interop API");
+		logger.debug("Initializing PBCS Interop API");
 		this.serviceConfiguration = serviceConfiguration;
 		this.baseUrl = serviceConfiguration.getScheme() + "://" + connection.getServer() + serviceConfiguration.getInteropRestApiPath(); // + defaultVersion; // + "/" + "applicationsnapshots";
 		this.restTemplate = new RestTemplate(serviceConfiguration.createRequestFactory(connection));
@@ -93,7 +93,6 @@ public class InteropClientImpl implements InteropClient {
 		//ResponseEntity<ApplicationSnapshotInfo> snaps = restTemplate.getForEntity(baseUrl + serviceConfiguration.getInteropApiVersion() + "/applicationsnapshots", ApplicationSnapshotsWrapper.class);
 		//ResponseEntity<String> snap = restTemplate.getForEntity(baseUrl + serviceConfiguration.getInteropApiVersion() + "/applicationsnapshots/" + name, String.class);
 		ResponseEntity<ApplicationSnapshotInfoWrapper> snap = restTemplate.getForEntity(baseUrl + serviceConfiguration.getInteropApiVersion() + "/applicationsnapshots/" + name, ApplicationSnapshotInfoWrapper.class);
-
 		//restTemplate.delete(baseUrl + serviceConfiguration.getInteropApiVersion() + "/applicationsnapshots/" + name);
 		System.out.println(snap.getBody());
 		return null;
@@ -208,8 +207,6 @@ public class InteropClientImpl implements InteropClient {
 		System.out.println("Response: " + response.getBody());
 		return null;
 	}
-
-//	public void e
 	
 	@Override
 	public void LcmExport() {
@@ -251,32 +248,27 @@ public class InteropClientImpl implements InteropClient {
 		String url = this.baseUrl + serviceConfiguration.getInteropApiVersion()
 				+ String.format("/applicationsnapshots/%s/contents", filename);
 
-
 		final HttpHeaders headers = new HttpHeaders();
 		headers.setAccept(Arrays.asList(MediaType.APPLICATION_OCTET_STREAM));
+		
 		try {
-		final File outputFile = File.createTempFile(localFilename, "");
-		restTemplate.execute(url, HttpMethod.GET, new RequestCallback() {
-			
-			@Override
-			public void doWithRequest(ClientHttpRequest request) throws IOException {
-				for (Entry<String, List<String>> header:headers.entrySet()) {
-					request.getHeaders().put(header.getKey(), header.getValue());
+			final File outputFile = File.createTempFile(localFilename, "");
+			restTemplate.execute(url, HttpMethod.GET, new RequestCallback() {
+				@Override
+				public void doWithRequest(ClientHttpRequest request) throws IOException {
+					for (Entry<String, List<String>> header : headers.entrySet()) {
+						request.getHeaders().put(header.getKey(), header.getValue());
+					}
+
 				}
-				
-				
-			}
-		}, new ResponseExtractor<Void>() {
+			}, new ResponseExtractor<Void>() {
 
-			@Override
-			public Void extractData(ClientHttpResponse response) throws IOException {
-				IOUtils.copy(response.getBody(), new FileOutputStream(outputFile));
-				return null;
-			}
-		});
-		
-
-		
+				@Override
+				public Void extractData(ClientHttpResponse response) throws IOException {
+					IOUtils.copy(response.getBody(), new FileOutputStream(outputFile));
+					return null;
+				}
+			});
 			return outputFile;
 		} catch (IOException e) {
 			logger.error("Unable to write local file", e);
