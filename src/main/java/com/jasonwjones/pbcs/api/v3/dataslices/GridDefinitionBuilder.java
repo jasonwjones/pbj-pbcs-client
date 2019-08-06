@@ -1,7 +1,6 @@
 package com.jasonwjones.pbcs.api.v3.dataslices;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -15,11 +14,6 @@ public class GridDefinitionBuilder {
 
 	private List<DimensionMembers> topMembers;
 
-	// TODO: support
-	// private List<String> leftDimensions;
-
-	// private List<List<String>> leftMembers;
-
 	public GridDefinitionBuilder() {
 		this.povMembers = new ArrayList<String>();
 		this.leftMembers = new ArrayList<DimensionMembers>();
@@ -31,6 +25,18 @@ public class GridDefinitionBuilder {
 		return this;
 	}
 
+	public GridDefinitionBuilder pov(String[][] members) {
+		List<String> nonNullMembers = new ArrayList<String>();
+		for (String[] row : members) {
+			for (String item : row) {
+				if (item != null) {
+					nonNullMembers.add(item);
+				}
+			}
+		}
+		return pov(nonNullMembers);
+	}
+	
 	public GridDefinitionBuilder pov(Collection<String> members) {
 		povMembers.addAll(members);
 		return this;
@@ -50,13 +56,35 @@ public class GridDefinitionBuilder {
 	 * Assumes data is in 'outer to inter' orientation, i.e., you might have two lists such as
 	 * [FY18, Jan] and [FY19, Feb]
 	 * 
-	 * @param memberLists
-	 * @return
+	 * @param memberLists the member lists
+	 * @return the builder
 	 */
 	public GridDefinitionBuilder topWithLists(List<List<String>> memberLists) {
 		return withLists(topMembers, memberLists);
 	}
 
+	/**
+	 * Assumes that the outer list is dimensions and the inner list is the contents of a row, such as a simple data stucture for the 'top' axis. For example, the incoming data may be:
+	 * 
+	 * <pre>
+	 * [                FY18][                FY18][                FY19]
+     * [                 Jan][                 Feb][                  Q1]
+     * </pre>
+     * 
+     * It will be transformed into:
+     * 
+     * <pre>
+     * [                FY18][                 Jan]
+     * [                FY18][                 Feb]
+     * [                FY19][                  Q1]
+     * </pre>
+     *
+     * And it will therefore be suitable for us with {@link #topWithLists(List)}, which is the 
+     * actual implementing method
+	 * 
+	 * @param data
+	 * @return
+	 */
 	public GridDefinitionBuilder topWithListsNatural(List<List<String>> data) {
 		List<List<String>> outerToInner = new ArrayList<List<String>>();
 	
@@ -78,8 +106,16 @@ public class GridDefinitionBuilder {
 		return topWithLists(outerToInner);
 	}
 	
+	public GridDefinitionBuilder topWithArraysNatural(String[][] data) {
+		return topWithListsNatural(toLists(data));
+	}
+	
 	public GridDefinitionBuilder leftWithLists(List<List<String>> memberLists) {
 		return withLists(leftMembers, memberLists);
+	}
+	
+	public GridDefinitionBuilder leftWithArrays(String[][] memberLists) {
+		return leftWithLists(toLists(memberLists));
 	}
 	
 	private GridDefinitionBuilder withLists(List<DimensionMembers> dimMembers, List<List<String>> memberLists) {
@@ -88,13 +124,13 @@ public class GridDefinitionBuilder {
 		}
 		return this;		
 	}
-
+	
 	/**
 	 * Allows to specify the contents of the left axis columns, such as Q1, Final (note that each
 	 * item represents different dimension)
 	 * 
-	 * @param members
-	 * @return
+	 * @param members the members
+	 * @return the builder
 	 */
 	public GridDefinitionBuilder left(String... members) {
 		leftMembers.add(DimensionMembers.of(members));
@@ -112,8 +148,8 @@ public class GridDefinitionBuilder {
 	/**
 	 * Expands the members on the first dimension members item and creates one if there aren't any.
 	 * 
-	 * @param members
-	 * @return
+	 * @param members the members
+	 * @return the builder
 	 */
 	public GridDefinitionBuilder leftAddToFirst(String... members) {
 		List<String> items = toList(members);
@@ -160,7 +196,8 @@ public class GridDefinitionBuilder {
 
 	public GridDefinition build() {
 		GridDefinition gridDefinition = new GridDefinition();
-		gridDefinition.setPov(new DimensionMembers(povMembers));
+		gridDefinition.setPov(new DimensionMembers(null, povMembers));
+		//gridDefinition.setPov(new DimensionMembers(povMembers));
 		gridDefinition.setRows(leftMembers);
 		gridDefinition.setColumns(topMembers);
 		return gridDefinition;
@@ -174,4 +211,16 @@ public class GridDefinitionBuilder {
 		return list;
 	}
 
+	private static List<List<String>> toLists(String[][] data) {
+		List<List<String>> arrayLists = new ArrayList<List<String>>();
+		for (String[] row : data) {
+			List<String> rowList = new ArrayList<String>();
+			for (String item : row) {
+				rowList.add(item);
+			}
+			arrayLists.add(rowList);
+		}
+		return arrayLists;
+	}
+	
 }

@@ -211,7 +211,7 @@ public class PbcsApplicationImpl implements PbcsApplication {
 
 	@Override
 	public Set<SubstitutionVariable> getSubstitutionVariables() {
-		logger.info("Getting job definitions for {}", application.getName());
+		logger.info("Getting substitution variables for {}", application.getName());
 		String url = this.context.getBaseUrl() + "applications/{application}/substitutionvariables";
 		ResponseEntity<SubstitutionVariablesWrapper> response = this.context.getTemplate().getForEntity(url, SubstitutionVariablesWrapper.class, appMap);
 		return new HashSet<SubstitutionVariable>(response.getBody().getItems()); 
@@ -294,7 +294,7 @@ public class PbcsApplicationImpl implements PbcsApplication {
 		Assert.hasText(dimensionName, "Must specify a dimension name");
 		Assert.hasText(memberName, "Must specify a member name");
 	
-		logger.info("Fetching member properties for {} from dimension {}", memberName, dimensionName);
+		logger.debug("Fetching member properties for {} from dimension {}", memberName, dimensionName);
 		String url = this.context.getBaseUrl() + "applications/{application}/dimensions/{dimName}/members/{member}";
 		String body = this.context.getTemplate().getForEntity(url, String.class, application.getName(), dimensionName, memberName).getBody();
 		logger.debug("Body: {} / {}", body.length(), body);
@@ -442,6 +442,16 @@ public class PbcsApplicationImpl implements PbcsApplication {
 			planTypes.add(planTypeImpl);
 		}
 		return planTypes;
+	}
+
+	@Override
+	public PbcsPlanType getPlanType(String planTypeName) {
+		for (PbcsPlanType planType : getPlanTypes()) {
+			if (planType.getName().equals(planTypeName)) {
+				return planType;
+			}
+		}
+		throw new PbcsNoSuchObjectException(planTypeName, "plan type");
 	}
 	
 }

@@ -167,4 +167,6 @@ public interface PbcsApplication {
 	
 	public List<PbcsPlanType> getPlanTypes();
 	
+	public PbcsPlanType getPlanType(String planTypeName);
+	
 }

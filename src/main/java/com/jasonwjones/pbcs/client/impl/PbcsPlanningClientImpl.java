@@ -71,7 +71,7 @@ public class PbcsPlanningClientImpl implements PbcsPlanningClient {
 				throw e;
 			}
 		} else {
-			logger.info("Skipping initialization API check");
+			logger.debug("Skipping initialization API check");
 		}
 	}
 

@@ -2,7 +2,6 @@ package com.jasonwjones.pbcs.api.v3.dataslices;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -147,12 +146,6 @@ public class DimensionMembers {
 		this.members = members;
 	}
 	
-	
-
-//	public void addFirst(String member) {
-//		this.members.
-//	}
-	
 	public void addFirst(List<String> addMembers) {
 		this.members.add(0, addMembers);
 	}
@@ -172,10 +165,6 @@ public class DimensionMembers {
 		}
 		return null;
 	}
-
-//	public static List<List<String>> listOfList(String... items) {
-//		
-//	}
 	
 	public static List<String> mutableList(String... items) {
 		List<String> list = new ArrayList<String>();

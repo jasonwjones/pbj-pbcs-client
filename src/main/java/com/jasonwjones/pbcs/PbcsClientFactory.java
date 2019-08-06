@@ -71,7 +71,7 @@ public class PbcsClientFactory {
 	 * 
 	 * @return a default service configuration
 	 */
-	public PbcsServiceConfiguration createDefaultServiceConfiguration() {
+	public PbcsServiceConfigurationImpl createDefaultServiceConfiguration() {
 		PbcsServiceConfigurationImpl sc = new PbcsServiceConfigurationImpl();
 		sc.setScheme("https");
 		sc.setPort(443);

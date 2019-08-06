@@ -16,14 +16,21 @@ public class DataSlice {
 	private List<List<String>> columns;
 
 	/**
-	 * Represents the members and data for a given row (the two lower OLAP grid
-	 * quadrants).
+	 * Represents the members and data for a given row (the two lower OLAP grid quadrants).
 	 */
 	private List<HeaderDataRow> rows;
 
 	public DataSlice() {
 	}
 
+	/**
+	 * Each element of the columns parameter represents an axis, e.g., if there are three dimensions
+	 * in the top/columns area, then columns will have three elements.
+	 * 
+	 * @param pov
+	 * @param columns
+	 * @param rows
+	 */
 	public DataSlice(List<String> pov, List<List<String>> columns, List<HeaderDataRow> rows) {
 		this.pov = pov;
 		this.columns = columns;
@@ -39,9 +46,8 @@ public class DataSlice {
 	}
 
 	/**
-	 * Returns the columns (top axis). If there are three dimensions
-	 * represented, then the outer list will have three items. Each contained
-	 * list will be the elements spanning the entire row.
+	 * Returns the columns (top axis). If there are three dimensions represented, then the outer
+	 * list will have three items. Each contained list will be the elements spanning the entire row.
 	 * 
 	 * @return the columns
 	 */

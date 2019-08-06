@@ -22,8 +22,14 @@ public class PbcsPlanTypeImpl implements PbcsPlanType {
 		return this.planType;
 	}
 
+	@Override
 	public List<PbcsDimension> getDimensions() {
 		return application.getDimensions(planType);
+	}
+
+	@Override
+	public PbcsApplication getApplication() {
+		return this.application;
 	}
 	
 }
