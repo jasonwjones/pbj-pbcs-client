@@ -14,7 +14,7 @@
   	<logger name="org.hibernate" level="WARN"/>
   	-->
   	
-	<root level="TRACE">
+	<root level="INFO">
 		<appender-ref ref="STDOUT"/>		
 	</root>
 	

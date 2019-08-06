@@ -38,5 +38,9 @@ public interface PbcsMemberProperties {
 
 	// from twoPass
 	public boolean isTwoPass();
+	
+	public List<String> getUsedIn();
 
+	public int getLevel();
+			
 }

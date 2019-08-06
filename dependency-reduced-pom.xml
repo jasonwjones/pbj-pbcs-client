@@ -48,6 +48,10 @@
             <arguments>-Psonatype-oss-release</arguments>
           </configuration>
         </plugin>
+        <plugin>
+          <artifactId>maven-site-plugin</artifactId>
+          <version>3.7</version>
+        </plugin>
       </plugins>
     </pluginManagement>
     <plugins>
@@ -96,10 +100,6 @@
         <artifactId>maven-shade-plugin</artifactId>
         <executions>
           <execution>
-            <phase>package</phase>
-            <goals>
-              <goal>shade</goal>
-            </goals>
             <configuration>
               <relocations>
                 <relocation>
@@ -182,6 +182,12 @@
       <groupId>com.beust</groupId>
       <artifactId>jcommander</artifactId>
       <version>1.48</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>jcl-over-slf4j</artifactId>
+      <version>1.7.8</version>
       <scope>provided</scope>
     </dependency>
   </dependencies>

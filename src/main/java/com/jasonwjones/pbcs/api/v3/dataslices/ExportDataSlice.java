@@ -15,7 +15,7 @@ public class ExportDataSlice {
 	}
 
 	/**
-	 * Sets teh value for <code>exportPlanningData</code>. When set to true,
+	 * Sets the value for <code>exportPlanningData</code>. When set to true,
 	 * supporting details and cell notes will be exported. The default is false.
 	 * 
 	 * @param exportPlanningData true to turn on export planning data, false

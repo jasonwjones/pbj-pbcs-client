@@ -3,12 +3,12 @@ package com.jasonwjones.pbcs.client.impl;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +16,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.util.Assert;
 import org.springframework.web.client.HttpServerErrorException;
 
+import com.jasonwjones.pbcs.aif.AifApplication;
+import com.jasonwjones.pbcs.aif.AifDimension;
 import com.jasonwjones.pbcs.api.v3.Application;
 import com.jasonwjones.pbcs.api.v3.JobDefinition;
 import com.jasonwjones.pbcs.api.v3.JobDefinitionsWrapper;
@@ -27,12 +29,15 @@ import com.jasonwjones.pbcs.api.v3.SubstiutionVariableUpdateWrapper;
 import com.jasonwjones.pbcs.api.v3.dataslices.DataSlice;
 import com.jasonwjones.pbcs.api.v3.dataslices.ExportDataSlice;
 import com.jasonwjones.pbcs.client.PbcsApplication;
+import com.jasonwjones.pbcs.client.PbcsDimension;
 import com.jasonwjones.pbcs.client.PbcsJobDefinition;
 import com.jasonwjones.pbcs.client.PbcsJobLaunchResult;
 import com.jasonwjones.pbcs.client.PbcsJobStatus;
 import com.jasonwjones.pbcs.client.PbcsJobType;
 import com.jasonwjones.pbcs.client.PbcsMemberProperties;
+import com.jasonwjones.pbcs.client.PbcsPlanType;
 import com.jasonwjones.pbcs.client.exceptions.PbcsClientException;
+import com.jasonwjones.pbcs.client.exceptions.PbcsNoSuchObjectException;
 import com.jasonwjones.pbcs.client.exceptions.PbcsNoSuchVariableException;
 import com.jasonwjones.pbcs.client.impl.models.PbcsMemberPropertiesImpl;
 
@@ -206,7 +211,7 @@ public class PbcsApplicationImpl implements PbcsApplication {
 
 	@Override
 	public Set<SubstitutionVariable> getSubstitutionVariables() {
-		logger.info("Getting job definitions for {}", application.getName());
+		logger.info("Getting substitution variables for {}", application.getName());
 		String url = this.context.getBaseUrl() + "applications/{application}/substitutionvariables";
 		ResponseEntity<SubstitutionVariablesWrapper> response = this.context.getTemplate().getForEntity(url, SubstitutionVariablesWrapper.class, appMap);
 		return new HashSet<SubstitutionVariable>(response.getBody().getItems()); 
@@ -289,10 +294,12 @@ public class PbcsApplicationImpl implements PbcsApplication {
 		Assert.hasText(dimensionName, "Must specify a dimension name");
 		Assert.hasText(memberName, "Must specify a member name");
 	
-		logger.info("Fetching member properties for {} from dimension {}", memberName, dimensionName);
+		logger.debug("Fetching member properties for {} from dimension {}", memberName, dimensionName);
 		String url = this.context.getBaseUrl() + "applications/{application}/dimensions/{dimName}/members/{member}";
-		logger.debug("Body: {}", this.context.getTemplate().getForEntity(url, String.class, application.getName(), dimensionName, memberName).getBody());
+		String body = this.context.getTemplate().getForEntity(url, String.class, application.getName(), dimensionName, memberName).getBody();
+		logger.debug("Body: {} / {}", body.length(), body);
 		ResponseEntity<PbcsMemberPropertiesImpl> memberResponse = this.context.getTemplate().getForEntity(url, PbcsMemberPropertiesImpl.class, application.getName(), dimensionName, memberName);
+		
 		logger.debug("Headers: " + memberResponse.getHeaders());
 		return memberResponse.getBody();
 	}
@@ -340,6 +347,11 @@ public class PbcsApplicationImpl implements PbcsApplication {
 		return slice.getBody();
 	}
 
+	@Override
+	public String toString() {
+		return "PbcsApplicationImpl [application=" + application + "]";
+	}
+	
 //	@Override
 //	public List<SubstitutionVariable> getSubstitutionVariablesForPlan(String planType) {
 //		throw new RuntimeException("Not implemented");
@@ -376,4 +388,70 @@ public class PbcsApplicationImpl implements PbcsApplication {
 
 	}
 
+	@Override
+	public List<PbcsDimension> getDimensions() {
+		ResponseEntity<AifApplication> result = this.context.getTemplate().getForEntity(this.context.getAifUrl("/applications/" + this.application.getName()), AifApplication.class);
+		
+		AifApplication application = result.getBody();
+		List<String> plans = Arrays.asList(application.getPlan1Name(), application.getPlan2Name(), application.getPlan3Name(), application.getPlan4Name(), application.getPlan5Name(), application.getPlan6Name());
+		
+		List<PbcsDimension> dimensions = new ArrayList<PbcsDimension>();
+		for (AifDimension aifDimension : result.getBody().getItems()) {
+			List<Integer> validForPlans = Arrays.asList(aifDimension.getValidForPlan1(), aifDimension.getValidForPlan2(), aifDimension.getValidForPlan3(), aifDimension.getValidForPlan4(), aifDimension.getValidForPlan5(), aifDimension.getValidForPlan6());
+			Set<String> plansForDim = new TreeSet<String>();
+			for (int validIndex = 0; validIndex < 6; validIndex++) {
+				if (validForPlans.get(validIndex) == 1) {
+					plansForDim.add(plans.get(validIndex));
+				}
+			}
+			PbcsDimensionImpl dim = new PbcsDimensionImpl(plansForDim, aifDimension);
+			dimensions.add(dim);
+		}
+		return dimensions;
+	}
+
+	@Override
+	public PbcsDimension getDimension(String dimensionName) {
+		for (PbcsDimension dimension : getDimensions()) {
+			if (dimension.getName().equals(dimensionName)) {
+				return dimension;
+			}
+		}
+		throw new PbcsNoSuchObjectException(dimensionName, "dimension");
+	}
+
+	// TODO: check that the plan type is actually valid
+	@Override
+	public List<PbcsDimension> getDimensions(String planType) {
+		List<PbcsDimension> dimensions = new ArrayList<PbcsDimension>();
+		for (PbcsDimension dimension : getDimensions()) {
+			if (dimension.isValidForPlan(planType)) {
+				dimensions.add(dimension);
+			}
+		}
+		return dimensions;
+	}
+
+	@Override
+	public List<PbcsPlanType> getPlanTypes() {
+		ResponseEntity<AifApplication> result = this.context.getTemplate().getForEntity(this.context.getAifUrl("/applications/" + this.application.getName()), AifApplication.class);
+		AifApplication application = result.getBody();
+		List<PbcsPlanType> planTypes = new ArrayList<PbcsPlanType>();
+		for (String plan : application.getAllPlans()) {
+			PbcsPlanTypeImpl planTypeImpl = new PbcsPlanTypeImpl(this, plan);
+			planTypes.add(planTypeImpl);
+		}
+		return planTypes;
+	}
+
+	@Override
+	public PbcsPlanType getPlanType(String planTypeName) {
+		for (PbcsPlanType planType : getPlanTypes()) {
+			if (planType.getName().equals(planTypeName)) {
+				return planType;
+			}
+		}
+		throw new PbcsNoSuchObjectException(planTypeName, "plan type");
+	}
+	
 }

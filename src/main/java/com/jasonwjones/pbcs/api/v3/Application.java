@@ -32,4 +32,9 @@ public class Application {
 		this.type = type;
 	}
 
+	@Override
+	public String toString() {
+		return "Application [name=" + name + ", type=" + type + ", dpEnabled=" + dpEnabled + "]";
+	}
+
 }

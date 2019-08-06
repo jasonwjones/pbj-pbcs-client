@@ -71,7 +71,7 @@ public class PbcsClientFactory {
 	 * 
 	 * @return a default service configuration
 	 */
-	public PbcsServiceConfiguration createDefaultServiceConfiguration() {
+	public PbcsServiceConfigurationImpl createDefaultServiceConfiguration() {
 		PbcsServiceConfigurationImpl sc = new PbcsServiceConfigurationImpl();
 		sc.setScheme("https");
 		sc.setPort(443);
@@ -79,6 +79,10 @@ public class PbcsClientFactory {
 		sc.setPlanningRestApiPath("/HyperionPlanning/rest/");
 		sc.setInteropApiVersion("11.1.2.3.600");
 		sc.setInteropRestApiPath("/interop/rest/");
+		
+		// Might be something like https://example.pbcs.us2.oraclecloud.com/aif/rest/V1/applications/{APPNAME}
+		sc.setAifRestApiPath("/aif/rest/");
+		sc.setAifRestApiVersion("V1");
 		return sc;
 	}
 

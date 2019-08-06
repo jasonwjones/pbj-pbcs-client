@@ -19,7 +19,8 @@ public class TestExportSlice extends AbstractIntegrationTest {
 		PbcsApplication app = client.getApplication(appName);
 		
 		//DimensionMembers pov = new DimensionMembers(Arrays.asList("HSP_View", "Year", "Version", "Entity", "Product"), Arrays.asList("BaseData" , "FY15" , "Working", "410", "P_160"));
-		DimensionMembers pov = new DimensionMembers(Arrays.asList("HSP_View", "Year", "Version", "Entity", "Product"), Arrays.asList("BaseData" , "FY15" , "Working", "410", "P_160"));
+		//DimensionMembers pov = new DimensionMembers(Arrays.asList("HSP_View", "Year", "Version", "Entity", "Product"), Arrays.asList("BaseData" , "FY15" , "Working", "410", "P_160"));
+		DimensionMembers pov = new DimensionMembers(Arrays.asList("HSP_View", "Years", "Version", "Entity", "Department"), Arrays.asList("BaseData" , "FY15" , "Working", "10010", "2079"));
 		DimensionMembers columns = new DimensionMembers(Arrays.asList("Period"), Arrays.asList("IDescendants(YearTotal)"));
 		
 		//DimensionMembers columns2 = new DimensionMembers(Arrays.asList("Period"), Arrays.asList("IDescendants(Dec)"));
@@ -34,7 +35,7 @@ public class TestExportSlice extends AbstractIntegrationTest {
 		//List<DimensionMembers> allCols = Arrays.asList(columns);
 		//List<DimensionMembers> allCols = Arrays.asList(columns, columns2);
 		
-		DimensionMembers rows = new DimensionMembers(Arrays.asList("Account"), Arrays.asList("4001"));
+		DimensionMembers rows = new DimensionMembers(Arrays.asList("Account"), Arrays.asList("30000.000"));
 		List<DimensionMembers> allRows = Arrays.asList(rows);
 		
 		GridDefinition gridDefinition = new GridDefinition();
@@ -46,7 +47,7 @@ public class TestExportSlice extends AbstractIntegrationTest {
 		ExportDataSlice eds = new ExportDataSlice(gridDefinition);
 		eds.setExportPlanningData(true);
 		
-		DataSlice slice = app.exportDataSlice("Plan1", eds);
+		DataSlice slice = app.exportDataSlice("PlanPL", eds);
 		
 		SlicePrinter p = new SlicePrinter();
 		p.print(slice);

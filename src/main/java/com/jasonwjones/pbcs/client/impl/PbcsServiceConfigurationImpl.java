@@ -3,6 +3,7 @@ package com.jasonwjones.pbcs.client.impl;
 import org.apache.http.HttpHost;
 import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.springframework.http.client.BufferingClientHttpRequestFactory;
 import org.springframework.http.client.ClientHttpRequestFactory;
 
 import com.jasonwjones.pbcs.client.PbcsConnection;
@@ -21,6 +22,10 @@ public class PbcsServiceConfigurationImpl implements PbcsServiceConfiguration {
 	private String interopApiVersion;
 	
 	private String interopRestApiPath;
+	
+	private String aifRestApiVersion;
+	
+	private String aifRestApiPath;
 	
 	private Boolean skipApiCheck = false;
 	
@@ -93,7 +98,28 @@ public class PbcsServiceConfigurationImpl implements PbcsServiceConfiguration {
 		final String fullUsername = connection.getIdentityDomain() + "." + connection.getUsername();
 		final AuthHttpComponentsClientHttpRequestFactory requestFactory = new AuthHttpComponentsClientHttpRequestFactory(
 				httpClient, httpHost, fullUsername, connection.getPassword());
-		return requestFactory;
+		
+		return new BufferingClientHttpRequestFactory(requestFactory);
+		
+		//return requestFactory;
+	}
+
+	@Override
+	public String getAifRestApiVersion() {
+		return aifRestApiVersion;
+	}
+
+	public void setAifRestApiVersion(String aifRestApiVersion) {
+		this.aifRestApiVersion = aifRestApiVersion;
+	}
+
+	@Override
+	public String getAifRestApiPath() {
+		return aifRestApiPath;
+	}
+
+	public void setAifRestApiPath(String aifRestApiPath) {
+		this.aifRestApiPath = aifRestApiPath;
 	}
 	
 }

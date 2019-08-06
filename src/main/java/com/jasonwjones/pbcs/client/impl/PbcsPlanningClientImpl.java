@@ -1,11 +1,13 @@
 package com.jasonwjones.pbcs.client.impl;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.web.client.RestTemplate;
 
 import com.jasonwjones.pbcs.api.v3.Api;
@@ -46,7 +48,11 @@ public class PbcsPlanningClientImpl implements PbcsPlanningClient {
 		this.baseUrl = serviceConfig.getScheme() + "://" + connection.getServer() + serviceConfig.getPlanningRestApiPath() + serviceConfig.getPlanningApiVersion() + "/";
 		this.restTemplate = new RestTemplate(serviceConfiguration.createRequestFactory(connection));
 		this.restTemplate.setErrorHandler(new MyResponseErrorHandler());
+		ClientHttpRequestInterceptor interceptor = new RequestResponseLoggingInterceptor();
+		this.restTemplate.setInterceptors(Collections.singletonList(interceptor));
+		
 		this.context = new RestContext(restTemplate, baseUrl);
+		this.context.setAifBaseUrl(serviceConfig.getScheme() + "://" + connection.getServer() + serviceConfiguration.getAifRestApiPath() + serviceConfiguration.getAifRestApiVersion());
 
 		// perform a call to the API to validate that we are actually connected
 		// if this doesn't work then we can throw an exception to the caller and
@@ -65,7 +71,7 @@ public class PbcsPlanningClientImpl implements PbcsPlanningClient {
 				throw e;
 			}
 		} else {
-			logger.info("Skipping initialization API check");
+			logger.debug("Skipping initialization API check");
 		}
 	}
 
@@ -97,6 +103,7 @@ public class PbcsPlanningClientImpl implements PbcsPlanningClient {
 
 	@Override
 	public PbcsApplication getApplication(String applicationName) throws PbcsClientException {
+				
 		List<PbcsApplication> applications = getApplications();
 		for (PbcsApplication application : applications) {
 			if (application.getName().equalsIgnoreCase(applicationName)) {
