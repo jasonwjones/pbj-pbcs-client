@@ -107,18 +107,8 @@
 		</plugins>
 	</reporting>
 
-	<distributionManagement>
-		<snapshotRepository>
-			<id>ossrh</id>
-			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
-		</snapshotRepository>
-		<repository>
-			<id>ossrh</id>
-			<url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-		</repository>
-	</distributionManagement>
-
 	<build>
+		<!-- 
 		<pluginManagement>
 			<plugins>
 				<plugin>
@@ -138,12 +128,9 @@
 				</plugin>
 			</plugins>
 		</pluginManagement>
+		 -->
 
 		<plugins>
-			<!-- <plugin> <groupId>org.apache.maven.plugins</groupId> <artifactId>maven-deploy-plugin</artifactId> <configuration> <skip>true</skip> </configuration> 
-				</plugin> -->
-			<!-- <plugin> <groupId>org.sonatype.plugins</groupId> <artifactId>nexus-staging-maven-plugin</artifactId> <version>1.6.6</version> <extensions>true</extensions> 
-				<configuration> <serverId>ossrh</serverId> <nexusUrl>http://oss.sonatype:8081/nexus/</nexusUrl> </configuration> </plugin> -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-resources-plugin</artifactId>
