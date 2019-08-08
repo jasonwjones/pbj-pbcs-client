@@ -16,12 +16,8 @@ public class GridDefinitionBuilderTest {
 	public void setUp() throws Exception {
 	}
 
-	@Test
 	public void test() {
 		GridDefinition grid = new GridDefinitionBuilder().auto(dims).build();
-		
-		
-		
 		fail("Not yet implemented");
 	}
 
