@@ -8,6 +8,7 @@ import org.springframework.http.client.ClientHttpRequestFactory;
 
 import com.jasonwjones.pbcs.client.PbcsConnection;
 import com.jasonwjones.pbcs.client.PbcsServiceConfiguration;
+import org.springframework.util.StringUtils;
 
 public class PbcsServiceConfigurationImpl implements PbcsServiceConfiguration {
 
@@ -20,15 +21,15 @@ public class PbcsServiceConfigurationImpl implements PbcsServiceConfiguration {
 	private String planningRestApiPath;
 
 	private String interopApiVersion;
-	
+
 	private String interopRestApiPath;
-	
+
 	private String aifRestApiVersion;
-	
+
 	private String aifRestApiPath;
-	
+
 	private Boolean skipApiCheck = false;
-	
+
 	@Override
 	public String getScheme() {
 		return scheme;
@@ -82,7 +83,7 @@ public class PbcsServiceConfigurationImpl implements PbcsServiceConfiguration {
 	public void setInteropRestApiPath(String interopRestApiPath) {
 		this.interopRestApiPath = interopRestApiPath;
 	}
-	
+
 	public Boolean isSkipApiCheck() {
 		return skipApiCheck;
 	}
@@ -95,13 +96,15 @@ public class PbcsServiceConfigurationImpl implements PbcsServiceConfiguration {
 	public ClientHttpRequestFactory createRequestFactory(PbcsConnection connection) {
 		HttpClient httpClient = HttpClients.createDefault();
 		final HttpHost httpHost = new HttpHost(connection.getServer(), port, scheme);
-		final String fullUsername = connection.getIdentityDomain() + "." + connection.getUsername();
+
+		// in the PBCS gen 1 architecture, the username was the identity name plus a period plus the username. In the
+		// gen 2 architecture, it's just the user name. Clients should specify null or a blank string in order to cause
+		// the gen 2 handling to be used
+
+		final String fullUsername = StringUtils.hasText(connection.getIdentityDomain()) ? connection.getIdentityDomain() + "." + connection.getUsername() : connection.getUsername();
 		final AuthHttpComponentsClientHttpRequestFactory requestFactory = new AuthHttpComponentsClientHttpRequestFactory(
 				httpClient, httpHost, fullUsername, connection.getPassword());
-		
 		return new BufferingClientHttpRequestFactory(requestFactory);
-		
-		//return requestFactory;
 	}
 
 	@Override
@@ -121,5 +124,5 @@ public class PbcsServiceConfigurationImpl implements PbcsServiceConfiguration {
 	public void setAifRestApiPath(String aifRestApiPath) {
 		this.aifRestApiPath = aifRestApiPath;
 	}
-	
+
 }

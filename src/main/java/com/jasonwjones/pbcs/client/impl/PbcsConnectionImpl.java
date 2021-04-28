@@ -20,7 +20,7 @@ public class PbcsConnectionImpl implements PbcsConnection {
 	/**
 	 * Builds a new PBCS Connection object. None of the fields may be null or
 	 * otherwise empty, otherwise an IllegalArgumentException will be thrown.
-	 * 
+	 *
 	 * @param server the server, not including http and not containing anything
 	 *            after the TLD
 	 * @param identityDomain the identity domain for the user
@@ -36,12 +36,12 @@ public class PbcsConnectionImpl implements PbcsConnection {
 	/**
 	 * Builds a new PBCS Connection object. None of the fields may be null or
 	 * otherwise empty, otherwise an IllegalArgumentException will be thrown.
-	 * 
+	 *
 	 * <p>
 	 * This overload constructor is provided as a convenience and meant to be
 	 * used immediately afterwith with the {@link #withBase64Password(String)}
 	 * method to set the password.
-	 * 
+	 *
 	 * @param server the server, not including http and not containing anything
 	 *            after the TLD
 	 * @param identityDomain the identity domain for the user
@@ -49,7 +49,6 @@ public class PbcsConnectionImpl implements PbcsConnection {
 	 */
 	public PbcsConnectionImpl(String server, String identityDomain, String username) {
 		Assert.hasText(server, "Server name may not be empty");
-		Assert.hasText(identityDomain, "Identity domain may not be empty");
 		Assert.hasText(username, "Username may not be empty");
 		this.server = server;
 		this.identityDomain = identityDomain;
@@ -62,7 +61,7 @@ public class PbcsConnectionImpl implements PbcsConnection {
 	 * robust security, but rather to allow for putting passwords into other
 	 * scripts/code that might otherwise be exposed via a screenshot or during
 	 * editing (like a Jython script in ODI/FDMEE).
-	 * 
+	 *
 	 * @param encodedPassword the Base64 (UTF-8) encoded password.
 	 * @return an updated connection object with the password set to the decoded
 	 *         value of the given string
@@ -102,10 +101,10 @@ public class PbcsConnectionImpl implements PbcsConnection {
 	 * Convenience method that attempts to construct a new user connection
 	 * details object from a Properties object that contains the following keys:
 	 * server, identityDomain, username, password.
-	 * 
+	 *
 	 * <p>
 	 * If any of the fields are missing, an exception is thrown
-	 * 
+	 *
 	 * @param properties a Properties object that shouold contain the user
 	 *            details
 	 * @return a new user connection details object based on the keys from the
