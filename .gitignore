@@ -11,3 +11,8 @@ target/
 
 build/
 .gradle/
+
+.idea
+dependency-reduced-pom.xml
+pom.xml.releaseBackup
+pbj-pbcs-client.iml
