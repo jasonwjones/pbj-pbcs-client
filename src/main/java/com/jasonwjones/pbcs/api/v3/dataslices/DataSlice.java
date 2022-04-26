@@ -5,7 +5,7 @@ import java.util.List;
 
 /**
  * Models the data slice response from an Export Data Slice operation
- * 
+ *
  * @author jasonwjones
  *
  */
@@ -26,10 +26,10 @@ public class DataSlice {
 	/**
 	 * Each element of the columns parameter represents an axis, e.g., if there are three dimensions
 	 * in the top/columns area, then columns will have three elements.
-	 * 
-	 * @param pov
-	 * @param columns
-	 * @param rows
+	 *
+	 * @param pov the pov
+	 * @param columns the columns
+	 * @param rows the rows
 	 */
 	public DataSlice(List<String> pov, List<List<String>> columns, List<HeaderDataRow> rows) {
 		this.pov = pov;
@@ -48,7 +48,7 @@ public class DataSlice {
 	/**
 	 * Returns the columns (top axis). If there are three dimensions represented, then the outer
 	 * list will have three items. Each contained list will be the elements spanning the entire row.
-	 * 
+	 *
 	 * @return the columns
 	 */
 	public List<List<String>> getColumns() {

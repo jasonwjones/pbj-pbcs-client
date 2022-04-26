@@ -9,14 +9,14 @@ import java.util.List;
  * For example, if the "left" axis of a given report has the dimensions Time and
  * Years, and it was desired to have Jan and Feb for FY18 and Mar for FY19, then
  * two DimensionMembers would be used, with the following configuration:
- * 
+ *
  * <pre>
- * DimensionMembers 1 = Jan, Feb | FY18 
+ * DimensionMembers 1 = Jan, Feb | FY18
  * DimensionMembers 2 = Mar | FY19
  * </pre>
- * 
+ *
  * This would yield three full rows.
- * 
+ *
  * @author jasonwjones
  *
  */
@@ -35,16 +35,16 @@ public class DimensionMembers {
 	/**
 	 * The list of list data structure can be visualized in the following way
 	 * (for example):
-	 * 
+	 *
 	 * <pre>
 	 * [Jan                 ][Feb                 ][Mar                 ]
 	 * [Actual              ][Actual              ][Actual              ]
 	 * </pre>
-	 * 
+	 *
 	 * The preceding example would be applicable for the "top" axis. It would be
 	 * built such as with the following:
-	 * 
-	 * <pre> 
+	 *
+	 * <pre>
 	 * {@code
 	 * List<String> period = Arrays.asList("Jan", "Feb", "Mar");
 	 * List<String> scenario = Arrays.asList("Actual");
@@ -66,7 +66,7 @@ public class DimensionMembers {
 	/**
 	 * Convenience invocation, assumes that each provided member is also the
 	 * dimension name.
-	 * 
+	 *
 	 * @param members the dimension names
 	 */
 	public DimensionMembers(List<String> members) {
@@ -89,14 +89,14 @@ public class DimensionMembers {
 		dm.members = members;
 		return dm;
 	}
-	
+
 	public static DimensionMembers ofDimAndMembers(String... dimMembers) {
 		if (dimMembers.length % 2 != 0) {
 			throw new IllegalArgumentException("Number of passed members should be even as each two arguments is a dimension name and member");
 		}
 		List<String> dimensions = new ArrayList<String>();
 		List<String> members = new ArrayList<String>();
-		
+
 		for (int i = 0; i < dimMembers.length; i++) {
 			if (i % 2 == 0) {
 				dimensions.add(dimMembers[i]);
@@ -110,7 +110,7 @@ public class DimensionMembers {
 	/**
 	 * Each row of the outer list (the first List) represents a row in the axis.
 	 * The elements of the inner list
-	 * 
+	 *
 	 * @param members the member axes to transform into this object
 	 * @return a new dimension members object for the members
 	 */
@@ -125,13 +125,12 @@ public class DimensionMembers {
 	public static DimensionMembers of(String... members) {
 		return new DimensionMembers(null, Arrays.asList(members));
 	}
-	
+
+	public static DimensionMembers ofMemberNames(List<String> memberNames) {
+		return new DimensionMembers(null, memberNames);
+	}
 	public static DimensionMembers ofSingleDimension(String... members) {
 		return of(wrap(mutableList(members)));
-	}
-
-	public List<String> getDimensions() {
-		return dimensions;
 	}
 
 	public void setDimensions(List<String> dimensions) {
@@ -145,15 +144,15 @@ public class DimensionMembers {
 	public void setMembers(List<List<String>> members) {
 		this.members = members;
 	}
-	
+
 	public void addFirst(List<String> addMembers) {
 		this.members.add(0, addMembers);
 	}
-	
+
 	public void addToFirst(List<String> addMembers) {
 		this.members.get(0).addAll(addMembers);
 	}
-	
+
 	public DimensionMembers withMemberReplacement(String oldMember, String newDefinition) {
 		for (List<String> memberList : members) {
 			for (int index = 0; index < memberList.size(); index++) {
@@ -165,7 +164,7 @@ public class DimensionMembers {
 		}
 		return null;
 	}
-	
+
 	public static List<String> mutableList(String... items) {
 		List<String> list = new ArrayList<String>();
 		for (String item : items) {
@@ -173,11 +172,11 @@ public class DimensionMembers {
 		}
 		return list;
 	}
-	
+
 	public static List<List<String>> wrap(List<String> list) {
 		List<List<String>> lists = new ArrayList<List<String>>();
 		lists.add(list);
 		return lists;
 	}
-	
+
 }

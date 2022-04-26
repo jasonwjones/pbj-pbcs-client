@@ -14,29 +14,27 @@ import com.jasonwjones.pbcs.client.PbcsDimension;
 public class TestGetDimensions extends AbstractIntegrationTest {
 
 	private static final Logger logger = LoggerFactory.getLogger(TestGetDimensions.class);
-	
+
 	public static void main(String[] args) {
 		PbcsClient client = new PbcsClientFactory().createClient(connection);
-		
-		logger.info("Applications: {}", client.getApplications());
-		
-		PbcsApplication app = client.getApplication(appName);
-		
-		logger.info("All dims:");
-		printDims(app.getDimensions());
-		
-		logger.info("Dims in PlanPL:");
-		printDims(app.getDimensions("PlanPL"));
-		
-		logger.info("Scenario dimension");
-		printDims(Collections.singletonList(app.getDimension("Scenario")));
-		
-	}	
-	
+
+		List<PbcsApplication> applications = client.getApplications();
+		logger.info("Applications: {}", applications);
+
+		for (PbcsApplication application : applications) {
+			logger.info("Dims in application: {}", application.getName());
+			printDims(application.getDimensions());
+		}
+
+//		logger.info("Scenario dimension");
+//		printDims(Collections.singletonList(app.getDimension("Scenario")));
+
+	}
+
 	public static void printDims(List<PbcsDimension> dimensions) {
 		for (PbcsDimension dimension : dimensions) {
 			logger.info("Dimension: {}, valid in: {}", dimension.getName(), dimension.getValidPlans());
 		}
 	}
-	
+
 }

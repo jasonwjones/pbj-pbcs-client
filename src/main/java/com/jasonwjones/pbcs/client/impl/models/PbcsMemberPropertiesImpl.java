@@ -10,6 +10,8 @@ public class PbcsMemberPropertiesImpl implements PbcsMemberProperties {
 
 	private String name;
 
+	private String alias;
+	
 	private List<PbcsMemberPropertiesImpl> children;
 
 	private String description;
@@ -133,6 +135,15 @@ public class PbcsMemberPropertiesImpl implements PbcsMemberProperties {
 			}
 			return minLevel + 1;
 		}
+	}
+
+	@Override
+	public String getAlias() {
+		return alias;
+	}
+
+	public void setAlias(String alias) {
+		this.alias = alias;
 	}
 	
 }

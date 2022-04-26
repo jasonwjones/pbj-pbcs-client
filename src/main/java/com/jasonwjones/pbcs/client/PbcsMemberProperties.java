@@ -7,6 +7,8 @@ public interface PbcsMemberProperties {
 
 	public String getName();
 
+	public String getAlias();
+	
 	public List<? extends PbcsMemberProperties> getChildren();
 
 	/**

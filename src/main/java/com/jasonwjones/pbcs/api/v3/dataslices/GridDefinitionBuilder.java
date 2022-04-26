@@ -36,7 +36,7 @@ public class GridDefinitionBuilder {
 		}
 		return pov(nonNullMembers);
 	}
-	
+
 	public GridDefinitionBuilder pov(Collection<String> members) {
 		povMembers.addAll(members);
 		return this;
@@ -46,16 +46,16 @@ public class GridDefinitionBuilder {
 		topMembers.add(DimensionMembers.of(members));
 		return this;
 	}
-	
+
 	public GridDefinitionBuilder top(List<String> members) {
 		topMembers.add(new DimensionMembers(null, members));
 		return this;
 	}
-	
+
 	/**
 	 * Assumes data is in 'outer to inter' orientation, i.e., you might have two lists such as
 	 * [FY18, Jan] and [FY19, Feb]
-	 * 
+	 *
 	 * @param memberLists the member lists
 	 * @return the builder
 	 */
@@ -65,29 +65,29 @@ public class GridDefinitionBuilder {
 
 	/**
 	 * Assumes that the outer list is dimensions and the inner list is the contents of a row, such as a simple data stucture for the 'top' axis. For example, the incoming data may be:
-	 * 
+	 *
 	 * <pre>
 	 * [                FY18][                FY18][                FY19]
      * [                 Jan][                 Feb][                  Q1]
      * </pre>
-     * 
+     *
      * It will be transformed into:
-     * 
+     *
      * <pre>
      * [                FY18][                 Jan]
      * [                FY18][                 Feb]
      * [                FY19][                  Q1]
      * </pre>
      *
-     * And it will therefore be suitable for us with {@link #topWithLists(List)}, which is the 
+     * And it will therefore be suitable for us with {@link #topWithLists(List)}, which is the
      * actual implementing method
-	 * 
-	 * @param data
-	 * @return
+	 *
+	 * @param data the data
+	 * @return a value
 	 */
 	public GridDefinitionBuilder topWithListsNatural(List<List<String>> data) {
 		List<List<String>> outerToInner = new ArrayList<List<String>>();
-	
+
 		for (int col = 0; col < data.get(0).size(); col++) {
 			List<String> current = new ArrayList<String>();
 			for (int row = 0; row < data.size(); row++) {
@@ -96,39 +96,39 @@ public class GridDefinitionBuilder {
 			}
 			outerToInner.add(current);
 		}
-		
+
 		System.out.println("Was given:");
 		ArrayUtils.printLists(data);
-		
+
 		System.out.println("Became:");
 		ArrayUtils.printLists(outerToInner);
-		
+
 		return topWithLists(outerToInner);
 	}
-	
+
 	public GridDefinitionBuilder topWithArraysNatural(String[][] data) {
 		return topWithListsNatural(toLists(data));
 	}
-	
+
 	public GridDefinitionBuilder leftWithLists(List<List<String>> memberLists) {
 		return withLists(leftMembers, memberLists);
 	}
-	
+
 	public GridDefinitionBuilder leftWithArrays(String[][] memberLists) {
 		return leftWithLists(toLists(memberLists));
 	}
-	
+
 	private GridDefinitionBuilder withLists(List<DimensionMembers> dimMembers, List<List<String>> memberLists) {
 		for (List<String> memberList : memberLists) {
 			dimMembers.add(new DimensionMembers(null, memberList));
 		}
-		return this;		
+		return this;
 	}
-	
+
 	/**
 	 * Allows to specify the contents of the left axis columns, such as Q1, Final (note that each
 	 * item represents different dimension)
-	 * 
+	 *
 	 * @param members the members
 	 * @return the builder
 	 */
@@ -147,7 +147,7 @@ public class GridDefinitionBuilder {
 
 	/**
 	 * Expands the members on the first dimension members item and creates one if there aren't any.
-	 * 
+	 *
 	 * @param members the members
 	 * @return the builder
 	 */
@@ -222,5 +222,5 @@ public class GridDefinitionBuilder {
 		}
 		return arrayLists;
 	}
-	
+
 }

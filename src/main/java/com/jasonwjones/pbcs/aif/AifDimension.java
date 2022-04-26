@@ -9,22 +9,21 @@ public class AifDimension {
 
 	@JsonProperty("balanceColName")
 	private String balanceColumnName;
-	
+
 	private String dimensionClass;
-	
+
 	private Integer validForPlan1;
-	
+
 	private Integer validForPlan2;
-	
+
 	private Integer validForPlan3;
-	
+
 	private Integer validForPlan4;
-	
+
 	private Integer validForPlan5;
-	
+
 	private Integer validForPlan6;
-	 
-	
+
 	public String getName() {
 		return name;
 	}
