@@ -26,22 +26,22 @@ import com.jasonwjones.pbcs.client.exceptions.PbcsClientException;
  * straight from this class to grabbing an instance of {@link PbcsApplication},
  * which is the main interface for modeling operations on a particular
  * application.
- * 
+ *
  * @author Jason Jones
  *
  */
 public class PbcsPlanningClientImpl implements PbcsPlanningClient {
 
 	private static final Logger logger = LoggerFactory.getLogger(PbcsPlanningClientImpl.class);
-	
-	private RestContext context;
 
-	private RestTemplate restTemplate;
+	private final RestContext context;
 
-	private String baseUrl;
+	private final RestTemplate restTemplate;
 
-	private PbcsServiceConfiguration serviceConfig;
-	
+	private final String baseUrl;
+
+	private final PbcsServiceConfiguration serviceConfig;
+
 	// TODO: Provide option to skip initial check (default should check)
 	public PbcsPlanningClientImpl(PbcsConnection connection, PbcsServiceConfiguration serviceConfiguration) throws PbcsClientException {
 		this.serviceConfig = serviceConfiguration;
@@ -50,14 +50,14 @@ public class PbcsPlanningClientImpl implements PbcsPlanningClient {
 		this.restTemplate.setErrorHandler(new MyResponseErrorHandler());
 		ClientHttpRequestInterceptor interceptor = new RequestResponseLoggingInterceptor();
 		this.restTemplate.setInterceptors(Collections.singletonList(interceptor));
-		
+
 		this.context = new RestContext(restTemplate, baseUrl);
 		this.context.setAifBaseUrl(serviceConfig.getScheme() + "://" + connection.getServer() + serviceConfiguration.getAifRestApiPath() + serviceConfiguration.getAifRestApiVersion());
 
 		// perform a call to the API to validate that we are actually connected
 		// if this doesn't work then we can throw an exception to the caller and
 		// they'll know the connection didn't work
-		
+
 		if (!serviceConfiguration.isSkipApiCheck()) {
 			try {
 				PbcsApi api = getApi();
@@ -83,17 +83,17 @@ public class PbcsPlanningClientImpl implements PbcsPlanningClient {
 	}
 
 	public String get(String url) {
-		logger.info("Getting from test URL", url);
+		logger.info("Getting from test URL {}", url);
 		ResponseEntity<String> checkApi = restTemplate.getForEntity(baseUrl + url, String.class);
 		return checkApi.getBody();
 	}
-	
+
 	@Override
 	public List<PbcsApplication> getApplications() {
 		String url = this.baseUrl + "applications";
 		ResponseEntity<Applications> result = restTemplate.getForEntity(url, Applications.class);
 
-		List<PbcsApplication> pbcsApplications = new ArrayList<PbcsApplication>();
+		List<PbcsApplication> pbcsApplications = new ArrayList<>();
 		for (Application application : result.getBody().getItems()) {
 			PbcsApplicationImpl appImpl = new PbcsApplicationImpl(context, application);
 			pbcsApplications.add(appImpl);
@@ -103,14 +103,22 @@ public class PbcsPlanningClientImpl implements PbcsPlanningClient {
 
 	@Override
 	public PbcsApplication getApplication(String applicationName) throws PbcsClientException {
-				
-		List<PbcsApplication> applications = getApplications();
-		for (PbcsApplication application : applications) {
-			if (application.getName().equalsIgnoreCase(applicationName)) {
-				return application;
+		return getApplication(applicationName, false);
+	}
+
+	public PbcsApplication getApplication(String applicationName, boolean skipCheck) throws PbcsClientException {
+		// [name=Vision, type=HP, dpEnabled=false]]
+		if (skipCheck) {
+			//	return new PbcsApplicationImpl(context, )
+		} else {
+			for (PbcsApplication application : getApplications()) {
+				if (application.getName().equalsIgnoreCase(applicationName)) {
+					return application;
+				}
 			}
+			throw new PbcsClientException("No application with name: " + applicationName);
 		}
-		throw new PbcsClientException("No application with name: " + applicationName);
+		return null;
 	}
 
 }

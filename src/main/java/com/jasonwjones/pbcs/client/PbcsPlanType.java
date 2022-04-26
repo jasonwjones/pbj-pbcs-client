@@ -1,16 +1,27 @@
 package com.jasonwjones.pbcs.client;
 
-import java.util.List;
+import com.jasonwjones.pbcs.client.impl.grid.DataSliceGrid;
 
-// TODO:
-// basically it's syntactic sugar for the export data slice method and the get dimennsions method that takes a plan type
+import java.util.List;
 
 public interface PbcsPlanType {
 
-	public String getName();
-	
-	public List<PbcsDimension> getDimensions();
-	
-	public PbcsApplication getApplication();
-	
+	String getName();
+
+	List<PbcsDimension> getDimensions();
+
+	PbcsApplication getApplication();
+
+	String getCell();
+
+	/**
+	 * Retrieves a single cell of data at the given POV.
+	 *
+	 * @param dataPoint the data point
+	 * @return the value of the cell, may be an empty string
+	 */
+	String getCell(List<String> dataPoint);
+
+	DataSliceGrid retrieve(List<String> dataPoint);
+
 }
