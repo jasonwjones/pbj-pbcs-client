@@ -89,6 +89,8 @@
 		<!-- gets Spring Boot package phase to set main class entry for runnable JAR. Trying to use Maven Shade to do this doesn't work (likely because
 			of overrides Spring makes in the parent POM -->
 		<start-class>com.jasonwjones.pbcs.cli.PbjCli</start-class>
+		<maven.compiler.target>1.8</maven.compiler.target>
+		<maven.compiler.source>1.8</maven.compiler.source>
 	</properties>
 
 	<reporting>
