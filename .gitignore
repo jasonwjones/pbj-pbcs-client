@@ -16,3 +16,4 @@ build/
 dependency-reduced-pom.xml
 pom.xml.releaseBackup
 pbj-pbcs-client.iml
+http-client.private.env.json

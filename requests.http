@@ -1,0 +1,377 @@
+### Get API Version Info
+
+# You're supposed to be able to hit https://{{server}}/HyperionPlanning/rest (no v3 suffix) but that seems to force
+# a redirect of some kind that doesn't work here. It works in a web browser though, after having authenticated.
+
+GET https://{{server}}/HyperionPlanning/rest/v3
+Authorization: Basic {{creds}}
+Accept: application/json
+
+### Get Applications
+
+GET https://{{server}}/HyperionPlanning/rest/v3/applications
+Authorization: Basic {{creds}}
+Accept: application/json
+
+### Get Application TEST
+
+POST https://{{server}}/HyperionPlanning/rest/v3/applications/Vision/plantypes/Plan1/exportdataslice
+Authorization: Basic {{creds}}
+Accept: application/json
+
+### Get Member Info
+
+GET https://{{server}}/HyperionPlanning/rest/v3/applications/Vision/dimensions/Period/members/YearTotal
+Authorization: Basic {{creds}}
+Accept: application/json
+
+### Get Jobs
+
+GET https://{{server}}/HyperionPlanning/rest/v3/applications/Vision/jobdefinitions
+Authorization: Basic {{creds}}
+Accept: application/json
+
+### Import Data Slice
+
+POST https://{{server}}/HyperionPlanning/rest/v3/applications/Vision/plantypes/Plan1/importdataslice
+Authorization: Basic {{creds}}
+Accept: application/json
+Content-Type: application/json
+
+{
+  "aggregateEssbaseData": false,
+  "cellNotesOption":"Skip",
+  "dateFormat":"DD/MM/YYYY",
+  "strictDateValidation": true,
+  "customParams": {
+    "IncludeRejectedCells":true,
+    "IncludeRejectedCellsWithDetails":true
+  },
+   "dataGrid":{
+      "pov":[
+         "Actual",
+         "FY21",
+         "Final",
+         "USD",
+         "Test1a"
+      ],
+      "columns":[
+         [
+            "Jan",
+            "Feb",
+            "Mar"
+         ]
+      ],
+      "rows":[
+         {
+            "headers":[
+               "Account1"
+            ],
+            "data":[
+               "1",
+               "2",
+               "3"
+            ]
+         }
+      ]
+   }
+}
+
+### Export Data Slice
+
+POST https://{{server}}/HyperionPlanning/rest/v3/applications/Vision/plantypes/Plan1/exportdataslice
+Authorization: Basic {{creds}}
+Accept: application/json
+Content-Type: application/json
+
+{
+  "gridDefinition": {
+    "suppressMissingBlocks": false,
+    "pov": {
+      "members": [
+        ["Actual"], ["FY21"], ["Final"], ["USD"], ["Test1a"]
+      ]
+    },
+    "columns": [
+      {
+        "members": [
+          ["Jan", "Feb"]
+        ]
+      }
+    ],
+    "rows": [
+      {
+       "members": [
+         ["Account1"]
+       ]
+      }
+    ]
+  }
+}
+
+### Export Data Slice (Alternate Arrangement)
+
+POST https://{{server}}/HyperionPlanning/rest/v3/applications/Vision/plantypes/Plan1/exportdataslice
+Authorization: Basic {{creds}}
+Accept: application/json
+Content-Type: application/json
+
+{
+  "gridDefinition": {
+    "suppressMissingBlocks": false,
+    "pov": {
+      "members": [
+        ["Actual"], ["Final"], ["Test1a"]
+      ]
+    },
+    "columns": [
+      {
+        "members": [
+          ["Jan", "Feb"],
+          ["FY21", "FY21"]
+        ]
+      }
+    ],
+    "rows": [
+      {
+        "members": [
+          ["Account1"],
+          ["USD"]
+        ]
+      }
+    ]
+  }
+}
+
+### Export Data Slice (Single Cell)
+
+POST https://{{server}}/HyperionPlanning/rest/v3/applications/Vision/plantypes/Plan1/exportdataslice
+Authorization: Basic {{creds}}
+Accept: application/json
+Content-Type: application/json
+
+{
+  "gridDefinition": {
+    "suppressMissingBlocks": false,
+    "pov": {
+      "members": [
+        ["Account"], ["Currency"], ["Entity"], ["Period"], ["Scenario"]
+      ]
+    },
+    "columns": [
+      {
+        "members": [
+          ["Version"]
+        ]
+      }
+    ],
+    "rows": [
+      {
+        "members": [
+          ["IDescendants(Years)"]
+        ]
+      }
+    ]
+  }
+}
+
+### Export Data Slice (Single Cell2)
+
+POST https://{{server}}/HyperionPlanning/rest/v3/applications/Vision/plantypes/Plan1/exportdataslice
+Authorization: Basic {{creds}}
+Accept: application/json
+Content-Type: application/json
+
+{"exportPlanningData":false,"gridDefinition":{"suppressMissingBlocks":false,"pov":{"members":[["Account","Currency","Entity","Period","Scenario"]]},"columns":[{"members":[["Version"]]}],"rows":[{"members":[["Years"]]}]}}
+
+### DM
+
+GET https://{{server}}/aif/rest/V1
+Authorization: Basic {{creds}}
+Accept: application/json
+
+
+### Data Management (unofficial API)
+
+GET https://{{server}}/aif/rest/V1/applications/Vision
+Authorization: Basic {{creds}}
+Accept: application/json
+
+   "aggregateEssbaseData": false,
+   "cellNotesOption":"Skip",
+   "dateFormat":"DD/MM/YYYY",
+   "strictDateValidation": true,
+   "customParams": {
+       "PostDataImportRuleNames":"Post data rule 1, \"post, data rule 2\""
+       "IncludeRejectedCells":true,
+       "IncludeRejectedCellsWithDetails":true
+   },
+
+
+### Export Data Slice 2
+
+POST https://{{server}}/HyperionPlanning/rest/v3/applications/Vision/plantypes/Plan1/exportdataslice
+Authorization: Basic {{creds}}
+Accept: application/json
+Content-Type: application/json
+
+{
+  "exportPlanningData": false,
+  "gridDefinition": {
+    "suppressMissingBlocks": true,
+    "pov": {
+      "dimensions": [
+        "HSP_View",
+        "Year",
+        "Scenario",
+        "Version",
+        "Entity",
+        "Product"
+      ],
+      "members": [
+        [
+          "BaseData"
+        ],
+        [
+          "FY15"
+        ],
+        [
+          "Plan"
+        ],
+        [
+          "Working"
+        ],
+        [
+          "410"
+        ],
+        [
+          "P_160"
+        ]
+      ]
+    },
+    "columns": [
+      {
+        "dimensions": [
+          "Period"
+        ],
+        "members": [
+          [
+            "IDescendants(Q1)"
+          ]
+        ]
+      },
+      {
+        "dimensions": [
+          "Period"
+        ],
+        "members": [
+          [
+            "IDescendants(Q2)"
+          ]
+        ]
+      }
+    ],
+    "rows": [
+      {
+        "dimensions": [
+          "Account"
+        ],
+        "members": [
+          [
+            "Project Number",
+            "Request Date",
+            "Project Type",
+            "Project Investment"
+          ]
+        ]
+      }
+    ]
+  }
+}
+
+### Export Data Slice 3
+
+POST https://{{server}}/HyperionPlanning/rest/v3/applications/Vision/plantypes/Plan1/exportdataslice
+Authorization: Basic {{creds}}
+Accept: application/json
+Content-Type: application/json
+
+{
+  "exportPlanningData": false,
+  "gridDefinition": {
+    "suppressMissingBlocks": true,
+    "pov": {
+      "dimensions": [
+        "HSP_View",
+        "Year",
+        "Scenario",
+        "Version",
+        "Entity",
+        "Product"
+      ],
+      "members": [
+        [
+          "BaseData"
+        ],
+        [
+          "FY15"
+        ],
+        [
+          "Plan"
+        ],
+        [
+          "Working"
+        ],
+        [
+          "410"
+        ],
+        [
+          "P_160"
+        ]
+      ]
+    },
+    "columns": [
+      {
+        "dimensions": [
+          "Period"
+        ],
+        "members": [
+          [
+            "IDescendants(Q1)"
+          ]
+        ]
+      },
+      {
+        "dimensions": [
+          "Period"
+        ],
+        "members": [
+          [
+            "IDescendants(Q2)"
+          ]
+        ]
+      }
+    ],
+    "rows": [
+      {
+        "dimensions": [
+          "Account"
+        ],
+        "members": [
+          [
+            "Project Number",
+            "Request Date",
+            "Project Type",
+            "Project Investment"
+          ]
+        ]
+      }
+    ]
+  }
+}
+
+### Get Applications using Bearer Token
+
+GET https://{{server}}/HyperionPlanning/rest/v3/applications
+Authorization: Bearer eyJ4NXQjUzI1NiI6ImxnWG5kcVN6VE5jbldZOGRoQldDeTRCSDAzQnNwM2w2RnRIT1B2RnJQTlkiLCJ4NXQiOiJVX0lIN1FWbU9pMEhuaHhNcno3TExEazBwS1UiLCJraWQiOiJTSUdOSU5HX0tFWSIsImFsZyI6IlJTMjU2In0.eyJ1c2VyX3R6IjoiQW1lcmljYVwvQ2hpY2FnbyIsInN1YiI6Imphc29ud2pvbmVzQGdtYWlsLmNvbSIsInVzZXJfbG9jYWxlIjoiZW4iLCJzaWRsZSI6NDgwLCJ1c2VyLnRlbmFudC5uYW1lIjoiaWRjcy00MmFiYWJhYWRlMjE0YWZhYTk0ZmRjYjdjZWQzZDdlMyIsImlzcyI6Imh0dHBzOlwvXC9pZGVudGl0eS5vcmFjbGVjbG91ZC5jb21cLyIsInVzZXJfdGVuYW50bmFtZSI6ImlkY3MtNDJhYmFiYWFkZTIxNGFmYWE5NGZkY2I3Y2VkM2Q3ZTMiLCJjbGllbnRfaWQiOiJjYzMwZTk4ZWRhY2E0Y2VmYmRiOTQzMzdmYzc2YjBlNSIsInVzZXJfaXNBZG1pbiI6dHJ1ZSwic3ViX3R5cGUiOiJ1c2VyIiwic2NvcGUiOiJvZmZsaW5lX2FjY2VzcyB1cm46b3BjOnJlc291cmNlOmNvbnN1bWVyOjphbGwiLCJjbGllbnRfdGVuYW50bmFtZSI6ImlkY3MtNDJhYmFiYWFkZTIxNGFmYWE5NGZkY2I3Y2VkM2Q3ZTMiLCJyZWdpb25fbmFtZSI6InVzLXBob2VuaXgtaWRjcy0zIiwidXNlcl9sYW5nIjoiZW4iLCJleHAiOjE2NDg3NjY1OTEsImlhdCI6MTY0ODc2Mjk5MSwiY2xpZW50X2d1aWQiOiJjNzRkZjAzMzI3YTg0N2EwYWIyZDVjYjI5ODg5YmY1NyIsImNsaWVudF9uYW1lIjoiUEJDUyBSRVNUIE9BdXRoIFRlc3QiLCJ0ZW5hbnQiOiJpZGNzLTQyYWJhYmFhZGUyMTRhZmFhOTRmZGNiN2NlZDNkN2UzIiwianRpIjoiNGUwMWM0NDdlODA4NGJjNzk3YzdjNmYxM2QzMTI2ZjIiLCJndHAiOiJkYyIsInVzZXJfZGlzcGxheW5hbWUiOiJKYXNvbiBKb25lcyIsIm9wYyI6ZmFsc2UsInN1Yl9tYXBwaW5nYXR0ciI6InVzZXJOYW1lIiwicHJpbVRlbmFudCI6dHJ1ZSwidG9rX3R5cGUiOiJBVCIsImNhX2d1aWQiOiJjYWNjdC0wNWE5Y2EwZDZhYmU0NWYzYjMzNDcxMDg2MjkwNjY5ZCIsImF1ZCI6InVybjpvcGM6c2VydmljZUluc3RhbmNlSUQ9Njg3MDY1NjAzIiwidXNlcl9pZCI6ImZkZDcyYmY3NjM3ZjQ1YWU4MzE3MmRiOGZmMjU3MjBkIiwicnRfanRpIjoiOTU0ZThjNzRmNzljNDcxYWE1NzljMjczZjA0ZWNhNTEiLCJ0ZW5hbnRfaXNzIjoiaHR0cHM6XC9cL2lkY3MtNDJhYmFiYWFkZTIxNGFmYWE5NGZkY2I3Y2VkM2Q3ZTMuaWRlbnRpdHkub3JhY2xlY2xvdWQuY29tOjQ0MyIsInJlc291cmNlX2FwcF9pZCI6IjhhOGU1YTY4YjQ1NzQxYmVhMDdlNTY1MmMyMDM5N2YyIn0.gOvcFBnzF9BZRurOsiTjWZyuFupTHiXqD87qSBq16DdAqc-VCg9IJKuqceIV7AjM9VWqpbRCIadqzr-Ieblg2ciVYVPfmJUwwi8F-p-VCpJJZFyuouUKhTl6jSBVuiAmlNt6pi2Mgkk0ybr22FSzkW6vgHcFUe0f067YqIIyb2Zv2rKrjB2RrQQ51wmJ39OkdDSjgGXmLOt_YTINXZeyd8dJXtBwuDGswESkZN0GLOn53iRbXxVU-tAUX0qW5j3-HR_JqRNzGN_dv1vQeOlvz1pzQwhx2IKcW5pwYJ-lo_liicvhvdtYS6sbEErKpO_IQid2VoDisr5DjZ4ApNSE_g
+Accept: application/json
