@@ -74,7 +74,7 @@ public class PbcsPlanTypeImpl implements PbcsPlanType {
 		GridDefinition gridDefinition = new GridDefinition(dataPoint);
 		ExportDataSlice exportDataSlice = new ExportDataSlice(gridDefinition);
 		ResponseEntity<DataSlice> slice = this.context.getTemplate().postForEntity(url, exportDataSlice, DataSlice.class, application.getName(), planType);
-		if (slice.getStatusCode() == HttpStatus.OK) {
+		if (slice.getStatusCode().is2xxSuccessful()) {
 			DataSlice dataSlice = slice.getBody();
 			DataSlice.HeaderDataRow headerDataRow = dataSlice.getRows().get(0);
 			return headerDataRow.getData().get(0);
@@ -88,7 +88,7 @@ public class PbcsPlanTypeImpl implements PbcsPlanType {
 		GridDefinition gridDefinition = new GridDefinition(dataPoint);
 		ExportDataSlice exportDataSlice = new ExportDataSlice(gridDefinition);
 		ResponseEntity<DataSlice> slice = this.context.getTemplate().postForEntity(url, exportDataSlice, DataSlice.class, application.getName(), planType);
-		if (slice.getStatusCode() == HttpStatus.OK) {
+		if (slice.getStatusCode().is2xxSuccessful()) {
 			DataSlice dataSlice = slice.getBody();
 			return new DataSliceGrid(dataSlice);
 		} else {
