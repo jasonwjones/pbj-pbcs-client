@@ -11,18 +11,12 @@ import java.util.Set;
  */
 public interface PbcsDimension {
 
-	String getBalanceColumnName();
-
-	String getDimensionClass();
-
-	String getDimensionClassOrg();
-
 	String getName();
 
-	String getNameOrg();
+	PbcsMemberProperties getMember(String memberName);
 
-	Set<String> getValidPlans();
-
-	boolean isValidForPlan(String plan);
+	default PbcsMemberProperties getRoot() {
+		return getMember(getName());
+	}
 
 }

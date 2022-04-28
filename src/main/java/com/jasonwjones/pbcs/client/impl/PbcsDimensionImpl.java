@@ -3,35 +3,20 @@ package com.jasonwjones.pbcs.client.impl;
 import java.util.Set;
 
 import com.jasonwjones.pbcs.aif.AifDimension;
-import com.jasonwjones.pbcs.client.PbcsDimension;
+import com.jasonwjones.pbcs.client.*;
 
-public class PbcsDimensionImpl implements PbcsDimension {
+public class PbcsDimensionImpl implements PbcsAppDimension {
 
-	private Set<String> plans;
-	
-	private AifDimension dimension;
-	
-	PbcsDimensionImpl(Set<String> plans, AifDimension dimension) {
+	private final Set<String> plans;
+
+	private final PbcsApplication application;
+
+	private final AifDimension dimension;
+
+	PbcsDimensionImpl(Set<String> plans, PbcsApplication application, AifDimension dimension) {
 		this.plans = plans;
+		this.application = application;
 		this.dimension = dimension;
-	}
-	
-	@Override
-	public String getBalanceColumnName() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String getDimensionClass() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String getDimensionClassOrg() {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 	@Override
@@ -40,9 +25,8 @@ public class PbcsDimensionImpl implements PbcsDimension {
 	}
 
 	@Override
-	public String getNameOrg() {
-		// TODO Auto-generated method stub
-		return null;
+	public PbcsMemberProperties getMember(String memberName) {
+		return application.getMember(getName(), memberName);
 	}
 
 	@Override

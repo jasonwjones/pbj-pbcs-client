@@ -2,6 +2,7 @@ package com.jasonwjones.pbcs.client.impl;
 
 import java.util.*;
 
+import com.jasonwjones.pbcs.client.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
@@ -20,14 +21,6 @@ import com.jasonwjones.pbcs.api.v3.SubstitutionVariablesWrapper;
 import com.jasonwjones.pbcs.api.v3.SubstiutionVariableUpdateWrapper;
 import com.jasonwjones.pbcs.api.v3.dataslices.DataSlice;
 import com.jasonwjones.pbcs.api.v3.dataslices.ExportDataSlice;
-import com.jasonwjones.pbcs.client.PbcsApplication;
-import com.jasonwjones.pbcs.client.PbcsDimension;
-import com.jasonwjones.pbcs.client.PbcsJobDefinition;
-import com.jasonwjones.pbcs.client.PbcsJobLaunchResult;
-import com.jasonwjones.pbcs.client.PbcsJobStatus;
-import com.jasonwjones.pbcs.client.PbcsJobType;
-import com.jasonwjones.pbcs.client.PbcsMemberProperties;
-import com.jasonwjones.pbcs.client.PbcsPlanType;
 import com.jasonwjones.pbcs.client.exceptions.PbcsClientException;
 import com.jasonwjones.pbcs.client.exceptions.PbcsNoSuchObjectException;
 import com.jasonwjones.pbcs.client.exceptions.PbcsNoSuchVariableException;
@@ -37,17 +30,19 @@ public class PbcsApplicationImpl implements PbcsApplication {
 
 	private static final Logger logger = LoggerFactory.getLogger(PbcsApplicationImpl.class);
 
-	private RestContext context;
+	private final RestContext context;
 
-	private Application application;
+	private final PbcsPlanningClient client;
 
-	private Map<String, String> appMap;
+	private final Application application;
 
-	public PbcsApplicationImpl(RestContext context, Application application) {
+	private final Map<String, String> appMap;
+
+	public PbcsApplicationImpl(RestContext context, PbcsPlanningClient client, Application application) {
 		this.context = context;
+		this.client = client;
 		this.application = application;
-
-		this.appMap = new HashMap<String, String>();
+		this.appMap = new HashMap<>();
 		this.appMap.put("application", application.getName());
 	}
 
@@ -59,7 +54,7 @@ public class PbcsApplicationImpl implements PbcsApplication {
 				JobDefinitionsWrapper.class, appMap);
 
 		JobDefinitionsWrapper jobDefinitions = output.getBody();
-		List<PbcsJobDefinition> pbcsJobDefs = new ArrayList<PbcsJobDefinition>();
+		List<PbcsJobDefinition> pbcsJobDefs = new ArrayList<>();
 		for (JobDefinition jobDefinition : jobDefinitions.getItems()) {
 			PbcsJobDefinition pbcsJobDef = new PbcsJobDefinitionImpl(context, jobDefinition);
 			pbcsJobDefs.add(pbcsJobDef);
@@ -69,7 +64,7 @@ public class PbcsApplicationImpl implements PbcsApplication {
 
 	@Override
 	public List<PbcsJobDefinition> getJobDefinitions(PbcsJobType jobType) {
-		List<PbcsJobDefinition> filteredJobDefinitinos = new ArrayList<PbcsJobDefinition>();
+		List<PbcsJobDefinition> filteredJobDefinitinos = new ArrayList<>();
 		for (PbcsJobDefinition currentDef : getJobDefinitions()) {
 			if (currentDef.getJobType().equals(jobType.name())) {
 				filteredJobDefinitinos.add(currentDef);
@@ -127,7 +122,7 @@ public class PbcsApplicationImpl implements PbcsApplication {
 		// then it should
 		// be a zip file
 		if (dataFile != null) {
-			Map<String, String> params = new HashMap<String, String>();
+			Map<String, String> params = new HashMap<>();
 			params.put("importZipFileName", dataFile);
 			payload.setParameters(params);
 		}
@@ -187,6 +182,11 @@ public class PbcsApplicationImpl implements PbcsApplication {
 	}
 
 	@Override
+	public PbcsPlanningClient getClient() {
+		return client;
+	}
+
+	@Override
 	public boolean isDpEnabled() {
 		return application.isDpEnabled();
 	}
@@ -206,7 +206,7 @@ public class PbcsApplicationImpl implements PbcsApplication {
 		logger.info("Getting substitution variables for {}", application.getName());
 		String url = this.context.getBaseUrl() + "applications/{application}/substitutionvariables";
 		ResponseEntity<SubstitutionVariablesWrapper> response = this.context.getTemplate().getForEntity(url, SubstitutionVariablesWrapper.class, appMap);
-		return new HashSet<SubstitutionVariable>(response.getBody().getItems());
+		return new HashSet<>(response.getBody().getItems());
 	}
 
 	@Override
@@ -224,7 +224,7 @@ public class PbcsApplicationImpl implements PbcsApplication {
 	public void updateSubstitutionVariables(Collection<SubstitutionVariable> variables) {
 		String url = this.context.getBaseUrl() + "applications/{application}/substitutionvariables";
 		SubstiutionVariableUpdateWrapper subs = new SubstiutionVariableUpdateWrapper();
-		subs.setItems(new ArrayList<SubstitutionVariable>(variables));
+		subs.setItems(new ArrayList<>(variables));
 		ResponseEntity<String> resp = this.context.getTemplate().postForEntity(url, subs, String.class, appMap);
 		//logger.info("Response: {}", resp.getHeaders());
 		//System.out.println(resp.getBody());
@@ -232,7 +232,7 @@ public class PbcsApplicationImpl implements PbcsApplication {
 
 	@Override
 	public void updateSubstitutionVariable(String name, String value) {
-		Collection<SubstitutionVariable> var = Arrays.asList(new SubstitutionVariable(name, value));
+		Collection<SubstitutionVariable> var = Collections.singletonList(new SubstitutionVariable(name, value));
 		updateSubstitutionVariables(var);
 	}
 
@@ -288,11 +288,11 @@ public class PbcsApplicationImpl implements PbcsApplication {
 
 		logger.debug("Fetching member properties for {} from dimension {}", memberName, dimensionName);
 		String url = this.context.getBaseUrl() + "applications/{application}/dimensions/{dimName}/members/{member}";
-		String body = this.context.getTemplate().getForEntity(url, String.class, application.getName(), dimensionName, memberName).getBody();
-		logger.debug("Body: {} / {}", body.length(), body);
+		// left over from trying to debug why some responses (that were too big?) were incomplete
+		//String body = this.context.getTemplate().getForEntity(url, String.class, application.getName(), dimensionName, memberName).getBody();
+		//logger.debug("Body: {} / {}", body.length(), body);
 		ResponseEntity<PbcsMemberPropertiesImpl> memberResponse = this.context.getTemplate().getForEntity(url, PbcsMemberPropertiesImpl.class, application.getName(), dimensionName, memberName);
-
-		logger.debug("Headers: " + memberResponse.getHeaders());
+		//logger.debug("Headers: " + memberResponse.getHeaders());
 		return memberResponse.getBody();
 	}
 
@@ -310,7 +310,7 @@ public class PbcsApplicationImpl implements PbcsApplication {
 		String url = this.context.getBaseUrl() + "applications/{application}/jobs";
 		JobLaunchPayload payload = new JobLaunchPayload("EXPORT_METADATA", jobName);
 
-		Map<String, String> params = new HashMap<String, String>();
+		Map<String, String> params = new HashMap<>();
 		params.put("exportZipFileName", "test.zip");
 		// can add 'importFileName' to parameters on payload object if we want
 		// (the name of a CSV, ZIP, or TXT file). In case of ZIP, the ZIP can
@@ -375,22 +375,22 @@ public class PbcsApplicationImpl implements PbcsApplication {
 	}
 
 	@Override
-	public List<PbcsDimension> getDimensions() {
+	public List<PbcsAppDimension> getDimensions() {
 		ResponseEntity<AifApplication> result = this.context.getTemplate().getForEntity(this.context.getAifUrl("/applications/" + this.application.getName()), AifApplication.class);
 
 		AifApplication application = result.getBody();
 		List<String> plans = Arrays.asList(application.getPlan1Name(), application.getPlan2Name(), application.getPlan3Name(), application.getPlan4Name(), application.getPlan5Name(), application.getPlan6Name());
 
-		List<PbcsDimension> dimensions = new ArrayList<PbcsDimension>();
+		List<PbcsAppDimension> dimensions = new ArrayList<>();
 		for (AifDimension aifDimension : result.getBody().getItems()) {
 			List<Integer> validForPlans = Arrays.asList(aifDimension.getValidForPlan1(), aifDimension.getValidForPlan2(), aifDimension.getValidForPlan3(), aifDimension.getValidForPlan4(), aifDimension.getValidForPlan5(), aifDimension.getValidForPlan6());
-			Set<String> plansForDim = new TreeSet<String>();
+			Set<String> plansForDim = new TreeSet<>();
 			for (int validIndex = 0; validIndex < 6; validIndex++) {
 				if (validForPlans.get(validIndex) == 1) {
 					plansForDim.add(plans.get(validIndex));
 				}
 			}
-			PbcsDimensionImpl dim = new PbcsDimensionImpl(plansForDim, aifDimension);
+			PbcsDimensionImpl dim = new PbcsDimensionImpl(plansForDim, this, aifDimension);
 			dimensions.add(dim);
 		}
 		return dimensions;
@@ -408,13 +408,14 @@ public class PbcsApplicationImpl implements PbcsApplication {
 
 	// TODO: check that the plan type is actually valid
 	@Override
+	@Deprecated
 	public List<PbcsDimension> getDimensions(String planType) {
-		List<PbcsDimension> dimensions = new ArrayList<PbcsDimension>();
-		for (PbcsDimension dimension : getDimensions()) {
-			if (dimension.isValidForPlan(planType)) {
-				dimensions.add(dimension);
-			}
-		}
+		List<PbcsDimension> dimensions = new ArrayList<>();
+//		for (PbcsDimension dimension : getDimensions()) {
+//			if (dimension.isValidForPlan(planType)) {
+//				dimensions.add(dimension);
+//			}
+//		}
 		return dimensions;
 	}
 
@@ -422,7 +423,7 @@ public class PbcsApplicationImpl implements PbcsApplication {
 	public List<PbcsPlanType> getPlanTypes() {
 		ResponseEntity<AifApplication> result = this.context.getTemplate().getForEntity(this.context.getAifUrl("/applications/" + this.application.getName()), AifApplication.class);
 		AifApplication application = result.getBody();
-		List<PbcsPlanType> planTypes = new ArrayList<PbcsPlanType>();
+		List<PbcsPlanType> planTypes = new ArrayList<>();
 		for (String plan : application.getAllPlans()) {
 			PbcsPlanTypeImpl planTypeImpl = new PbcsPlanTypeImpl(context, this, plan);
 			planTypes.add(planTypeImpl);
@@ -438,7 +439,7 @@ public class PbcsApplicationImpl implements PbcsApplication {
 				return planType;
 			}
 		}
-		List<String> availablePlanTypeNames = new ArrayList<String>();
+		List<String> availablePlanTypeNames = new ArrayList<>();
 		for (PbcsPlanType planType : planTypes) {
 			availablePlanTypeNames.add(planType.getName());
 		}
@@ -447,7 +448,7 @@ public class PbcsApplicationImpl implements PbcsApplication {
 	}
 
 	public PbcsPlanType getPlanType(String planTypeName, boolean skipCheck) {
-		return getPlanType(planTypeName, skipCheck, Collections.<String>emptyList());
+		return getPlanType(planTypeName, skipCheck, Collections.emptyList());
 	}
 
 	public PbcsPlanType getPlanType(String planTypeName, boolean skipCheck, List<String> dimensions) {

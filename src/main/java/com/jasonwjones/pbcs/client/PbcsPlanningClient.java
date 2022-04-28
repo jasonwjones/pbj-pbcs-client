@@ -6,18 +6,20 @@ import com.jasonwjones.pbcs.client.exceptions.PbcsClientException;
 
 /**
  * Main interface for interacting with the PBCS service.
- * 
+ *
  * @author jasonwjones
  *
  */
 public interface PbcsPlanningClient {
 
-	public PbcsApi getApi();
-	
+	PbcsApi getApi();
+
+	String getServer();
+
 	/**
 	 * Returns a list of applications visible to the user connected with the
 	 * API.
-	 * 
+	 *
 	 * @return the list of available applications
 	 */
 	public List<PbcsApplication> getApplications();
@@ -26,7 +28,7 @@ public interface PbcsPlanningClient {
 	 * Returns an application with the specific name. Note that internally this
 	 * method just pulls the whole list of applications and just filters for the
 	 * one you want. It is for convenience purposes.
-	 * 
+	 *
 	 * @param applicationName the name of the application to return,
 	 *            case-sensitive
 	 * @return an application object for the application

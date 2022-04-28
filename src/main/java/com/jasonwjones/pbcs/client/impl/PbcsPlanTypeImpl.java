@@ -5,15 +5,22 @@ import com.jasonwjones.pbcs.api.v3.dataslices.ExportDataSlice;
 import com.jasonwjones.pbcs.api.v3.dataslices.GridDefinition;
 import com.jasonwjones.pbcs.client.PbcsApplication;
 import com.jasonwjones.pbcs.client.PbcsDimension;
+import com.jasonwjones.pbcs.client.PbcsMemberProperties;
 import com.jasonwjones.pbcs.client.PbcsPlanType;
 import com.jasonwjones.pbcs.client.impl.grid.DataSliceGrid;
+import com.jasonwjones.pbcs.client.impl.models.PbcsMemberPropertiesImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.Assert;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class PbcsPlanTypeImpl implements PbcsPlanType {
+
+	private static final Logger logger = LoggerFactory.getLogger(PbcsPlanTypeImpl.class);
 
 	private final RestContext context;
 
@@ -89,7 +96,32 @@ public class PbcsPlanTypeImpl implements PbcsPlanType {
 		}
 	}
 
-	private static class ExplicitDimension implements PbcsDimension {
+	public PbcsMemberProperties getMember(String dimensionName, String memberName) {
+		Assert.hasText(dimensionName, "Must specify a dimension name");
+		Assert.hasText(memberName, "Must specify a member name");
+
+		logger.debug("Fetching member properties for {} from dimension {}", memberName, dimensionName);
+		String url = this.context.getBaseUrl() + "applications/{application}/dimensions/{dimName}/members/{member}";
+		ResponseEntity<PbcsMemberPropertiesImpl> memberResponse = this.context.getTemplate().getForEntity(url, PbcsMemberPropertiesImpl.class, application.getName(), dimensionName, memberName);
+		if (memberResponse.getStatusCode().is2xxSuccessful()) {
+			return memberResponse.getBody();
+		} else {
+			logger.warn("Response from member fetch operation for {} in dimension {} was {}", memberName, dimensionName, memberResponse.getStatusCodeValue());
+			return null;
+		}
+	}
+
+	public PbcsMemberProperties getMember(String memberName) {
+		for (String dimension : explicitDimensions) {
+			PbcsMemberProperties memberProperties = getMember(dimension, memberName);
+			if (memberProperties != null) {
+				return memberProperties;
+			}
+		}
+		return null;
+	}
+
+	private class ExplicitDimension implements PbcsDimension {
 
 		private final String name;
 
@@ -98,38 +130,13 @@ public class PbcsPlanTypeImpl implements PbcsPlanType {
 		}
 
 		@Override
-		public String getBalanceColumnName() {
-			return null;
-		}
-
-		@Override
-		public String getDimensionClass() {
-			return null;
-		}
-
-		@Override
-		public String getDimensionClassOrg() {
-			return null;
-		}
-
-		@Override
 		public String getName() {
 			return name;
 		}
 
 		@Override
-		public String getNameOrg() {
-			return null;
-		}
-
-		@Override
-		public Set<String> getValidPlans() {
-			return null;
-		}
-
-		@Override
-		public boolean isValidForPlan(String plan) {
-			return false;
+		public PbcsMemberProperties getMember(String memberName) {
+			return PbcsPlanTypeImpl.this.getMember(name, memberName);
 		}
 
 	}

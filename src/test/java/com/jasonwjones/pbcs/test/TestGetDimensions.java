@@ -1,15 +1,14 @@
 package com.jasonwjones.pbcs.test;
 
-import java.util.Collections;
 import java.util.List;
 
+import com.jasonwjones.pbcs.client.PbcsAppDimension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.jasonwjones.pbcs.PbcsClient;
 import com.jasonwjones.pbcs.PbcsClientFactory;
 import com.jasonwjones.pbcs.client.PbcsApplication;
-import com.jasonwjones.pbcs.client.PbcsDimension;
 
 public class TestGetDimensions extends AbstractIntegrationTest {
 
@@ -31,8 +30,8 @@ public class TestGetDimensions extends AbstractIntegrationTest {
 
 	}
 
-	public static void printDims(List<PbcsDimension> dimensions) {
-		for (PbcsDimension dimension : dimensions) {
+	public static void printDims(List<PbcsAppDimension> dimensions) {
+		for (PbcsAppDimension dimension : dimensions) {
 			logger.info("Dimension: {}, valid in: {}", dimension.getName(), dimension.getValidPlans());
 		}
 	}

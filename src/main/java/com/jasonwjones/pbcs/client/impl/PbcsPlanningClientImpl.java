@@ -38,6 +38,8 @@ public class PbcsPlanningClientImpl implements PbcsPlanningClient {
 
 	private final RestTemplate restTemplate;
 
+	private final String server;
+
 	private final String baseUrl;
 
 	private final PbcsServiceConfiguration serviceConfig;
@@ -46,6 +48,7 @@ public class PbcsPlanningClientImpl implements PbcsPlanningClient {
 	public PbcsPlanningClientImpl(PbcsConnection connection, PbcsServiceConfiguration serviceConfiguration) throws PbcsClientException {
 		this.serviceConfig = serviceConfiguration;
 		this.baseUrl = serviceConfig.getScheme() + "://" + connection.getServer() + serviceConfig.getPlanningRestApiPath() + serviceConfig.getPlanningApiVersion() + "/";
+		this.server = connection.getServer();
 		this.restTemplate = new RestTemplate(serviceConfiguration.createRequestFactory(connection));
 		this.restTemplate.setErrorHandler(new MyResponseErrorHandler());
 		ClientHttpRequestInterceptor interceptor = new RequestResponseLoggingInterceptor();
@@ -82,6 +85,11 @@ public class PbcsPlanningClientImpl implements PbcsPlanningClient {
 		return new PbcsApiImpl(checkApi.getBody());
 	}
 
+	@Override
+	public String getServer() {
+		return server;
+	}
+
 	public String get(String url) {
 		logger.info("Getting from test URL {}", url);
 		ResponseEntity<String> checkApi = restTemplate.getForEntity(baseUrl + url, String.class);
@@ -95,7 +103,7 @@ public class PbcsPlanningClientImpl implements PbcsPlanningClient {
 
 		List<PbcsApplication> pbcsApplications = new ArrayList<>();
 		for (Application application : result.getBody().getItems()) {
-			PbcsApplicationImpl appImpl = new PbcsApplicationImpl(context, application);
+			PbcsApplicationImpl appImpl = new PbcsApplicationImpl(context, this, application);
 			pbcsApplications.add(appImpl);
 		}
 		return pbcsApplications;
@@ -107,9 +115,12 @@ public class PbcsPlanningClientImpl implements PbcsPlanningClient {
 	}
 
 	public PbcsApplication getApplication(String applicationName, boolean skipCheck) throws PbcsClientException {
-		// [name=Vision, type=HP, dpEnabled=false]]
 		if (skipCheck) {
-			//	return new PbcsApplicationImpl(context, )
+			// [name=Vision, type=HP, dpEnabled=false]]
+			Application application = new Application();
+			application.setName(applicationName);
+			application.setType("HP");
+			return new PbcsApplicationImpl(context, this, application);
 		} else {
 			for (PbcsApplication application : getApplications()) {
 				if (application.getName().equalsIgnoreCase(applicationName)) {
@@ -118,7 +129,6 @@ public class PbcsPlanningClientImpl implements PbcsPlanningClient {
 			}
 			throw new PbcsClientException("No application with name: " + applicationName);
 		}
-		return null;
 	}
 
 }

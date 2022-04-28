@@ -11,7 +11,7 @@ public class PbcsMemberPropertiesImpl implements PbcsMemberProperties {
 	private String name;
 
 	private String alias;
-	
+
 	private List<PbcsMemberPropertiesImpl> children;
 
 	private String description;
@@ -30,7 +30,7 @@ public class PbcsMemberPropertiesImpl implements PbcsMemberProperties {
 	private boolean twoPass;
 
 	private List<String> usedIn;
-	
+
 	public String getName() {
 		return name;
 	}
@@ -38,6 +38,8 @@ public class PbcsMemberPropertiesImpl implements PbcsMemberProperties {
 	public void setName(String name) {
 		this.name = name;
 	}
+
+	private int generation;
 
 	public List<PbcsMemberPropertiesImpl> getChildren() {
 		if (children != null) {
@@ -115,7 +117,7 @@ public class PbcsMemberPropertiesImpl implements PbcsMemberProperties {
 	public List<String> getUsedIn() {
 		return usedIn;
 	}
-	
+
 	public void setUsedIn(List<String> usedIn) {
 		this.usedIn = usedIn;
 	}
@@ -145,5 +147,14 @@ public class PbcsMemberPropertiesImpl implements PbcsMemberProperties {
 	public void setAlias(String alias) {
 		this.alias = alias;
 	}
-	
+
+	@Override
+	public int getGeneration() {
+		return generation;
+	}
+
+	public void setGeneration(int generation) {
+		this.generation = generation;
+	}
+
 }

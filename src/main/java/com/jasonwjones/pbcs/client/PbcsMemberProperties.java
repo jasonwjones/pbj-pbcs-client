@@ -8,7 +8,7 @@ public interface PbcsMemberProperties {
 	public String getName();
 
 	public String getAlias();
-	
+
 	public List<? extends PbcsMemberProperties> getChildren();
 
 	/**
@@ -17,7 +17,7 @@ public interface PbcsMemberProperties {
 	 * <code>getChildren().size() == 0</code>. This should also be true in case
 	 * <code>getChildren()</code> returns null, although valid implementations of
 	 * this interface should return an empty collection instead of null.
-	 * 
+	 *
 	 * @return true if this member has no children and is a level-0/leaf node,
 	 *         false otherwise.
 	 */
@@ -30,9 +30,12 @@ public interface PbcsMemberProperties {
 	public String getDataType();
 
 	// such as 33
+	// 32
 	public Integer getObjectType();
 
 	// such as STOREDATA
+	// TODO: enum
+	// observed values: Never Share, Dynamic Calc, Store Data, Label Only
 	public String getDataStorage();
 
 	// mapped from dimName
@@ -40,9 +43,17 @@ public interface PbcsMemberProperties {
 
 	// from twoPass
 	public boolean isTwoPass();
-	
+
 	public List<String> getUsedIn();
 
-	public int getLevel();
-			
+	/**
+	 * Gets the calculated level of the member. The level appears to come back in the member info payload, however, it
+	 * always has a value of 0. I believe this is an oversight on Oracle's part.
+	 *
+	 * @return the calculated level of this member
+	 */
+	int getLevel();
+
+	int getGeneration();
+
 }

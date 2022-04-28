@@ -3,7 +3,6 @@ package com.jasonwjones.pbcs;
 import java.io.File;
 import java.util.List;
 
-import com.jasonwjones.pbcs.api.v3.MaintenanceWindow;
 import com.jasonwjones.pbcs.client.PbcsApi;
 import com.jasonwjones.pbcs.client.PbcsApplication;
 import com.jasonwjones.pbcs.client.PbcsConnection;
@@ -18,19 +17,24 @@ import com.jasonwjones.pbcs.interop.impl.InteropClientImpl;
 
 public class PbcsClientImpl implements PbcsClient {
 
-	private PbcsPlanningClient planningClient;
-	
-	private InteropClient interopClient;
-	
+	private final PbcsPlanningClient planningClient;
+
+	private final InteropClient interopClient;
+
 	// TODO: Option to defer and lazily initialize
 	public PbcsClientImpl(PbcsConnection connection, PbcsServiceConfiguration serviceConfiguration) {
 		this.planningClient = new PbcsPlanningClientImpl(connection, serviceConfiguration);
 		this.interopClient = new InteropClientImpl(connection, serviceConfiguration);
 	}
-	
+
 	@Override
 	public PbcsApi getApi() {
 		return planningClient.getApi();
+	}
+
+	@Override
+	public String getServer() {
+		return planningClient.getServer();
 	}
 
 	@Override
@@ -67,7 +71,7 @@ public class PbcsClientImpl implements PbcsClient {
 	public List<ApplicationSnapshot> listFiles() {
 		return interopClient.listFiles();
 	}
-	
+
 	@Override
 	public ApplicationSnapshotInfo getSnapshotDetails(String name) {
 		return interopClient.getSnapshotDetails(name);
@@ -92,10 +96,5 @@ public class PbcsClientImpl implements PbcsClient {
 	public File downloadFileViaStream(String filename, String localFilename) {
 		return interopClient.downloadFileViaStream(filename, localFilename);
 	}
-
-//	@Override
-//	public MaintenanceWindow getMaintenanceWindow() {
-//		return interopClient.getMaintenanceWindow();
-//	}
 
 }
