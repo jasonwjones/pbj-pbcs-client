@@ -13,6 +13,8 @@ public interface PbcsDimension {
 
 	String getName();
 
+	int getNumber();
+
 	PbcsMemberProperties getMember(String memberName);
 
 	default PbcsMemberProperties getRoot() {

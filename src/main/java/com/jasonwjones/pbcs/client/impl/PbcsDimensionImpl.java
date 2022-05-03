@@ -13,16 +13,25 @@ public class PbcsDimensionImpl implements PbcsAppDimension {
 
 	private final AifDimension dimension;
 
-	PbcsDimensionImpl(Set<String> plans, PbcsApplication application, AifDimension dimension) {
+	private final int number;
+
+	PbcsDimensionImpl(Set<String> plans, PbcsApplication application, AifDimension dimension, int number) {
 		this.plans = plans;
 		this.application = application;
 		this.dimension = dimension;
+		this.number = number;
 	}
 
 	@Override
 	public String getName() {
 		return dimension.getName();
 	}
+
+	@Override
+	public int getNumber() {
+		return number;
+	}
+
 
 	@Override
 	public PbcsMemberProperties getMember(String memberName) {

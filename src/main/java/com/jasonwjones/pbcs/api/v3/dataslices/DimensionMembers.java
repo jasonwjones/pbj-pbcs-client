@@ -90,26 +90,8 @@ public class DimensionMembers {
 		return dm;
 	}
 
-	public static DimensionMembers ofDimAndMembers(String... dimMembers) {
-		if (dimMembers.length % 2 != 0) {
-			throw new IllegalArgumentException("Number of passed members should be even as each two arguments is a dimension name and member");
-		}
-		List<String> dimensions = new ArrayList<String>();
-		List<String> members = new ArrayList<String>();
-
-		for (int i = 0; i < dimMembers.length; i++) {
-			if (i % 2 == 0) {
-				dimensions.add(dimMembers[i]);
-			} else {
-				members.add(dimMembers[i]);
-			}
-		}
-		return new DimensionMembers(dimensions, members);
-	}
-
 	/**
 	 * Each row of the outer list (the first List) represents a row in the axis.
-	 * The elements of the inner list
 	 *
 	 * @param members the member axes to transform into this object
 	 * @return a new dimension members object for the members

@@ -27,6 +27,8 @@ public interface PbcsPlanType {
 	 */
 	List<PbcsDimension> getDimensions();
 
+	PbcsDimension getDimension(String dimensionName);
+
 	/**
 	 * Gets the application that owns this plan/cube.
 	 *
@@ -51,6 +53,8 @@ public interface PbcsPlanType {
 	 */
 	String getCell(List<String> dataPoint);
 
+	DataSliceGrid retrieve();
+
 	/**
 	 * Retrieve a grid with the given data point. You should receive back a grid containing one data cell,
 	 * surrounded by one member from the last two dimensions and with a POV header for all remaining dimensions.
@@ -59,6 +63,8 @@ public interface PbcsPlanType {
 	 * @return a data slice for that data cell
 	 */
 	DataSliceGrid retrieve(List<String> dataPoint);
+
+	DataSliceGrid retrieve(List<String> pov, Grid<String> grid);
 
 	/**
 	 * This is the canonical call to get member information from the corresponding PBCS endpoint for doing

@@ -382,6 +382,7 @@ public class PbcsApplicationImpl implements PbcsApplication {
 		List<String> plans = Arrays.asList(application.getPlan1Name(), application.getPlan2Name(), application.getPlan3Name(), application.getPlan4Name(), application.getPlan5Name(), application.getPlan6Name());
 
 		List<PbcsAppDimension> dimensions = new ArrayList<>();
+		int dimIndex = 0;
 		for (AifDimension aifDimension : result.getBody().getItems()) {
 			List<Integer> validForPlans = Arrays.asList(aifDimension.getValidForPlan1(), aifDimension.getValidForPlan2(), aifDimension.getValidForPlan3(), aifDimension.getValidForPlan4(), aifDimension.getValidForPlan5(), aifDimension.getValidForPlan6());
 			Set<String> plansForDim = new TreeSet<>();
@@ -390,7 +391,7 @@ public class PbcsApplicationImpl implements PbcsApplication {
 					plansForDim.add(plans.get(validIndex));
 				}
 			}
-			PbcsDimensionImpl dim = new PbcsDimensionImpl(plansForDim, this, aifDimension);
+			PbcsDimensionImpl dim = new PbcsDimensionImpl(plansForDim, this, aifDimension, dimIndex++);
 			dimensions.add(dim);
 		}
 		return dimensions;

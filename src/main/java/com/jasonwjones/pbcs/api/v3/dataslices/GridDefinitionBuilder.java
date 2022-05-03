@@ -42,6 +42,11 @@ public class GridDefinitionBuilder {
 		return this;
 	}
 
+	public GridDefinitionBuilder left(List<String> members) {
+		leftMembers.add(new DimensionMembers(null, members));
+		return this;
+	}
+
 	public GridDefinitionBuilder top(String... members) {
 		topMembers.add(DimensionMembers.of(members));
 		return this;
@@ -64,7 +69,8 @@ public class GridDefinitionBuilder {
 	}
 
 	/**
-	 * Assumes that the outer list is dimensions and the inner list is the contents of a row, such as a simple data stucture for the 'top' axis. For example, the incoming data may be:
+	 * Assumes that the outer list is dimensions and the inner list is the contents of a row, such as a simple data
+	 * structure for the 'top' axis. For example, the incoming data may be:
 	 *
 	 * <pre>
 	 * [                FY18][                FY18][                FY19]

@@ -23,10 +23,16 @@ public class GridDefinition {
 
 	public GridDefinition() {}
 
-	public GridDefinition(List<String> pov, List<List<String>> columns, List<List<String>> rows) {
-		this.pov = new DimensionMembers(pov);
-		this.columns = Arrays.asList(DimensionMembers.of(columns));
-		this.rows = Arrays.asList(DimensionMembers.of(rows));
+//	public GridDefinition(List<String> pov, List<List<String>> columns, List<List<String>> rows) {
+//		this.pov = new DimensionMembers(pov);
+//		this.columns = Arrays.asList(DimensionMembers.of(columns));
+//		this.rows = Arrays.asList(DimensionMembers.of(rows));
+//	}
+
+	public GridDefinition(List<String> pov, List<DimensionMembers> columns, List<DimensionMembers> rows) {
+		this.pov = DimensionMembers.ofMemberNames(pov);
+		this.columns = columns;
+		this.rows = rows;
 	}
 
 	// TODO: consolidate
