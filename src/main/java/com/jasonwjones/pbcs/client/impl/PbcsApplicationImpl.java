@@ -18,7 +18,7 @@ import com.jasonwjones.pbcs.api.v3.JobLaunchPayload;
 import com.jasonwjones.pbcs.api.v3.JobLaunchResponse;
 import com.jasonwjones.pbcs.api.v3.SubstitutionVariable;
 import com.jasonwjones.pbcs.api.v3.SubstitutionVariablesWrapper;
-import com.jasonwjones.pbcs.api.v3.SubstiutionVariableUpdateWrapper;
+import com.jasonwjones.pbcs.api.v3.SubstitutionVariableUpdateWrapper;
 import com.jasonwjones.pbcs.api.v3.dataslices.DataSlice;
 import com.jasonwjones.pbcs.api.v3.dataslices.ExportDataSlice;
 import com.jasonwjones.pbcs.client.exceptions.PbcsClientException;
@@ -223,7 +223,7 @@ public class PbcsApplicationImpl implements PbcsApplication {
 	@Override
 	public void updateSubstitutionVariables(Collection<SubstitutionVariable> variables) {
 		String url = this.context.getBaseUrl() + "applications/{application}/substitutionvariables";
-		SubstiutionVariableUpdateWrapper subs = new SubstiutionVariableUpdateWrapper();
+		SubstitutionVariableUpdateWrapper subs = new SubstitutionVariableUpdateWrapper();
 		subs.setItems(new ArrayList<>(variables));
 		ResponseEntity<String> resp = this.context.getTemplate().postForEntity(url, subs, String.class, appMap);
 		//logger.info("Response: {}", resp.getHeaders());
