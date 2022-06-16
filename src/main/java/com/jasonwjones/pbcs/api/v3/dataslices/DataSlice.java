@@ -1,6 +1,7 @@
 package com.jasonwjones.pbcs.api.v3.dataslices;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -35,6 +36,19 @@ public class DataSlice {
 		this.pov = pov;
 		this.columns = columns;
 		this.rows = rows;
+	}
+
+	/**
+	 * Convenience constructor that builds a data slice for a single cell POV.
+	 *
+	 * @param pov the POV
+	 * @param value the cell value
+	 */
+	public DataSlice(List<String> pov, String value) {
+		if (pov.size() < 3) throw new IllegalArgumentException("Must provide at least three members");
+		this.pov = pov.subList(0, pov.size() - 2);
+		this.columns = Collections.singletonList(Collections.singletonList(pov.get(pov.size() - 2)));
+		this.rows = Collections.singletonList(new HeaderDataRow(pov.get(pov.size() - 1), value));
 	}
 
 	public List<String> getPov() {
@@ -102,6 +116,16 @@ public class DataSlice {
 		public HeaderDataRow(List<String> headers, List<String> data) {
 			this.headers = headers;
 			this.data = data;
+		}
+
+		/**
+		 * Convenience constructor for making a header data row with a single item.
+		 *
+		 * @param header the header item
+		 * @param item the item value
+		 */
+		public HeaderDataRow(String header, String item) {
+			this(Collections.singletonList(header), Collections.singletonList(item));
 		}
 
 		public List<String> getHeaders() {

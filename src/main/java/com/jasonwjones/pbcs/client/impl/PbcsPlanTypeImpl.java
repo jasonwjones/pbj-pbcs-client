@@ -138,12 +138,29 @@ public class PbcsPlanTypeImpl implements PbcsPlanType {
 		GridDefinition gridDefinition = new GridDefinition(pov, top, left);
 		ExportDataSlice exportDataSlice = new ExportDataSlice(gridDefinition);
 
-		ResponseEntity<DataSlice> slice = this.context.getTemplate().postForEntity(this.context.getBaseUrl() + "applications/{application}/plantypes/{planType}/exportdataslice", exportDataSlice, DataSlice.class, application.getName(), planType);
-		if (slice.getStatusCode().is2xxSuccessful()) {
-			DataSlice dataSlice = slice.getBody();
-			return new DataSliceGrid(this, dataSlice);
-		} else {
-			throw new RuntimeException("Error retrieving data, received code: " + slice.getStatusCode());
+		try {
+			ResponseEntity<DataSlice> slice = this.context.getTemplate().postForEntity(this.context.getBaseUrl() + "applications/{application}/plantypes/{planType}/exportdataslice", exportDataSlice, DataSlice.class, application.getName(), planType);
+			if (slice.getStatusCode().is2xxSuccessful()) {
+				DataSlice dataSlice = slice.getBody();
+				return new DataSliceGrid(this, dataSlice);
+			} else {
+				throw new RuntimeException("Error retrieving data, received code: " + slice.getStatusCode());
+			}
+		} catch (Exception e) {
+			logger.error("Exception: {}", e.getMessage());
+			e.printStackTrace();
+			throw e;
+		}
+	}
+
+	public void setCell(List<String> pov, String value) {
+		ImportDataSlice importDataSlice = new ImportDataSlice(pov, value);
+		logger.info("Updating {}.{} to set cell {} to {}", application.getName(), planType, pov, value);
+		ResponseEntity<ImportDataSliceResponse> response = this.context.getTemplate().postForEntity(this.context.getBaseUrl() + "applications/{application}/plantypes/{planType}/importdataslice", importDataSlice, ImportDataSliceResponse.class, application.getName(), planType);
+
+		if (response.getStatusCode().is2xxSuccessful()) {
+			ImportDataSliceResponse importDataSliceResponse = response.getBody();
+			logger.info("Update cell result: {} accepted cells, {} rejected cells", importDataSliceResponse.getNumAcceptedCells(), importDataSliceResponse.getNumRejectedCells());
 		}
 	}
 

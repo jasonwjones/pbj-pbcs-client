@@ -53,7 +53,8 @@ Content-Type: application/json
          "FY21",
          "Final",
          "USD",
-         "Test1a"
+         "000",
+         "P_000"
       ],
       "columns":[
          [
@@ -65,7 +66,7 @@ Content-Type: application/json
       "rows":[
          {
             "headers":[
-               "Account1"
+               "4110"
             ],
             "data":[
                "1",
@@ -109,6 +110,38 @@ Content-Type: application/json
   }
 }
 
+### Export Data Slice
+
+POST https://{{server}}/HyperionPlanning/rest/v3/applications/Vision/plantypes/Plan1/exportdataslice
+Authorization: Basic {{creds}}
+Accept: application/json
+Content-Type: application/json
+
+{
+  "gridDefinition": {
+    "suppressMissingBlocks": false,
+    "pov": {
+      "members": [
+        ["Actual"], ["FY22"], ["Working"], ["USD"], ["Total Entity"], ["Product"]
+      ]
+    },
+    "columns": [
+      {
+        "members": [
+          ["4110", "NI"]
+        ]
+      }
+    ],
+    "rows": [
+      {
+        "members": [
+          ["Jan"]
+        ]
+      }
+    ]
+  }
+}
+
 ### Export Data Slice (Alternate Arrangement)
 
 POST https://{{server}}/HyperionPlanning/rest/v3/applications/Vision/plantypes/Plan1/exportdataslice
@@ -137,6 +170,80 @@ Content-Type: application/json
         "members": [
           ["Account1"],
           ["USD"]
+        ]
+      }
+    ]
+  }
+}
+
+###
+
+### Export Data Slice (Alternate Arrangement 2x2)
+
+POST https://{{server}}/HyperionPlanning/rest/v3/applications/Vision/plantypes/Plan1/exportdataslice
+Authorization: Basic {{creds}}
+Accept: application/json
+Content-Type: application/json
+
+{
+  "gridDefinition": {
+    "suppressMissingBlocks": false,
+    "pov": {
+      "members": [
+        ["Actual"], ["Final"], ["Test1a"], ["USD"]
+      ]
+    },
+    "columns": [
+      {
+        "members": [
+          ["FY21", "FY22"],
+          ["Jan", "Feb", "Mar"]
+        ]
+      }
+    ],
+    "rows": [
+      {
+        "members": [
+          ["Account1", "Account2", "Account"]
+        ]
+      }
+    ]
+  }
+}
+
+### Export Data Slice (Test multiple dim members)
+
+POST https://{{server}}/HyperionPlanning/rest/v3/applications/Vision/plantypes/Plan1/exportdataslice
+Authorization: Basic {{creds}}
+Accept: application/json
+Content-Type: application/json
+
+{
+  "gridDefinition": {
+    "suppressMissingBlocks": false,
+    "pov": {
+      "members": [
+        ["Actual"], ["Final"], ["Test1a"], ["USD"]
+      ]
+    },
+    "columns": [
+      {
+        "members": [
+          ["FY21"],
+          ["Jan"]
+        ]
+      },
+      {
+        "members": [
+          ["FY22"],
+          ["Feb"]
+        ]
+      }
+    ],
+    "rows": [
+      {
+        "members": [
+          ["Account1", "Account2", "Account"]
         ]
       }
     ]

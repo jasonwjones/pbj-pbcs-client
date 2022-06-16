@@ -46,6 +46,15 @@ public interface PbcsPlanType {
 	String getCell();
 
 	/**
+	 * Sets the value for a single cell. Internally, this method just wraps the "import data slice" endpoint
+	 * and provides the convenience of being able to set a single cell without all the ceremony of creating a grid
+	 *
+	 * @param pov the pov
+	 * @param value the cell value
+	 */
+	void setCell(List<String> pov, String value);
+
+	/**
 	 * Retrieves a single cell of data at the given POV.
 	 *
 	 * @param dataPoint the data point
