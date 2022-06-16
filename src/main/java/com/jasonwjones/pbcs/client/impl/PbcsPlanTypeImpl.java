@@ -164,6 +164,18 @@ public class PbcsPlanTypeImpl implements PbcsPlanType {
 		}
 	}
 
+	public void setCells(List<String> pov, Grid<String> values) {
+		ImportDataSlice importDataSlice = new ImportDataSlice();
+		importDataSlice.setDataGrid(new DataSlice(pov, values));
+		logger.info("Updating {}.{} to with multiple data values", application.getName(), planType);
+		ResponseEntity<ImportDataSliceResponse> response = this.context.getTemplate().postForEntity(this.context.getBaseUrl() + "applications/{application}/plantypes/{planType}/importdataslice", importDataSlice, ImportDataSliceResponse.class, application.getName(), planType);
+
+		if (response.getStatusCode().is2xxSuccessful()) {
+			ImportDataSliceResponse importDataSliceResponse = response.getBody();
+			logger.info("Update cell result: {} accepted cells, {} rejected cells", importDataSliceResponse.getNumAcceptedCells(), importDataSliceResponse.getNumRejectedCells());
+		}
+	}
+
 	public PbcsMemberProperties getMember(String dimensionName, String memberName) {
 		Assert.hasText(dimensionName, "Must specify a dimension name");
 		Assert.hasText(memberName, "Must specify a member name");

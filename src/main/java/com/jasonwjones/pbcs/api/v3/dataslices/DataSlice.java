@@ -1,5 +1,8 @@
 package com.jasonwjones.pbcs.api.v3.dataslices;
 
+import com.jasonwjones.pbcs.client.Grid;
+import com.jasonwjones.pbcs.util.GridUtils;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -26,7 +29,8 @@ public class DataSlice {
 
 	/**
 	 * Each element of the columns parameter represents an axis, e.g., if there are three dimensions
-	 * in the top/columns area, then columns will have three elements.
+	 * in the top/columns area, then columns will have three elements, and each array in that list will be the list of
+	 * members going across the top.
 	 *
 	 * @param pov the pov
 	 * @param columns the columns
@@ -36,6 +40,43 @@ public class DataSlice {
 		this.pov = pov;
 		this.columns = columns;
 		this.rows = rows;
+	}
+
+	/**
+	 * Convenience constructor to build using a POV and a grid.
+	 *
+	 * @param pov the POV
+	 * @param grid the grid
+	 */
+	// TODO: generalize to a PovGrid object or some other slightly more abstract type
+	public DataSlice(List<String> pov, Grid<String> grid) {
+		this.pov = pov;
+		int firstRowWithCell = GridUtils.firstNonNullInColumn(grid, 0);
+		int firstColWithCell = GridUtils.firstNonNullInRow(grid, 0);
+
+		this.columns = new ArrayList<>();
+		for (int row = 0; row < firstRowWithCell; row++) {
+			List<String> column = new ArrayList<>();
+			for (int col = firstColWithCell; col < grid.getColumns(); col++) {
+				column.add(grid.getCell(row, col));
+			}
+			columns.add(column);
+		}
+
+		this.rows = new ArrayList<>();
+		for (int row = firstRowWithCell; row < grid.getRows(); row++) {
+			List<String> headers = new ArrayList<>();
+			for (int col = 0; col < firstColWithCell; col++) {
+				headers.add(grid.getCell(row, col));
+			}
+			List<String> data = new ArrayList<>();
+			for (int col = firstColWithCell; col < grid.getColumns(); col++) {
+				data.add(grid.getCell(row, col));
+			}
+			HeaderDataRow headerDataRow = new HeaderDataRow(headers, data);
+			rows.add(headerDataRow);
+		}
+
 	}
 
 	/**

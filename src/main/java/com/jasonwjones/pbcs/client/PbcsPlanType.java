@@ -55,6 +55,14 @@ public interface PbcsPlanType {
 	void setCell(List<String> pov, String value);
 
 	/**
+	 * Update multiple cells using the POV and the given grid. A simple parsing strategy will be used on the grid.
+	 *
+	 * @param pov the pov
+	 * @param values the cell values
+	 */
+	void setCells(List<String> pov, Grid<String> values);
+
+	/**
 	 * Retrieves a single cell of data at the given POV.
 	 *
 	 * @param dataPoint the data point
