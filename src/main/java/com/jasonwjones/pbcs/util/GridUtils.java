@@ -107,5 +107,16 @@ public class GridUtils {
         return -1;
     }
 
+    public static <E> void print(Grid<E> grid) {
+        for (int row = 0; row < grid.getRows(); row++) {
+            for (int col = 0; col < grid.getColumns(); col++) {
+                E value = grid.getCell(row, col);
+                String printable = value != null ? value.toString() : "";
+                System.out.printf("[%20s]", printable);
+            }
+            System.out.println();
+        }
+
+    }
 
 }
