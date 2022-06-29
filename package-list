@@ -1,0 +1,16 @@
+com.jasonwjones.pbcs
+com.jasonwjones.pbcs.aif
+com.jasonwjones.pbcs.api.v3
+com.jasonwjones.pbcs.api.v3.dataslices
+com.jasonwjones.pbcs.cli
+com.jasonwjones.pbcs.cli.command
+com.jasonwjones.pbcs.client
+com.jasonwjones.pbcs.client.exceptions
+com.jasonwjones.pbcs.client.impl
+com.jasonwjones.pbcs.client.impl.grid
+com.jasonwjones.pbcs.client.impl.models
+com.jasonwjones.pbcs.client.outlinecache
+com.jasonwjones.pbcs.interop
+com.jasonwjones.pbcs.interop.impl
+com.jasonwjones.pbcs.interop.model
+com.jasonwjones.pbcs.util
