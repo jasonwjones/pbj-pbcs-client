@@ -1,8 +1,16 @@
 package com.jasonwjones.pbcs.client.impl;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
-import com.jasonwjones.pbcs.client.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
@@ -17,14 +25,25 @@ import com.jasonwjones.pbcs.api.v3.JobDefinitionsWrapper;
 import com.jasonwjones.pbcs.api.v3.JobLaunchPayload;
 import com.jasonwjones.pbcs.api.v3.JobLaunchResponse;
 import com.jasonwjones.pbcs.api.v3.SubstitutionVariable;
-import com.jasonwjones.pbcs.api.v3.SubstitutionVariablesWrapper;
 import com.jasonwjones.pbcs.api.v3.SubstitutionVariableUpdateWrapper;
+import com.jasonwjones.pbcs.api.v3.SubstitutionVariablesWrapper;
 import com.jasonwjones.pbcs.api.v3.dataslices.DataSlice;
 import com.jasonwjones.pbcs.api.v3.dataslices.ExportDataSlice;
+import com.jasonwjones.pbcs.client.PbcsAppDimension;
+import com.jasonwjones.pbcs.client.PbcsApplication;
+import com.jasonwjones.pbcs.client.PbcsDimension;
+import com.jasonwjones.pbcs.client.PbcsJobDefinition;
+import com.jasonwjones.pbcs.client.PbcsJobLaunchResult;
+import com.jasonwjones.pbcs.client.PbcsJobStatus;
+import com.jasonwjones.pbcs.client.PbcsJobType;
+import com.jasonwjones.pbcs.client.PbcsMemberProperties;
+import com.jasonwjones.pbcs.client.PbcsPlanType;
+import com.jasonwjones.pbcs.client.PbcsPlanningClient;
 import com.jasonwjones.pbcs.client.exceptions.PbcsClientException;
 import com.jasonwjones.pbcs.client.exceptions.PbcsNoSuchObjectException;
 import com.jasonwjones.pbcs.client.exceptions.PbcsNoSuchVariableException;
 import com.jasonwjones.pbcs.client.impl.models.PbcsMemberPropertiesImpl;
+import com.jasonwjones.pbcs.interop.impl.SimpleFilenameUtils;
 
 public class PbcsApplicationImpl implements PbcsApplication {
 
@@ -123,7 +142,12 @@ public class PbcsApplicationImpl implements PbcsApplication {
 		// be a zip file
 		if (dataFile != null) {
 			Map<String, String> params = new HashMap<>();
-			params.put("importZipFileName", dataFile);
+			if (SimpleFilenameUtils.getExtension(dataFile) != null && SimpleFilenameUtils.getExtension(dataFile).toLowerCase().equals("zip")) {
+				params.put("importZipFileName", dataFile);
+			}
+			else {
+				params.put("importFileName", dataFile);
+			}
 			payload.setParameters(params);
 		}
 		ResponseEntity<JobLaunchResponse> output = this.context.getTemplate().postForEntity(url, payload, JobLaunchResponse.class, appMap);
