@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
 
@@ -182,11 +183,14 @@ public class InteropClientImpl implements InteropClient {
 		}
 	}
 
-	// TODO: apparently PBCS REST API returns a JSON payload so we might need to 
 	// switch to using the exchange() method to get the details
-	public void deleteFile(String filename) {
-		logger.info("Deleting {}", filename);
-		restTemplate.delete(baseUrl + serviceConfiguration.getInteropApiVersion() + "/applicationsnapshots/{filename}", filename);
+	public String deleteFile(String filename) {
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON);
+		ResponseEntity<String> exchange = restTemplate.exchange(baseUrl + serviceConfiguration.getInteropApiVersion()
+																		+ "/applicationsnapshots/" + filename, HttpMethod.DELETE, new HttpEntity<Object>("",
+																																						 headers), String.class, new HashMap<String, Object>());
+		return exchange.toString();
 	}
 	
 	public void listServices() {

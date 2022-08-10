@@ -3,7 +3,6 @@ package com.jasonwjones.pbcs.interop;
 import java.io.File;
 import java.util.List;
 
-import com.jasonwjones.pbcs.api.v3.MaintenanceWindow;
 import com.jasonwjones.pbcs.client.exceptions.PbcsClientException;
 import com.jasonwjones.pbcs.interop.impl.ApplicationSnapshot;
 import com.jasonwjones.pbcs.interop.impl.ApplicationSnapshotInfo;
@@ -69,7 +68,7 @@ public interface InteropClient {
 	 * 
 	 * @param filename the name of the file to delete
 	 */
-	public void deleteFile(String filename);
+	public String deleteFile(String filename);
 
 	/**
 	 * Return a list of files available on the remote system. Note that this

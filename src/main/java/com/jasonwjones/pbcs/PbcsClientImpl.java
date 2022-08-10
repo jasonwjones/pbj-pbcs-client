@@ -63,8 +63,8 @@ public class PbcsClientImpl implements PbcsClient {
 	}
 
 	@Override
-	public void deleteFile(String filename) {
-		interopClient.deleteFile(filename);
+	public String deleteFile(String filename) {
+		return interopClient.deleteFile(filename);
 	}
 
 	@Override
