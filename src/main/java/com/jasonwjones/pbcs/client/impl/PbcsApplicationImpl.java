@@ -13,6 +13,9 @@ import java.util.TreeSet;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.Assert;
 import org.springframework.web.client.HttpServerErrorException;
@@ -121,10 +124,37 @@ public class PbcsApplicationImpl implements PbcsApplication {
 	}
 
 	@Override
-	public void launchRuleSet(String ruleSetName) {
-		// TODO Auto-generated method stub
-
+	public PbcsJobLaunchResult launchRuleSet(String ruleSetName) {
+		return launchRuleSet(ruleSetName, Collections.emptyMap());
 	}
+
+	@Override
+	public PbcsJobLaunchResult launchRuleSet(String ruleSetName, Map<String, String> parameters) {
+		String url = context.getBaseUrl() + "applications/{application}/jobs";
+		JobLaunchPayload payload = new JobLaunchPayload("RULESET", ruleSetName);
+		payload.setParameters(parameters);
+		HttpEntity<?> requestEntity = getRequestEntityWithHeaders(payload);
+		ResponseEntity<JobLaunchResponse> output = context.getTemplate().postForEntity(url, requestEntity, JobLaunchResponse.class, appMap);
+		return new PbcsJobLaunchResultImpl(output.getBody());
+	}
+
+	@Override
+	public PbcsJobLaunchResult launchDataRule(String dataRuleName, Map<String, String> parameters) {
+		String url = context.getBaseUrl() + "applications/{application}/jobs";
+		JobLaunchPayload payload = new JobLaunchPayload("DATARULE", dataRuleName);
+		payload.setParameters(parameters);
+		HttpEntity<?> requestEntity = getRequestEntityWithHeaders(payload);
+		ResponseEntity<JobLaunchResponse> output = context.getTemplate().postForEntity(url, requestEntity, JobLaunchResponse.class, appMap);
+		return new PbcsJobLaunchResultImpl(output.getBody());
+	}
+
+	private HttpEntity<?> getRequestEntityWithHeaders(JobLaunchPayload payload) {
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON);
+		HttpEntity<?> requestEntity = new HttpEntity<Object>(payload, headers);
+		return requestEntity;
+	}
+
 
 	@Override
 	public PbcsJobLaunchResult importMetadata(String metadataImportName) {

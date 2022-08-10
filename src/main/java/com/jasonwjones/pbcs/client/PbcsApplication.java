@@ -73,11 +73,14 @@ public interface PbcsApplication {
 	 */
 	PbcsJobLaunchResult launchBusinessRule(String ruleName, Map<String, String> parameters);
 
-	void launchRuleSet(String ruleSetName);
+	PbcsJobLaunchResult launchRuleSet(String ruleSetName, Map<String, String> parameters);
+	PbcsJobLaunchResult launchRuleSet(String ruleSetName);
 
 	void launchDataImport(String dataImportName);
 
 	PbcsJobLaunchResult importMetadata(String metadataImportName, String dataFile);
+
+	PbcsJobLaunchResult launchDataRule(String dataRuleName, Map<String, String> parameters);
 
 	PbcsJobLaunchResult importMetadata(String metadataImportName);
 
