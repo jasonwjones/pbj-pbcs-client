@@ -2,6 +2,7 @@ package com.jasonwjones.pbcs.interop;
 
 import java.io.File;
 import java.util.List;
+import java.util.Optional;
 
 import com.jasonwjones.pbcs.client.exceptions.PbcsClientException;
 import com.jasonwjones.pbcs.interop.impl.ApplicationSnapshot;
@@ -60,8 +61,11 @@ public interface InteropClient {
 	 * Uploads a file to PBCS so that it can be imported.
 	 * 
 	 * @param filename the local name of the file to upload
+	 * @param remoteDir Remote extDir on the remote filesystem. Leave empty not to use
 	 */
-	public void uploadFile(String filename);
+	public String uploadFile(String filename, Optional<String> remoteDir);
+
+	public String uploadFile(String filename);
 
 	/**
 	 * Deletes the file (snapshot) with the given name.

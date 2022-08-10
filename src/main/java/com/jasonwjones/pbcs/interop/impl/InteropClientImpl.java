@@ -10,14 +10,12 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
-
-import javax.management.relation.RelationSupportMBean;
+import java.util.Optional;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.io.Resource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -98,9 +96,14 @@ public class InteropClientImpl implements InteropClient {
 		System.out.println(snap.getBody());
 		return null;
 	}
-	
+
 	@Override
-	public void uploadFile(String filename) {
+	public String uploadFile(String filename) {
+		return uploadFile(filename, Optional.empty());
+	}
+
+	@Override
+	public String uploadFile(String filename, Optional<String> remoteDir) {
 		File fileToUpload = new File(filename);
 		if (!fileToUpload.exists()) {
 			logger.error("File {} does not exist");
@@ -113,14 +116,16 @@ public class InteropClientImpl implements InteropClient {
 			String filenameOnly = SimpleFilenameUtils.getName(filename);
 			logger.info("Source file {} will be {} on target", filename, filenameOnly);
 			byte[] data = readFileToBytes(filename);
-			String url = String.format("/applicationsnapshots/%s/contents?q={chunkSize:%d,isFirst:%b,isLast:%b}", filenameOnly, data.length, true, true);
+			String url = String.format("/applicationsnapshots/%s/contents?q={chunkSize:%d,isFirst:%b,isLast:%b" +
+											    (remoteDir.isPresent() ? ",extDirPath:"+remoteDir+"}" : "}"), filenameOnly, data.length, true, true);
 
-			URI uri = UriComponentsBuilder.fromHttpUrl(this.baseUrl + serviceConfiguration.getInteropApiVersion() + url).build().toUri();
+			URI uri = UriComponentsBuilder.fromHttpUrl(baseUrl + serviceConfiguration.getInteropApiVersion() + url).build().toUri();
 			HttpHeaders headers = new HttpHeaders();
 			HttpEntity<byte[]> entity = new HttpEntity<byte[]>(data, headers);
 			headers.set("Content-Type", "application/octet-stream");
 			ResponseEntity<String> response = restTemplate.exchange(uri, HttpMethod.POST, entity, String.class);
 			logger.info("Response: {}", response.getBody());
+			return response.getBody();
 		} catch (IOException e) {
 			throw new PbcsClientException("Couldn't read/upload file", e);
 		}
