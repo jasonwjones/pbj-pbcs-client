@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.Collections;
@@ -274,8 +275,11 @@ public class InteropClientImpl implements InteropClient {
 
 				@Override
 				public Void extractData(ClientHttpResponse response) throws IOException {
-					IOUtils.copy(response.getBody(), new FileOutputStream(outputFile));
-					return null;
+					try (InputStream body = response.getBody()) {
+						FileOutputStream output = new FileOutputStream(outputFile);
+						IOUtils.copy(body, output);
+						return null;
+					}
 				}
 			});
 			return outputFile;
