@@ -71,6 +71,7 @@ public interface InteropClient {
 	 * Deletes the file (snapshot) with the given name.
 	 * 
 	 * @param filename the name of the file to delete
+	 *                 if you want to delete a filename from a folder just pass folderName/filename as filename param
 	 */
 	public String deleteFile(String filename);
 
