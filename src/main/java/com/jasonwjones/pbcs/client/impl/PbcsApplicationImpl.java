@@ -11,7 +11,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -220,14 +219,11 @@ public class PbcsApplicationImpl implements PbcsApplication {
 		// ResponseEntity<JobLaunchResponse> output =
 		// this.context.getTemplate().postForEntity(url, payload,
 		// JobLaunchResponse.class, appMap);
-		logger.info("Message converters "+ this.context.getTemplate().getMessageConverters().stream().map(c -> c.toString()).collect(Collectors.joining(", ")));
-
 		RequestEntity<JobLaunchPayload> body = RequestEntity.post(context.getTemplate()
 																		 .getUriTemplateHandler()
 																		 .expand(url, appMap))
 															.contentType(MediaType.APPLICATION_JSON)
 															.body(payload);
-		logger.info("body -> " + this.context.getTemplate().exchange(body, String.class).getBody());
 		ResponseEntity<JobLaunchResponse> output = context.getTemplate()
 															.exchange(body, JobLaunchResponse.class);
 
