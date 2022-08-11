@@ -3,6 +3,7 @@ package com.jasonwjones.pbcs.client;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import com.jasonwjones.pbcs.api.v3.SubstitutionVariable;
@@ -76,7 +77,8 @@ public interface PbcsApplication {
 	PbcsJobLaunchResult launchRuleSet(String ruleSetName, Map<String, String> parameters);
 	PbcsJobLaunchResult launchRuleSet(String ruleSetName);
 
-	void launchDataImport(String dataImportName);
+	PbcsJobLaunchResult launchDataImport(String dataImportName, Optional<String> dataFile);
+	PbcsJobLaunchResult launchDataImport(String dataImportName);
 
 	PbcsJobLaunchResult importMetadata(String metadataImportName, String dataFile);
 

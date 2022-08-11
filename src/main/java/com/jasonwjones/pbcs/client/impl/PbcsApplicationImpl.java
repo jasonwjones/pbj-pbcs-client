@@ -8,14 +8,17 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.Assert;
 import org.springframework.web.client.HttpServerErrorException;
@@ -192,11 +195,24 @@ public class PbcsApplicationImpl implements PbcsApplication {
 	// executeJob("IMPORT_DATA", "loadingq1data", "{importFileName:data.csv}");
 	// executeJob("CUBE_REFRESH", null, null);
 	// executeJob("PLAN_TYPE_MAP", "CampaignToReporting", "{clearData:false}");
+
 	@Override
-	public void launchDataImport(String dataImportName) {
+	public PbcsJobLaunchResult launchDataImport(String dataImportName) {
+		return this.launchDataImport(dataImportName, Optional.empty());
+	}
+	@Override
+	public PbcsJobLaunchResult launchDataImport(String dataImportName, Optional<String> importFileName) {
 		logger.info("Launcing import data job: {}", dataImportName);
 		String url = this.context.getBaseUrl() + "applications/{application}/jobs";
 		JobLaunchPayload payload = new JobLaunchPayload("IMPORT_DATA", dataImportName);
+		if (importFileName.isPresent()){
+			if (SimpleFilenameUtils.getExtension(importFileName.get()) != null && SimpleFilenameUtils.getExtension(importFileName.get()).equals("zip")){
+				payload.setParameters(Collections.singletonMap("importZipFileName", importFileName.get()));
+			}
+			else {
+				payload.setParameters(Collections.singletonMap("importFileName", importFileName.get()));
+			}
+		}
 		// can add 'importFileName' to parameters on payload object if we want
 		// (the name of a CSV, ZIP, or TXT file). In case of ZIP, the ZIP can
 		// contain 1+ CSV files
@@ -204,9 +220,18 @@ public class PbcsApplicationImpl implements PbcsApplication {
 		// ResponseEntity<JobLaunchResponse> output =
 		// this.context.getTemplate().postForEntity(url, payload,
 		// JobLaunchResponse.class, appMap);
-		ResponseEntity<String> output = this.context.getTemplate().postForEntity(url, payload, String.class, appMap);
-		System.out.println("import resp: " + output.getBody());
-		// TODO Auto-generated method stub
+		logger.info("Message converters "+ this.context.getTemplate().getMessageConverters().stream().map(c -> c.toString()).collect(Collectors.joining(", ")));
+
+		RequestEntity<JobLaunchPayload> body = RequestEntity.post(context.getTemplate()
+																		 .getUriTemplateHandler()
+																		 .expand(url, appMap))
+															.contentType(MediaType.APPLICATION_JSON)
+															.body(payload);
+		logger.info("body -> " + this.context.getTemplate().exchange(body, String.class).getBody());
+		ResponseEntity<JobLaunchResponse> output = context.getTemplate()
+															.exchange(body, JobLaunchResponse.class);
+
+		return new PbcsJobLaunchResultImpl(output.getBody());
 
 	}
 
