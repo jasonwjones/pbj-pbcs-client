@@ -4,6 +4,8 @@ import java.io.File;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.util.MultiValueMap;
+
 import com.jasonwjones.pbcs.client.exceptions.PbcsClientException;
 import com.jasonwjones.pbcs.interop.impl.ApplicationSnapshot;
 import com.jasonwjones.pbcs.interop.impl.ApplicationSnapshotInfo;
@@ -74,6 +76,13 @@ public interface InteropClient {
 	 *                 if you want to delete a filename from a folder just pass folderName/filename as filename param
 	 */
 	public String deleteFile(String filename);
+
+	/**
+	 * Run the role assignment report
+	 * @param map - parameters for the call. filename and api_version
+	 * @return response as a String
+	 */
+	String runRoleAssignmentReport(MultiValueMap<String, String> map);
 
 	/**
 	 * Return a list of files available on the remote system. Note that this

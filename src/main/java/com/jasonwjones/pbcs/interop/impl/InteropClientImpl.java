@@ -24,6 +24,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.ClientHttpRequest;
 import org.springframework.http.client.ClientHttpResponse;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RequestCallback;
 import org.springframework.web.client.ResponseExtractor;
 import org.springframework.web.client.RestTemplate;
@@ -209,6 +210,19 @@ public class InteropClientImpl implements InteropClient {
 			System.out.println(link);
 		}
 		
+	}
+
+	@Override
+	public String runRoleAssignmentReport(MultiValueMap<String, String> map) {
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+		HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<>(map, headers);
+		ResponseEntity<String> responseEntity = restTemplate.exchange(baseUrl + "security/v1/roleassignmentreport",
+																	  HttpMethod.POST,
+																	  requestEntity,
+																	  String.class,
+																	  new HashMap<>());
+		return responseEntity.toString();
 	}
 	
 	//@Override
