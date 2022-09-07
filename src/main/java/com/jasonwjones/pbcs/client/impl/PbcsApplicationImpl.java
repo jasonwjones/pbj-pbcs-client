@@ -1,10 +1,23 @@
 package com.jasonwjones.pbcs.client.impl;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.TreeSet;
 
-import com.jasonwjones.pbcs.client.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.Assert;
 import org.springframework.web.client.HttpServerErrorException;
@@ -17,14 +30,25 @@ import com.jasonwjones.pbcs.api.v3.JobDefinitionsWrapper;
 import com.jasonwjones.pbcs.api.v3.JobLaunchPayload;
 import com.jasonwjones.pbcs.api.v3.JobLaunchResponse;
 import com.jasonwjones.pbcs.api.v3.SubstitutionVariable;
-import com.jasonwjones.pbcs.api.v3.SubstitutionVariablesWrapper;
 import com.jasonwjones.pbcs.api.v3.SubstitutionVariableUpdateWrapper;
+import com.jasonwjones.pbcs.api.v3.SubstitutionVariablesWrapper;
 import com.jasonwjones.pbcs.api.v3.dataslices.DataSlice;
 import com.jasonwjones.pbcs.api.v3.dataslices.ExportDataSlice;
+import com.jasonwjones.pbcs.client.PbcsAppDimension;
+import com.jasonwjones.pbcs.client.PbcsApplication;
+import com.jasonwjones.pbcs.client.PbcsDimension;
+import com.jasonwjones.pbcs.client.PbcsJobDefinition;
+import com.jasonwjones.pbcs.client.PbcsJobLaunchResult;
+import com.jasonwjones.pbcs.client.PbcsJobStatus;
+import com.jasonwjones.pbcs.client.PbcsJobType;
+import com.jasonwjones.pbcs.client.PbcsMemberProperties;
+import com.jasonwjones.pbcs.client.PbcsPlanType;
+import com.jasonwjones.pbcs.client.PbcsPlanningClient;
 import com.jasonwjones.pbcs.client.exceptions.PbcsClientException;
 import com.jasonwjones.pbcs.client.exceptions.PbcsNoSuchObjectException;
 import com.jasonwjones.pbcs.client.exceptions.PbcsNoSuchVariableException;
 import com.jasonwjones.pbcs.client.impl.models.PbcsMemberPropertiesImpl;
+import com.jasonwjones.pbcs.interop.impl.SimpleFilenameUtils;
 
 public class PbcsApplicationImpl implements PbcsApplication {
 
@@ -102,10 +126,37 @@ public class PbcsApplicationImpl implements PbcsApplication {
 	}
 
 	@Override
-	public void launchRuleSet(String ruleSetName) {
-		// TODO Auto-generated method stub
-
+	public PbcsJobLaunchResult launchRuleSet(String ruleSetName) {
+		return launchRuleSet(ruleSetName, Collections.emptyMap());
 	}
+
+	@Override
+	public PbcsJobLaunchResult launchRuleSet(String ruleSetName, Map<String, String> parameters) {
+		String url = context.getBaseUrl() + "applications/{application}/jobs";
+		JobLaunchPayload payload = new JobLaunchPayload("RULESET", ruleSetName);
+		payload.setParameters(parameters);
+		HttpEntity<?> requestEntity = getRequestEntityWithHeaders(payload);
+		ResponseEntity<JobLaunchResponse> output = context.getTemplate().postForEntity(url, requestEntity, JobLaunchResponse.class, appMap);
+		return new PbcsJobLaunchResultImpl(output.getBody());
+	}
+
+	@Override
+	public PbcsJobLaunchResult launchDataRule(String dataRuleName, Map<String, String> parameters) {
+		String url = context.getBaseUrl() + "applications/{application}/jobs";
+		JobLaunchPayload payload = new JobLaunchPayload("DATARULE", dataRuleName);
+		payload.setParameters(parameters);
+		HttpEntity<?> requestEntity = getRequestEntityWithHeaders(payload);
+		ResponseEntity<JobLaunchResponse> output = context.getTemplate().postForEntity(url, requestEntity, JobLaunchResponse.class, appMap);
+		return new PbcsJobLaunchResultImpl(output.getBody());
+	}
+
+	private HttpEntity<?> getRequestEntityWithHeaders(JobLaunchPayload payload) {
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON);
+		HttpEntity<?> requestEntity = new HttpEntity<Object>(payload, headers);
+		return requestEntity;
+	}
+
 
 	@Override
 	public PbcsJobLaunchResult importMetadata(String metadataImportName) {
@@ -123,7 +174,12 @@ public class PbcsApplicationImpl implements PbcsApplication {
 		// be a zip file
 		if (dataFile != null) {
 			Map<String, String> params = new HashMap<>();
-			params.put("importZipFileName", dataFile);
+			if (SimpleFilenameUtils.getExtension(dataFile) != null && SimpleFilenameUtils.getExtension(dataFile).toLowerCase().equals("zip")) {
+				params.put("importZipFileName", dataFile);
+			}
+			else {
+				params.put("importFileName", dataFile);
+			}
 			payload.setParameters(params);
 		}
 		ResponseEntity<JobLaunchResponse> output = this.context.getTemplate().postForEntity(url, payload, JobLaunchResponse.class, appMap);
@@ -138,11 +194,24 @@ public class PbcsApplicationImpl implements PbcsApplication {
 	// executeJob("IMPORT_DATA", "loadingq1data", "{importFileName:data.csv}");
 	// executeJob("CUBE_REFRESH", null, null);
 	// executeJob("PLAN_TYPE_MAP", "CampaignToReporting", "{clearData:false}");
+
 	@Override
-	public void launchDataImport(String dataImportName) {
+	public PbcsJobLaunchResult launchDataImport(String dataImportName) {
+		return this.launchDataImport(dataImportName, Optional.empty());
+	}
+	@Override
+	public PbcsJobLaunchResult launchDataImport(String dataImportName, Optional<String> importFileName) {
 		logger.info("Launcing import data job: {}", dataImportName);
 		String url = this.context.getBaseUrl() + "applications/{application}/jobs";
 		JobLaunchPayload payload = new JobLaunchPayload("IMPORT_DATA", dataImportName);
+		if (importFileName.isPresent()){
+			if (SimpleFilenameUtils.getExtension(importFileName.get()) != null && SimpleFilenameUtils.getExtension(importFileName.get()).equals("zip")){
+				payload.setParameters(Collections.singletonMap("importZipFileName", importFileName.get()));
+			}
+			else {
+				payload.setParameters(Collections.singletonMap("importFileName", importFileName.get()));
+			}
+		}
 		// can add 'importFileName' to parameters on payload object if we want
 		// (the name of a CSV, ZIP, or TXT file). In case of ZIP, the ZIP can
 		// contain 1+ CSV files
@@ -150,9 +219,15 @@ public class PbcsApplicationImpl implements PbcsApplication {
 		// ResponseEntity<JobLaunchResponse> output =
 		// this.context.getTemplate().postForEntity(url, payload,
 		// JobLaunchResponse.class, appMap);
-		ResponseEntity<String> output = this.context.getTemplate().postForEntity(url, payload, String.class, appMap);
-		System.out.println("import resp: " + output.getBody());
-		// TODO Auto-generated method stub
+		RequestEntity<JobLaunchPayload> body = RequestEntity.post(context.getTemplate()
+																		 .getUriTemplateHandler()
+																		 .expand(url, appMap))
+															.contentType(MediaType.APPLICATION_JSON)
+															.body(payload);
+		ResponseEntity<JobLaunchResponse> output = context.getTemplate()
+															.exchange(body, JobLaunchResponse.class);
+
+		return new PbcsJobLaunchResultImpl(output.getBody());
 
 	}
 
