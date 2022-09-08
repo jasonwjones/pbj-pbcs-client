@@ -6,6 +6,7 @@ import java.util.Optional;
 
 import org.springframework.util.MultiValueMap;
 
+import com.jasonwjones.pbcs.api.v3.JobLaunchResponse;
 import com.jasonwjones.pbcs.client.exceptions.PbcsClientException;
 import com.jasonwjones.pbcs.interop.impl.ApplicationSnapshot;
 import com.jasonwjones.pbcs.interop.impl.ApplicationSnapshotInfo;
@@ -82,7 +83,7 @@ public interface InteropClient {
 	 * @param map - parameters for the call. filename and api_version
 	 * @return response as a String
 	 */
-	String runRoleAssignmentReport(MultiValueMap<String, String> map);
+	JobLaunchResponse runRoleAssignmentReport(MultiValueMap<String, String> map);
 
 	/**
 	 * Return a list of files available on the remote system. Note that this

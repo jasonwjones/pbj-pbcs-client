@@ -6,6 +6,7 @@ import java.util.Optional;
 
 import org.springframework.util.MultiValueMap;
 
+import com.jasonwjones.pbcs.api.v3.JobLaunchResponse;
 import com.jasonwjones.pbcs.client.PbcsApi;
 import com.jasonwjones.pbcs.client.PbcsApplication;
 import com.jasonwjones.pbcs.client.PbcsConnection;
@@ -71,7 +72,7 @@ public class PbcsClientImpl implements PbcsClient {
 	}
 
 	@Override
-	public String runRoleAssignmentReport(MultiValueMap<String, String> map) {
+	public JobLaunchResponse runRoleAssignmentReport(MultiValueMap<String, String> map) {
 		return interopClient.runRoleAssignmentReport(map);
 	}
 

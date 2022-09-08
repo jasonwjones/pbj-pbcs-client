@@ -31,6 +31,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import com.jasonwjones.pbcs.api.v3.HypermediaLink;
+import com.jasonwjones.pbcs.api.v3.JobLaunchResponse;
 import com.jasonwjones.pbcs.api.v3.MaintenanceWindow;
 import com.jasonwjones.pbcs.api.v3.ServiceDefinitionWrapper;
 import com.jasonwjones.pbcs.client.PbcsConnection;
@@ -194,9 +195,11 @@ public class InteropClientImpl implements InteropClient {
 	public String deleteFile(String filename) {
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_JSON);
-		ResponseEntity<String> exchange = restTemplate.exchange(baseUrl + serviceConfiguration.getInteropApiVersion()
-																		+ "/applicationsnapshots/" + filename, HttpMethod.DELETE, new HttpEntity<Object>("",
-																																						 headers), String.class, new HashMap<String, Object>());
+		ResponseEntity<String> exchange = restTemplate.exchange(baseUrl + serviceConfiguration.getInteropApiVersion() + "/applicationsnapshots/" + filename,
+																HttpMethod.DELETE,
+																new HttpEntity<Object>("", headers),
+																String.class,
+																new HashMap<>());
 		return exchange.toString();
 	}
 	
@@ -213,16 +216,16 @@ public class InteropClientImpl implements InteropClient {
 	}
 
 	@Override
-	public String runRoleAssignmentReport(MultiValueMap<String, String> map) {
+	public JobLaunchResponse runRoleAssignmentReport(MultiValueMap<String, String> map) {
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 		HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<>(map, headers);
-		ResponseEntity<String> responseEntity = restTemplate.exchange(baseUrl + "security/v1/roleassignmentreport",
-																	  HttpMethod.POST,
-																	  requestEntity,
-																	  String.class,
-																	  new HashMap<>());
-		return responseEntity.toString();
+
+		ResponseEntity<JobLaunchResponse> response = restTemplate.postForEntity(baseUrl + "security/v1/roleassignmentreport",
+																				requestEntity,
+																				JobLaunchResponse.class,
+																				map);
+		return response.getBody();
 	}
 	
 	//@Override
