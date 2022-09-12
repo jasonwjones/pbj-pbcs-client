@@ -78,17 +78,21 @@ public class PbcsClientException extends RuntimeException {
 
 	public static class PbcsErrorResponse {
 
-		private String detail;
+		private String details;
 		private int status;
 		private String message;
 		private String localizedMessage;
+		private String descriptiveStatus;
+		private String jobId;
+		private String jobName;
+		private String links;
 
-		public String getDetail() {
-			return detail;
+		public String getDetails() {
+			return details;
 		}
 
-		public void setDetail(String detail) {
-			this.detail = detail;
+		public void setDetails(String details) {
+			this.details = details;
 		}
 
 		public int getStatus() {
@@ -114,7 +118,37 @@ public class PbcsClientException extends RuntimeException {
 		public void setLocalizedMessage(String localizedMessage) {
 			this.localizedMessage = localizedMessage;
 		}
-		
-	}
 
+		public String getDescriptiveStatus() {
+			return descriptiveStatus;
+		}
+
+		public void setDescriptiveStatus(String descriptiveStatus) {
+			this.descriptiveStatus = descriptiveStatus;
+		}
+
+		public String getJobId() {
+			return jobId;
+		}
+
+		public void setJobId(String jobId) {
+			this.jobId = jobId;
+		}
+
+		public String getJobName() {
+			return jobName;
+		}
+
+		public void setJobName(String jobName) {
+			this.jobName = jobName;
+		}
+
+		public String getLinks() {
+			return links;
+		}
+
+		public void setLinks(String links) {
+			this.links = links;
+		}
+	}
 }

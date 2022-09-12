@@ -150,11 +150,20 @@ public class PbcsApplicationImpl implements PbcsApplication {
 		return new PbcsJobLaunchResultImpl(output.getBody());
 	}
 
+	@Override
+	public PbcsJobLaunchResult launchIntegration(String integrationName, Map<String, String> parameters) {
+		String url = context.getBaseUrl() + "applications/{application}/jobs";
+		JobLaunchPayload payload = new JobLaunchPayload("INTEGRATION", integrationName);
+		payload.setParameters(parameters);
+		HttpEntity<?> requestEntity = getRequestEntityWithHeaders(payload);
+		ResponseEntity<JobLaunchResponse> output = context.getTemplate().postForEntity(url, requestEntity, JobLaunchResponse.class, appMap);
+		return new PbcsJobLaunchResultImpl(output.getBody());
+	}
+
 	private HttpEntity<?> getRequestEntityWithHeaders(JobLaunchPayload payload) {
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_JSON);
-		HttpEntity<?> requestEntity = new HttpEntity<Object>(payload, headers);
-		return requestEntity;
+		return new HttpEntity<Object>(payload, headers);
 	}
 
 
@@ -182,7 +191,7 @@ public class PbcsApplicationImpl implements PbcsApplication {
 			}
 			payload.setParameters(params);
 		}
-		ResponseEntity<JobLaunchResponse> output = this.context.getTemplate().postForEntity(url, payload, JobLaunchResponse.class, appMap);
+		ResponseEntity<JobLaunchResponse> output = this.context.getTemplate().postForEntity(url, getRequestEntityWithHeaders(payload), JobLaunchResponse.class, appMap);
 		return new PbcsJobLaunchResultImpl(output.getBody());
 	}
 
@@ -250,7 +259,7 @@ public class PbcsApplicationImpl implements PbcsApplication {
 	public PbcsJobLaunchResult refreshCube(String cubeRefreshName) {
 		String url = this.context.getBaseUrl() + "applications/{application}/jobs";
 		JobLaunchPayload payload = new JobLaunchPayload("CUBE_REFRESH", cubeRefreshName);
-		ResponseEntity<JobLaunchResponse> output = this.context.getTemplate().postForEntity(url, payload,
+		ResponseEntity<JobLaunchResponse> output = this.context.getTemplate().postForEntity(url, getRequestEntityWithHeaders(payload),
 				JobLaunchResponse.class, appMap);
 		logger.info("Cube refresh launched");
 		return new PbcsJobLaunchResultImpl(output.getBody());
