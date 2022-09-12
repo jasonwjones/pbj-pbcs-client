@@ -84,6 +84,14 @@ public interface PbcsApplication {
 
 	PbcsJobLaunchResult launchDataRule(String dataRuleName, Map<String, String> parameters);
 
+	/**
+	 * The INTEGRATION job type is an enhanced version of DATARULE job type (see Running Data Rules). It is recommended that you use the INTEGRATION job type for future integration jobs
+	 * @param integrationName - name of the integration
+	 * @param parameters - parameters for integration
+	 * @return job result
+	 */
+	PbcsJobLaunchResult launchIntegration(String integrationName, Map<String, String> parameters);
+
 	PbcsJobLaunchResult importMetadata(String metadataImportName);
 
 	PbcsJobLaunchResult exportData(String exportName);
