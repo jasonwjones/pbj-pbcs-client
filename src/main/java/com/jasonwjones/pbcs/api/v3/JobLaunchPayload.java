@@ -2,12 +2,14 @@ package com.jasonwjones.pbcs.api.v3;
 
 import java.util.Map;
 
+import com.fasterxml.jackson.annotation.JsonValue;
+
 public class JobLaunchPayload {
 
 	private String jobType;
 	
 	private String jobName;
-	
+
 	private Map<String, String> parameters;
 
 	public JobLaunchPayload() {
@@ -34,12 +36,15 @@ public class JobLaunchPayload {
 		this.jobName = jobName;
 	}
 
+	@JsonValue
 	public Map<String, String> getParameters() {
 		return parameters;
 	}
 
 	public void setParameters(Map<String, String> parameters) {
 		this.parameters = parameters;
+		this.parameters.put("jobType", jobType);
+		this.parameters.put("jobName", jobName);
 	}
 	
 }
