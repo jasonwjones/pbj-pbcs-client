@@ -22,6 +22,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.util.Assert;
 import org.springframework.web.client.HttpServerErrorException;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jasonwjones.pbcs.aif.AifApplication;
 import com.jasonwjones.pbcs.aif.AifDimension;
 import com.jasonwjones.pbcs.api.v3.Application;
@@ -142,7 +144,7 @@ public class PbcsApplicationImpl implements PbcsApplication {
 
 	@Override
 	public PbcsJobLaunchResult launchDataRule(String dataRuleName, Map<String, String> parameters) {
-		String url = context.getBaseUrl() + "applications/{application}/jobs";
+		String url = context.getAifUrl("/jobs");
 		JobLaunchPayload payload = new JobLaunchPayload("DATARULE", dataRuleName);
 		payload.setParameters(parameters);
 		HttpEntity<?> requestEntity = getRequestEntityWithHeaders(payload);
@@ -152,7 +154,7 @@ public class PbcsApplicationImpl implements PbcsApplication {
 
 	@Override
 	public PbcsJobLaunchResult launchIntegration(String integrationName, Map<String, String> parameters) {
-		String url = context.getBaseUrl() + "applications/{application}/jobs";
+		String url = context.getAifUrl("/jobs");
 		JobLaunchPayload payload = new JobLaunchPayload("INTEGRATION", integrationName);
 		payload.setParameters(parameters);
 		HttpEntity<?> requestEntity = getRequestEntityWithHeaders(payload);
@@ -163,7 +165,11 @@ public class PbcsApplicationImpl implements PbcsApplication {
 	private HttpEntity<?> getRequestEntityWithHeaders(JobLaunchPayload payload) {
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_JSON);
-		return new HttpEntity<Object>(payload, headers);
+		try {
+			return new HttpEntity<Object>(new ObjectMapper().writer().withDefaultPrettyPrinter().writeValueAsString(payload), headers);
+		} catch (JsonProcessingException e) {
+			throw new RuntimeException("Cannot map object to json", e);
+		}
 	}
 
 

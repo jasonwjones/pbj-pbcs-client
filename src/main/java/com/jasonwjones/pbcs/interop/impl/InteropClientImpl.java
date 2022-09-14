@@ -109,7 +109,7 @@ public class InteropClientImpl implements InteropClient {
 	public String uploadFile(String filename, Optional<String> remoteDir) {
 		File fileToUpload = new File(filename);
 		if (!fileToUpload.exists()) {
-			logger.error("File {} does not exist");
+			logger.error("File {} does not exist", filename);
 			throw new PbcsClientException("File to upload does not exist: " + filename);
 		} else {
 			logger.info("Found local file");
@@ -120,11 +120,11 @@ public class InteropClientImpl implements InteropClient {
 			logger.info("Source file {} will be {} on target", filename, filenameOnly);
 			byte[] data = readFileToBytes(filename);
 			String url = String.format("/applicationsnapshots/%s/contents?q={chunkSize:%d,isFirst:%b,isLast:%b" +
-											    (remoteDir.isPresent() ? ",extDirPath:"+remoteDir+"}" : "}"), filenameOnly, data.length, true, true);
+											    (remoteDir.isPresent() ? ",\"extDirPath\":\""+remoteDir.get()+"\"}" : "}"), filenameOnly, data.length, true, true);
 
 			URI uri = UriComponentsBuilder.fromHttpUrl(baseUrl + serviceConfiguration.getInteropApiVersion() + url).build().toUri();
 			HttpHeaders headers = new HttpHeaders();
-			HttpEntity<byte[]> entity = new HttpEntity<byte[]>(data, headers);
+			HttpEntity<byte[]> entity = new HttpEntity<>(data, headers);
 			headers.set("Content-Type", "application/octet-stream");
 			ResponseEntity<String> response = restTemplate.exchange(uri, HttpMethod.POST, entity, String.class);
 			logger.info("Response: {}", response.getBody());
@@ -194,6 +194,7 @@ public class InteropClientImpl implements InteropClient {
 	// switch to using the exchange() method to get the details
 	public String deleteFile(String filename) {
 		HttpHeaders headers = new HttpHeaders();
+		filename = filename.replaceAll("/", "\\\\");
 		headers.setContentType(MediaType.APPLICATION_JSON);
 		ResponseEntity<String> exchange = restTemplate.exchange(baseUrl + serviceConfiguration.getInteropApiVersion() + "/applicationsnapshots/" + filename,
 																HttpMethod.DELETE,

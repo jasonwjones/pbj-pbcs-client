@@ -58,25 +58,27 @@ public interface InteropClient {
 	 * @param localFilename filename on disk
 	 * @return an object representing the downloaded file
 	 */
-	public File downloadFileViaStream(String filename, String localFilename);
+	File downloadFileViaStream(String filename, String localFilename);
 
 	/**
 	 * Uploads a file to PBCS so that it can be imported.
 	 * 
 	 * @param filename the local name of the file to upload
 	 * @param remoteDir Remote extDir on the remote filesystem. Leave empty not to use
+	 * @return response
 	 */
-	public String uploadFile(String filename, Optional<String> remoteDir);
+	String uploadFile(String filename, Optional<String> remoteDir);
 
-	public String uploadFile(String filename);
+	String uploadFile(String filename);
 
 	/**
 	 * Deletes the file (snapshot) with the given name.
 	 * 
 	 * @param filename the name of the file to delete
 	 *                 if you want to delete a filename from a folder just pass folderName/filename as filename param
+	 * @return response
 	 */
-	public String deleteFile(String filename);
+	String deleteFile(String filename);
 
 	/**
 	 * Run the role assignment report
