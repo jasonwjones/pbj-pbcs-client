@@ -31,6 +31,8 @@ import com.jasonwjones.pbcs.api.v3.JobDefinition;
 import com.jasonwjones.pbcs.api.v3.JobDefinitionsWrapper;
 import com.jasonwjones.pbcs.api.v3.JobLaunchPayload;
 import com.jasonwjones.pbcs.api.v3.JobLaunchResponse;
+import com.jasonwjones.pbcs.api.v3.MetadataImportPayload;
+import com.jasonwjones.pbcs.api.v3.Payload;
 import com.jasonwjones.pbcs.api.v3.SubstitutionVariable;
 import com.jasonwjones.pbcs.api.v3.SubstitutionVariableUpdateWrapper;
 import com.jasonwjones.pbcs.api.v3.SubstitutionVariablesWrapper;
@@ -113,17 +115,17 @@ public class PbcsApplicationImpl implements PbcsApplication {
 
 	@Override
 	public PbcsJobLaunchResult launchBusinessRule(String ruleName) {
-		return launchBusinessRule(ruleName, null);
+		return launchBusinessRule(ruleName, new HashMap<>());
 
 	}
 
 	@Override
 	public PbcsJobLaunchResult launchBusinessRule(String ruleName, Map<String, String> parameters) {
 		String url = this.context.getBaseUrl() + "applications/{application}/jobs";
-		JobLaunchPayload payload = new JobLaunchPayload("RULES", ruleName);
+		MetadataImportPayload payload = new MetadataImportPayload("RULES", ruleName);
 		payload.setParameters(parameters);
-		ResponseEntity<JobLaunchResponse> output = this.context.getTemplate().postForEntity(url, payload,
-				JobLaunchResponse.class, appMap);
+		ResponseEntity<JobLaunchResponse> output = this.context.getTemplate().postForEntity(url, getRequestEntityWithHeaders(payload),
+				JobLaunchResponse.class, application.getName());
 		return new PbcsJobLaunchResultImpl(output.getBody());
 	}
 
@@ -162,7 +164,7 @@ public class PbcsApplicationImpl implements PbcsApplication {
 		return new PbcsJobLaunchResultImpl(output.getBody());
 	}
 
-	private HttpEntity<?> getRequestEntityWithHeaders(JobLaunchPayload payload) {
+	private HttpEntity<?> getRequestEntityWithHeaders(Payload payload) {
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_JSON);
 		try {
@@ -171,7 +173,6 @@ public class PbcsApplicationImpl implements PbcsApplication {
 			throw new RuntimeException("Cannot map object to json", e);
 		}
 	}
-
 
 	@Override
 	public PbcsJobLaunchResult importMetadata(String metadataImportName) {
@@ -182,7 +183,7 @@ public class PbcsApplicationImpl implements PbcsApplication {
 	public PbcsJobLaunchResult importMetadata(String metadataImportName, String dataFile) {
 		logger.info("Launching metadata import data job: {}", metadataImportName);
 		String url = this.context.getBaseUrl() + "applications/{application}/jobs";
-		JobLaunchPayload payload = new JobLaunchPayload("IMPORT_METADATA", metadataImportName);
+		MetadataImportPayload payload = new MetadataImportPayload("IMPORT_METADATA", metadataImportName);
 
 		// "parameters" var is optional if not specifying. If it's specified,
 		// then it should
@@ -264,7 +265,7 @@ public class PbcsApplicationImpl implements PbcsApplication {
 	@Override
 	public PbcsJobLaunchResult refreshCube(String cubeRefreshName) {
 		String url = this.context.getBaseUrl() + "applications/{application}/jobs";
-		JobLaunchPayload payload = new JobLaunchPayload("CUBE_REFRESH", cubeRefreshName);
+		MetadataImportPayload payload = new MetadataImportPayload("CUBE_REFRESH", cubeRefreshName);
 		ResponseEntity<JobLaunchResponse> output = this.context.getTemplate().postForEntity(url, getRequestEntityWithHeaders(payload),
 				JobLaunchResponse.class, appMap);
 		logger.info("Cube refresh launched");

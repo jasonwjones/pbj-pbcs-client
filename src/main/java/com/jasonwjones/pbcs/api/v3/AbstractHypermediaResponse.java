@@ -3,7 +3,7 @@ package com.jasonwjones.pbcs.api.v3;
 import java.util.List;
 
 /**
- * Base class to extend that provides structure for the typical repsonses that
+ * Base class to extend that provides structure for the typical responses that
  * are a JSON map with a "links" item and additional items specific to that call
  * 
  * @author jasonwjones
