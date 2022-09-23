@@ -26,6 +26,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.ClientHttpRequest;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.HttpMessageConverterExtractor;
 import org.springframework.web.client.RequestCallback;
 import org.springframework.web.client.ResponseExtractor;
 import org.springframework.web.client.RestTemplate;
@@ -122,17 +123,23 @@ public class InteropClientImpl implements InteropClient {
 		try {
 			String filenameOnly = SimpleFilenameUtils.getName(filename);
 			logger.info("Source file {} will be {} on target", filename, filenameOnly);
-			byte[] data = readFileToBytes(filename);
-			String url = String.format("/applicationsnapshots/%s/contents?q={chunkSize:%d,isFirst:%b,isLast:%b" +
-											    (remoteDir.isPresent() ? ",\"extDirPath\":\""+remoteDir.get()+"\"}" : "}"), filenameOnly, data.length, true, true);
 
-			URI uri = UriComponentsBuilder.fromHttpUrl(baseUrl + serviceConfiguration.getInteropApiVersion() + url).build().toUri();
-			HttpHeaders headers = new HttpHeaders();
-			HttpEntity<byte[]> entity = new HttpEntity<>(data, headers);
-			headers.set("Content-Type", "application/octet-stream");
-			ResponseEntity<String> response = restTemplate.exchange(uri, HttpMethod.POST, entity, String.class);
-			logger.info("Response: {}", response.getBody());
-			return response.getBody();
+			final InputStream fis = new FileInputStream(filename); // or whatever
+			final RequestCallback requestCallback = request -> {
+				request.getHeaders()
+					   .add("Content-type", "application/octet-stream");
+				IOUtils.copy(fis, request.getBody());
+			};
+			final HttpMessageConverterExtractor<String> responseExtractor = new HttpMessageConverterExtractor<>(String.class,
+																												restTemplate.getMessageConverters());
+			String url = String.format("/applicationsnapshots/%s/contents?q={chunkSize:%d,isFirst:%b,isLast:%b" + (remoteDir.isPresent() ?
+					",\"extDirPath\":\"" + remoteDir.get() + "\"}" :
+					"}"), filenameOnly, fis.available(), true, true);
+
+			URI uri = UriComponentsBuilder.fromHttpUrl(baseUrl + serviceConfiguration.getInteropApiVersion() + url)
+										  .build()
+										  .toUri();
+			return restTemplate.execute(uri, HttpMethod.POST, requestCallback, responseExtractor);
 		} catch (IOException e) {
 			throw new PbcsClientException("Couldn't read/upload file", e);
 		}
