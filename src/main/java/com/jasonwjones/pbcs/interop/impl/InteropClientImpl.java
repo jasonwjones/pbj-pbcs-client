@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 
@@ -25,14 +26,18 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.ClientHttpRequest;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.HttpMessageConverterExtractor;
 import org.springframework.web.client.RequestCallback;
 import org.springframework.web.client.ResponseExtractor;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jasonwjones.pbcs.api.v3.HypermediaLink;
 import com.jasonwjones.pbcs.api.v3.JobLaunchResponse;
 import com.jasonwjones.pbcs.api.v3.MaintenanceWindow;
+import com.jasonwjones.pbcs.api.v3.RestoreBackupPayload;
+import com.jasonwjones.pbcs.api.v3.RestoreBackupResponse;
 import com.jasonwjones.pbcs.api.v3.ServiceDefinitionWrapper;
 import com.jasonwjones.pbcs.client.PbcsConnection;
 import com.jasonwjones.pbcs.client.PbcsServiceConfiguration;
@@ -118,17 +123,23 @@ public class InteropClientImpl implements InteropClient {
 		try {
 			String filenameOnly = SimpleFilenameUtils.getName(filename);
 			logger.info("Source file {} will be {} on target", filename, filenameOnly);
-			byte[] data = readFileToBytes(filename);
-			String url = String.format("/applicationsnapshots/%s/contents?q={chunkSize:%d,isFirst:%b,isLast:%b" +
-											    (remoteDir.isPresent() ? ",\"extDirPath\":\""+remoteDir.get()+"\"}" : "}"), filenameOnly, data.length, true, true);
 
-			URI uri = UriComponentsBuilder.fromHttpUrl(baseUrl + serviceConfiguration.getInteropApiVersion() + url).build().toUri();
-			HttpHeaders headers = new HttpHeaders();
-			HttpEntity<byte[]> entity = new HttpEntity<>(data, headers);
-			headers.set("Content-Type", "application/octet-stream");
-			ResponseEntity<String> response = restTemplate.exchange(uri, HttpMethod.POST, entity, String.class);
-			logger.info("Response: {}", response.getBody());
-			return response.getBody();
+			final InputStream fis = new FileInputStream(filename); // or whatever
+			final RequestCallback requestCallback = request -> {
+				request.getHeaders()
+					   .add("Content-type", "application/octet-stream");
+				IOUtils.copy(fis, request.getBody());
+			};
+			final HttpMessageConverterExtractor<String> responseExtractor = new HttpMessageConverterExtractor<>(String.class,
+																												restTemplate.getMessageConverters());
+			String url = String.format("/applicationsnapshots/%s/contents?q={chunkSize:%d,isFirst:%b,isLast:%b" + (remoteDir.isPresent() ?
+					",\"extDirPath\":\"" + remoteDir.get() + "\"}" :
+					"}"), filenameOnly, fis.available(), true, true);
+
+			URI uri = UriComponentsBuilder.fromHttpUrl(baseUrl + serviceConfiguration.getInteropApiVersion() + url)
+										  .build()
+										  .toUri();
+			return restTemplate.execute(uri, HttpMethod.POST, requestCallback, responseExtractor);
 		} catch (IOException e) {
 			throw new PbcsClientException("Couldn't read/upload file", e);
 		}
@@ -239,23 +250,69 @@ public class InteropClientImpl implements InteropClient {
 	@Override
 	public void LcmExport() {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void LcmImport() {
 		// TODO Auto-generated method stub
-		
+
 	}
-	
+
+	@Override
+	public List<String> backupsList() {
+		ResponseEntity<ServiceDefinitionWrapper> response = restTemplate.getForEntity(baseUrl + "v2/backups/list", ServiceDefinitionWrapper.class);
+		ServiceDefinitionWrapper body = response.getBody();
+		return body.getItems();
+	}
+
+	@Override
+	public RestoreBackupResponse launchRestoreBackup(String backupName, Map<String, String> parameters) {
+		String url = baseUrl + ("v2/backups/restore");
+		RestoreBackupPayload payload = new RestoreBackupPayload(backupName);
+		payload.setParameters(parameters);
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON);
+		try {
+			HttpEntity<Object> requestEntity = new HttpEntity<>(new ObjectMapper().writer()
+																				  .withDefaultPrettyPrinter()
+																				  .writeValueAsString(payload), headers);
+			ResponseEntity<RestoreBackupResponse> output = restTemplate.postForEntity(url, requestEntity, RestoreBackupResponse.class);
+			RestoreBackupResponse body = output.getBody();
+			body = waitForCompletion(body);
+			return body;
+		} catch (Exception e) {
+			throw new RuntimeException("Exception during launch restore backup request", e);
+		}
+	}
+
+	private RestoreBackupResponse waitForCompletion(RestoreBackupResponse body) {
+		String status = body.getStatus();
+		while ("-1".equals(status)) {
+			final Optional<HypermediaLink> jobStatusLink = body.getLinks()
+															   .stream()
+															   .filter(hypermediaLink -> hypermediaLink.getHyperlink()
+																									   .contains("/status/jobs/"))
+															   .findAny();
+			if (jobStatusLink.isPresent()) {
+				final ResponseEntity<RestoreBackupResponse> entity = restTemplate.getForEntity(jobStatusLink.get()
+																											.getHyperlink(), RestoreBackupResponse.class);
+				status = entity.getBody()
+							   .getStatus();
+				body = entity.getBody();
+			}
+		}
+		return body;
+	}
+
 	private byte[] readFileToBytes(String filename) throws IOException {
 		File fff = new File(filename);
-	    FileInputStream fileInputStream = new FileInputStream(fff);
-	    int byteLength = (int) fff.length(); //bytecount of the file-content
-	    byte[] filecontent = new byte[byteLength];
-	    fileInputStream.read(filecontent, 0, byteLength);
-	    fileInputStream.close();
-	    return filecontent;
+		FileInputStream fileInputStream = new FileInputStream(fff);
+		int byteLength = (int) fff.length(); //bytecount of the file-content
+		byte[] filecontent = new byte[byteLength];
+		fileInputStream.read(filecontent, 0, byteLength);
+		fileInputStream.close();
+		return filecontent;
 	}
 
 	@Override

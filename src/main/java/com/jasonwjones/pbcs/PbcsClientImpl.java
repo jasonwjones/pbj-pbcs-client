@@ -2,11 +2,13 @@ package com.jasonwjones.pbcs;
 
 import java.io.File;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.util.MultiValueMap;
 
 import com.jasonwjones.pbcs.api.v3.JobLaunchResponse;
+import com.jasonwjones.pbcs.api.v3.RestoreBackupResponse;
 import com.jasonwjones.pbcs.client.PbcsApi;
 import com.jasonwjones.pbcs.client.PbcsApplication;
 import com.jasonwjones.pbcs.client.PbcsConnection;
@@ -94,6 +96,16 @@ public class PbcsClientImpl implements PbcsClient {
 	@Override
 	public void LcmImport() {
 		throw new UnsupportedOperationException("Operation not supported yet");
+	}
+
+	@Override
+	public List<String> backupsList() {
+		return interopClient.backupsList();
+	}
+
+	@Override
+	public RestoreBackupResponse launchRestoreBackup(String backupName, Map<String, String> parameters) {
+		return interopClient.launchRestoreBackup(backupName, parameters);
 	}
 
 	@Override
