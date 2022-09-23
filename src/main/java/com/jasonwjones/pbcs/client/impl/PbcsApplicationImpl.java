@@ -160,15 +160,20 @@ public class PbcsApplicationImpl implements PbcsApplication {
 		JobLaunchPayload payload = new JobLaunchPayload("INTEGRATION", integrationName);
 		payload.setParameters(parameters);
 		HttpEntity<?> requestEntity = getRequestEntityWithHeaders(payload);
-		ResponseEntity<JobLaunchResponse> output = context.getTemplate().postForEntity(url, requestEntity, JobLaunchResponse.class, appMap);
+		ResponseEntity<JobLaunchResponse> output = context.getTemplate()
+														  .postForEntity(url, requestEntity, JobLaunchResponse.class, appMap);
 		return new PbcsJobLaunchResultImpl(output.getBody());
 	}
+
+
 
 	private HttpEntity<?> getRequestEntityWithHeaders(Payload payload) {
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_JSON);
 		try {
-			return new HttpEntity<Object>(new ObjectMapper().writer().withDefaultPrettyPrinter().writeValueAsString(payload), headers);
+			return new HttpEntity<Object>(new ObjectMapper().writer()
+															.withDefaultPrettyPrinter()
+															.writeValueAsString(payload), headers);
 		} catch (JsonProcessingException e) {
 			throw new RuntimeException("Cannot map object to json", e);
 		}
