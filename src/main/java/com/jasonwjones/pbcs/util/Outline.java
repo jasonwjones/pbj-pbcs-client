@@ -12,6 +12,7 @@ import java.util.Queue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.jasonwjones.pbcs.client.PbcsAppDimension;
 import com.jasonwjones.pbcs.client.PbcsApplication;
 import com.jasonwjones.pbcs.client.PbcsDimension;
 import com.jasonwjones.pbcs.client.PbcsMemberProperties;
@@ -37,7 +38,7 @@ public class Outline {
 		this.app = application.getName();
 
 		memberDimensions = new HashMap<String, Member>();
-		List<PbcsDimension> dimensions = application.getDimensions();
+		List<PbcsAppDimension> dimensions = application.getDimensions();
 		//List<PbcsDimension> dimensions = Arrays.asList(application.getDimension("Period"));
 
 		this.dimensionNames = new ArrayList<String>();

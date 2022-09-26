@@ -3,6 +3,7 @@ package com.jasonwjones.pbcs.client;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import com.jasonwjones.pbcs.api.v3.SubstitutionVariable;
@@ -73,11 +74,24 @@ public interface PbcsApplication {
 	 */
 	PbcsJobLaunchResult launchBusinessRule(String ruleName, Map<String, String> parameters);
 
-	void launchRuleSet(String ruleSetName);
+	PbcsJobLaunchResult launchRuleSet(String ruleSetName, Map<String, String> parameters);
+	PbcsJobLaunchResult launchRuleSet(String ruleSetName);
 
-	void launchDataImport(String dataImportName);
+	PbcsJobLaunchResult launchDataImport(String dataImportName, Optional<String> dataFile);
+	PbcsJobLaunchResult launchDataImport(String dataImportName);
 
 	PbcsJobLaunchResult importMetadata(String metadataImportName, String dataFile);
+
+	PbcsJobLaunchResult launchDataRule(String dataRuleName, Map<String, String> parameters);
+
+	/**
+	 * The INTEGRATION job type is an enhanced version of DATARULE job type (see Running Data Rules). It is recommended that you use the INTEGRATION job type for future integration jobs
+	 *
+	 * @param integrationName - name of the integration
+	 * @param parameters      - parameters for integration
+	 * @return job result
+	 */
+	PbcsJobLaunchResult launchIntegration(String integrationName, Map<String, String> parameters);
 
 	PbcsJobLaunchResult importMetadata(String metadataImportName);
 
