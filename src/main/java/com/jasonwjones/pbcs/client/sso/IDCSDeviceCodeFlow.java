@@ -128,7 +128,7 @@ public class IDCSDeviceCodeFlow {
             // If access token is null then we treat this as the first invocation of instancing from an existing refresh
             // token. We don't strictly need to check also for refreshTime also being null, but we do just as an extra
             // sanity check
-            return accessToken == null || refreshTime == null || refreshTime + TimeUnit.SECONDS.toMillis(expiresIn) >= System.currentTimeMillis();
+            return accessToken == null || refreshTime == null || !(System.currentTimeMillis() < refreshTime + TimeUnit.SECONDS.toMillis(expiresIn));
         }
 
     }
