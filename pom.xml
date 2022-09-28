@@ -55,6 +55,14 @@
 			<artifactId>httpclient</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>2.7</version>
+		</dependency>
+
+		<!-- Logging -->
+
+		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
 		</dependency>
@@ -63,20 +71,14 @@
 			<artifactId>logback-classic</artifactId>
 			<scope>provided</scope>
 		</dependency>
-		<dependency>
-			<groupId>commons-io</groupId>
-			<artifactId>commons-io</artifactId>
-			<version>2.7</version>
-		</dependency>
-		<dependency>
-			<groupId>com.beust</groupId>
-			<artifactId>jcommander</artifactId>
-			<version>1.48</version>
-		</dependency>
+		<!-- Spring/RestTemplate need this -->
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>jcl-over-slf4j</artifactId>
 		</dependency>
+
+		<!-- Testing -->
+
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
@@ -86,9 +88,6 @@
 
 	<properties>
 		<github.global.server>github</github.global.server>
-		<!-- gets Spring Boot package phase to set main class entry for runnable JAR. Trying to use Maven Shade to do this doesn't work (likely because
-			of overrides Spring makes in the parent POM -->
-		<start-class>com.jasonwjones.pbcs.cli.PbjCli</start-class>
 		<maven.compiler.target>1.8</maven.compiler.target>
 		<maven.compiler.source>1.8</maven.compiler.source>
 	</properties>
@@ -178,32 +177,6 @@
 				</executions>
 			</plugin>
 			 -->
-			<!--
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-shade-plugin</artifactId>
-				<executions>
-					<execution>
-						<phase>package</phase>
-						<goals>
-							<goal>shade</goal>
-						</goals>
-						<configuration>
-							<relocations>
-								<relocation>
-									<pattern>org.apache.http</pattern>
-									<shadedPattern>org.shaded.apache.http</shadedPattern>
-								</relocation>
-								<relocation>
-									<pattern>org.springframework</pattern>
-									<shadedPattern>org.shaded.springframework</shadedPattern>
-								</relocation>
-							</relocations>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-			-->
 		</plugins>
 	</build>
 </project>
