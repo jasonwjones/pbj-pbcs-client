@@ -2,7 +2,13 @@ package com.jasonwjones.pbcs;
 
 import java.io.File;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
+import org.springframework.util.MultiValueMap;
+
+import com.jasonwjones.pbcs.api.v3.JobLaunchResponse;
+import com.jasonwjones.pbcs.api.v3.RestoreBackupResponse;
 import com.jasonwjones.pbcs.client.PbcsApi;
 import com.jasonwjones.pbcs.client.PbcsApplication;
 import com.jasonwjones.pbcs.client.PbcsConnection;
@@ -58,13 +64,18 @@ public class PbcsClientImpl implements PbcsClient {
 	}
 
 	@Override
-	public void uploadFile(String filename) {
-		interopClient.uploadFile(filename);
+	public String uploadFile(String filename) {
+		return interopClient.uploadFile(filename);
 	}
 
 	@Override
-	public void deleteFile(String filename) {
-		interopClient.deleteFile(filename);
+	public String deleteFile(String filename) {
+		return interopClient.deleteFile(filename);
+	}
+
+	@Override
+	public JobLaunchResponse runRoleAssignmentReport(MultiValueMap<String, String> map) {
+		return interopClient.runRoleAssignmentReport(map);
 	}
 
 	@Override
@@ -88,6 +99,16 @@ public class PbcsClientImpl implements PbcsClient {
 	}
 
 	@Override
+	public List<String> backupsList() {
+		return interopClient.backupsList();
+	}
+
+	@Override
+	public RestoreBackupResponse launchRestoreBackup(String backupName, Map<String, String> parameters) {
+		return interopClient.launchRestoreBackup(backupName, parameters);
+	}
+
+	@Override
 	public File downloadFileViaStream(String filename) throws PbcsClientException {
 		return interopClient.downloadFileViaStream(filename);
 	}
@@ -95,6 +116,11 @@ public class PbcsClientImpl implements PbcsClient {
 	@Override
 	public File downloadFileViaStream(String filename, String localFilename) {
 		return interopClient.downloadFileViaStream(filename, localFilename);
+	}
+
+	@Override
+	public String uploadFile(String filename, Optional<String> remoteDir) {
+		return interopClient.uploadFile(filename, remoteDir);
 	}
 
 }

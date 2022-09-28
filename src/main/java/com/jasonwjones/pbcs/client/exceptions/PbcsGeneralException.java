@@ -6,7 +6,7 @@ public class PbcsGeneralException extends PbcsClientException {
 	
 	//Body: {"detail":"The dimension PeriodX is invalid.","status":400,"message":"com.hyperion.planning.InvalidDimensionException: The dimension PeriodX is invalid.","localizedMessage":"com.hyperion.planning.InvalidDimensionException: The dimension PeriodX is invalid."}
 	public PbcsGeneralException(PbcsErrorResponse errorResponse) {
-		super(errorResponse.getDetail());
+		super(errorResponse.getDetails());
 		this.errorResponse = errorResponse;
 	}
 	

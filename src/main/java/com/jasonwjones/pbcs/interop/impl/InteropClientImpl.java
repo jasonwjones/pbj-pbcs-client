@@ -4,19 +4,20 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
-
-import javax.management.relation.RelationSupportMBean;
+import java.util.Optional;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.io.Resource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -24,13 +25,19 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.ClientHttpRequest;
 import org.springframework.http.client.ClientHttpResponse;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.HttpMessageConverterExtractor;
 import org.springframework.web.client.RequestCallback;
 import org.springframework.web.client.ResponseExtractor;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jasonwjones.pbcs.api.v3.HypermediaLink;
+import com.jasonwjones.pbcs.api.v3.JobLaunchResponse;
 import com.jasonwjones.pbcs.api.v3.MaintenanceWindow;
+import com.jasonwjones.pbcs.api.v3.RestoreBackupPayload;
+import com.jasonwjones.pbcs.api.v3.RestoreBackupResponse;
 import com.jasonwjones.pbcs.api.v3.ServiceDefinitionWrapper;
 import com.jasonwjones.pbcs.client.PbcsConnection;
 import com.jasonwjones.pbcs.client.PbcsServiceConfiguration;
@@ -97,12 +104,17 @@ public class InteropClientImpl implements InteropClient {
 		System.out.println(snap.getBody());
 		return null;
 	}
-	
+
 	@Override
-	public void uploadFile(String filename) {
+	public String uploadFile(String filename) {
+		return uploadFile(filename, Optional.empty());
+	}
+
+	@Override
+	public String uploadFile(String filename, Optional<String> remoteDir) {
 		File fileToUpload = new File(filename);
 		if (!fileToUpload.exists()) {
-			logger.error("File {} does not exist");
+			logger.error("File {} does not exist", filename);
 			throw new PbcsClientException("File to upload does not exist: " + filename);
 		} else {
 			logger.info("Found local file");
@@ -111,15 +123,23 @@ public class InteropClientImpl implements InteropClient {
 		try {
 			String filenameOnly = SimpleFilenameUtils.getName(filename);
 			logger.info("Source file {} will be {} on target", filename, filenameOnly);
-			byte[] data = readFileToBytes(filename);
-			String url = String.format("/applicationsnapshots/%s/contents?q={chunkSize:%d,isFirst:%b,isLast:%b}", filenameOnly, data.length, true, true);
 
-			URI uri = UriComponentsBuilder.fromHttpUrl(this.baseUrl + serviceConfiguration.getInteropApiVersion() + url).build().toUri();
-			HttpHeaders headers = new HttpHeaders();
-			HttpEntity<byte[]> entity = new HttpEntity<byte[]>(data, headers);
-			headers.set("Content-Type", "application/octet-stream");
-			ResponseEntity<String> response = restTemplate.exchange(uri, HttpMethod.POST, entity, String.class);
-			logger.info("Response: {}", response.getBody());
+			final InputStream fis = new FileInputStream(filename); // or whatever
+			final RequestCallback requestCallback = request -> {
+				request.getHeaders()
+					   .add("Content-type", "application/octet-stream");
+				IOUtils.copy(fis, request.getBody());
+			};
+			final HttpMessageConverterExtractor<String> responseExtractor = new HttpMessageConverterExtractor<>(String.class,
+																												restTemplate.getMessageConverters());
+			String url = String.format("/applicationsnapshots/%s/contents?q={chunkSize:%d,isFirst:%b,isLast:%b" + (remoteDir.isPresent() ?
+					",\"extDirPath\":\"" + remoteDir.get() + "\"}" :
+					"}"), filenameOnly, fis.available(), true, true);
+
+			URI uri = UriComponentsBuilder.fromHttpUrl(baseUrl + serviceConfiguration.getInteropApiVersion() + url)
+										  .build()
+										  .toUri();
+			return restTemplate.execute(uri, HttpMethod.POST, requestCallback, responseExtractor);
 		} catch (IOException e) {
 			throw new PbcsClientException("Couldn't read/upload file", e);
 		}
@@ -182,11 +202,17 @@ public class InteropClientImpl implements InteropClient {
 		}
 	}
 
-	// TODO: apparently PBCS REST API returns a JSON payload so we might need to 
 	// switch to using the exchange() method to get the details
-	public void deleteFile(String filename) {
-		logger.info("Deleting {}", filename);
-		restTemplate.delete(baseUrl + serviceConfiguration.getInteropApiVersion() + "/applicationsnapshots/{filename}", filename);
+	public String deleteFile(String filename) {
+		HttpHeaders headers = new HttpHeaders();
+		filename = filename.replaceAll("/", "\\\\");
+		headers.setContentType(MediaType.APPLICATION_JSON);
+		ResponseEntity<String> exchange = restTemplate.exchange(baseUrl + serviceConfiguration.getInteropApiVersion() + "/applicationsnapshots/" + filename,
+																HttpMethod.DELETE,
+																new HttpEntity<Object>("", headers),
+																String.class,
+																new HashMap<>());
+		return exchange.toString();
 	}
 	
 	public void listServices() {
@@ -200,6 +226,19 @@ public class InteropClientImpl implements InteropClient {
 		}
 		
 	}
+
+	@Override
+	public JobLaunchResponse runRoleAssignmentReport(MultiValueMap<String, String> map) {
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+		HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<>(map, headers);
+
+		ResponseEntity<JobLaunchResponse> response = restTemplate.postForEntity(baseUrl + "security/v1/roleassignmentreport",
+																				requestEntity,
+																				JobLaunchResponse.class,
+																				map);
+		return response.getBody();
+	}
 	
 	//@Override
 	public MaintenanceWindow getMaintenanceWindow() {
@@ -211,23 +250,69 @@ public class InteropClientImpl implements InteropClient {
 	@Override
 	public void LcmExport() {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void LcmImport() {
 		// TODO Auto-generated method stub
-		
+
 	}
-	
+
+	@Override
+	public List<String> backupsList() {
+		ResponseEntity<ServiceDefinitionWrapper> response = restTemplate.getForEntity(baseUrl + "v2/backups/list", ServiceDefinitionWrapper.class);
+		ServiceDefinitionWrapper body = response.getBody();
+		return body.getItems();
+	}
+
+	@Override
+	public RestoreBackupResponse launchRestoreBackup(String backupName, Map<String, String> parameters) {
+		String url = baseUrl + ("v2/backups/restore");
+		RestoreBackupPayload payload = new RestoreBackupPayload(backupName);
+		payload.setParameters(parameters);
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON);
+		try {
+			HttpEntity<Object> requestEntity = new HttpEntity<>(new ObjectMapper().writer()
+																				  .withDefaultPrettyPrinter()
+																				  .writeValueAsString(payload), headers);
+			ResponseEntity<RestoreBackupResponse> output = restTemplate.postForEntity(url, requestEntity, RestoreBackupResponse.class);
+			RestoreBackupResponse body = output.getBody();
+			body = waitForCompletion(body);
+			return body;
+		} catch (Exception e) {
+			throw new RuntimeException("Exception during launch restore backup request", e);
+		}
+	}
+
+	private RestoreBackupResponse waitForCompletion(RestoreBackupResponse body) {
+		String status = body.getStatus();
+		while ("-1".equals(status)) {
+			final Optional<HypermediaLink> jobStatusLink = body.getLinks()
+															   .stream()
+															   .filter(hypermediaLink -> hypermediaLink.getHyperlink()
+																									   .contains("/status/jobs/"))
+															   .findAny();
+			if (jobStatusLink.isPresent()) {
+				final ResponseEntity<RestoreBackupResponse> entity = restTemplate.getForEntity(jobStatusLink.get()
+																											.getHyperlink(), RestoreBackupResponse.class);
+				status = entity.getBody()
+							   .getStatus();
+				body = entity.getBody();
+			}
+		}
+		return body;
+	}
+
 	private byte[] readFileToBytes(String filename) throws IOException {
 		File fff = new File(filename);
-	    FileInputStream fileInputStream = new FileInputStream(fff);
-	    int byteLength = (int) fff.length(); //bytecount of the file-content
-	    byte[] filecontent = new byte[byteLength];
-	    fileInputStream.read(filecontent, 0, byteLength);
-	    fileInputStream.close();
-	    return filecontent;
+		FileInputStream fileInputStream = new FileInputStream(fff);
+		int byteLength = (int) fff.length(); //bytecount of the file-content
+		byte[] filecontent = new byte[byteLength];
+		fileInputStream.read(filecontent, 0, byteLength);
+		fileInputStream.close();
+		return filecontent;
 	}
 
 	@Override
@@ -265,8 +350,11 @@ public class InteropClientImpl implements InteropClient {
 
 				@Override
 				public Void extractData(ClientHttpResponse response) throws IOException {
-					IOUtils.copy(response.getBody(), new FileOutputStream(outputFile));
-					return null;
+					try (InputStream body = response.getBody()) {
+						FileOutputStream output = new FileOutputStream(outputFile);
+						IOUtils.copy(body, output);
+						return null;
+					}
 				}
 			});
 			return outputFile;
