@@ -92,6 +92,11 @@ public class PbcsConnectionImpl implements PbcsConnection {
 	}
 
 	@Override
+	public boolean isToken() {
+		return false;
+	}
+
+	@Override
 	public String toString() {
 		return "PbcsConnectionImpl [server=" + server + ", identityDomain=" + identityDomain + ", username=" + username
 				+ "]";

@@ -37,4 +37,16 @@ public interface PbcsConnection {
 	 */
 	String getPassword();
 
+	/**
+	 * Checks if this connection object represents a username or an OAuth2 token. For the standard/historical connection
+	 * implementation in {@link com.jasonwjones.pbcs.client.impl.PbcsConnectionImpl} this is always false. For the new
+	 * token implementation in {@link com.jasonwjones.pbcs.client.impl.PbcsConnectionToken}, it is true.
+	 *
+	 * <p>This is used by the client to determine how the authorization header is generated, i.e., if it's going to use
+	 * HTTP Basic or a Bearer token in the Authorization header.</p>
+	 *
+	 * @return true if it's a token, false otherwise
+	 */
+	boolean isToken();
+
 }

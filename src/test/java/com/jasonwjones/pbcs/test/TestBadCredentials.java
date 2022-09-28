@@ -42,6 +42,11 @@ public class TestBadCredentials extends AbstractIntegrationTest {
 			return connection.getPassword() + "XX";
 		}
 
+		@Override
+		public boolean isToken() {
+			return false;
+		}
+
 	}
 
 }

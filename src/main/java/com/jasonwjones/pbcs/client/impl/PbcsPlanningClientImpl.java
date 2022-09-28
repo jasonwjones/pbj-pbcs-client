@@ -1,9 +1,9 @@
 package com.jasonwjones.pbcs.client.impl;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
+import com.jasonwjones.pbcs.client.impl.interceptors.RefreshableTokenInterceptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
@@ -49,10 +49,19 @@ public class PbcsPlanningClientImpl implements PbcsPlanningClient {
 		this.serviceConfig = serviceConfiguration;
 		this.baseUrl = serviceConfig.getScheme() + "://" + connection.getServer() + serviceConfig.getPlanningRestApiPath() + serviceConfig.getPlanningApiVersion() + "/";
 		this.server = connection.getServer();
-		this.restTemplate = new RestTemplate(serviceConfiguration.createRequestFactory(connection));
+		this.restTemplate = !connection.isToken() ? new RestTemplate(serviceConfiguration.createRequestFactory(connection)) : new RestTemplate();
 		this.restTemplate.setErrorHandler(new MyResponseErrorHandler());
-		ClientHttpRequestInterceptor interceptor = new RequestResponseLoggingInterceptor();
-		this.restTemplate.setInterceptors(Collections.singletonList(interceptor));
+
+		//ClientHttpRequestInterceptor interceptor = new RequestResponseLoggingInterceptor();
+		List<ClientHttpRequestInterceptor> interceptors = new ArrayList<>();
+		//interceptors.add(interceptor);
+
+		if (connection.isToken()) {
+			RefreshableTokenInterceptor refreshableTokenInterceptor = new RefreshableTokenInterceptor(connection);
+			interceptors.add(refreshableTokenInterceptor);
+		}
+
+		this.restTemplate.setInterceptors(interceptors);
 
 		this.context = new RestContext(restTemplate, baseUrl);
 		this.context.setAifBaseUrl(serviceConfig.getScheme() + "://" + connection.getServer() + serviceConfiguration.getAifRestApiPath() + serviceConfiguration.getAifRestApiVersion());

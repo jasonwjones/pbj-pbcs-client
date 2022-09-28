@@ -98,7 +98,7 @@ public class PbcsServiceConfigurationImpl implements PbcsServiceConfiguration {
 		final HttpHost httpHost = new HttpHost(connection.getServer(), port, scheme);
 
 		// in the PBCS gen 1 architecture, the username was the identity name plus a period plus the username. In the
-		// gen 2 architecture, it's just the user name. Clients should specify null or a blank string in order to cause
+		// gen 2 architecture, it's just the username. Clients should specify null or a blank string in order to cause
 		// the gen 2 handling to be used
 
 		final String fullUsername = StringUtils.hasText(connection.getIdentityDomain()) ? connection.getIdentityDomain() + "." + connection.getUsername() : connection.getUsername();

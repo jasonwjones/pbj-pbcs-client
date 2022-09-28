@@ -15,7 +15,7 @@ public class PbcsClientFactory {
 	 * REST endpoints, etc.). If customization is needed (for example, to
 	 * specify a particular API version), then the other createClient method
 	 * should be used.
-	 * 
+	 *
 	 * @param connection a connection details object
 	 * @return a new PBCS client instance
 	 */
@@ -27,7 +27,7 @@ public class PbcsClientFactory {
 	/**
 	 * Creates a new client instance with supplied connection and service
 	 * configuration.
-	 * 
+	 *
 	 * @param connection the connection details
 	 * @param serviceConfiguration the configuration details
 	 * @return a new PBCS client instance
@@ -35,7 +35,8 @@ public class PbcsClientFactory {
 	public PbcsClient createClient(PbcsConnection connection, PbcsServiceConfiguration serviceConfiguration) {
 		return new PbcsClientImpl(connection, serviceConfiguration);
 	}
-	
+
+	@Deprecated
 	public PbcsPlanningClient createPlanningClient(PbcsConnection connection) {
 		return new PbcsPlanningClientImpl(connection, createDefaultServiceConfiguration());
 	}
@@ -44,9 +45,8 @@ public class PbcsClientFactory {
 	 * Convenience method for passing individual connection parameters instead
 	 * of having to construct a {@link PbcsConnection} object. Interally just
 	 * creates a connection object and calls the other createClient() method.
-	 * 
-	 * @param server the PBCS server name (just a server, not a scheme, port, or
-	 *            path)
+	 *
+	 * @param server the PBCS server name (just a server, not a scheme, port, or path)
 	 * @param identityDomain the identity domain
 	 * @param username the username
 	 * @param password the password
@@ -63,12 +63,12 @@ public class PbcsClientFactory {
 	 * the API is /HyperionPlanning/rest/. These values should almost always be
 	 * valid, but there may come a point where one of them needs to change, most
 	 * likely the Planning API version, if/when it gets bumped to v4.
-	 * 
+	 *
 	 * <p>
 	 * Users needing advanced control over the configuration of their service
 	 * configuration will want to instantiate their own, such as using the
 	 * {@link PbcsServiceConfigurationImpl} class or rolling their own.
-	 * 
+	 *
 	 * @return a default service configuration
 	 */
 	public PbcsServiceConfigurationImpl createDefaultServiceConfiguration() {
@@ -79,7 +79,7 @@ public class PbcsClientFactory {
 		sc.setPlanningRestApiPath("/HyperionPlanning/rest/");
 		sc.setInteropApiVersion("11.1.2.3.600");
 		sc.setInteropRestApiPath("/interop/rest/");
-		
+
 		// Might be something like https://example.pbcs.us2.oraclecloud.com/aif/rest/V1/applications/{APPNAME}
 		sc.setAifRestApiPath("/aif/rest/");
 		sc.setAifRestApiVersion("V1");

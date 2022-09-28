@@ -7,14 +7,14 @@ import org.springframework.http.client.ClientHttpRequestExecution;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.util.StreamUtils;
- 
+
 import java.io.IOException;
 import java.nio.charset.Charset;
- 
+
 public class RequestResponseLoggingInterceptor implements ClientHttpRequestInterceptor {
- 
+
     private final Logger log = LoggerFactory.getLogger(this.getClass());
- 
+
     @Override
     public ClientHttpResponse intercept(HttpRequest request, byte[] body, ClientHttpRequestExecution execution) throws IOException {
         logRequest(request, body);
@@ -22,7 +22,7 @@ public class RequestResponseLoggingInterceptor implements ClientHttpRequestInter
         logResponse(response);
         return response;
     }
- 
+
     private void logRequest(HttpRequest request, byte[] body) throws IOException {
         if (log.isDebugEnabled()) {
             log.debug("===========================request begin================================================");
@@ -33,7 +33,7 @@ public class RequestResponseLoggingInterceptor implements ClientHttpRequestInter
             log.debug("==========================request end================================================");
         }
     }
- 
+
     private void logResponse(ClientHttpResponse response) throws IOException {
         if (log.isDebugEnabled()) {
             log.debug("============================response begin==========================================");
