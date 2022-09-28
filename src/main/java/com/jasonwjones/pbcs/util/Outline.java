@@ -1,23 +1,11 @@
 package com.jasonwjones.pbcs.util;
 
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Queue;
-
+import com.jasonwjones.pbcs.client.*;
+import com.jasonwjones.pbcs.client.exceptions.PbcsClientException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.jasonwjones.pbcs.client.PbcsAppDimension;
-import com.jasonwjones.pbcs.client.PbcsApplication;
-import com.jasonwjones.pbcs.client.PbcsDimension;
-import com.jasonwjones.pbcs.client.PbcsMemberProperties;
-import com.jasonwjones.pbcs.client.PbcsPlanType;
-import com.jasonwjones.pbcs.client.exceptions.PbcsClientException;
+import java.util.*;
 
 public class Outline {
 
@@ -42,7 +30,7 @@ public class Outline {
 		//List<PbcsDimension> dimensions = Arrays.asList(application.getDimension("Period"));
 
 		this.dimensionNames = new ArrayList<String>();
-		
+
 		for (PbcsDimension dimension : dimensions) {
 			logger.info("Processing dimension {}", dimension.getName());
 			dimensionNames .add(dimension.getName());
@@ -72,7 +60,7 @@ public class Outline {
 	public Collection<Member> getMembers() {
 		return Collections.unmodifiableCollection(memberDimensions.values());
 	}
-	
+
 	public Outline(PbcsPlanType planType) {
 		this.app = planType.getName();
 		this.dimensionNames = new ArrayList<String>();
@@ -105,10 +93,39 @@ public class Outline {
 		}
 	}
 
+	public Outline(PbcsApplication application, String planType, List<String> dimensionNames) {
+		this.app = planType;
+		this.dimensionNames = new ArrayList<String>();
+		memberDimensions = new HashMap<String, Member>();
+
+		for (String dimension : dimensionNames) {
+			logger.info("Processing dimension {}", dimension);
+			this.dimensionNames.add(dimension);
+			PbcsMemberProperties rootMember = application.getMember(dimension, dimension);
+			logger.debug("{} has {} children", rootMember.getName(), rootMember.getChildren().size());
+
+			Queue<PbcsMemberProperties> members = new ArrayDeque<PbcsMemberProperties>();
+			members.add(rootMember);
+
+			while (!members.isEmpty()) {
+				PbcsMemberProperties current = members.remove();
+
+				members.addAll(current.getChildren());
+				logger.trace("Processing {}, has {} children, level: {} in dim {}", current.getName(), current.getChildren().size(), current.getLevel(), current.getDimensionName());
+				boolean isShare = memberDimensions.containsKey(current.getName());
+
+				if (!isShare) {
+					Member member = new Member(current);
+					memberDimensions.put(current.getName(), member);
+				}
+			}
+		}
+	}
+
 	public String getDimension(String memberName) {
 		return memberDimensions.get(memberName).getDimension();
 	}
-	
+
 	public List<String> getDimensionNames() {
 		return this.dimensionNames;
 	}
