@@ -52,9 +52,7 @@ public class PbcsPlanningClientImpl implements PbcsPlanningClient {
 		this.restTemplate = !connection.isToken() ? new RestTemplate(serviceConfiguration.createRequestFactory(connection)) : new RestTemplate();
 		this.restTemplate.setErrorHandler(new MyResponseErrorHandler());
 
-		//ClientHttpRequestInterceptor interceptor = new RequestResponseLoggingInterceptor();
 		List<ClientHttpRequestInterceptor> interceptors = new ArrayList<>();
-		//interceptors.add(interceptor);
 
 		if (connection.isToken()) {
 			RefreshableTokenInterceptor refreshableTokenInterceptor = new RefreshableTokenInterceptor(connection);
