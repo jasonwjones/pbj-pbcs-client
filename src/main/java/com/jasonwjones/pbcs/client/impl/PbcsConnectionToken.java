@@ -1,17 +1,18 @@
 package com.jasonwjones.pbcs.client.impl;
 
 import com.jasonwjones.pbcs.client.PbcsConnection;
+import com.jasonwjones.pbcs.client.sso.AccessToken;
 import com.jasonwjones.pbcs.client.sso.RefreshableToken;
 
 public class PbcsConnectionToken implements PbcsConnection {
 
     private final String server;
 
-    private final RefreshableToken refreshableToken;
+    private final AccessToken accessToken;
 
-    public PbcsConnectionToken(String server, RefreshableToken refreshableToken) {
+    public PbcsConnectionToken(String server, AccessToken accessToken) {
         this.server = server;
-        this.refreshableToken = refreshableToken;
+        this.accessToken = accessToken;
     }
 
     @Override
@@ -27,7 +28,7 @@ public class PbcsConnectionToken implements PbcsConnection {
 
     @Override
     public String getUsername() {
-        return refreshableToken.getAccessToken();
+        return accessToken.getAccessToken();
     }
 
     @Override

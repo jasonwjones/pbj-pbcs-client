@@ -1,8 +1,6 @@
 package com.jasonwjones.pbcs.client.sso;
 
-public interface RefreshableToken {
-
-    String getAccessToken();
+public interface RefreshableToken extends AccessToken {
 
     void refresh();
 
