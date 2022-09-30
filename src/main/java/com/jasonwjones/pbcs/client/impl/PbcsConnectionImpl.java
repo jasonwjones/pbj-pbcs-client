@@ -9,11 +9,11 @@ import com.jasonwjones.pbcs.client.PbcsConnection;
 
 public class PbcsConnectionImpl implements PbcsConnection {
 
-	private String server;
+	private final String server;
 
-	private String identityDomain;
+	private final String identityDomain;
 
-	private String username;
+	private final String username;
 
 	private String password;
 
@@ -28,8 +28,12 @@ public class PbcsConnectionImpl implements PbcsConnection {
 	 * @param password the password for the user
 	 */
 	public PbcsConnectionImpl(String server, String identityDomain, String username, String password) {
-		this(server, identityDomain, username);
+		Assert.hasText(server, "Server name may not be empty");
 		Assert.hasText(password, "Password may not be empty");
+		Assert.hasText(username, "Username may not be empty");
+		this.server = server;
+		this.identityDomain = identityDomain;
+		this.username = username;
 		this.password = password;
 	}
 
@@ -39,7 +43,7 @@ public class PbcsConnectionImpl implements PbcsConnection {
 	 *
 	 * <p>
 	 * This overload constructor is provided as a convenience and meant to be
-	 * used immediately afterwith with the {@link #withBase64Password(String)}
+	 * used immediately after with the {@link #withBase64Password(String)}
 	 * method to set the password.
 	 *
 	 * @param server the server, not including http and not containing anything
@@ -48,11 +52,7 @@ public class PbcsConnectionImpl implements PbcsConnection {
 	 * @param username the username to connect with
 	 */
 	public PbcsConnectionImpl(String server, String identityDomain, String username) {
-		Assert.hasText(server, "Server name may not be empty");
-		Assert.hasText(username, "Username may not be empty");
-		this.server = server;
-		this.identityDomain = identityDomain;
-		this.username = username;
+		this(server, identityDomain, username, null);
 	}
 
 	/**
@@ -66,6 +66,7 @@ public class PbcsConnectionImpl implements PbcsConnection {
 	 * @return an updated connection object with the password set to the decoded
 	 *         value of the given string
 	 */
+	@Deprecated
 	public PbcsConnectionImpl withBase64Password(String encodedPassword) {
 		this.password = new String(Base64.decodeBase64(encodedPassword));
 		return this;
@@ -110,7 +111,7 @@ public class PbcsConnectionImpl implements PbcsConnection {
 	 * <p>
 	 * If any of the fields are missing, an exception is thrown
 	 *
-	 * @param properties a Properties object that shouold contain the user
+	 * @param properties a Properties object that should contain the user
 	 *            details
 	 * @return a new user connection details object based on the keys from the
 	 *         given properties

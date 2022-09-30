@@ -10,9 +10,9 @@ import com.jasonwjones.pbcs.client.PbcsMemberProperties;
 public class PbcsMemberQueryImpl {
 
 	public static List<String> level0Members(PbcsMemberProperties rootMember) {
-		List<String> leafNodes = new ArrayList<String>();
+		List<String> leafNodes = new ArrayList<>();
 
-		Queue<PbcsMemberProperties> memberQueue = new LinkedList<PbcsMemberProperties>();
+		Queue<PbcsMemberProperties> memberQueue = new LinkedList<>();
 		memberQueue.add(rootMember);
 
 		while (!memberQueue.isEmpty()) {

@@ -5,12 +5,12 @@ import com.jasonwjones.pbcs.client.PbcsApi;
 
 public class PbcsApiImpl implements PbcsApi {
 
-	private Api api;
-	
+	private final Api api;
+
 	public PbcsApiImpl(Api api) {
 		this.api = api;
 	}
-	
+
 	@Override
 	public String getVersion() {
 		return api.getVersion();
@@ -30,5 +30,5 @@ public class PbcsApiImpl implements PbcsApi {
 	public String toString() {
 		return api.toString();
 	}
-	
+
 }

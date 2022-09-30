@@ -5,12 +5,12 @@ import com.jasonwjones.pbcs.client.PbcsJobLaunchResult;
 
 public class PbcsJobLaunchResultImpl implements PbcsJobLaunchResult {
 
-	private JobLaunchResponse jobLaunchResponse;
-	
+	private final JobLaunchResponse jobLaunchResponse;
+
 	public PbcsJobLaunchResultImpl(JobLaunchResponse jobLaunchResponse) {
 		this.jobLaunchResponse = jobLaunchResponse;
 	}
-	
+
 	@Override
 	public Integer getStatus() {
 		return jobLaunchResponse.getStatus();
@@ -40,5 +40,5 @@ public class PbcsJobLaunchResultImpl implements PbcsJobLaunchResult {
 	public void waitUntilFinished() {
 		throw new UnsupportedOperationException("Not implemented yet");
 	}
-	
+
 }

@@ -195,7 +195,7 @@ public class PbcsApplicationImpl implements PbcsApplication {
 		// be a zip file
 		if (dataFile != null) {
 			Map<String, String> params = new HashMap<>();
-			if (SimpleFilenameUtils.getExtension(dataFile) != null && SimpleFilenameUtils.getExtension(dataFile).toLowerCase().equals("zip")) {
+			if (SimpleFilenameUtils.getExtension(dataFile) != null && SimpleFilenameUtils.getExtension(dataFile).equalsIgnoreCase("zip")) {
 				params.put("importZipFileName", dataFile);
 			}
 			else {

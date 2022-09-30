@@ -65,7 +65,7 @@ public class PbcsPlanningClientImpl implements PbcsPlanningClient {
 		this.context.setAifBaseUrl(serviceConfig.getScheme() + "://" + connection.getServer() + serviceConfiguration.getAifRestApiPath() + serviceConfiguration.getAifRestApiVersion());
 
 		// perform a call to the API to validate that we are actually connected
-		// if this doesn't work then we can throw an exception to the caller and
+		// if this doesn't work then we can throw an exception to the caller, and
 		// they'll know the connection didn't work
 
 		if (!serviceConfiguration.isSkipApiCheck()) {

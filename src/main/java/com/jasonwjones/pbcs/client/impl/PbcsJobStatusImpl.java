@@ -6,20 +6,20 @@ import com.jasonwjones.pbcs.client.PbcsJobStatusCode;
 
 public class PbcsJobStatusImpl implements PbcsJobStatus {
 
-	private JobLaunchResponse jobLaunchResponse;
-	
-	private PbcsJobStatusCode statusCode;
-	
+	private final JobLaunchResponse jobLaunchResponse;
+
+	private final PbcsJobStatusCode statusCode;
+
 	public PbcsJobStatusImpl(JobLaunchResponse jobLaunchResponse) {
 		this.jobLaunchResponse = jobLaunchResponse;
 		this.statusCode = PbcsJobStatusCode.valueOf(jobLaunchResponse.getStatus());
 	}
-	
+
 	@Override
 	public PbcsJobStatusCode getJobStatusCode() {
 		return statusCode;
 	}
-	
+
 	@Override
 	public Integer getStatus() {
 		return jobLaunchResponse.getStatus();
@@ -44,7 +44,7 @@ public class PbcsJobStatusImpl implements PbcsJobStatus {
 	public String getJobName() {
 		return jobLaunchResponse.getJobName();
 	}
-	
+
 	@Override
 	public String toString() {
 		return "JobLaunchResponse [status=" + jobLaunchResponse.getStatus() + ", details=" + jobLaunchResponse.getDetails() + ", jobId=" + jobLaunchResponse.getJobId() + ", jobName="

@@ -5,10 +5,10 @@ import com.jasonwjones.pbcs.client.PbcsJobDefinition;
 
 public class PbcsJobDefinitionImpl implements PbcsJobDefinition {
 
-	private RestContext context;
-	
-	private JobDefinition jobDefinition;
-	
+	private final RestContext context;
+
+	private final JobDefinition jobDefinition;
+
 	public PbcsJobDefinitionImpl(RestContext context, JobDefinition jobDefinition) {
 		this.context = context;
 		this.jobDefinition = jobDefinition;
@@ -23,5 +23,5 @@ public class PbcsJobDefinitionImpl implements PbcsJobDefinition {
 	public String getJobName() {
 		return jobDefinition.getJobName();
 	}
-	
+
 }
