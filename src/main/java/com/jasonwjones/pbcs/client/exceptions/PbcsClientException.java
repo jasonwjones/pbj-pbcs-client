@@ -2,6 +2,8 @@ package com.jasonwjones.pbcs.client.exceptions;
 
 import java.io.IOException;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import org.springframework.http.client.ClientHttpResponse;
 
 import com.fasterxml.jackson.core.JsonParseException;
@@ -10,24 +12,24 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * Base class from which all PBCS Client exception should be derived from.
- * 
+ *
  * @author jasonwjones
  *
  */
 @SuppressWarnings("serial")
 public class PbcsClientException extends RuntimeException {
-	
+
 	public PbcsClientException(String message) {
 		super(message);
 	}
-	
+
 	public PbcsClientException(String message, Throwable cause) {
 		super(message, cause);
 	}
-	
+
 	/**
 	 * Might get HTTP body like this:
-	 * 
+	 *
 	 * <pre>
 	 * {@code
 	 * {
@@ -36,9 +38,9 @@ public class PbcsClientException extends RuntimeException {
 	 *    "localizedMessage":"com.hyperion.planning.InvalidDimensionException: The dimension Time is invalid."
 	 * }
 	 * }
-	 * 
+	 *
 	 * </pre>
-	 * 
+	 *
 	 * Or like this (from importMetadata):
 	 * <pre>
 	 * {@code
@@ -52,9 +54,9 @@ public class PbcsClientException extends RuntimeException {
 	 * }
 	 * }
 	 * </pre>
-	 * 
+	 *
 	 * With headers:
-	 * 
+	 *
 	 * Headers: {Date=[Wed, 04 May 2016 17:42:26 GMT], Server=[Oracle-Application-Server-11g], X-EPM_ACTION=[Member Retrieve], X-EPM_FUNCTION=[Planning], X-EPM_OBJECT=[], X-Powered-By=[Servlet/2.5 JSP/2.1], Vary=[Accept-Encoding,User-Agent], Connection=[close], Transfer-Encoding=[chunked], Content-Type=[application/json; charset=UTF-8], Content-Language=[en]}
 	 * @param response the response object
 	 * @param responseBody the textual response body
@@ -63,6 +65,9 @@ public class PbcsClientException extends RuntimeException {
 	public static PbcsClientException createException(ClientHttpResponse response, String responseBody) {
 		// TODO: static
 		ObjectMapper mapper = new ObjectMapper();
+		// added because some exceptions seem to have 'detail' property, and JsonAlias isn't available yet
+		// (need Jackson 2.9+)
+		mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 		try {
 			PbcsErrorResponse errorResponse = mapper.readValue(responseBody, PbcsErrorResponse.class);
 			return new PbcsGeneralException(errorResponse);
@@ -73,12 +78,15 @@ public class PbcsClientException extends RuntimeException {
 		} catch (IOException e) {
 			return new PbcsClientException("PBJ General Error", e);
 		}
-	
+
 	}
 
 	public static class PbcsErrorResponse {
 
+		// some errors that come back seem to erroneously have a field named 'detail'. If/when we upgrade to dependencies
+		// that include a version of Jackson that is 2.9+, we might consider using JsonAlias to help with this
 		private String details;
+
 		private int status;
 		private String message;
 		private String localizedMessage;

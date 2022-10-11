@@ -2,12 +2,16 @@ package com.jasonwjones.pbcs.client.exceptions;
 
 public class PbcsGeneralException extends PbcsClientException {
 
-	private PbcsErrorResponse errorResponse;
-	
-	//Body: {"detail":"The dimension PeriodX is invalid.","status":400,"message":"com.hyperion.planning.InvalidDimensionException: The dimension PeriodX is invalid.","localizedMessage":"com.hyperion.planning.InvalidDimensionException: The dimension PeriodX is invalid."}
+	private final PbcsErrorResponse errorResponse;
+
 	public PbcsGeneralException(PbcsErrorResponse errorResponse) {
 		super(errorResponse.getDetails());
 		this.errorResponse = errorResponse;
 	}
-	
+
+	@Override
+	public String getMessage() {
+		return errorResponse.getMessage();
+	}
+
 }
