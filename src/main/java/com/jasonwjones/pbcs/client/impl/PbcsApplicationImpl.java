@@ -530,6 +530,35 @@ public class PbcsApplicationImpl implements PbcsApplication {
 
 	@Override
 	public PbcsPlanType getPlanType(String planTypeName) {
+		return validatePlanType(planTypeName);
+	}
+
+	public PbcsPlanType getPlanType(String planTypeName, boolean skipCheck) {
+		return getPlanType(planTypeName, skipCheck, Collections.emptyList());
+	}
+
+	@Deprecated
+	public PbcsPlanType getPlanType(String planTypeName, boolean skipCheck, List<String> dimensions) {
+		if (!skipCheck) {
+			validatePlanType(planTypeName);
+		}
+		return new PbcsPlanTypeImpl(context, this, planTypeName);
+	}
+
+	@Override
+	public PbcsPlanType getPlanType(PlanTypeConfiguration configuration) {
+		if (!configuration.isSkipCheck()) {
+			validatePlanType(configuration.getName());
+		}
+		return new PbcsPlanTypeImpl(context, this, configuration.getName(), configuration.getExplicitDimensions(), configuration.getMemberDimensionCache());
+	}
+
+	/**
+	 * Gets the list of plans for this application and ensures that the given plan type name is actually in it.
+	 *
+	 * @param planTypeName the name of the plan to validate
+	 */
+	private PbcsPlanType validatePlanType(String planTypeName) {
 		List<PbcsPlanType> planTypes = getPlanTypes();
 		for (PbcsPlanType planType : planTypes) {
 			if (planType.getName().equals(planTypeName)) {
@@ -542,14 +571,6 @@ public class PbcsApplicationImpl implements PbcsApplication {
 		}
 		logger.warn("PBCS application {} does not contain plan type {}; available plan type names are {}", application.getName(), planTypeName, availablePlanTypeNames);
 		throw new PbcsNoSuchObjectException(planTypeName, "plan type");
-	}
-
-	public PbcsPlanType getPlanType(String planTypeName, boolean skipCheck) {
-		return getPlanType(planTypeName, skipCheck, Collections.emptyList());
-	}
-
-	public PbcsPlanType getPlanType(String planTypeName, boolean skipCheck, List<String> dimensions) {
-		return new PbcsPlanTypeImpl(context, this, planTypeName, dimensions);
 	}
 
 }

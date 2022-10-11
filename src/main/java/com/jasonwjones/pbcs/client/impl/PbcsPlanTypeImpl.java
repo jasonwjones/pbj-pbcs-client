@@ -4,16 +4,16 @@ import com.jasonwjones.pbcs.api.v3.dataslices.*;
 import com.jasonwjones.pbcs.client.*;
 import com.jasonwjones.pbcs.client.exceptions.PbcsClientException;
 import com.jasonwjones.pbcs.client.impl.grid.DataSliceGrid;
-import com.jasonwjones.pbcs.client.impl.models.PbcsMemberPropertiesImpl;
+import com.jasonwjones.pbcs.client.memberdimensioncache.InMemoryMemberDimensionCache;
 import com.jasonwjones.pbcs.util.GridUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.Assert;
 
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class PbcsPlanTypeImpl implements PbcsPlanType {
@@ -28,13 +28,13 @@ public class PbcsPlanTypeImpl implements PbcsPlanType {
 
 	private final List<PbcsDimension> explicitDimensions;
 
-	private final ConcurrentMap<String, String> dimensionLookup = new ConcurrentHashMap<>();
+	private final MemberDimensionCache memberDimensionCache;
 
 	PbcsPlanTypeImpl(RestContext context, PbcsApplication application, String planType) {
-		this(context, application, planType, Collections.emptyList());
+		this(context, application, planType, Collections.emptyList(), new InMemoryMemberDimensionCache());
 	}
 
-	PbcsPlanTypeImpl(RestContext context, PbcsApplication application, String planType, List<String> explicitDimensions) {
+	PbcsPlanTypeImpl(RestContext context, PbcsApplication application, String planType, List<String> explicitDimensions, MemberDimensionCache memberDimensionCache) {
 		if (explicitDimensions == null)
 			throw new IllegalArgumentException("List of explicit dimensions cannot be null");
 		this.context = context;
@@ -44,6 +44,7 @@ public class PbcsPlanTypeImpl implements PbcsPlanType {
 		for (int index = 0; index < explicitDimensions.size(); index++) {
 			this.explicitDimensions.add(new ExplicitDimension(explicitDimensions.get(index), index));
 		}
+		this.memberDimensionCache = memberDimensionCache;
 	}
 
 	@Override
@@ -176,40 +177,42 @@ public class PbcsPlanTypeImpl implements PbcsPlanType {
 		}
 	}
 
+	@Override
 	public PbcsMemberProperties getMember(String dimensionName, String memberName) {
-		Assert.hasText(dimensionName, "Must specify a dimension name");
-		Assert.hasText(memberName, "Must specify a member name");
+		return application.getMember(dimensionName, memberName);
+	}
 
-		logger.debug("Fetching member properties for {} from dimension {}", memberName, dimensionName);
-		String url = this.context.getBaseUrl() + "applications/{application}/dimensions/{dimName}/members/{member}";
-		ResponseEntity<PbcsMemberPropertiesImpl> memberResponse = this.context.getTemplate().getForEntity(url, PbcsMemberPropertiesImpl.class, application.getName(), dimensionName, memberName);
-		if (memberResponse.getStatusCode().is2xxSuccessful()) {
-			return memberResponse.getBody();
+	@Override
+	public PbcsMemberProperties getMember(String memberName) {
+		String dimensionName = findMemberDimension(memberName);
+		if (dimensionName != null) {
+			return getMember(dimensionName, memberName);
 		} else {
-			logger.warn("Response from member fetch operation for {} in dimension {} was {}", memberName, dimensionName, memberResponse.getStatusCodeValue());
-			return null;
+			throw new PbcsClientException("Unable to determine dimension for member " + memberName);
 		}
 	}
 
-	public PbcsMemberProperties getMember(String memberName) {
-		String cachedDimension = dimensionLookup.get(memberName);
-		if (cachedDimension != null) {
-			return getMember(cachedDimension, memberName);
-		} else {
+	private String findMemberDimension(String memberName) {
+		// possible TODO: if member name equals a dimension name, we could just shortcut
+		String dimensionName = memberDimensionCache.getDimensionName(memberName);
+		if (dimensionName == null) {
+			logger.debug("Member dimension cache does not contain enty for {}, will search dimensions for it", memberName);
 			for (PbcsDimension dimension : explicitDimensions) {
 				try {
 					PbcsMemberProperties memberProperties = getMember(dimension.getName(), memberName);
 					if (memberProperties != null) {
-						// cache the dimension for future use within this same plan type
-						dimensionLookup.put(memberName, dimension.getName());
-						return memberProperties;
+						dimensionName = dimension.getName();
+						memberDimensionCache.setDimension(memberName, dimensionName);
+						break;
 					}
 				} catch (PbcsClientException e) {
 					logger.debug("Did not find member {} in dimension {}", memberName, dimension);
 				}
 			}
+		} else {
+			logger.trace("Member {} has dimension {} from cache", memberName, dimensionName);
 		}
-		return null;
+		return dimensionName;
 	}
 
 	private List<String> dimensions() {

@@ -4,6 +4,11 @@ import com.jasonwjones.pbcs.client.impl.grid.DataSliceGrid;
 
 import java.util.List;
 
+/**
+ * Represents a particular plan type (cube) contained as part of a {@link PbcsApplication}. The PBCS REST API doesn't
+ * necessarily make a strong distinction between the application and the plan type, but it is modeled explicitly in this
+ * API as it keeps a lot of semantics cleaner, particularly with respect to which dimensions are in which cube.
+ */
 public interface PbcsPlanType {
 
 	/**
@@ -27,6 +32,12 @@ public interface PbcsPlanType {
 	 */
 	List<PbcsDimension> getDimensions();
 
+	/**
+	 * Gets a dimension with the given name.
+	 *
+	 * @param dimensionName the name of the dimension, such as Period, Scenario, etc.
+	 * @return a dimension object for that dimension
+	 */
 	PbcsDimension getDimension(String dimensionName);
 
 	/**
@@ -70,6 +81,15 @@ public interface PbcsPlanType {
 	 */
 	String getCell(List<String> dataPoint);
 
+	/**
+	 * Perform a "default" retrieve against this plan/cube. This only works when the dimensions have been specified
+	 * using explicit dimensions (e.g. using {@link PbcsApplication#getPlanType(PbcsApplication.PlanTypeConfiguration)})
+	 * where the configuration has a list of dimensions provided. Internally, the retrieve is performed using the standard
+	 * "export data slice" REST endpoint; the dimensions list is needed in order to fill out a grid with one cell
+	 * using a member from each dimension. This method is essentially offered for convenience and "smoke testing".
+	 *
+	 * @return a data slice for a default retrieve from the cube
+	 */
 	DataSliceGrid retrieve();
 
 	/**
@@ -81,6 +101,13 @@ public interface PbcsPlanType {
 	 */
 	DataSliceGrid retrieve(List<String> dataPoint);
 
+	/**
+	 * Perform a retrieve using the given POV and grid definition.
+	 *
+	 * @param pov the POV
+	 * @param grid a grid
+	 * @return a data slice for the defined POV/grid
+	 */
 	DataSliceGrid retrieve(List<String> pov, Grid<String> grid);
 
 	/**
@@ -103,5 +130,33 @@ public interface PbcsPlanType {
 	 * @return member properties if member found, null if not
 	 */
 	PbcsMemberProperties getMember(String memberName);
+
+	/**
+	 * A member dimension cache is a simple cache that caches the dimension for member names. Due to the way the PBCS
+	 * REST API is structured, the dimension for a given member name must be known in order to get member details because
+	 * the dimension name is in the REST URL. However, in order to provide some friendliness in the PBJ API, you can
+	 * request a member using only its name using {@link #getMember(String)}. Under the hood, a brute-force search will
+	 * be conducted using the explicitly-specified dimensions. A member dimension cache can be used to cache results in
+	 * memory, in a properties file, or some other implementation can be provided for performance or other reasons.
+	 */
+	interface MemberDimensionCache {
+
+		/**
+		 * Gets the name of the dimension that the given member is associated with.
+		 *
+		 * @param memberName the member name to get the dimension of
+		 * @return the name of that member's dimension, null if none is found
+		 */
+		String getDimensionName(String memberName);
+
+		/**
+		 * Sets the known dimension for a given member.
+		 *
+		 * @param memberName the member name
+		 * @param dimensionName the dimension of the member
+		 */
+		void setDimension(String memberName, String dimensionName);
+
+	}
 
 }

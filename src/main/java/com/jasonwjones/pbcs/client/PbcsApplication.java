@@ -184,6 +184,52 @@ public interface PbcsApplication {
 
 	PbcsPlanType getPlanType(String planTypeName, boolean skipCheck);
 
+	@Deprecated
 	PbcsPlanType getPlanType(String planTypeName, boolean skipCheck, List<String> dimensions);
+
+	PbcsPlanType getPlanType(PlanTypeConfiguration configuration);
+
+	/**
+	 * The number of overloads of {@link #getPlanType(String)} started to proliferate, so there is now a generic
+	 * configuration object where the plan definition is specified and then passed to the {@link #getPlanType(PlanTypeConfiguration)}
+	 * method.
+	 */
+	interface PlanTypeConfiguration {
+
+		/**
+		 * Get name of the plan type (cube).
+		 *
+		 * @return the name of the plan type
+		 */
+		String getName();
+
+		/**
+		 * Determines if a check (a REST call) should be performed to validate that the given plan name is actually valid
+		 * or if we should just assume that it is. You'll get a slightly faster response when creating a {@link PbcsPlanType}
+		 * because you'll skip a REST call.
+		 *
+		 * @return true if the validity check should be skipped, false otherwise.
+		 */
+		boolean isSkipCheck();
+
+		/**
+		 * The list of explicit dimensions that are being set for the plan. It's not required to set dimensions to use
+		 * a plan type, but you must set them if you want dimension resolution without a dimension name to work such as
+		 * in {@link PbcsPlanType#getMember(String)}.
+		 *
+		 * @return the list of explicit (known) dimensions for the plan, empty collection if none are being set
+		 */
+		List<String> getExplicitDimensions();
+
+		/**
+		 * Gets the member dimension cache that will be used for the plan type. The default implementation is generally
+		 * just a simple {@link com.jasonwjones.pbcs.client.memberdimensioncache.InMemoryMemberDimensionCache} but for
+		 * performance or other reasons, the caller may want to specify their own resolver
+		 * .
+		 * @return the dimension name cache to use for the plan
+		 */
+		PbcsPlanType.MemberDimensionCache getMemberDimensionCache();
+
+	}
 
 }
