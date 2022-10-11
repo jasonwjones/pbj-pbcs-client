@@ -54,11 +54,9 @@ import com.jasonwjones.pbcs.client.exceptions.PbcsNoSuchVariableException;
 import com.jasonwjones.pbcs.client.impl.models.PbcsMemberPropertiesImpl;
 import com.jasonwjones.pbcs.interop.impl.SimpleFilenameUtils;
 
-public class PbcsApplicationImpl implements PbcsApplication {
+public class PbcsApplicationImpl extends AbstractPbcsObject implements PbcsApplication {
 
 	private static final Logger logger = LoggerFactory.getLogger(PbcsApplicationImpl.class);
-
-	private final RestContext context;
 
 	private final PbcsPlanningClient client;
 
@@ -67,7 +65,7 @@ public class PbcsApplicationImpl implements PbcsApplication {
 	private final Map<String, String> appMap;
 
 	public PbcsApplicationImpl(RestContext context, PbcsPlanningClient client, Application application) {
-		this.context = context;
+		super(context);
 		this.client = client;
 		this.application = application;
 		this.appMap = new HashMap<>();
