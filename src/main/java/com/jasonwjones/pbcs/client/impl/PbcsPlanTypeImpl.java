@@ -72,6 +72,11 @@ public class PbcsPlanTypeImpl implements PbcsPlanType {
 	}
 
 	@Override
+	public boolean isExplicitDimensions() {
+		return !explicitDimensions.isEmpty();
+	}
+
+	@Override
 	public PbcsApplication getApplication() {
 		return this.application;
 	}

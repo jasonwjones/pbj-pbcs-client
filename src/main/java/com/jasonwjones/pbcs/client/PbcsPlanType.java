@@ -41,6 +41,13 @@ public interface PbcsPlanType {
 	PbcsDimension getDimension(String dimensionName);
 
 	/**
+	 * Checks if this plan has been configured with explicit dimensions or not.
+	 *
+	 * @return true if explicit dimensions are being used, false otherwise
+	 */
+	boolean isExplicitDimensions();
+
+	/**
 	 * Gets the application that owns this plan/cube.
 	 *
 	 * @return the application for this plan/cube
