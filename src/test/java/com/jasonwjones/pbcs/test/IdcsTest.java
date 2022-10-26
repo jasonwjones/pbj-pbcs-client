@@ -45,6 +45,19 @@ public class IdcsTest {
         for (PbcsApplication app : client.getApplications()) {
             System.out.println(" - " + app.getName());
         }
+
+        System.out.println("Apps2:");
+
+        for (PbcsApplication app : client.getApplications()) {
+            System.out.println(" - " + app.getName());
+        }
+
+        System.out.println("Apps3:");
+
+        for (PbcsApplication app : client.getApplications()) {
+            System.out.println(" - " + app.getName());
+        }
+
     }
 
 }

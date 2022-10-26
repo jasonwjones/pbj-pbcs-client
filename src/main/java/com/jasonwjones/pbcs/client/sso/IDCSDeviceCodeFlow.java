@@ -9,6 +9,11 @@ import org.springframework.web.client.HttpClientErrorException;
 
 import java.util.concurrent.TimeUnit;
 
+/**
+ * This is a "micro" implementation of the OAuth2 device code flow for use with IDCS. It is implemented using native code
+ * as opposed to the <a href="https://docs.oracle.com/en/solutions/authenticate-java-app-with-identity-cloud/test-java-application1.html">IDCS SDK</a>
+ * so that we don't have to link in the IDCS JAR, which is not in Maven Central.
+ */
 public class IDCSDeviceCodeFlow {
 
     private static final Logger logger = LoggerFactory.getLogger(IDCSDeviceCodeFlow.class);
