@@ -60,6 +60,10 @@ public class DataSliceGrid implements PovGrid<DataSliceGrid.Cell> {
         return planType;
     }
 
+    public DataSlice getDataSlice() {
+        return dataSlice;
+    }
+
     @Override
     public int getRows() {
         return rows;
