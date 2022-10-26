@@ -125,7 +125,7 @@ public class PbcsPlanTypeImpl implements PbcsPlanType {
 		// get the 'fulcrum' point in the grid
 		int firstRowWithCell = GridUtils.firstNonNullInColumn(grid, 0);
 		int firstColWithCell = GridUtils.firstNonNullInRow(grid, 0);
-		int lastNonNullCol = GridUtils.lastNonNullInRow(grid, 1);
+		int lastNonNullCol = GridUtils.lastNonNullInRow(grid, 0);
 
 		List<DimensionMembers> top = new ArrayList<>();
 		for (int col = firstColWithCell; col <= lastNonNullCol; col++) {
