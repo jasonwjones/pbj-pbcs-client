@@ -3,14 +3,46 @@ package com.jasonwjones.pbcs.client;
 import java.util.List;
 
 // TODO: rename to just PbcsMember
-// TODO: compare payload vs properties here: "{"dataStorage":"Store Data","dimName":"Scenario","usedIn":["Plan1","Vision"],"invalidDueToValidIntersection":false,"objectType":31,"twoPass":false,"displayPath":"/Scenario/Actual","generation":2,"aliasPath":"/Scenario/Actual","level":0,"oldName":"Actual","dataType":"Unspecified","valid":true,"parentName":"Scenario","name":"Actual","id":"f5aa5599-da40-4224-9ee8-4d77503261a8","path":"/Scenario/Actual","links":[{"rel":"self","href":"https://appliedolapepm-test-appliedolapepm.epm.us-phoenix-1.ocs.oraclecloud.com:443/HyperionPlanning/rest/v3/applications/Vision/dimensions/Scenario/members/Actual","action":"GET"}]}[\r][\n]"
+
+/**
+ * Currently unmapped properties of members:
+ *
+ * <pre>
+ * invalidDueToValidIntersection (boolean)
+ * uniqueName: e.g. "[Cash from Current Operations].[NI]"
+ * displayPath: e.g. "/Account/CF/Cash Ending Balance/Total Cash Flow/Net Cash from Operations/Cash from Current Operations/[Cash from Current Operations].[NI]",
+ * aliasPath: e.g. "/Account/Cash Flow/Cash Ending Balance/Total Cash Flow/Net Cash from Operations/Cash from Current Operations/0000: Net Income",
+ * oldName: e.g. "NI"
+ * dataType: e.g. "Currency"
+ * valid: boolean
+ * id: "fd942166-21ae-4b36-b9f8-287164c1940c",
+ * path: "/Account/CF/Cash Ending Balance/Total Cash Flow/Net Cash from Operations/Cash from Current Operations/[Cash from Current Operations].[NI]",
+ * </pre>
+ */
 public interface PbcsMemberProperties {
 
-	public String getName();
+	/**
+	 * The name of this member.
+	 *
+	 * @return the name of the member
+	 */
+	String getName();
 
-	public String getAlias();
+	/**
+	 * The alias for this member.
+	 *
+	 * @return the member alias
+	 */
+	String getAlias();
 
-	public List<? extends PbcsMemberProperties> getChildren();
+	/**
+	 * Gets the child of this member, as actual member objects. It is not specified for implementing classes if this is
+	 * dynamic, lazy, or something else, so it's possible that successive calls to this method may result in additional
+	 * round trips to the server
+	 *
+	 * @return the child of this member
+	 */
+	List<? extends PbcsMemberProperties> getChildren();
 
 	/**
 	 * Convenience method that checks whether the given member is a leaf node
@@ -22,14 +54,28 @@ public interface PbcsMemberProperties {
 	 * @return true if this member has no children and is a level-0/leaf node,
 	 *         false otherwise.
 	 */
-	public boolean isLeaf();
+	boolean isLeaf();
 
-	public String getDescription();
+	/**
+	 * Get description (if any) of this member.
+	 *
+	 * @return the member description
+	 */
+	String getDescription();
 
-	public String getParentName();
+	/**
+	 * The name of the parent of this member.
+	 *
+	 * @return the name of this member's parent
+	 */
+	String getParentName();
 
-	// Unspecified, ...?
-	public String getDataType();
+	/**
+	 * Data type of the member. Observed values here include "Currency".
+	 *
+	 * @return the member data type
+	 */
+	String getDataType();
 
 	// seems to be the object types from the HSP table:
 	// https://www.epmmarshall.com/the-planning-repository-hsp_object-and-hsp_object_type/
@@ -42,23 +88,45 @@ public interface PbcsMemberProperties {
 	// 35: Version
 	// 38: Year
 	// 45: Shared Member
-	public Integer getObjectType();
+	Integer getObjectType();
 
-	// such as STOREDATA
-	// TODO: enum
-	// observed values: Never Share, Dynamic Calc, Store Data, Label Only, Dynamic Calc and Store
-	// Shared
-	public String getDataStorage();
+	/**
+	 * Returns the data storage type of the member, such as "Store Data". This method will always return the literal value
+	 * that is returned from the REST API, such as "Store Data" or "Never Share". If possible you should use the
+	 * newer method {@link #getDataStorageType()} that returns an actual enum.
+	 *
+	 * @return the data storage type of the member
+	 */
+	String getDataStorage();
 
+	/**
+	 * Returns an enumeration value for the data storage type. If for some reason this can't be mapped, then the value
+	 * {@link DataStorage#OTHER} will be returned.
+	 *
+	 * @return the data storage type enum value
+	 */
 	DataStorage getDataStorageType();
 
-	// mapped from dimName
-	public String getDimensionName();
+	/**
+	 * Returns the name of the dimension for this member.
+	 *
+	 * @return the name of the dimension
+	 */
+	String getDimensionName();
 
-	// from twoPass
-	public boolean isTwoPass();
+	/**
+	 * The "two pass" value of the member.
+	 *
+	 * @return true if this is a two pass member, false otherwise
+	 */
+	boolean isTwoPass();
 
-	public List<String> getUsedIn();
+	/**
+	 * Return the names of the plans (cubes) that this member is used in.
+	 *
+	 * @return the list of plans that this member is used in.
+	 */
+	List<String> getUsedIn();
 
 	/**
 	 * Gets the calculated level of the member. The level appears to come back in the member info payload, however, it
@@ -68,6 +136,12 @@ public interface PbcsMemberProperties {
 	 */
 	int getLevel();
 
+	/**
+	 * Generation of the member. Note: this doesn't seem to be coming back in the JSON response anymore.
+	 * TODO: check if this is coming back or needs to be implemented manually
+	 * @return the generation of the member (1 for dimension, 2 for child of dimension, and so on). The outline itself
+	 * is considered to be "generation 0".
+	 */
 	int getGeneration();
 
 	/**
