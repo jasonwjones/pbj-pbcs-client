@@ -88,6 +88,11 @@ public class PbcsMemberPropertiesImpl implements PbcsMemberProperties {
 		return dataStorage;
 	}
 
+	@Override
+	public DataStorage getDataStorageType() {
+		return DataStorage.valueOfOrOther(dataStorage);
+	}
+
 	public void setDataStorage(String dataStorage) {
 		this.dataStorage = dataStorage;
 	}
