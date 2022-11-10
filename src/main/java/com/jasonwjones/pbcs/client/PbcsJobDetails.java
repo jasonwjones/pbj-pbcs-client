@@ -1,18 +1,18 @@
 package com.jasonwjones.pbcs.client;
 
-// appears to be inside of the items collection 
+// appears to be inside the items collection
 public interface PbcsJobDetails {
 
-	// items --> collection for each dimensino?
-	
-	public Integer getRecordsRead();
-	
-	public Integer getRecordsRejected();
-	
-	public Integer getRecordsProcessed();
-	
-	public String getDimensionName();
-	
-	public String getLoadType();
-	
+	// items --> collection for each dimension?
+
+	Integer getRecordsRead();
+
+	Integer getRecordsRejected();
+
+	Integer getRecordsProcessed();
+
+	String getDimensionName();
+
+	String getLoadType();
+
 }

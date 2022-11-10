@@ -4,7 +4,7 @@ public interface PbcsJobLaunchResult {
 
 	/**
 	 * Status for job:
-	 * 
+	 *
 	 * <pre>
 	 * -1 = in progress
 	 *  0 = success
@@ -14,27 +14,27 @@ public interface PbcsJobLaunchResult {
 	 *  4 = invalid parameter
 	 *  Integer.MAX_VALUE = unknown
 	 *  </pre>
-	 *  
+	 *
 	 * @return the numeric status for the job, as defined by the PBCS REST API specs
 	 */
-	public Integer getStatus();
+	Integer getStatus();
 
 	/**
 	 * Typically "Completed" or "Error"
-	 * 
+	 *
 	 * @return the descriptive status of result
 	 */
-	public String getDescriptiveStatus();
+	String getDescriptiveStatus();
 
 	/**
 	 * Typically three digits
-	 * 
+	 *
 	 * @return the job ID
 	 */
-	public Integer getJobId();
+	Integer getJobId();
 
-	public String getJobName();
+	String getJobName();
 
-	public void waitUntilFinished();
+	void waitUntilFinished();
 
 }

@@ -5,7 +5,8 @@ import java.util.List;
 // TODO: rename to just PbcsMember
 
 /**
- * Currently unmapped properties of members:
+ * The member response from the PBCS REST API contains some properties that have been added over the years are not not
+ * currently mapped in. Among them seem to be the following:
  *
  * <pre>
  * invalidDueToValidIntersection (boolean)

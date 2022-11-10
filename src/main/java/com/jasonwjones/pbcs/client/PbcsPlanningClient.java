@@ -12,8 +12,18 @@ import com.jasonwjones.pbcs.client.exceptions.PbcsClientException;
  */
 public interface PbcsPlanningClient {
 
+	/**
+	 * Returns an API object with information about the current endpoint.
+	 *
+	 * @return API information
+	 */
 	PbcsApi getApi();
 
+	/**
+	 * The name of the server this client is connected to
+	 *
+	 * @return the server connection name
+	 */
 	String getServer();
 
 	/**
@@ -22,7 +32,7 @@ public interface PbcsPlanningClient {
 	 *
 	 * @return the list of available applications
 	 */
-	public List<PbcsApplication> getApplications();
+	List<PbcsApplication> getApplications();
 
 	/**
 	 * Returns an application with the specific name. Note that internally this
@@ -34,6 +44,6 @@ public interface PbcsPlanningClient {
 	 * @return an application object for the application
 	 * @throws PbcsClientException if the application is not found
 	 */
-	public PbcsApplication getApplication(String applicationName) throws PbcsClientException;
+	PbcsApplication getApplication(String applicationName) throws PbcsClientException;
 
 }

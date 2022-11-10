@@ -9,6 +9,8 @@ import com.jasonwjones.pbcs.client.PbcsPlanType;
  */
 public class NonCachingMemberDimensionCache implements PbcsPlanType.MemberDimensionCache {
 
+    private static final NonCachingMemberDimensionCache INSTANCE = new NonCachingMemberDimensionCache();
+
     @Override
     public String getDimensionName(String memberName) {
         return null;
@@ -17,6 +19,10 @@ public class NonCachingMemberDimensionCache implements PbcsPlanType.MemberDimens
     @Override
     public void setDimension(String memberName, String dimensionName) {
         // nothing
+    }
+
+    public static NonCachingMemberDimensionCache getInstance() {
+        return INSTANCE;
     }
 
 }

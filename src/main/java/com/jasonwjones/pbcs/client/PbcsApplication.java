@@ -18,6 +18,11 @@ import com.jasonwjones.pbcs.api.v3.dataslices.ExportDataSlice;
  */
 public interface PbcsApplication {
 
+	/**
+	 * Gets the client used to connect to this application.
+	 *
+	 * @return the current client
+	 */
 	PbcsPlanningClient getClient();
 
 	/**
@@ -41,8 +46,19 @@ public interface PbcsApplication {
 	 */
 	String getType();
 
+	/**
+	 * Gets the list of job definitions for this application
+	 *
+	 * @return the list of job definitions
+	 */
 	List<PbcsJobDefinition> getJobDefinitions();
 
+	/**
+	 * Returns the list of job definitions with the given type.
+	 *
+	 * @param jobType the job type to filter on
+	 * @return the list of job definitions of that type for this application
+	 */
 	List<PbcsJobDefinition> getJobDefinitions(PbcsJobType jobType);
 
 	/**
@@ -115,17 +131,12 @@ public interface PbcsApplication {
 
 	void getUserPreferences();
 
-	// /**
-	// * Not implemented (stubbed out for future implementation). Also needed:
-	// * Planning Units
-	// */
-	// TODO: Plan Type Map, copy data from ASO/BSO or vice versa
-	// params:
-	// {"jobType":"PLAN_TYPE_MAP","jobName":"MapReporting","parameters":{"cubeLinkName":"name","clearData":true}}
-	// public void launchPlanTypeMap();
-	// TODO: Launch Metadata Import
-	// TODO: Export Metadata
-
+	/**
+	 * Not currently implemented.
+	 *
+	 * @param jobName the job name
+	 * @param exportFileName the export file name
+	 */
 	void exportMetadata(String jobName, String exportFileName);
 
 	/**
@@ -172,21 +183,74 @@ public interface PbcsApplication {
 	 */
 	void updateSubstitutionVariable(String name, String value);
 
+	/**
+	 * Gets the list of dimensions for the entire application.
+	 *
+	 * @return the dimensions for the application
+	 */
 	List<PbcsAppDimension> getDimensions();
 
+	/**
+	 * Gets a dimension of the application with the given name.
+	 *
+	 * @param dimensionName the name of the dimension
+	 * @return the dimension
+	 */
 	PbcsDimension getDimension(String dimensionName);
 
+	/**
+	 * Gets the dimensions of the given plan type. Generally you will want to use the {@link PbcsPlanType#getDimensions()}
+	 * method instead of this.
+	 *
+	 * @param planType the plan name
+	 * @return the list of dimensions
+	 */
 	List<PbcsDimension> getDimensions(String planType);
 
+	/**
+	 * Get the list of cubes/plans in this application.
+	 *
+	 * @return the list of plans for this application
+	 */
 	List<PbcsPlanType> getPlanTypes();
 
+	/**
+	 * Gets the plan with the given name.
+	 *
+	 * @param planTypeName the plan name
+	 * @return the plan/cube
+	 */
 	PbcsPlanType getPlanType(String planTypeName);
 
+	/**
+	 * Gets the plan with the given name.
+	 *
+	 * @param planTypeName the plan name
+	 * @param skipCheck true if the plan name should be validated
+	 * @return the plan
+	 * @deprecated use the {@link #getPlanType(PlanTypeConfiguration)} method
+	 */
 	PbcsPlanType getPlanType(String planTypeName, boolean skipCheck);
 
+	/**
+	 * Gets the plan using the given name, skip check value, and explicit dimensions
+	 *
+	 * @param planTypeName the name of the plan
+	 * @param skipCheck true if the plan name should be verified or not
+	 * @param dimensions explicit dimension list to initialize with
+	 * @return the plan type
+	 * @deprecated use the {@link #getPlanType(PlanTypeConfiguration)} method
+	 */
 	@Deprecated
 	PbcsPlanType getPlanType(String planTypeName, boolean skipCheck, List<String> dimensions);
 
+	/**
+	 * Gets the plan/cube using the given configuration. This method mostly exists so that we don't have to keep
+	 * changing signatures of methods as more options become available.
+	 *
+	 * @param configuration the configuration to get the plan with
+	 * @return the plan
+	 */
 	PbcsPlanType getPlanType(PlanTypeConfiguration configuration);
 
 	/**
