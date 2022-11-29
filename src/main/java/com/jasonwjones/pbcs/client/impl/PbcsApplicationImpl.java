@@ -114,7 +114,6 @@ public class PbcsApplicationImpl extends AbstractPbcsObject implements PbcsAppli
 	@Override
 	public PbcsJobLaunchResult launchBusinessRule(String ruleName) {
 		return launchBusinessRule(ruleName, new HashMap<>());
-
 	}
 
 	@Override

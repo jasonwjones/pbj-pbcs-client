@@ -33,6 +33,13 @@ public interface PbcsPlanType {
 	List<PbcsDimension> getDimensions();
 
 	/**
+	 * Gets the list of jobs that are specific to this plan type.
+	 *
+	 * @return the list of jobs specific to this plan, empty list if none
+	 */
+	List<PbcsJobDefinition> getJobs();
+
+	/**
 	 * Gets a dimension with the given name.
 	 *
 	 * @param dimensionName the name of the dimension, such as Period, Scenario, etc.

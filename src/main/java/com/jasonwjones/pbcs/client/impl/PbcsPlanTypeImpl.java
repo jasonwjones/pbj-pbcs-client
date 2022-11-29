@@ -62,6 +62,13 @@ public class PbcsPlanTypeImpl implements PbcsPlanType {
 	}
 
 	@Override
+	public List<PbcsJobDefinition> getJobs() {
+		return application.getJobDefinitions().stream()
+				.filter(job -> job.getPlanTypeName().equals(planType))
+				.collect(Collectors.toList());
+	}
+
+	@Override
 	public PbcsDimension getDimension(String dimensionName) {
 		for (PbcsDimension dimension : explicitDimensions) {
 			if (dimension.getName().equals(dimensionName)) {

@@ -24,4 +24,9 @@ public class PbcsJobDefinitionImpl implements PbcsJobDefinition {
 		return jobDefinition.getJobName();
 	}
 
+	@Override
+	public String getPlanTypeName() {
+		return jobDefinition.getPlanTypeName();
+	}
+
 }

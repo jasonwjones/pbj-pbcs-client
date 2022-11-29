@@ -2,9 +2,15 @@ package com.jasonwjones.pbcs.client;
 
 public enum PbcsJobType {
 
-	CUBE_REFRESH("Cube Refresh"), EXPORT_DATA("Export Data"), PLAN_TYPE_MAP("Plan Type Map"), RULES("Rules");
+	CUBE_REFRESH("Cube Refresh"),
 
-	private String description;
+	EXPORT_DATA("Export Data"),
+
+	PLAN_TYPE_MAP("Plan Type Map"),
+
+	RULES("Rules");
+
+	private final String description;
 
 	PbcsJobType(String description) {
 		this.description = description;
@@ -12,10 +18,6 @@ public enum PbcsJobType {
 
 	public String getDescription() {
 		return description;
-	}
-
-	public void setDescription(String description) {
-		this.description = description;
 	}
 
 }
