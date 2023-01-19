@@ -9,8 +9,9 @@ import java.util.Set;
 public interface PbcsAppDimension extends PbcsDimension {
 
     /**
-     * Gets the list of plan/cube names that this dimension is valid in
-     * @return
+     * Gets the set of plan/cube names that this dimension is valid in
+     *
+     * @return the set of valid plans
      */
     Set<String> getValidPlans();
 

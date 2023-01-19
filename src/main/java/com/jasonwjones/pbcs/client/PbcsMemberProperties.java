@@ -2,10 +2,8 @@ package com.jasonwjones.pbcs.client;
 
 import java.util.List;
 
-// TODO: rename to just PbcsMember
-
 /**
- * The member response from the PBCS REST API contains some properties that have been added over the years are not not
+ * The member response from the PBCS REST API contains some properties that have been added over the years are not
  * currently mapped in. Among them seem to be the following:
  *
  * <pre>

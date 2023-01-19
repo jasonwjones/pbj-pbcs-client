@@ -13,7 +13,7 @@ public interface PbcsApi {
 	String getVersion();
 
 	/**
-	 * Lifecycle status.
+	 * Lifecycle status. Per documentation, possible values are <code>active</code> and <code>deprecated</code>.
 	 *
 	 * @return the lifecycle value
 	 */
