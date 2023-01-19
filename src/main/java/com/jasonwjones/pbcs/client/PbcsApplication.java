@@ -149,10 +149,9 @@ public interface PbcsApplication {
 	DataSlice exportDataSlice(String planType, ExportDataSlice dataSlice);
 
 	/**
-	 * Gets all substitution variables in the application
+	 * Gets all substitution variables in the application, including variables that are defined for a specific plan.
 	 *
-	 * @return a list of the substitution variables, an empty list if there are
-	 *         none
+	 * @return a set of the substitution variables, an empty set if there are none
 	 */
 	Set<SubstitutionVariable> getSubstitutionVariables();
 

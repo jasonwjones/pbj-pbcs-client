@@ -14,19 +14,19 @@ import com.jasonwjones.pbcs.client.impl.PbcsApplicationImpl;
 public class TestGetSubstitutionVariables extends AbstractIntegrationTest {
 
 	private static final Logger logger = LoggerFactory.getLogger(TestGetSubstitutionVariables.class);
-	
+
 	public static void main(String[] args) {
 		PbcsClient client = new PbcsClientFactory().createClient(connection);
-		PbcsApplication app = client.getApplication("MDP_Demo");
-		
+		PbcsApplication app = client.getApplication("Vision");
+
 		PbcsApplicationImpl app2 = (PbcsApplicationImpl) app;
 		Set<SubstitutionVariable> vars = app2.getSubstitutionVariables();
-		
+
 		System.out.println("Count of variables: " + vars.size());
 		for (SubstitutionVariable var : vars) {
 			logger.info("Variable: {}", var);
 		}
-		
+
 	}
-	
+
 }

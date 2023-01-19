@@ -1,5 +1,7 @@
 package com.jasonwjones.pbcs.client.impl;
 
+import com.jasonwjones.pbcs.api.v3.SubstitutionVariable;
+import com.jasonwjones.pbcs.api.v3.SubstitutionVariablesWrapper;
 import com.jasonwjones.pbcs.api.v3.dataslices.*;
 import com.jasonwjones.pbcs.client.*;
 import com.jasonwjones.pbcs.client.exceptions.PbcsClientException;
@@ -10,10 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class PbcsPlanTypeImpl implements PbcsPlanType {
@@ -202,6 +201,13 @@ public class PbcsPlanTypeImpl implements PbcsPlanType {
 		} else {
 			throw new PbcsClientException("Unable to determine dimension for member " + memberName);
 		}
+	}
+
+	@Override
+	public Set<SubstitutionVariable> getSubstitutionVariables() {
+		String url = this.context.getBaseUrl() + "applications/{application}/plantypes/{planType}/substitutionvariables";
+		ResponseEntity<SubstitutionVariablesWrapper> response = this.context.getTemplate().getForEntity(url, SubstitutionVariablesWrapper.class, application.getName(), getName());
+		return new HashSet<>(response.getBody().getItems());
 	}
 
 	private String findMemberDimension(String memberName) {

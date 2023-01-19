@@ -31,6 +31,12 @@ GET https://{{server}}/HyperionPlanning/rest/v3/applications/Vision/dimensions/P
 Authorization: Basic {{creds}}
 Accept: application/json
 
+### Get Member Info - 4110
+
+GET https://{{server}}/HyperionPlanning/rest/v3/applications/Vision/dimensions/Account/members/4110
+Authorization: Basic {{creds}}
+Accept: application/json
+
 ### Get Jobs
 
 GET https://{{server}}/HyperionPlanning/rest/v3/applications/Vision/jobdefinitions
@@ -109,7 +115,7 @@ Content-Type: application/json
     "rows": [
       {
        "members": [
-         ["Account1"]
+         ["Account"]
        ]
       }
     ]
@@ -134,7 +140,7 @@ Content-Type: application/json
     "columns": [
       {
         "members": [
-          ["4110", "NI"]
+          ["4110: Hardware", "NI"]
         ]
       }
     ],
@@ -488,3 +494,29 @@ Content-Type: application/json
 GET https://{{server}}/HyperionPlanning/rest/v3/applications
 Authorization: Bearer eyJ4NXQjUzI1NiI6ImxnWG5kcVN6VE5jbldZOGRoQldDeTRCSDAzQnNwM2w2RnRIT1B2RnJQTlkiLCJ4NXQiOiJVX0lIN1FWbU9pMEhuaHhNcno3TExEazBwS1UiLCJraWQiOiJTSUdOSU5HX0tFWSIsImFsZyI6IlJTMjU2In0.eyJ1c2VyX3R6IjoiQW1lcmljYVwvQ2hpY2FnbyIsInN1YiI6Imphc29ud2pvbmVzQGdtYWlsLmNvbSIsInVzZXJfbG9jYWxlIjoiZW4iLCJzaWRsZSI6NDgwLCJ1c2VyLnRlbmFudC5uYW1lIjoiaWRjcy00MmFiYWJhYWRlMjE0YWZhYTk0ZmRjYjdjZWQzZDdlMyIsImlzcyI6Imh0dHBzOlwvXC9pZGVudGl0eS5vcmFjbGVjbG91ZC5jb21cLyIsInVzZXJfdGVuYW50bmFtZSI6ImlkY3MtNDJhYmFiYWFkZTIxNGFmYWE5NGZkY2I3Y2VkM2Q3ZTMiLCJjbGllbnRfaWQiOiJjYzMwZTk4ZWRhY2E0Y2VmYmRiOTQzMzdmYzc2YjBlNSIsInVzZXJfaXNBZG1pbiI6dHJ1ZSwic3ViX3R5cGUiOiJ1c2VyIiwic2NvcGUiOiJvZmZsaW5lX2FjY2VzcyB1cm46b3BjOnJlc291cmNlOmNvbnN1bWVyOjphbGwiLCJjbGllbnRfdGVuYW50bmFtZSI6ImlkY3MtNDJhYmFiYWFkZTIxNGFmYWE5NGZkY2I3Y2VkM2Q3ZTMiLCJyZWdpb25fbmFtZSI6InVzLXBob2VuaXgtaWRjcy0zIiwidXNlcl9sYW5nIjoiZW4iLCJleHAiOjE2NDg3NjY1OTEsImlhdCI6MTY0ODc2Mjk5MSwiY2xpZW50X2d1aWQiOiJjNzRkZjAzMzI3YTg0N2EwYWIyZDVjYjI5ODg5YmY1NyIsImNsaWVudF9uYW1lIjoiUEJDUyBSRVNUIE9BdXRoIFRlc3QiLCJ0ZW5hbnQiOiJpZGNzLTQyYWJhYmFhZGUyMTRhZmFhOTRmZGNiN2NlZDNkN2UzIiwianRpIjoiNGUwMWM0NDdlODA4NGJjNzk3YzdjNmYxM2QzMTI2ZjIiLCJndHAiOiJkYyIsInVzZXJfZGlzcGxheW5hbWUiOiJKYXNvbiBKb25lcyIsIm9wYyI6ZmFsc2UsInN1Yl9tYXBwaW5nYXR0ciI6InVzZXJOYW1lIiwicHJpbVRlbmFudCI6dHJ1ZSwidG9rX3R5cGUiOiJBVCIsImNhX2d1aWQiOiJjYWNjdC0wNWE5Y2EwZDZhYmU0NWYzYjMzNDcxMDg2MjkwNjY5ZCIsImF1ZCI6InVybjpvcGM6c2VydmljZUluc3RhbmNlSUQ9Njg3MDY1NjAzIiwidXNlcl9pZCI6ImZkZDcyYmY3NjM3ZjQ1YWU4MzE3MmRiOGZmMjU3MjBkIiwicnRfanRpIjoiOTU0ZThjNzRmNzljNDcxYWE1NzljMjczZjA0ZWNhNTEiLCJ0ZW5hbnRfaXNzIjoiaHR0cHM6XC9cL2lkY3MtNDJhYmFiYWFkZTIxNGFmYWE5NGZkY2I3Y2VkM2Q3ZTMuaWRlbnRpdHkub3JhY2xlY2xvdWQuY29tOjQ0MyIsInJlc291cmNlX2FwcF9pZCI6IjhhOGU1YTY4YjQ1NzQxYmVhMDdlNTY1MmMyMDM5N2YyIn0.gOvcFBnzF9BZRurOsiTjWZyuFupTHiXqD87qSBq16DdAqc-VCg9IJKuqceIV7AjM9VWqpbRCIadqzr-Ieblg2ciVYVPfmJUwwi8F-p-VCpJJZFyuouUKhTl6jSBVuiAmlNt6pi2Mgkk0ybr22FSzkW6vgHcFUe0f067YqIIyb2Zv2rKrjB2RrQQ51wmJ39OkdDSjgGXmLOt_YTINXZeyd8dJXtBwuDGswESkZN0GLOn53iRbXxVU-tAUX0qW5j3-HR_JqRNzGN_dv1vQeOlvz1pzQwhx2IKcW5pwYJ-lo_liicvhvdtYS6sbEErKpO_IQid2VoDisr5DjZ4ApNSE_g
 Accept: application/json
+
+### View All Connections
+#
+# This is documented in the REST API but doesn't seem to work. It also seems to have a slightly different URL. I think
+# it's an oversight in the documentation of some kind. The documented URL contains "epm" such as:
+# GET /HyperionPlanning/rest/epm/{api_version}/applications/{application}/connections/{connectionRef}
+
+
+POST https://{{server}}/HyperionPlanning/rest/v3/applications/Vision/connections
+Authorization: Basic {{creds}}
+Accept: application/json
+Content-Type: application/json
+
+### Get Sub Variables
+
+GET https://{{server}}/HyperionPlanning/rest/v3/applications/Vision/substitutionvariables
+Authorization: Basic {{creds}}
+Accept: application/json
+Content-Type: application/json
+
+### Get Sub Variables For Plan
+
+GET https://{{server}}/HyperionPlanning/rest/v3/applications/Vision/plantypes/Plan1/substitutionvariables
+Authorization: Basic {{creds}}
+Accept: application/json
+Content-Type: application/json

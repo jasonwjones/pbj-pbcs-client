@@ -2,11 +2,12 @@ package com.jasonwjones.pbcs.api.v3;
 
 import org.springframework.util.Assert;
 
+import java.util.Objects;
+
 /**
  * Represents a substitution variable within a PBCS application.
- * 
- * @author jasonwjones
  *
+ * @author jasonwjones
  */
 public class SubstitutionVariable {
 
@@ -17,18 +18,18 @@ public class SubstitutionVariable {
 	private String planType;
 
 	public static final String DEFAULT_PLANTYPE = "ALL";
-	
+
 	public SubstitutionVariable() {}
-	
+
 	public SubstitutionVariable(String name, String value) {
 		this.name = name;
 		this.value = value;
 		this.planType = DEFAULT_PLANTYPE;
 	}
-	
+
 	/**
 	 * Get the name of the substitution variable.
-	 * 
+	 *
 	 * @return the name of this variable
 	 */
 	public String getName() {
@@ -37,7 +38,7 @@ public class SubstitutionVariable {
 
 	/**
 	 * Sets the name of the substitution variable.
-	 * 
+	 *
 	 * @param name the name to set
 	 */
 	public void setName(String name) {
@@ -47,7 +48,7 @@ public class SubstitutionVariable {
 
 	/**
 	 * Get the value of the substitution variable
-	 * 
+	 *
 	 * @return the value of this variable
 	 */
 	public String getValue() {
@@ -58,7 +59,7 @@ public class SubstitutionVariable {
 	 * Sets the value of the substitution variable. Note that this method does
 	 * not automatically change the value of the variable on the server, you
 	 * will need to call the update method on a PBCS Application object
-	 * 
+	 *
 	 * @param value the value to set for the variable
 	 */
 	public void setValue(String value) {
@@ -66,8 +67,9 @@ public class SubstitutionVariable {
 	}
 
 	/**
-	 * Returns the plan type (cube) that the variable is in, if any
-	 * 
+	 * Returns the plan type (cube) that the variable is in, if any. For application-scoped variables, this will return
+	 * the value <code>ALL</code> (which is what the PBCS REST API returns).
+	 *
 	 * @return the plan type of the variable
 	 */
 	public String getPlanType() {
@@ -79,7 +81,7 @@ public class SubstitutionVariable {
 	 * and updating the variable on the server are undefined/untested. If you
 	 * need to change a plan type for some reason, you are much better off
 	 * creating a new variable.
-	 * 
+	 *
 	 * @param planType the plan type to set
 	 */
 	public void setPlanType(String planType) {
@@ -87,52 +89,16 @@ public class SubstitutionVariable {
 	}
 
 	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((name == null) ? 0 : name.hashCode());
-		result = prime * result + ((planType == null) ? 0 : planType.hashCode());
-		result = prime * result + ((value == null) ? 0 : value.hashCode());
-		return result;
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		SubstitutionVariable that = (SubstitutionVariable) o;
+		return Objects.equals(name, that.name) && Objects.equals(value, that.value) && Objects.equals(planType, that.planType);
 	}
 
 	@Override
-	public boolean equals(Object obj) {
-		// just a default equals implementation by Eclipse, but in future would
-		// be nice
-		// to replace with helper method from Guava or something
-		if (this == obj) {
-			return true;
-		}
-		if (obj == null) {
-			return false;
-		}
-		if (getClass() != obj.getClass()) {
-			return false;
-		}
-		SubstitutionVariable other = (SubstitutionVariable) obj;
-		if (name == null) {
-			if (other.name != null) {
-				return false;
-			}
-		} else if (!name.equals(other.name)) {
-			return false;
-		}
-		if (planType == null) {
-			if (other.planType != null) {
-				return false;
-			}
-		} else if (!planType.equals(other.planType)) {
-			return false;
-		}
-		if (value == null) {
-			if (other.value != null) {
-				return false;
-			}
-		} else if (!value.equals(other.value)) {
-			return false;
-		}
-		return true;
+	public int hashCode() {
+		return Objects.hash(name, value, planType);
 	}
 
 	@Override

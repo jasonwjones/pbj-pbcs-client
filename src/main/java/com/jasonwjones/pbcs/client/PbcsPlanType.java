@@ -1,8 +1,10 @@
 package com.jasonwjones.pbcs.client;
 
+import com.jasonwjones.pbcs.api.v3.SubstitutionVariable;
 import com.jasonwjones.pbcs.client.impl.grid.DataSliceGrid;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * Represents a particular plan type (cube) contained as part of a {@link PbcsApplication}. The PBCS REST API doesn't
@@ -144,6 +146,14 @@ public interface PbcsPlanType {
 	 * @return member properties if member found, null if not
 	 */
 	PbcsMemberProperties getMember(String memberName);
+
+	/**
+	 * Gets the substitution variables that are specific to this cube/plan. This will not return the variables that
+	 * are set for the overall application, you should use {@link PbcsApplication#getSubstitutionVariables()} for that.
+	 *
+	 * @return substitution variables specific to this plan
+	 */
+	Set<SubstitutionVariable> getSubstitutionVariables();
 
 	/**
 	 * A member dimension cache is a simple cache that caches the dimension for member names. Due to the way the PBCS
