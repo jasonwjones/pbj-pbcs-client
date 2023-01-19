@@ -497,7 +497,7 @@ public class PbcsApplicationImpl extends AbstractPbcsObject implements PbcsAppli
 				return dimension;
 			}
 		}
-		throw new PbcsNoSuchObjectException(dimensionName, "dimension");
+		throw new PbcsNoSuchObjectException(dimensionName, PbcsObjectType.DIMENSION);
 	}
 
 	// TODO: check that the plan type is actually valid
@@ -568,7 +568,7 @@ public class PbcsApplicationImpl extends AbstractPbcsObject implements PbcsAppli
 			availablePlanTypeNames.add(planType.getName());
 		}
 		logger.warn("PBCS application {} does not contain plan type {}; available plan type names are {}", application.getName(), planTypeName, availablePlanTypeNames);
-		throw new PbcsNoSuchObjectException(planTypeName, "plan type");
+		throw new PbcsNoSuchObjectException(planTypeName, PbcsObjectType.PLAN);
 	}
 
 }

@@ -3,6 +3,7 @@ package com.jasonwjones.pbcs.client.impl;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.jasonwjones.pbcs.client.exceptions.PbcsNoSuchObjectException;
 import com.jasonwjones.pbcs.client.impl.interceptors.RefreshableTokenInterceptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -134,7 +135,7 @@ public class PbcsPlanningClientImpl implements PbcsPlanningClient {
 					return application;
 				}
 			}
-			throw new PbcsClientException("No application with name: " + applicationName);
+			throw new PbcsNoSuchObjectException(applicationName, PbcsObjectType.APPLICATION);
 		}
 	}
 

@@ -208,18 +208,22 @@ public class PbcsPlanTypeImpl implements PbcsPlanType {
 		// possible TODO: if member name equals a dimension name, we could just shortcut
 		String dimensionName = memberDimensionCache.getDimensionName(memberName);
 		if (dimensionName == null) {
-			logger.debug("Member dimension cache does not contain enty for {}, will search dimensions for it", memberName);
-			for (PbcsDimension dimension : explicitDimensions) {
-				try {
-					PbcsMemberProperties memberProperties = getMember(dimension.getName(), memberName);
-					if (memberProperties != null) {
-						dimensionName = dimension.getName();
-						memberDimensionCache.setDimension(memberName, dimensionName);
-						break;
+			if (!explicitDimensions.isEmpty()) {
+				logger.debug("Member dimension cache does not contain entry for {}, will search explicitly dimensions {}", memberName, explicitDimensions);
+				for (PbcsDimension dimension : explicitDimensions) {
+					try {
+						PbcsMemberProperties memberProperties = getMember(dimension.getName(), memberName);
+						if (memberProperties != null) {
+							dimensionName = dimension.getName();
+							memberDimensionCache.setDimension(memberName, dimensionName);
+							break;
+						}
+					} catch (PbcsClientException e) {
+						logger.debug("Did not find member {} in dimension {}", memberName, dimension.getName());
 					}
-				} catch (PbcsClientException e) {
-					logger.debug("Did not find member {} in dimension {}", memberName, dimension);
 				}
+			} else {
+				logger.warn("Cube is trying to perform member resolution from explicit dimension list, but none are defined.");
 			}
 		} else {
 			logger.trace("Member {} has dimension {} from cache", memberName, dimensionName);
@@ -270,6 +274,11 @@ public class PbcsPlanTypeImpl implements PbcsPlanType {
 		@Override
 		public int hashCode() {
 			return Objects.hash(name);
+		}
+
+		@Override
+		public String toString() {
+			return name;
 		}
 
 	}
