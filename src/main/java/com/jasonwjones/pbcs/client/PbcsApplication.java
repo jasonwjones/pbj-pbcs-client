@@ -129,8 +129,6 @@ public interface PbcsApplication {
 
 	PbcsMemberProperties getMember(String dimensionName, String memberName);
 
-	void getUserPreferences();
-
 	/**
 	 * Not currently implemented.
 	 *

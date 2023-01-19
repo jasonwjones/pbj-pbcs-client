@@ -520,3 +520,10 @@ GET https://{{server}}/HyperionPlanning/rest/v3/applications/Vision/plantypes/Pl
 Authorization: Basic {{creds}}
 Accept: application/json
 Content-Type: application/json
+
+### Get User Preferences
+
+GET https://{{server}}/HyperionPlanning/rest/v3/applications/Vision/userpreferences
+Authorization: Basic {{creds}}
+Accept: application/json
+Content-Type: application/json

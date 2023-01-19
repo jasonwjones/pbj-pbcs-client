@@ -12,6 +12,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 
+import com.jasonwjones.pbcs.api.v3.*;
 import com.jasonwjones.pbcs.client.exceptions.PbcsGeneralException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,16 +28,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jasonwjones.pbcs.aif.AifApplication;
 import com.jasonwjones.pbcs.aif.AifDimension;
-import com.jasonwjones.pbcs.api.v3.Application;
-import com.jasonwjones.pbcs.api.v3.JobDefinition;
-import com.jasonwjones.pbcs.api.v3.JobDefinitionsWrapper;
-import com.jasonwjones.pbcs.api.v3.JobLaunchPayload;
-import com.jasonwjones.pbcs.api.v3.JobLaunchResponse;
-import com.jasonwjones.pbcs.api.v3.MetadataImportPayload;
-import com.jasonwjones.pbcs.api.v3.Payload;
-import com.jasonwjones.pbcs.api.v3.SubstitutionVariable;
-import com.jasonwjones.pbcs.api.v3.SubstitutionVariableUpdateWrapper;
-import com.jasonwjones.pbcs.api.v3.SubstitutionVariablesWrapper;
 import com.jasonwjones.pbcs.api.v3.dataslices.DataSlice;
 import com.jasonwjones.pbcs.api.v3.dataslices.ExportDataSlice;
 import com.jasonwjones.pbcs.client.PbcsAppDimension;
@@ -400,12 +391,10 @@ public class PbcsApplicationImpl extends AbstractPbcsObject implements PbcsAppli
 		}
 	}
 
-	public void getUserPreferences() {
-		logger.info("Fetching user preferences for current user");
+	public UserPreferences getUserPreferences() {
 		String url = this.context.getBaseUrl() + "applications/{application}/userpreferences";
-		ResponseEntity<String> userPrefs = this.context.getTemplate().getForEntity(url, String.class,
-				application.getName());
-		System.out.println("User prefs: " + userPrefs.getBody());
+		ResponseEntity<UserPreferences> userPrefs = this.context.getTemplate().getForEntity(url, UserPreferences.class, getName());
+		return userPrefs.getBody();
 	}
 
 	@Override
