@@ -12,6 +12,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 
+import com.jasonwjones.pbcs.client.exceptions.PbcsGeneralException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
@@ -381,12 +382,22 @@ public class PbcsApplicationImpl extends AbstractPbcsObject implements PbcsAppli
 
 		logger.debug("Fetching member properties for {} from dimension {}", memberName, dimensionName);
 		String url = this.context.getBaseUrl() + "applications/{application}/dimensions/{dimName}/members/{member}";
-		// left over from trying to debug why some responses (that were too big?) were incomplete
-		//String body = this.context.getTemplate().getForEntity(url, String.class, application.getName(), dimensionName, memberName).getBody();
-		//logger.debug("Body: {} / {}", body.length(), body);
-		ResponseEntity<PbcsMemberPropertiesImpl> memberResponse = this.context.getTemplate().getForEntity(url, PbcsMemberPropertiesImpl.class, application.getName(), dimensionName, memberName);
-		//logger.debug("Headers: " + memberResponse.getHeaders());
-		return memberResponse.getBody();
+		try {
+			ResponseEntity<PbcsMemberPropertiesImpl> memberResponse = this.context.getTemplate().getForEntity(url, PbcsMemberPropertiesImpl.class, application.getName(), dimensionName, memberName);
+			return memberResponse.getBody();
+		} catch (PbcsGeneralException e) {
+			// catch a general exception that is intercepted by the error handler, and confirm that it's about no such
+			// member. If so, let's throw a better error that the object doesn't exist. If not, we'll just rethrow it.
+			// I don't usually like to alter behavior based on the contents of an error message (which could conceivably
+			// change, but we're only getting a lame 400 error instead of a 404, and I'm not comfortable just arbitrarily
+			// wrapping the exception no matter what, as we could end up with a NoSuchObjectFound exception occluding
+			// something more fundamental going on
+			if (e.getMessage() != null && e.getMessage().toLowerCase().startsWith("the member")) {
+				throw new PbcsNoSuchObjectException(memberName, PbcsObjectType.MEMBER);
+			} else {
+				throw e;
+			}
+		}
 	}
 
 	public void getUserPreferences() {

@@ -18,6 +18,11 @@ public enum PbcsObjectType {
     /**
      * Represents a dimension in the application or a plan/cube.
      */
-    DIMENSION
+    DIMENSION,
+
+    /**
+     * Represents a member in the application.
+     */
+    MEMBER
 
 }

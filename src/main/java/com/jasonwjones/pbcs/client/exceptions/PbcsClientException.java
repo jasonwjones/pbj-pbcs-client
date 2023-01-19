@@ -2,7 +2,6 @@ package com.jasonwjones.pbcs.client.exceptions;
 
 import java.io.IOException;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import org.springframework.http.client.ClientHttpResponse;
 
@@ -16,7 +15,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * @author jasonwjones
  *
  */
-@SuppressWarnings("serial")
 public class PbcsClientException extends RuntimeException {
 
 	public PbcsClientException(String message) {
@@ -65,20 +63,14 @@ public class PbcsClientException extends RuntimeException {
 	public static PbcsClientException createException(ClientHttpResponse response, String responseBody) {
 		// TODO: static
 		ObjectMapper mapper = new ObjectMapper();
-		// added because some exceptions seem to have 'detail' property, and JsonAlias isn't available yet
-		// (need Jackson 2.9+)
+		// added because some exceptions seem to have 'detail' property, and JsonAlias isn't available yet (need Jackson 2.9+)
 		mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 		try {
 			PbcsErrorResponse errorResponse = mapper.readValue(responseBody, PbcsErrorResponse.class);
 			return new PbcsGeneralException(errorResponse);
-		} catch (JsonParseException e) {
-			return new PbcsClientException("PBJ General Error", e);
-		} catch (JsonMappingException e) {
-			return new PbcsClientException("PBJ General Error", e);
 		} catch (IOException e) {
 			return new PbcsClientException("PBJ General Error", e);
 		}
-
 	}
 
 	public static class PbcsErrorResponse {

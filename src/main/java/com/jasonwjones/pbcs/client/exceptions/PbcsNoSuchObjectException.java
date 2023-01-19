@@ -10,7 +10,7 @@ public class PbcsNoSuchObjectException extends PbcsClientException {
 	}
 
 	public PbcsNoSuchObjectException(String objectName, String objectType) {
-		super("There is no such " + objectType + " with name " + objectName);
+		super("There is no such " + objectType + " with name " + objectName + " (or you do not have access to it)");
 	}
 
 }
