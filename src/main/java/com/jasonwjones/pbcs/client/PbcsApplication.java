@@ -185,6 +185,7 @@ public interface PbcsApplication {
 	 *
 	 * @return the dimensions for the application
 	 */
+
 	List<PbcsAppDimension> getDimensions();
 
 	/**
@@ -202,6 +203,7 @@ public interface PbcsApplication {
 	 * @param planType the plan name
 	 * @return the list of dimensions
 	 */
+	@Deprecated
 	List<PbcsDimension> getDimensions(String planType);
 
 	/**

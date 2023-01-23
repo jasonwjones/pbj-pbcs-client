@@ -500,17 +500,9 @@ public class PbcsApplicationImpl extends AbstractPbcsObject implements PbcsAppli
 		throw new PbcsNoSuchObjectException(dimensionName, PbcsObjectType.DIMENSION);
 	}
 
-	// TODO: check that the plan type is actually valid
 	@Override
-	@Deprecated
 	public List<PbcsDimension> getDimensions(String planType) {
-		List<PbcsDimension> dimensions = new ArrayList<>();
-//		for (PbcsDimension dimension : getDimensions()) {
-//			if (dimension.isValidForPlan(planType)) {
-//				dimensions.add(dimension);
-//			}
-//		}
-		return dimensions;
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
