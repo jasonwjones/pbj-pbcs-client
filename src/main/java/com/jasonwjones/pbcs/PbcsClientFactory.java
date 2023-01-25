@@ -10,7 +10,7 @@ import com.jasonwjones.pbcs.client.impl.PbcsServiceConfigurationImpl;
 public class PbcsClientFactory {
 
 	/**
-	 * Creates a new PbcsClient instances using the supplied conncetion details.
+	 * Creates a new PbcsClient instances using the supplied connection details.
 	 * A default service configuration will be created (default HTTP protocol,
 	 * REST endpoints, etc.). If customization is needed (for example, to
 	 * specify a particular API version), then the other createClient method
@@ -43,7 +43,7 @@ public class PbcsClientFactory {
 
 	/**
 	 * Convenience method for passing individual connection parameters instead
-	 * of having to construct a {@link PbcsConnection} object. Interally just
+	 * of having to construct a {@link PbcsConnection} object. Internally just
 	 * creates a connection object and calls the other createClient() method.
 	 *
 	 * @param server the PBCS server name (just a server, not a scheme, port, or path)
