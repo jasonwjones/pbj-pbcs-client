@@ -223,6 +223,43 @@ Content-Type: application/json
   }
 }
 
+### Export Data Slice (No POV)
+
+POST https://{{server}}/HyperionPlanning/rest/v3/applications/Vision/plantypes/Plan1/exportdataslice
+Authorization: Basic {{creds}}
+Accept: application/json
+Content-Type: application/json
+
+{
+  "gridDefinition": {
+    "suppressMissingBlocks": false,
+    "pov": {
+      "members": [
+      ]
+    },
+    "columns": [
+      {
+        "members": [
+          ["Actual", "Actual"],
+          ["FY22", "FY22"],
+          ["Working", "Working"],
+          ["USD", "USD"],
+          ["Total Entity", "Total Entity"],
+          ["Product", "Product"],
+          ["Jan", "Jan"]
+        ]
+      }
+    ],
+    "rows": [
+      {
+        "members": [
+          ["4110"]
+        ]
+      }
+    ]
+  }
+}
+
 ### Export Data Slice (Test multiple dim members)
 
 POST https://{{server}}/HyperionPlanning/rest/v3/applications/Vision/plantypes/Plan1/exportdataslice
