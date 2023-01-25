@@ -148,6 +148,24 @@ public interface PbcsPlanType {
 	PbcsMemberProperties getMember(String memberName);
 
 	/**
+	 * Similar to {@link #getMember(String)}, this is provided as a convenience to try and find a member using its name
+	 * or alias. The implementation for this method is a little different compared to its counterpart. This method will
+	 * perform a brute-force search through the explicit dimensions, fetch the root member, and then traverse the
+	 * hierarchy looking for any member with a matching name or alias. The comparison is performed in a case-insensitive
+	 * manner.
+	 *
+	 * <p>As with the other convenience method, this search process is potentially expensive in that it's possible
+	 * every dimension needs to be searched to find the member. Further, this method does not currently participate in
+	 * the member to dimension cache process, so if you plan on hitting this method a lot (such as to resolve names
+	 * across a large data grid) you will almost certainly want to use a cache, such as exists in <code>CachingPbcsPlanType</code>
+	 * (not currently part of this library).
+	 *
+	 * @param memberOrAliasName the member name or alias to search for
+	 * @return the member for the given name or alias, or null if none is found across all the known dimensions
+	 */
+	PbcsMemberProperties getMemberOrAlias(String memberOrAliasName);
+
+	/**
 	 * Gets the substitution variables that are specific to this cube/plan. This will not return the variables that
 	 * are set for the overall application, you should use {@link PbcsApplication#getSubstitutionVariables()} for that.
 	 *

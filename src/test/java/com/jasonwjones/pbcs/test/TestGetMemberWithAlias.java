@@ -6,11 +6,12 @@ import com.jasonwjones.pbcs.client.PbcsApplication;
 import com.jasonwjones.pbcs.client.PbcsDimension;
 import com.jasonwjones.pbcs.client.PbcsMemberProperties;
 import com.jasonwjones.pbcs.client.PbcsPlanType;
+import com.jasonwjones.pbcs.client.impl.PbcsPlanTypeImpl;
 
 import java.util.Arrays;
 import java.util.List;
 
-public class TestGetMemberExplicitDimensions extends AbstractIntegrationTest {
+public class TestGetMemberWithAlias extends AbstractIntegrationTest {
 
 	public static void main(String[] args) {
 		PbcsClient client = new PbcsClientFactory().createClient(connection);
@@ -19,12 +20,11 @@ public class TestGetMemberExplicitDimensions extends AbstractIntegrationTest {
 		List<String> dims = Arrays.asList("Account", "Currency", "Entity", "Period", "Product", "Scenario", "Version", "Year");
 		PbcsPlanType cube = app.getPlanType("Plan1", true, dims);
 
-		for (PbcsDimension dimension : cube.getDimensions()) {
-			System.out.println("Dim: " + dimension.getName());
-			PbcsMemberProperties memberProperties = dimension.getRoot();
-			printMember(memberProperties, 0);
-		}
-		System.out.println();
+		PbcsMemberProperties mgmtRollup = cube.getMemberOrAlias("Management Rollup");
+		PbcsMemberProperties hardware = cube.getMemberOrAlias("4110: Hardware");
+
+		System.out.println("Dim: " + mgmtRollup + " dim: " + mgmtRollup.getDimensionName());
+		System.out.println("Dim: " + hardware + " dim: " + hardware.getDimensionName());
 	}
 
 	private static void printMember(PbcsMemberProperties member, int level) {

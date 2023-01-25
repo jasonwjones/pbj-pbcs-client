@@ -34,6 +34,8 @@ public interface PbcsDimension {
 
 	/**
 	 * Gets the root member of the dimension, which is assumed to be a member with the same name as the dimension itself.
+	 * In other words, calling this member should be equivalent to calling <code>getMember(getName())</code>, which is
+	 * how this method is implemented (and should never return null).
 	 *
 	 * @return the root/dimension member
 	 */

@@ -162,4 +162,10 @@ public class PbcsMemberPropertiesImpl implements PbcsMemberProperties {
 		this.generation = generation;
 	}
 
+	@Override
+	public String toString() {
+		String aliasText = alias != null ? " (alias: " + alias + ")" : "";
+		return name + aliasText;
+	}
+
 }
