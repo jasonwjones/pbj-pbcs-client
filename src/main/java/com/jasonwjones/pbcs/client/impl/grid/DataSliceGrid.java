@@ -79,6 +79,13 @@ public class DataSliceGrid implements PovGrid<DataSliceGrid.Cell> {
         return povCells;
     }
 
+    /**
+     * Gets a cell from the grid represented by this data slice, not counting a row for the POV.
+     *
+     * @param row the index of the row to get
+     * @param column the index of the column to get
+     * @return a cell for the given intersection
+     */
     @Override
     public Cell getCell(int row, int column) {
         if (row < topRows) {
@@ -116,10 +123,24 @@ public class DataSliceGrid implements PovGrid<DataSliceGrid.Cell> {
         }
     }
 
+    /**
+     * Returns the number of rows in the "top" or "columns" axis. In other words, this is the count of the number of
+     * dimensions in the top region of the returned grid (below the POV), which will always be at least 1.
+     *
+     * @return number of rows in the "top" axis
+     * @see #getLeftCols()
+     */
     public int getTopRows() {
         return topRows;
     }
 
+    /**
+     * Returns the number of columns in the "left" or "rows" axis. In other words, this is the count of the number of
+     * dimensions in the left region of the returned grid, which will always be at least 1.
+     *
+     * @return the number of columns in the "left" axis
+     * @see #getTopRows()
+     */
     public int getLeftCols() {
         return leftCols;
     }
@@ -148,17 +169,12 @@ public class DataSliceGrid implements PovGrid<DataSliceGrid.Cell> {
 
     }
 
-    private static class AnyCell implements Cell {
+    private abstract static class AnyCell implements Cell {
 
         protected final String value;
 
         private AnyCell(String value) {
             this.value = value;
-        }
-
-        @Override
-        public CellType getType() {
-            return null;
         }
 
         @Override
@@ -219,6 +235,5 @@ public class DataSliceGrid implements PovGrid<DataSliceGrid.Cell> {
         }
 
     }
-
 
 }
