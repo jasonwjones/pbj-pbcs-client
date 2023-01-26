@@ -15,11 +15,9 @@ import org.springframework.http.ResponseEntity;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class PbcsPlanTypeImpl implements PbcsPlanType {
+public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType {
 
 	private static final Logger logger = LoggerFactory.getLogger(PbcsPlanTypeImpl.class);
-
-	private final RestContext context;
 
 	private final PbcsApplication application;
 
@@ -34,9 +32,8 @@ public class PbcsPlanTypeImpl implements PbcsPlanType {
 	}
 
 	PbcsPlanTypeImpl(RestContext context, PbcsApplication application, String planType, List<String> explicitDimensions, MemberDimensionCache memberDimensionCache) {
-		if (explicitDimensions == null)
-			throw new IllegalArgumentException("List of explicit dimensions cannot be null");
-		this.context = context;
+		super(context);
+		if (explicitDimensions == null) throw new IllegalArgumentException("List of explicit dimensions cannot be null");
 		this.application = application;
 		this.planType = planType;
 		this.explicitDimensions = new ArrayList<>();

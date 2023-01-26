@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import com.jasonwjones.pbcs.client.impl.RestContext;
 import org.springframework.util.MultiValueMap;
 
 import com.jasonwjones.pbcs.api.v3.JobLaunchResponse;
@@ -27,9 +28,8 @@ public class PbcsClientImpl implements PbcsClient {
 
 	private final InteropClient interopClient;
 
-	// TODO: Option to defer and lazily initialize
-	public PbcsClientImpl(PbcsConnection connection, PbcsServiceConfiguration serviceConfiguration) {
-		this.planningClient = new PbcsPlanningClientImpl(connection, serviceConfiguration);
+	public PbcsClientImpl(RestContext restContext, PbcsConnection connection, PbcsServiceConfiguration serviceConfiguration) {
+		this.planningClient = new PbcsPlanningClientImpl(restContext, connection.getServer(), serviceConfiguration.isSkipApiCheck());
 		this.interopClient = new InteropClientImpl(connection, serviceConfiguration);
 	}
 

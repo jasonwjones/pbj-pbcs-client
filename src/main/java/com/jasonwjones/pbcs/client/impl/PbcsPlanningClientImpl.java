@@ -1,25 +1,19 @@
 package com.jasonwjones.pbcs.client.impl;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import com.jasonwjones.pbcs.client.exceptions.PbcsNoSuchObjectException;
-import com.jasonwjones.pbcs.client.impl.interceptors.RefreshableTokenInterceptor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.http.ResponseEntity;
-import org.springframework.http.client.ClientHttpRequestInterceptor;
-import org.springframework.web.client.RestTemplate;
-
 import com.jasonwjones.pbcs.api.v3.Api;
 import com.jasonwjones.pbcs.api.v3.Application;
 import com.jasonwjones.pbcs.api.v3.Applications;
 import com.jasonwjones.pbcs.client.PbcsApi;
 import com.jasonwjones.pbcs.client.PbcsApplication;
-import com.jasonwjones.pbcs.client.PbcsConnection;
 import com.jasonwjones.pbcs.client.PbcsPlanningClient;
-import com.jasonwjones.pbcs.client.PbcsServiceConfiguration;
 import com.jasonwjones.pbcs.client.exceptions.PbcsClientException;
+import com.jasonwjones.pbcs.client.exceptions.PbcsNoSuchObjectException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.ResponseEntity;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Default implementation of PbcsPlanningClient. This class can be thought of as
@@ -31,45 +25,17 @@ import com.jasonwjones.pbcs.client.exceptions.PbcsClientException;
  * @author Jason Jones
  *
  */
-public class PbcsPlanningClientImpl implements PbcsPlanningClient {
+public class PbcsPlanningClientImpl extends AbstractPbcsObject implements PbcsPlanningClient {
 
 	private static final Logger logger = LoggerFactory.getLogger(PbcsPlanningClientImpl.class);
 
-	private final RestContext context;
-
-	private final RestTemplate restTemplate;
-
 	private final String server;
 
-	private final String baseUrl;
+	public PbcsPlanningClientImpl(RestContext restContext, String server, boolean skipApiCheck) {
+		super(restContext);
+		this.server = server;
 
-	private final PbcsServiceConfiguration serviceConfig;
-
-	// TODO: Provide option to skip initial check (default should check)
-	public PbcsPlanningClientImpl(PbcsConnection connection, PbcsServiceConfiguration serviceConfiguration) throws PbcsClientException {
-		this.serviceConfig = serviceConfiguration;
-		this.baseUrl = serviceConfig.getScheme() + "://" + connection.getServer() + serviceConfig.getPlanningRestApiPath() + serviceConfig.getPlanningApiVersion() + "/";
-		this.server = connection.getServer();
-		this.restTemplate = !connection.isToken() ? new RestTemplate(serviceConfiguration.createRequestFactory(connection)) : new RestTemplate();
-		this.restTemplate.setErrorHandler(new MyResponseErrorHandler());
-
-		List<ClientHttpRequestInterceptor> interceptors = new ArrayList<>();
-
-		if (connection.isToken()) {
-			RefreshableTokenInterceptor refreshableTokenInterceptor = new RefreshableTokenInterceptor(connection);
-			interceptors.add(refreshableTokenInterceptor);
-		}
-
-		this.restTemplate.setInterceptors(interceptors);
-
-		this.context = new RestContext(restTemplate, baseUrl);
-		this.context.setAifBaseUrl(serviceConfig.getScheme() + "://" + connection.getServer() + serviceConfiguration.getAifRestApiPath() + serviceConfiguration.getAifRestApiVersion());
-
-		// perform a call to the API to validate that we are actually connected
-		// if this doesn't work then we can throw an exception to the caller, and
-		// they'll know the connection didn't work
-
-		if (!serviceConfiguration.isSkipApiCheck()) {
+		if (skipApiCheck) {
 			try {
 				PbcsApi api = getApi();
 				if (!api.isLatest()) {
@@ -88,8 +54,8 @@ public class PbcsPlanningClientImpl implements PbcsPlanningClient {
 
 	@Override
 	public PbcsApi getApi() {
-		logger.info("Checking API from base URL {}", baseUrl);
-		ResponseEntity<Api> checkApi = restTemplate.getForEntity(baseUrl, Api.class);
+		logger.info("Checking API for {}", server);
+		ResponseEntity<Api> checkApi = getForEntity("", Api.class);
 		return new PbcsApiImpl(checkApi.getBody());
 	}
 
@@ -98,16 +64,9 @@ public class PbcsPlanningClientImpl implements PbcsPlanningClient {
 		return server;
 	}
 
-	public String get(String url) {
-		logger.info("Getting from test URL {}", url);
-		ResponseEntity<String> checkApi = restTemplate.getForEntity(baseUrl + url, String.class);
-		return checkApi.getBody();
-	}
-
 	@Override
 	public List<PbcsApplication> getApplications() {
-		String url = this.baseUrl + "applications";
-		ResponseEntity<Applications> result = restTemplate.getForEntity(url, Applications.class);
+		ResponseEntity<Applications> result = getForEntity("applications", Applications.class);
 
 		List<PbcsApplication> pbcsApplications = new ArrayList<>();
 		for (Application application : result.getBody().getItems()) {

@@ -3,14 +3,12 @@ package com.jasonwjones.pbcs.client.impl;
 import com.jasonwjones.pbcs.api.v3.JobDefinition;
 import com.jasonwjones.pbcs.client.PbcsJobDefinition;
 
-public class PbcsJobDefinitionImpl implements PbcsJobDefinition {
-
-	private final RestContext context;
+public class PbcsJobDefinitionImpl extends AbstractPbcsObject implements PbcsJobDefinition {
 
 	private final JobDefinition jobDefinition;
 
 	public PbcsJobDefinitionImpl(RestContext context, JobDefinition jobDefinition) {
-		this.context = context;
+		super(context);
 		this.jobDefinition = jobDefinition;
 	}
 

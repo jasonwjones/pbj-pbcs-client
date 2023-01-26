@@ -3,9 +3,13 @@ package com.jasonwjones.pbcs;
 import com.jasonwjones.pbcs.client.PbcsConnection;
 import com.jasonwjones.pbcs.client.PbcsPlanningClient;
 import com.jasonwjones.pbcs.client.PbcsServiceConfiguration;
-import com.jasonwjones.pbcs.client.impl.PbcsConnectionImpl;
-import com.jasonwjones.pbcs.client.impl.PbcsPlanningClientImpl;
-import com.jasonwjones.pbcs.client.impl.PbcsServiceConfigurationImpl;
+import com.jasonwjones.pbcs.client.impl.*;
+import com.jasonwjones.pbcs.client.impl.interceptors.RefreshableTokenInterceptor;
+import org.springframework.http.client.ClientHttpRequestInterceptor;
+import org.springframework.web.client.RestTemplate;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class PbcsClientFactory {
 
@@ -33,12 +37,13 @@ public class PbcsClientFactory {
 	 * @return a new PBCS client instance
 	 */
 	public PbcsClient createClient(PbcsConnection connection, PbcsServiceConfiguration serviceConfiguration) {
-		return new PbcsClientImpl(connection, serviceConfiguration);
+		RestContext restContext = createRestContext(serviceConfiguration, connection);
+		return new PbcsClientImpl(restContext, connection, serviceConfiguration);
 	}
 
 	@Deprecated
 	public PbcsPlanningClient createPlanningClient(PbcsConnection connection) {
-		return new PbcsPlanningClientImpl(connection, createDefaultServiceConfiguration());
+		return new PbcsPlanningClientImpl(createRestContext(createDefaultServiceConfiguration(), connection), connection.getServer(), false);
 	}
 
 	/**
@@ -84,6 +89,23 @@ public class PbcsClientFactory {
 		sc.setAifRestApiPath("/aif/rest/");
 		sc.setAifRestApiVersion("V1");
 		return sc;
+	}
+
+	protected RestContext createRestContext(PbcsServiceConfiguration serviceConfiguration, PbcsConnection connection) {
+		String baseUrl = serviceConfiguration.getScheme() + "://" + connection.getServer() + serviceConfiguration.getPlanningRestApiPath() + serviceConfiguration.getPlanningApiVersion() + "/";
+
+		RestTemplate restTemplate = !connection.isToken() ? new RestTemplate(serviceConfiguration.createRequestFactory(connection)) : new RestTemplate();
+		restTemplate.setErrorHandler(new MyResponseErrorHandler());
+
+		List<ClientHttpRequestInterceptor> interceptors = new ArrayList<>();
+
+		if (connection.isToken()) {
+			RefreshableTokenInterceptor refreshableTokenInterceptor = new RefreshableTokenInterceptor(connection);
+			interceptors.add(refreshableTokenInterceptor);
+		}
+
+		restTemplate.setInterceptors(interceptors);
+		return new RestContext(restTemplate, baseUrl);
 	}
 
 }
