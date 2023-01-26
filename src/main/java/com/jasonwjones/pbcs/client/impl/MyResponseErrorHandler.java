@@ -4,8 +4,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.nio.charset.StandardCharsets;
 
 import com.jasonwjones.pbcs.client.exceptions.PbcsInvalidCredentialsException;
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -24,7 +26,7 @@ public class MyResponseErrorHandler implements ResponseErrorHandler {
 
 		// pull the response body and pass separately since the first read of the stream off of
 		// ClientHttpResponse would eat it and make subsequent attempts fail
-		String responseBody = inputStreamToString(response.getBody());
+		String responseBody = IOUtils.toString(response.getBody(), StandardCharsets.UTF_8);
 
 //		logger.error("Headers: {}", response.getHeaders());
 //		logger.error("Status: {} ({})", response.getStatusCode().value(), response.getStatusText());
@@ -53,20 +55,6 @@ public class MyResponseErrorHandler implements ResponseErrorHandler {
 		HttpStatus.Series series = status.series();
 		return (HttpStatus.Series.CLIENT_ERROR.equals(series)
 				|| HttpStatus.Series.SERVER_ERROR.equals(series));
-	}
-
-	private static String inputStreamToString(InputStream inputStream) throws IOException  {
-		final int bufferSize = 1024;
-		final char[] buffer = new char[bufferSize];
-		final StringBuilder out = new StringBuilder();
-		Reader in = new InputStreamReader(inputStream, "UTF-8");
-		for (; ; ) {
-		    int rsz = in.read(buffer, 0, buffer.length);
-		    if (rsz < 0)
-		        break;
-		    out.append(buffer, 0, rsz);
-		}
-		return out.toString();
 	}
 
 }
