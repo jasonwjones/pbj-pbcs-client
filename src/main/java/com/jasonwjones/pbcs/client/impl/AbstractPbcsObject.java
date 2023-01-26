@@ -1,7 +1,6 @@
 package com.jasonwjones.pbcs.client.impl;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.client.RestClientException;
 
 public abstract class AbstractPbcsObject {
 
@@ -15,17 +14,8 @@ public abstract class AbstractPbcsObject {
         return context.getTemplate().getForEntity(this.context.getBaseUrl()  + urlSuffix, responseType, uriVariables);
     }
 
-    protected <T> T get(String urlSuffix, Class<T> responseType, Object... uriVariables) {
+    protected final <T> T get(String urlSuffix, Class<T> responseType, Object... uriVariables) {
         ResponseEntity<T> response = context.getTemplate().getForEntity(this.context.getBaseUrl()  + urlSuffix, responseType, uriVariables);
-        if (response.getStatusCode().is2xxSuccessful()) {
-            return response.getBody();
-        } else {
-            throw new RuntimeException("Unsuccessful call");
-        }
-    }
-
-    protected <T> T post(String url, Object request, Class<T> responseType, Object... uriVariables) throws RestClientException {
-        ResponseEntity<T> response = context.getTemplate().postForEntity(url, request, responseType, uriVariables);
         if (response.getStatusCode().is2xxSuccessful()) {
             return response.getBody();
         } else {
