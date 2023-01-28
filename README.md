@@ -177,6 +177,17 @@ example, the Apache `http-client` library is renamed and the Spring Framework pa
 - Synchronous job execution
 - Move HTTP client request factory method to service config object so interop and p client can both use
 
+## Logging
+
+Get more detailed/wire logs:
+
+Run with VM args:
+
+-Dorg.apache.commons.logging.Log=org.apache.commons.logging.impl.SimpleLog
+-Dorg.apache.commons.logging.simplelog.showdatetime=true
+-Dorg.apache.commons.logging.simplelog.log.org.apache.http=DEBUG
+-Dorg.apache.commons.logging.simplelog.log.org.apache.http.wire=ERROR
+
 
 ## License
 
