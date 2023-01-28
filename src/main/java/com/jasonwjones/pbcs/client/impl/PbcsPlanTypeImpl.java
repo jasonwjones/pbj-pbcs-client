@@ -205,20 +205,16 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 		if (explicitDimensions.isEmpty()) throw new IllegalStateException("Must configure explicit dimensions to search for alias");
 		for (PbcsDimension dimension : explicitDimensions) {
 			logger.debug("Searching dimension {} for member/alias {}", dimension.getName(), memberOrAliasName);
-			PbcsMemberProperties potentialMember = findMemberForAlias(dimension.getRoot(), memberOrAliasName);
-			if (potentialMember != null) return potentialMember;
-		}
-		return null;
-	}
 
-	private static PbcsMemberProperties findMemberForAlias(PbcsMemberProperties currentMember, String aliasName) {
-		// alias might be null
-		if (aliasName.equalsIgnoreCase(currentMember.getName()) || aliasName.equalsIgnoreCase(currentMember.getAlias())) {
-			return currentMember;
-		} else {
-			for (PbcsMemberProperties child : currentMember.getChildren()) {
-				PbcsMemberProperties results = findMemberForAlias(child, aliasName);
-				if (results != null) return results;
+			Queue<PbcsMemberProperties> members = new ArrayDeque<>();
+			members.add(dimension.getRoot());
+
+			while (!members.isEmpty()) {
+				PbcsMemberProperties current = members.remove();
+				if (memberOrAliasName.equalsIgnoreCase(current.getName()) || memberOrAliasName.equalsIgnoreCase(current.getAlias())) {
+					return current;
+				}
+				members.addAll(current.getChildren());
 			}
 		}
 		return null;
