@@ -162,6 +162,7 @@ public interface PbcsPlanType {
 	 *
 	 * @param memberOrAliasName the member name or alias to search for
 	 * @return the member for the given name or alias, or null if none is found across all the known dimensions
+	 * @since 1.0.10
 	 */
 	PbcsMemberProperties getMemberOrAlias(String memberOrAliasName);
 
