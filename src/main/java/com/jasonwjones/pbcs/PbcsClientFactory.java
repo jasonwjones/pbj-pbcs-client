@@ -105,7 +105,8 @@ public class PbcsClientFactory {
 		}
 
 		restTemplate.setInterceptors(interceptors);
-		return new RestContext(restTemplate, baseUrl);
+		String aifBaseUrl = serviceConfiguration.getScheme() + "://" + connection.getServer() + serviceConfiguration.getAifRestApiPath() + serviceConfiguration.getAifRestApiVersion();
+		return new RestContext(restTemplate, baseUrl, aifBaseUrl);
 	}
 
 }

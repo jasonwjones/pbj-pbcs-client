@@ -4,15 +4,16 @@ import org.springframework.web.client.RestTemplate;
 
 public class RestContext {
 
-	private RestTemplate template;
-	
-	private String baseUrl;
-	
-	private String aifBaseUrl;
-	
-	public RestContext(RestTemplate template, String baseUrl) {
+	private final RestTemplate template;
+
+	private final String baseUrl;
+
+	private final String aifBaseUrl;
+
+	public RestContext(RestTemplate template, String baseUrl, String aifBaseUrl) {
 		this.template = template;
 		this.baseUrl = baseUrl;
+		this.aifBaseUrl = aifBaseUrl;
 	}
 
 	public RestTemplate getTemplate() {
@@ -23,16 +24,12 @@ public class RestContext {
 		return baseUrl;
 	}
 
-	public void setAifBaseUrl(String aifBaseUrl) {
-		this.aifBaseUrl = aifBaseUrl;
-	}
-	
-	public String gtAifBaseUrl() {
+	public String getAifBaseUrl() {
 		return this.aifBaseUrl;
 	}
-	
+
 	public String getAifUrl(String suffix) {
 		return this.aifBaseUrl + suffix;
 	}
-		
+
 }
