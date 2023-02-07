@@ -14,11 +14,10 @@ public class TestGetCell extends AbstractIntegrationTest {
 		PbcsClient client = new PbcsClientFactory().createClient(connection);
 		PbcsApplication app = client.getApplication("Vision");
 
-		List<String> dims = Arrays.asList("Account", "Currency", "Entity", "Period", "Scenario", "Version", "Years");
+		List<String> dims = Arrays.asList("Account", "Currency", "Entity", "Period", "Product", "Scenario", "Version", "Year");
 		PbcsPlanType cube = app.getPlanType("Plan1", true, dims);
 
 		System.out.println("Get cell: " + cube.getCell(dims));
-		System.out.println("Get cell: " + cube.getCell(Arrays.asList("Actual", "Final", "Test1a", "Jan", "FY21", "Account1", "USD")));
 	}
 
 }

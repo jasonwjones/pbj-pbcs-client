@@ -13,10 +13,22 @@ GET https://{{server}}/HyperionPlanning/rest/v3/applications
 Authorization: Basic {{creds}}
 Accept: application/json
 
+### Get Applications
+
+GET https://{{server}}/epm/rest/v1/artifacts
+Authorization: Basic {{creds}}
+Accept: application/json
+
 ### Get Applications Bearer
 
 GET https://{{server}}/HyperionPlanning/rest/v3/applications
 Authorization: Bearer the_token
+Accept: application/json
+
+### Get Plans
+
+GET https://{{server}}/HyperionPlanning/rest/v3/applications/Vision/plantypes
+Authorization: Basic {{creds}}
 Accept: application/json
 
 ### Get Application TEST
@@ -34,6 +46,24 @@ Accept: application/json
 ### Get Member Info - 4110
 
 GET https://{{server}}/HyperionPlanning/rest/v3/applications/Vision/dimensions/Account/members/4110
+Authorization: Basic {{creds}}
+Accept: application/json
+
+### Get Member Info - No Period
+
+GET https://{{server}}/HyperionPlanning/rest/v3/applications/Vision/dimensions/Period/members/No%20Period
+Authorization: Basic {{creds}}
+Accept: application/json
+
+### Get Member Info - Accrued Liabilities Total
+
+GET https://{{server}}/HyperionPlanning/rest/v3/applications/Vision/dimensions/Account/members/Accrued%20Liabilities%20Total
+Authorization: Basic {{creds}}
+Accept: application/json
+
+### Get Member Info - Q1
+
+GET https://{{server}}/HyperionPlanning/rest/v3/applications/Vision/dimensions/Period/members/Q1
 Authorization: Basic {{creds}}
 Accept: application/json
 

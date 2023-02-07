@@ -3,15 +3,18 @@ package com.jasonwjones.pbcs.test;
 import com.jasonwjones.pbcs.PbcsClient;
 import com.jasonwjones.pbcs.PbcsClientFactory;
 import com.jasonwjones.pbcs.client.PbcsMemberProperties;
+import com.jasonwjones.pbcs.client.PbcsMemberQueryType;
+import com.jasonwjones.pbcs.client.PbcsPlanType;
 import com.jasonwjones.pbcs.client.impl.PlanTypeConfigurationImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
+import java.util.List;
 
-public class TestGetMember2 extends AbstractIntegrationTest {
+public class TestMemberQuery extends AbstractIntegrationTest {
 
-	private static final Logger logger = LoggerFactory.getLogger(TestGetMember2.class);
+	private static final Logger logger = LoggerFactory.getLogger(TestMemberQuery.class);
 
 	public static void main(String[] args) {
 		PbcsClient client = new PbcsClientFactory().createClient(connection);
@@ -22,18 +25,24 @@ public class TestGetMember2 extends AbstractIntegrationTest {
 		planTypeConfiguration.setName("Plan1");
 		planTypeConfiguration.setExplicitDimensions(Arrays.asList("Account", "Currency", "Entity", "Period", "Scenario", "Version", "Year"));
 
-		PbcsMemberProperties member = client
+		PbcsPlanType plan1 = client
 				.getApplication("Vision")
-				.getPlanType(planTypeConfiguration)
-				// 4110: Hardware
-				.getMember("OpEx");
+				.getPlanType(planTypeConfiguration);
 
-				//.getMember("Period", "Q1");
-				//.getMember("Scenario", "Scenario");
+		List<PbcsMemberProperties> descendants = plan1.queryMembers("YearTotal", PbcsMemberQueryType.IDESCENDANTS);
+		logger.info("Received {} descendants", descendants.size());
+		for (PbcsMemberProperties member : descendants) {
+			logger.info("Mbr: {}", member);
+		}
 
-		logger.info("Dimension: {}", member.getDimensionName());
+		System.out.println("---");
 
-		printMember(member, 0);
+		List<PbcsMemberProperties> children = plan1.queryMembers("YearTotal", PbcsMemberQueryType.ICHILDREN);
+		logger.info("Received {} children", descendants.size());
+		for (PbcsMemberProperties member : children) {
+			logger.info("Mbr: {}", member);
+		}
+
 	}
 
 
