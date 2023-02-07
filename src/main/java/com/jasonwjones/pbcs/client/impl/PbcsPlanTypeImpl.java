@@ -162,6 +162,7 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 		}
 	}
 
+	@Override
 	public void setCell(List<String> pov, String value) {
 		ImportDataSlice importDataSlice = new ImportDataSlice(pov, value);
 		logger.info("Updating {}.{} to set cell {} to {}", application.getName(), planType, pov, value);
@@ -173,10 +174,11 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 		}
 	}
 
+	@Override
 	public void setCells(List<String> pov, Grid<String> values) {
 		ImportDataSlice importDataSlice = new ImportDataSlice();
 		importDataSlice.setDataGrid(new DataSlice(pov, values));
-		logger.info("Updating {}.{} to with multiple data values", application.getName(), planType);
+		logger.info("Updating {}.{} at POV {} using a {}x{} source grid", application.getName(), planType, pov, values.getRows(), values.getColumns());
 		ResponseEntity<ImportDataSliceResponse> response = this.context.getTemplate().postForEntity(this.context.getBaseUrl() + "applications/{application}/plantypes/{planType}/importdataslice", importDataSlice, ImportDataSliceResponse.class, application.getName(), planType);
 
 		if (response.getStatusCode().is2xxSuccessful()) {
