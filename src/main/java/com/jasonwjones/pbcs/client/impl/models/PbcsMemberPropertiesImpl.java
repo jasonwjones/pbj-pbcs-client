@@ -3,6 +3,7 @@ package com.jasonwjones.pbcs.client.impl.models;
 import java.util.Collections;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.jasonwjones.pbcs.client.PbcsMemberProperties;
 
@@ -88,6 +89,7 @@ public class PbcsMemberPropertiesImpl implements PbcsMemberProperties {
 		return dataStorage;
 	}
 
+	@JsonIgnore
 	@Override
 	public DataStorage getDataStorageType() {
 		return DataStorage.valueOfOrOther(dataStorage);
@@ -113,6 +115,7 @@ public class PbcsMemberPropertiesImpl implements PbcsMemberProperties {
 		this.twoPass = twoPass;
 	}
 
+	@JsonIgnore
 	@Override
 	public boolean isLeaf() {
 		return getChildren().isEmpty();
@@ -127,6 +130,7 @@ public class PbcsMemberPropertiesImpl implements PbcsMemberProperties {
 		this.usedIn = usedIn;
 	}
 
+	@JsonIgnore
 	@Override
 	public int getLevel() {
 		if (children == null || children.isEmpty()) {
