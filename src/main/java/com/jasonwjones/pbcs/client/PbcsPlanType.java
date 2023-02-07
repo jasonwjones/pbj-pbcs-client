@@ -148,6 +148,17 @@ public interface PbcsPlanType {
 	PbcsMemberProperties getMember(String memberName);
 
 	/**
+	 * Perform a member query. The notion of querying members doesn't really exist in the PBCS REST API; these querying
+	 * capabilities are provided as a bit of a convenience on top of the basic member relation methods that are available
+	 * such as {@link PbcsMemberProperties#getChildren()}.
+	 *
+	 * @param memberName the base member name to perform the query with
+	 * @param queryType the type of query
+	 * @return the list of members that result (or an empty list if there are none)
+	 */
+	List<PbcsMemberProperties> queryMembers(String memberName, PbcsMemberQueryType queryType);
+
+	/**
 	 * Similar to {@link #getMember(String)}, this is provided as a convenience to try and find a member using its name
 	 * or alias. The implementation for this method is a little different compared to its counterpart. This method will
 	 * perform a brute-force search through the explicit dimensions, fetch the root member, and then traverse the

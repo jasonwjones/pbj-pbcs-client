@@ -201,6 +201,45 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 	}
 
 	@Override
+	public List<PbcsMemberProperties> queryMembers(String memberName, PbcsMemberQueryType queryType) {
+		PbcsMemberProperties member = getMember(memberName);
+		List<PbcsMemberProperties> results = new ArrayList<>();
+
+		if (queryType.isIncludeOriginalMember()) {
+			results.add(member);
+		}
+
+		switch (queryType) {
+			case ICHILDREN:
+			case CHILDREN:
+				for (PbcsMemberProperties child : member.getChildren()) {
+					results.add(child);
+				}
+				break;
+			case IDESCENDANTS:
+			case DESCENDANTS:
+				// do first iteration ourselves here so that resulting list doesn't include root member
+				for (PbcsMemberProperties child : member.getChildren()) {
+					processChildren(results, child);
+				}
+				break;
+			case IANCESTORS:
+			case ANCESTORS:
+			default:
+				throw new UnsupportedOperationException(); // TODO
+		}
+
+		return Collections.unmodifiableList(results);
+	}
+
+	private static void processChildren(List<PbcsMemberProperties> members, PbcsMemberProperties currentMember) {
+		members.add(currentMember);
+		for (PbcsMemberProperties child : currentMember.getChildren()) {
+			processChildren(members, child);
+		}
+	}
+
+	@Override
 	public PbcsMemberProperties getMemberOrAlias(String memberOrAliasName) {
 		if (explicitDimensions.isEmpty()) throw new IllegalStateException("Must configure explicit dimensions to search for alias");
 		for (PbcsDimension dimension : explicitDimensions) {

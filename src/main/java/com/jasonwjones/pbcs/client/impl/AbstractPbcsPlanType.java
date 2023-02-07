@@ -95,6 +95,11 @@ public class AbstractPbcsPlanType implements PbcsPlanType {
     }
 
     @Override
+    public List<PbcsMemberProperties> queryMembers(String memberName, PbcsMemberQueryType queryType) {
+        return planType.queryMembers(memberName, queryType);
+    }
+
+    @Override
     public PbcsMemberProperties getMemberOrAlias(String memberOrAliasName) {
         return planType.getMemberOrAlias(memberOrAliasName);
     }
