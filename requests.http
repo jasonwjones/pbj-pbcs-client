@@ -55,6 +55,13 @@ GET https://{{server}}/HyperionPlanning/rest/v3/applications/Vision/dimensions/P
 Authorization: Basic {{creds}}
 Accept: application/json
 
+### Get Member Info - Period
+# Shows an exmaple of querying on dimension root. The parentName is omitted/null
+
+GET https://{{server}}/HyperionPlanning/rest/v3/applications/Vision/dimensions/Period/members/Period
+Authorization: Basic {{creds}}
+Accept: application/json
+
 ### Get Member Info - Accrued Liabilities Total
 
 GET https://{{server}}/HyperionPlanning/rest/v3/applications/Vision/dimensions/Account/members/Accrued%20Liabilities%20Total

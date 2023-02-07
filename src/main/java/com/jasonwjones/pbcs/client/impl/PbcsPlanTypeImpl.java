@@ -226,7 +226,12 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 			case IANCESTORS:
 			case ANCESTORS:
 			default:
-				throw new UnsupportedOperationException(); // TODO
+				while (member.getParentName() != null) {
+					PbcsMemberProperties parent = getMember(member.getDimensionName(), member.getParentName());
+					results.add(parent);
+					member = parent;
+				}
+				break;
 		}
 
 		return Collections.unmodifiableList(results);

@@ -43,6 +43,14 @@ public class TestMemberQuery extends AbstractIntegrationTest {
 			logger.info("Mbr: {}", member);
 		}
 
+		System.out.println("---");
+		List<PbcsMemberProperties> ancestors = plan1.queryMembers("Jan", PbcsMemberQueryType.IANCESTORS);
+		logger.info("Received {} ancestors", ancestors.size());
+		for (PbcsMemberProperties member : ancestors) {
+			logger.info("Ans: {}", member);
+		}
+
+
 	}
 
 
