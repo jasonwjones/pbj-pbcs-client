@@ -13,6 +13,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import com.jasonwjones.pbcs.api.v3.*;
+import com.jasonwjones.pbcs.client.*;
 import com.jasonwjones.pbcs.client.exceptions.PbcsGeneralException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,16 +31,6 @@ import com.jasonwjones.pbcs.aif.AifApplication;
 import com.jasonwjones.pbcs.aif.AifDimension;
 import com.jasonwjones.pbcs.api.v3.dataslices.DataSlice;
 import com.jasonwjones.pbcs.api.v3.dataslices.ExportDataSlice;
-import com.jasonwjones.pbcs.client.PbcsAppDimension;
-import com.jasonwjones.pbcs.client.PbcsApplication;
-import com.jasonwjones.pbcs.client.PbcsDimension;
-import com.jasonwjones.pbcs.client.PbcsJobDefinition;
-import com.jasonwjones.pbcs.client.PbcsJobLaunchResult;
-import com.jasonwjones.pbcs.client.PbcsJobStatus;
-import com.jasonwjones.pbcs.client.PbcsJobType;
-import com.jasonwjones.pbcs.client.PbcsMemberProperties;
-import com.jasonwjones.pbcs.client.PbcsPlanType;
-import com.jasonwjones.pbcs.client.PbcsPlanningClient;
 import com.jasonwjones.pbcs.client.exceptions.PbcsClientException;
 import com.jasonwjones.pbcs.client.exceptions.PbcsNoSuchObjectException;
 import com.jasonwjones.pbcs.client.exceptions.PbcsNoSuchVariableException;
@@ -284,6 +275,17 @@ public class PbcsApplicationImpl extends AbstractPbcsObject implements PbcsAppli
 	@Override
 	public String getType() {
 		return application.getType();
+	}
+
+	@Override
+	public PbcsAppType getAppType() {
+		for (PbcsAppType appType : PbcsAppType.values()) {
+			if (appType.getCode().equals(application.getAppType())) {
+				return appType;
+			}
+		}
+		logger.warn("Unknown app type: {}", application.getAppType());
+		return null;
 	}
 
 	@Override

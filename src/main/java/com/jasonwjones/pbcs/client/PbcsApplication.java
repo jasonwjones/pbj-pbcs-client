@@ -40,11 +40,18 @@ public interface PbcsApplication {
 	String getName();
 
 	/**
-	 * Gets the product type. Possible values: HFM, HP
+	 * Gets the product type. Possible values: HFM, HP.
 	 *
 	 * @return the product type
 	 */
 	String getType();
+
+	/**
+	 * Gets the app type, which is essentially whether it's a Planning or FCCS application.
+	 *
+	 * @return the app type
+	 */
+	PbcsAppType getAppType();
 
 	/**
 	 * Gets the list of job definitions for this application
@@ -207,7 +214,8 @@ public interface PbcsApplication {
 	List<PbcsDimension> getDimensions(String planType);
 
 	/**
-	 * Get the list of cubes/plans in this application.
+	 * Get the list of cubes/plans in this application. The endpoint for this REST call doesn't seem to exist for FCCS
+	 * apps.
 	 *
 	 * @return the list of plans for this application
 	 */
