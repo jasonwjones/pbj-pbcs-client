@@ -23,4 +23,13 @@ public abstract class AbstractPbcsObject {
         }
     }
 
+    protected final <T> T post(String urlSuffix, Object request, Class<T> responseType, Object... uriVariables) {
+        ResponseEntity<T> response = context.getTemplate().postForEntity(this.context.getBaseUrl()  + urlSuffix, request, responseType, uriVariables);
+        if (response.getStatusCode().is2xxSuccessful()) {
+            return response.getBody();
+        } else {
+            throw new RuntimeException("Unsuccessful call");
+        }
+    }
+
 }

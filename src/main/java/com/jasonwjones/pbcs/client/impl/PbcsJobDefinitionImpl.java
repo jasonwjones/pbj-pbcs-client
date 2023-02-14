@@ -27,4 +27,9 @@ public class PbcsJobDefinitionImpl extends AbstractPbcsObject implements PbcsJob
 		return jobDefinition.getPlanTypeName();
 	}
 
+	@Override
+	public String toString() {
+		return String.format("PbcsJobDefinitionImpl [name=%s, type=%s]", getJobName(), getJobType());
+	}
+
 }

@@ -18,6 +18,9 @@ public class TestGetCell extends AbstractIntegrationTest {
 		PbcsPlanType cube = app.getPlanType("Plan1", true, dims);
 
 		System.out.println("Get cell: " + cube.getCell(dims));
+
+		List<String> dims2 = Arrays.asList("4110", "USD", "000", "Jan", "P_000", "Actual", "Final", "FY22");
+		System.out.println("Get cell: " + cube.getCell(dims2));
 	}
 
 }

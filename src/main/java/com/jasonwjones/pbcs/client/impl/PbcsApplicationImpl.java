@@ -41,28 +41,23 @@ public class PbcsApplicationImpl extends AbstractPbcsObject implements PbcsAppli
 
 	private static final Logger logger = LoggerFactory.getLogger(PbcsApplicationImpl.class);
 
+	private static final String JOBS_ENDPOINT = "applications/{application}/jobs";
+
 	private final PbcsPlanningClient client;
 
 	private final Application application;
-
-	private final Map<String, String> appMap;
 
 	public PbcsApplicationImpl(RestContext context, PbcsPlanningClient client, Application application) {
 		super(context);
 		this.client = client;
 		this.application = application;
-		this.appMap = new HashMap<>();
-		this.appMap.put("application", application.getName());
 	}
 
 	@Override
 	public List<PbcsJobDefinition> getJobDefinitions() {
 		logger.info("Getting job definitions for {}", application.getName());
-		String url = this.context.getBaseUrl() + "applications/{application}/jobdefinitions";
-		ResponseEntity<JobDefinitionsWrapper> output = this.context.getTemplate().getForEntity(url,
-				JobDefinitionsWrapper.class, appMap);
+		JobDefinitionsWrapper jobDefinitions = get("applications/{application}/jobdefinitions", JobDefinitionsWrapper.class, getName());
 
-		JobDefinitionsWrapper jobDefinitions = output.getBody();
 		List<PbcsJobDefinition> pbcsJobDefs = new ArrayList<>();
 		for (JobDefinition jobDefinition : jobDefinitions.getItems()) {
 			PbcsJobDefinition pbcsJobDef = new PbcsJobDefinitionImpl(context, jobDefinition);
@@ -73,22 +68,20 @@ public class PbcsApplicationImpl extends AbstractPbcsObject implements PbcsAppli
 
 	@Override
 	public List<PbcsJobDefinition> getJobDefinitions(PbcsJobType jobType) {
-		List<PbcsJobDefinition> filteredJobDefinitinos = new ArrayList<>();
+		List<PbcsJobDefinition> filteredJobDefinitions = new ArrayList<>();
 		for (PbcsJobDefinition currentDef : getJobDefinitions()) {
 			if (currentDef.getJobType().equals(jobType.name())) {
-				filteredJobDefinitinos.add(currentDef);
+				filteredJobDefinitions.add(currentDef);
 			}
 		}
-		return filteredJobDefinitinos;
+		return filteredJobDefinitions;
 	}
 
 	@Override
 	public PbcsJobStatus getJobStatus(Integer jobId) {
-		String url = this.context.getBaseUrl() + "applications/{application}/jobs/{jobId}";
 		try {
-			ResponseEntity<JobLaunchResponse> output = this.context.getTemplate().getForEntity(url,
-					JobLaunchResponse.class, application.getName(), jobId);
-			return new PbcsJobStatusImpl(output.getBody());
+			JobLaunchResponse jobLaunchResponse = get("applications/{application}/jobs/{jobId}", JobLaunchResponse.class, getName(), jobId);
+			return new PbcsJobStatusImpl(jobLaunchResponse);
 		} catch (HttpServerErrorException e) {
 			throw new PbcsClientException("Error fetching job with status ID " + jobId + ". Perhaps it doesn't exist?");
 		}
@@ -101,7 +94,7 @@ public class PbcsApplicationImpl extends AbstractPbcsObject implements PbcsAppli
 
 	@Override
 	public PbcsJobLaunchResult launchBusinessRule(String ruleName, Map<String, String> parameters) {
-		String url = this.context.getBaseUrl() + "applications/{application}/jobs";
+		String url = this.context.getBaseUrl() + JOBS_ENDPOINT;
 		MetadataImportPayload payload = new MetadataImportPayload("RULES", ruleName);
 		payload.setParameters(parameters);
 		ResponseEntity<JobLaunchResponse> output = this.context.getTemplate().postForEntity(url, getRequestEntityWithHeaders(payload),
@@ -116,11 +109,11 @@ public class PbcsApplicationImpl extends AbstractPbcsObject implements PbcsAppli
 
 	@Override
 	public PbcsJobLaunchResult launchRuleSet(String ruleSetName, Map<String, String> parameters) {
-		String url = context.getBaseUrl() + "applications/{application}/jobs";
+		String url = context.getBaseUrl() + JOBS_ENDPOINT;
 		JobLaunchPayload payload = new JobLaunchPayload("RULESET", ruleSetName);
 		payload.setParameters(parameters);
 		HttpEntity<?> requestEntity = getRequestEntityWithHeaders(payload);
-		ResponseEntity<JobLaunchResponse> output = context.getTemplate().postForEntity(url, requestEntity, JobLaunchResponse.class, appMap);
+		ResponseEntity<JobLaunchResponse> output = context.getTemplate().postForEntity(url, requestEntity, JobLaunchResponse.class, getName());
 		return new PbcsJobLaunchResultImpl(output.getBody());
 	}
 
@@ -130,7 +123,7 @@ public class PbcsApplicationImpl extends AbstractPbcsObject implements PbcsAppli
 		JobLaunchPayload payload = new JobLaunchPayload("DATARULE", dataRuleName);
 		payload.setParameters(parameters);
 		HttpEntity<?> requestEntity = getRequestEntityWithHeaders(payload);
-		ResponseEntity<JobLaunchResponse> output = context.getTemplate().postForEntity(url, requestEntity, JobLaunchResponse.class, appMap);
+		ResponseEntity<JobLaunchResponse> output = context.getTemplate().postForEntity(url, requestEntity, JobLaunchResponse.class, getName());
 		return new PbcsJobLaunchResultImpl(output.getBody());
 	}
 
@@ -141,17 +134,15 @@ public class PbcsApplicationImpl extends AbstractPbcsObject implements PbcsAppli
 		payload.setParameters(parameters);
 		HttpEntity<?> requestEntity = getRequestEntityWithHeaders(payload);
 		ResponseEntity<JobLaunchResponse> output = context.getTemplate()
-														  .postForEntity(url, requestEntity, JobLaunchResponse.class, appMap);
+														  .postForEntity(url, requestEntity, JobLaunchResponse.class, getName());
 		return new PbcsJobLaunchResultImpl(output.getBody());
 	}
-
-
 
 	private HttpEntity<?> getRequestEntityWithHeaders(Payload payload) {
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_JSON);
 		try {
-			return new HttpEntity<Object>(new ObjectMapper().writer()
+			return new HttpEntity<>(new ObjectMapper().writer()
 															.withDefaultPrettyPrinter()
 															.writeValueAsString(payload), headers);
 		} catch (JsonProcessingException e) {
@@ -167,7 +158,7 @@ public class PbcsApplicationImpl extends AbstractPbcsObject implements PbcsAppli
 	@Override
 	public PbcsJobLaunchResult importMetadata(String metadataImportName, String dataFile) {
 		logger.info("Launching metadata import data job: {}", metadataImportName);
-		String url = this.context.getBaseUrl() + "applications/{application}/jobs";
+		String url = this.context.getBaseUrl() + JOBS_ENDPOINT;
 		MetadataImportPayload payload = new MetadataImportPayload("IMPORT_METADATA", metadataImportName);
 
 		// "parameters" var is optional if not specifying. If it's specified,
@@ -183,18 +174,9 @@ public class PbcsApplicationImpl extends AbstractPbcsObject implements PbcsAppli
 			}
 			payload.setParameters(params);
 		}
-		ResponseEntity<JobLaunchResponse> output = this.context.getTemplate().postForEntity(url, getRequestEntityWithHeaders(payload), JobLaunchResponse.class, appMap);
+		ResponseEntity<JobLaunchResponse> output = this.context.getTemplate().postForEntity(url, getRequestEntityWithHeaders(payload), JobLaunchResponse.class, getName());
 		return new PbcsJobLaunchResultImpl(output.getBody());
 	}
-
-	// example from CREST
-	// public void integrationScenarioImportDataRunCalcCopyToAso() throws
-	// Exception {
-	// uploadFile("data.csv");
-	// }
-	// executeJob("IMPORT_DATA", "loadingq1data", "{importFileName:data.csv}");
-	// executeJob("CUBE_REFRESH", null, null);
-	// executeJob("PLAN_TYPE_MAP", "CampaignToReporting", "{clearData:false}");
 
 	@Override
 	public PbcsJobLaunchResult launchDataImport(String dataImportName) {
@@ -202,8 +184,8 @@ public class PbcsApplicationImpl extends AbstractPbcsObject implements PbcsAppli
 	}
 	@Override
 	public PbcsJobLaunchResult launchDataImport(String dataImportName, Optional<String> importFileName) {
-		logger.info("Launcing import data job: {}", dataImportName);
-		String url = this.context.getBaseUrl() + "applications/{application}/jobs";
+		logger.info("Launching import data job: {}", dataImportName);
+		String url = this.context.getBaseUrl() + JOBS_ENDPOINT;
 		JobLaunchPayload payload = new JobLaunchPayload("IMPORT_DATA", dataImportName);
 		if (importFileName.isPresent()){
 			if (SimpleFilenameUtils.getExtension(importFileName.get()) != null && SimpleFilenameUtils.getExtension(importFileName.get()).equals("zip")){
@@ -217,27 +199,23 @@ public class PbcsApplicationImpl extends AbstractPbcsObject implements PbcsAppli
 		// (the name of a CSV, ZIP, or TXT file). In case of ZIP, the ZIP can
 		// contain 1+ CSV files
 		// such as data1-3, data2-3, data3-3.csv, etc.
-		// ResponseEntity<JobLaunchResponse> output =
-		// this.context.getTemplate().postForEntity(url, payload,
-		// JobLaunchResponse.class, appMap);
 		RequestEntity<JobLaunchPayload> body = RequestEntity.post(context.getTemplate()
 																		 .getUriTemplateHandler()
-																		 .expand(url, appMap))
+																		 .expand(url, getName()))
 															.contentType(MediaType.APPLICATION_JSON)
 															.body(payload);
 		ResponseEntity<JobLaunchResponse> output = context.getTemplate()
 															.exchange(body, JobLaunchResponse.class);
 
 		return new PbcsJobLaunchResultImpl(output.getBody());
-
 	}
 
 	@Override
 	public PbcsJobLaunchResult exportData(String exportName) {
-		String url = this.context.getBaseUrl() + "applications/{application}/jobs";
+		String url = this.context.getBaseUrl() + JOBS_ENDPOINT;
 		JobLaunchPayload payload = new JobLaunchPayload("EXPORT_DATA", exportName);
 		ResponseEntity<JobLaunchResponse> output = this.context.getTemplate().postForEntity(url, payload,
-				JobLaunchResponse.class, appMap);
+				JobLaunchResponse.class, getName());
 		logger.info("Export data HTTP code: {}", output.getStatusCode().value());
 		return new PbcsJobLaunchResultImpl(output.getBody());
 	}
@@ -249,10 +227,10 @@ public class PbcsApplicationImpl extends AbstractPbcsObject implements PbcsAppli
 
 	@Override
 	public PbcsJobLaunchResult refreshCube(String cubeRefreshName) {
-		String url = this.context.getBaseUrl() + "applications/{application}/jobs";
+		String url = this.context.getBaseUrl() + JOBS_ENDPOINT;
 		MetadataImportPayload payload = new MetadataImportPayload("CUBE_REFRESH", cubeRefreshName);
 		ResponseEntity<JobLaunchResponse> output = this.context.getTemplate().postForEntity(url, getRequestEntityWithHeaders(payload),
-				JobLaunchResponse.class, appMap);
+				JobLaunchResponse.class, getName());
 		logger.info("Cube refresh launched");
 		return new PbcsJobLaunchResultImpl(output.getBody());
 	}
@@ -292,16 +270,16 @@ public class PbcsApplicationImpl extends AbstractPbcsObject implements PbcsAppli
 	public Set<SubstitutionVariable> getSubstitutionVariables() {
 		logger.info("Getting substitution variables for {}", application.getName());
 		String url = this.context.getBaseUrl() + "applications/{application}/substitutionvariables";
-		ResponseEntity<SubstitutionVariablesWrapper> response = this.context.getTemplate().getForEntity(url, SubstitutionVariablesWrapper.class, appMap);
+		ResponseEntity<SubstitutionVariablesWrapper> response = this.context.getTemplate().getForEntity(url, SubstitutionVariablesWrapper.class, getName());
 		return new HashSet<>(response.getBody().getItems());
 	}
 
 	@Override
 	public SubstitutionVariable getSubstitutionVariable(String variableName) {
 		logger.info("Retrieving value of substitution variable");
-		for (SubstitutionVariable var : getSubstitutionVariables()) {
-			if (var.getName().equals(variableName)) {
-				return var;
+		for (SubstitutionVariable subVar : getSubstitutionVariables()) {
+			if (subVar.getName().equals(variableName)) {
+				return subVar;
 			}
 		}
 		throw new PbcsNoSuchVariableException(application.getName(), variableName);
@@ -309,18 +287,15 @@ public class PbcsApplicationImpl extends AbstractPbcsObject implements PbcsAppli
 
 	@Override
 	public void updateSubstitutionVariables(Collection<SubstitutionVariable> variables) {
-		String url = this.context.getBaseUrl() + "applications/{application}/substitutionvariables";
 		SubstitutionVariableUpdateWrapper subs = new SubstitutionVariableUpdateWrapper();
 		subs.setItems(new ArrayList<>(variables));
-		ResponseEntity<String> resp = this.context.getTemplate().postForEntity(url, subs, String.class, appMap);
-		//logger.info("Response: {}", resp.getHeaders());
-		//System.out.println(resp.getBody());
+		post("applications/{application}/substitutionariables", subs, String.class, getName());
 	}
 
 	@Override
 	public void updateSubstitutionVariable(String name, String value) {
-		Collection<SubstitutionVariable> var = Collections.singletonList(new SubstitutionVariable(name, value));
-		updateSubstitutionVariables(var);
+		Collection<SubstitutionVariable> subVar = Collections.singletonList(new SubstitutionVariable(name, value));
+		updateSubstitutionVariables(subVar);
 	}
 
 	/**
@@ -330,34 +305,17 @@ public class PbcsApplicationImpl extends AbstractPbcsObject implements PbcsAppli
 	 * a cube refresh must have happened after the parent was enabled.
 	 */
 
-	// TODO: currently getting a BAD request 400 possibly because it's not
-	// enable dynamic chidlren.
+	// TODO: currently getting a BAD request 400 possibly because it's not enable dynamic children.
 	@Override
 	public PbcsMemberProperties addMember(String dimensionName, String memberName, String parentName) {
 		String url = this.context.getBaseUrl() + "applications/{application}/dimensions/{dimName}/members";
 
 		MemberAdd ma = new MemberAdd(memberName, parentName);
-		// Map<String, String> request = new HashMap<String, String>();
-		// request.put("memberName", memberName);
-		// request.put("parentName", parentName);
-
-		// {"status":400,"detail":
-		// "Error occurred when adding member. Cannot add member
-		// <North America> because its parent <Enterprise Global>
-		// is not enabled for dynamic children.",
-		// "message":"com.hyperion.planning.HspRuntimeException: Error occurred
-		// when adding member. Cannot add member <North America> because its
-		// parent <Enterprise Global> is not enabled for dynamic
-		// children.","localizedMessage":"com.hyperion.planning.HspRuntimeException:
-		// Error occurred when adding member. Cannot add member <North America>
-		// because its parent <Enterprise Global> is not enabled for dynamic
-		// children."}
 
 		this.context.getTemplate().setErrorHandler(new MyResponseErrorHandler());
 		ResponseEntity<String> resp = this.context.getTemplate().postForEntity(url, ma, String.class,
 				application.getName(), dimensionName);
 
-		System.out.println("Add response: " + resp.getBody());
 		// ResponseEntity<PbcsMemberPropertiesImpl> memberResponse =
 		// this.context.getTemplate().getForEntity(url,
 		// PbcsMemberPropertiesImpl.class, application.getName(), dimensionName,
@@ -376,8 +334,7 @@ public class PbcsApplicationImpl extends AbstractPbcsObject implements PbcsAppli
 		logger.debug("Fetching member properties for {} from dimension {}", memberName, dimensionName);
 		String url = this.context.getBaseUrl() + "applications/{application}/dimensions/{dimName}/members/{member}";
 		try {
-			ResponseEntity<PbcsMemberPropertiesImpl> memberResponse = this.context.getTemplate().getForEntity(url, PbcsMemberPropertiesImpl.class, application.getName(), dimensionName, memberName);
-			return memberResponse.getBody();
+			return get("applications/{application}/dimensions/{dimName}/members/{member}", PbcsMemberPropertiesImpl.class, getName(), dimensionName, memberName);
 		} catch (PbcsGeneralException e) {
 			// catch a general exception that is intercepted by the error handler, and confirm that it's about no such
 			// member. If so, let's throw a better error that the object doesn't exist. If not, we'll just rethrow it.
@@ -394,15 +351,13 @@ public class PbcsApplicationImpl extends AbstractPbcsObject implements PbcsAppli
 	}
 
 	public UserPreferences getUserPreferences() {
-		String url = this.context.getBaseUrl() + "applications/{application}/userpreferences";
-		ResponseEntity<UserPreferences> userPrefs = this.context.getTemplate().getForEntity(url, UserPreferences.class, getName());
-		return userPrefs.getBody();
+		return get("applications/{application}/userpreferences", UserPreferences.class, getName());
 	}
 
 	@Override
 	public void exportMetadata(String jobName, String exportFileName) {
 		logger.info("Launching export metadata job: {}", jobName);
-		String url = this.context.getBaseUrl() + "applications/{application}/jobs";
+		String url = this.context.getBaseUrl() + JOBS_ENDPOINT;
 		JobLaunchPayload payload = new JobLaunchPayload("EXPORT_METADATA", jobName);
 
 		Map<String, String> params = new HashMap<>();
@@ -414,24 +369,14 @@ public class PbcsApplicationImpl extends AbstractPbcsObject implements PbcsAppli
 		// ResponseEntity<JobLaunchResponse> output =
 		// this.context.getTemplate().postForEntity(url, payload,
 		// JobLaunchResponse.class, appMap);
-		ResponseEntity<String> output = this.context.getTemplate().postForEntity(url, payload, String.class, appMap);
+		ResponseEntity<String> output = this.context.getTemplate().postForEntity(url, payload, String.class, getName());
 		System.out.println("export resp: " + output.getBody());
 	}
 
-	public void getTest() {
-		logger.info("Fetching test");
-		String url = this.context.getBaseUrl() + "applications/{application}/userpreferences";
-		ResponseEntity<String> userPrefs = this.context.getTemplate().getForEntity(url, String.class,
-				application.getName());
-		System.out.println("User prefs: " + userPrefs.getBody());
-	}
-
+	@Override
 	public DataSlice exportDataSlice(String planType, ExportDataSlice dataSlice) {
-		logger.info("Exporting data slice from plan type {}", planType);
-		String url = this.context.getBaseUrl() + "applications/{application}/plantypes/{planType}/exportdataslice";
-		ResponseEntity<DataSlice> slice = this.context.getTemplate().postForEntity(url, dataSlice, DataSlice.class, application.getName(), planType);
-		logger.info("Slice: {}", slice);
-		return slice.getBody();
+		logger.info("Exporting data slice from plan {}", planType);
+		return post("applications/{application}/plantypes/{planType}/exportdataslice", dataSlice, DataSlice.class, getName(), planType);
 	}
 
 	@Override

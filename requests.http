@@ -63,9 +63,15 @@ GET https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/dimensions/
 Authorization: {{creds}}
 Accept: application/json
 
-### Get Jobs
+### Get Job Definitions
 
 GET https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/jobdefinitions
+Authorization: {{creds}}
+Accept: application/json
+
+### Get Job Definitions
+
+GET https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/jobs
 Authorization: {{creds}}
 Accept: application/json
 

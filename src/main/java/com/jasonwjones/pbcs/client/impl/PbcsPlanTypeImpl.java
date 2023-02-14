@@ -91,17 +91,10 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 
 	@Override
 	public String getCell(List<String> dataPoint) {
-		String url = this.context.getBaseUrl() + "applications/{application}/plantypes/{planType}/exportdataslice";
-		GridDefinition gridDefinition = new GridDefinition(dataPoint);
-		ExportDataSlice exportDataSlice = new ExportDataSlice(gridDefinition);
-		ResponseEntity<DataSlice> slice = this.context.getTemplate().postForEntity(url, exportDataSlice, DataSlice.class, application.getName(), planType);
-		if (slice.getStatusCode().is2xxSuccessful()) {
-			DataSlice dataSlice = slice.getBody();
-			DataSlice.HeaderDataRow headerDataRow = dataSlice.getRows().get(0);
-			return headerDataRow.getData().get(0);
-		} else {
-			throw new RuntimeException("Error retrieving data, received code: " + slice.getStatusCode());
-		}
+		// just lean on the implementation available in the application to avoid duplication
+		DataSlice dataSlice = this.application.exportDataSlice(getName(), new ExportDataSlice(new GridDefinition(dataPoint)));
+		DataSlice.HeaderDataRow headerDataRow = dataSlice.getRows().get(0);
+		return headerDataRow.getData().get(0);
 	}
 
 	@Override
