@@ -152,7 +152,7 @@ public interface PbcsPlanType {
 	 * capabilities are provided as a bit of a convenience on top of the basic member relation methods that are available
 	 * such as {@link PbcsMemberProperties#getChildren()}.
 	 *
-	 * @param memberName the base member name to perform the query with
+	 * @param memberName the base member name or alias to perform the query with
 	 * @param queryType the type of query
 	 * @return the list of members that result (or an empty list if there are none)
 	 */
