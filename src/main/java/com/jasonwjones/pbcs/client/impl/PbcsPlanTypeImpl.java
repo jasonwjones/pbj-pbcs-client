@@ -5,6 +5,7 @@ import com.jasonwjones.pbcs.api.v3.SubstitutionVariablesWrapper;
 import com.jasonwjones.pbcs.api.v3.dataslices.*;
 import com.jasonwjones.pbcs.client.*;
 import com.jasonwjones.pbcs.client.exceptions.PbcsClientException;
+import com.jasonwjones.pbcs.client.exceptions.PbcsDataImportException;
 import com.jasonwjones.pbcs.client.impl.grid.DataSliceGrid;
 import com.jasonwjones.pbcs.client.memberdimensioncache.InMemoryMemberDimensionCache;
 import com.jasonwjones.pbcs.util.GridUtils;
@@ -18,6 +19,8 @@ import java.util.stream.Collectors;
 public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType {
 
 	private static final Logger logger = LoggerFactory.getLogger(PbcsPlanTypeImpl.class);
+
+	public static final ImportDataOptions DEFAULT_IMPORT_OPTIONS = new ImportDataOptionsImpl();
 
 	private final PbcsApplication application;
 
@@ -156,27 +159,56 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 	}
 
 	@Override
-	public void setCell(List<String> pov, String value) {
-		ImportDataSlice importDataSlice = new ImportDataSlice(pov, value);
-		logger.info("Updating {}.{} to set cell {} to {}", application.getName(), planType, pov, value);
-		ResponseEntity<ImportDataSliceResponse> response = this.context.getTemplate().postForEntity(this.context.getBaseUrl() + "applications/{application}/plantypes/{planType}/importdataslice", importDataSlice, ImportDataSliceResponse.class, application.getName(), planType);
-
-		if (response.getStatusCode().is2xxSuccessful()) {
-			ImportDataSliceResponse importDataSliceResponse = response.getBody();
-			logger.info("Update cell result: {} accepted cells, {} rejected cells", importDataSliceResponse.getNumAcceptedCells(), importDataSliceResponse.getNumRejectedCells());
-		}
+	public ImportDataResult setCell(List<String> pov, String value) {
+		return setCell(pov, value, DEFAULT_IMPORT_OPTIONS);
 	}
 
 	@Override
-	public void setCells(List<String> pov, Grid<String> values) {
+	public ImportDataResult setCell(List<String> pov, String value, ImportDataOptions importDataOptions) {
+		ImportDataSlice importDataSlice = new ImportDataSlice(pov, value);
+		logger.info("Updating {}.{} to set cell {} to {}", application.getName(), planType, pov, value);
+		return importDataSlice(importDataSlice, importDataOptions);
+	}
+
+	@Override
+	public ImportDataResult setCells(List<String> pov, Grid<String> values) {
+		return setCells(pov, values, DEFAULT_IMPORT_OPTIONS);
+	}
+
+	@Override
+	public ImportDataResult setCells(List<String> pov, Grid<String> values, ImportDataOptions importDataOptions) {
 		ImportDataSlice importDataSlice = new ImportDataSlice();
 		importDataSlice.setDataGrid(new DataSlice(pov, values));
 		logger.info("Updating {}.{} at POV {} using a {}x{} source grid", application.getName(), planType, pov, values.getRows(), values.getColumns());
-		ResponseEntity<ImportDataSliceResponse> response = this.context.getTemplate().postForEntity(this.context.getBaseUrl() + "applications/{application}/plantypes/{planType}/importdataslice", importDataSlice, ImportDataSliceResponse.class, application.getName(), planType);
+		return importDataSlice(importDataSlice, importDataOptions);
+	}
 
+	private ImportDataResult importDataSlice(ImportDataSlice importDataSlice, ImportDataOptions importDataOptions) {
+
+		importDataSlice.setAggregateEssbaseData(importDataOptions.isAggregateData());
+		importDataSlice.setCellNotesOption(importDataOptions.getCellNotesOption().getApiCode());
+		importDataSlice.setDateFormat(importDataOptions.getDateFormat());
+		importDataSlice.setDryRun(importDataOptions.isDryRun());
+		importDataSlice.setStrictDateValidation(importDataOptions.isStrictDateValidation());
+		importDataSlice.getCustomParams().setPostDataImportRuleNames(importDataOptions.getPostDataImportRuleNames());
+		importDataSlice.getCustomParams().setIncludeRejectedCells(importDataOptions.isIncludeRejectedCells());
+		importDataSlice.getCustomParams().setIncludeRejectedCellsWithDetails(importDataOptions.isIncludeRejectedCellsWithDetails());
+
+		ResponseEntity<ImportDataSliceResponse> response = this.context.getTemplate().postForEntity(this.context.getBaseUrl() + "applications/{application}/plantypes/{planType}/importdataslice", importDataSlice, ImportDataSliceResponse.class, application.getName(), planType);
 		if (response.getStatusCode().is2xxSuccessful()) {
 			ImportDataSliceResponse importDataSliceResponse = response.getBody();
 			logger.info("Update cell result: {} accepted cells, {} rejected cells", importDataSliceResponse.getNumAcceptedCells(), importDataSliceResponse.getNumRejectedCells());
+			if (importDataOptions.isThrowExceptionIfAnyRejectedCells() && importDataSliceResponse.getNumRejectedCells() > 0) {
+				throw new PbcsDataImportException(importDataSliceResponse);
+			}
+			if (importDataSliceResponse.getNumRejectedCells() > 0 && importDataSliceResponse.getRejectedCellsWithDetails() != null) {
+				for (ImportDataSliceResponse.RejectedCellDetails rejectedCellDetails : importDataSliceResponse.getRejectedCellsWithDetails()) {
+					logger.warn("Unable to update cell at {}; read only reason: {}, other reasons: {}", rejectedCellDetails.getMemberNames(), rejectedCellDetails.getReadOnlyReasons(), rejectedCellDetails.getOtherReasons());
+				}
+			}
+			return new ImportDataResultImpl(importDataSliceResponse);
+		} else {
+			throw new PbcsClientException("Data slice import was unsuccessful: " + response.getStatusCode());
 		}
 	}
 
@@ -341,6 +373,127 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 		@Override
 		public String toString() {
 			return name;
+		}
+
+	}
+
+	private static class ImportDataResultImpl implements ImportDataResult {
+
+		private final ImportDataSliceResponse response;
+
+		public ImportDataResultImpl(ImportDataSliceResponse response) {
+			this.response = response;
+		}
+
+		public int getAcceptedCells() {
+			return response.getNumAcceptedCells();
+		}
+
+		public int getRejectedCells() {
+			return response.getNumRejectedCells();
+		}
+
+	}
+
+	public static class ImportDataOptionsImpl implements ImportDataOptions {
+
+		private boolean aggregateData;
+
+		private CellNotesOption cellNotesOption = CellNotesOption.SKIP;
+
+		private String dateFormat = "DD/MM/YYYY";
+
+		private boolean strictDateValidation = true;
+
+		private boolean dryRun;
+
+		private boolean includeRejectedCells = true;
+
+		private boolean includeRejectedCellsWithDetails = false;
+
+		private String postDataImportRuleNames;
+
+		private boolean throwExceptionIfAnyRejectedCells;
+
+		@Override
+		public boolean isAggregateData() {
+			return aggregateData;
+		}
+
+		public void setAggregateData(boolean aggregateData) {
+			this.aggregateData = aggregateData;
+		}
+
+		@Override
+		public CellNotesOption getCellNotesOption() {
+			return cellNotesOption;
+		}
+
+		public void setCellNotesOption(CellNotesOption cellNotesOption) {
+			this.cellNotesOption = cellNotesOption;
+		}
+
+		@Override
+		public String getDateFormat() {
+			return dateFormat;
+		}
+
+		public void setDateFormat(String dateFormat) {
+			this.dateFormat = dateFormat;
+		}
+
+		@Override
+		public boolean isStrictDateValidation() {
+			return strictDateValidation;
+		}
+
+		public void setStrictDateValidation(boolean strictDateValidation) {
+			this.strictDateValidation = strictDateValidation;
+		}
+
+		@Override
+		public boolean isDryRun() {
+			return dryRun;
+		}
+
+		public void setDryRun(boolean dryRun) {
+			this.dryRun = dryRun;
+		}
+
+		@Override
+		public boolean isIncludeRejectedCells() {
+			return includeRejectedCells;
+		}
+
+		public void setIncludeRejectedCells(boolean includeRejectedCells) {
+			this.includeRejectedCells = includeRejectedCells;
+		}
+
+		@Override
+		public boolean isIncludeRejectedCellsWithDetails() {
+			return includeRejectedCellsWithDetails;
+		}
+
+		public void setIncludeRejectedCellsWithDetails(boolean includeRejectedCellsWithDetails) {
+			this.includeRejectedCellsWithDetails = includeRejectedCellsWithDetails;
+		}
+
+		@Override
+		public String getPostDataImportRuleNames() {
+			return postDataImportRuleNames;
+		}
+
+		public void setPostDataImportRuleNames(String postDataImportRuleNames) {
+			this.postDataImportRuleNames = postDataImportRuleNames;
+		}
+
+		@Override
+		public boolean isThrowExceptionIfAnyRejectedCells() {
+			return throwExceptionIfAnyRejectedCells;
+		}
+
+		public void setThrowExceptionIfAnyRejectedCells(boolean throwExceptionIfAnyRejectedCells) {
+			this.throwExceptionIfAnyRejectedCells = throwExceptionIfAnyRejectedCells;
 		}
 
 	}

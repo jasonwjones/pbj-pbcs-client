@@ -1,29 +1,29 @@
 package com.jasonwjones.pbcs.api.v3.dataslices;
 
-import java.util.HashMap;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.List;
-import java.util.Map;
 
 public class ImportDataSlice {
 
     private boolean aggregateEssbaseData = false;
 
+    // possible values: Overwrite, Append, Skip
     private String cellNotesOption = "Skip";
 
+    // additional notes: https://docs.oracle.com/en/cloud/saas/enterprise-performance-management-common/prest/import_dataslices.html
     private String dateFormat = "DD/MM/YYYY";
 
     private boolean dryRun = false;
 
     private boolean strictDateValidation = true;
 
-    private Map<String, Object> customParams;
+    private CustomParams customParams;
 
     private DataSlice dataGrid;
 
     public ImportDataSlice() {
-        customParams = new HashMap<>();
-        customParams.put("IncludeRejectedCells", "true");
-        customParams.put("IncludeRejectedCellsWithDetails", "true");
+        customParams = new CustomParams(true, true);
     }
 
     public ImportDataSlice(List<String> pov, String value) {
@@ -71,11 +71,11 @@ public class ImportDataSlice {
         this.strictDateValidation = strictDateValidation;
     }
 
-    public Map<String, Object> getCustomParams() {
+    public CustomParams getCustomParams() {
         return customParams;
     }
 
-    public void setCustomParams(Map<String, Object> customParams) {
+    public void setCustomParams(CustomParams customParams) {
         this.customParams = customParams;
     }
 
@@ -85,6 +85,50 @@ public class ImportDataSlice {
 
     public void setDataGrid(DataSlice dataGrid) {
         this.dataGrid = dataGrid;
+    }
+
+    public static class CustomParams {
+
+        @JsonProperty("PostDataImportRuleNames")
+        private String postDataImportRuleNames;
+
+        @JsonProperty("IncludeRejectedCells")
+        private boolean includeRejectedCells;
+
+        @JsonProperty("includeRejectedCellsWithDetails")
+        private boolean includeRejectedCellsWithDetails;
+
+        public CustomParams() {}
+
+        public CustomParams(boolean includeRejectedCells, boolean includeRejectedCellsWithDetails) {
+            this.includeRejectedCells = includeRejectedCells;
+            this.includeRejectedCellsWithDetails = includeRejectedCellsWithDetails;
+        }
+
+        public String getPostDataImportRuleNames() {
+            return postDataImportRuleNames;
+        }
+
+        public void setPostDataImportRuleNames(String postDataImportRuleNames) {
+            this.postDataImportRuleNames = postDataImportRuleNames;
+        }
+
+        public boolean isIncludeRejectedCells() {
+            return includeRejectedCells;
+        }
+
+        public void setIncludeRejectedCells(boolean includeRejectedCells) {
+            this.includeRejectedCells = includeRejectedCells;
+        }
+
+        public boolean isIncludeRejectedCellsWithDetails() {
+            return includeRejectedCellsWithDetails;
+        }
+
+        public void setIncludeRejectedCellsWithDetails(boolean includeRejectedCellsWithDetails) {
+            this.includeRejectedCellsWithDetails = includeRejectedCellsWithDetails;
+        }
+
     }
 
 }

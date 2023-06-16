@@ -55,13 +55,23 @@ public class AbstractPbcsPlanType implements PbcsPlanType {
     }
 
     @Override
-    public void setCell(List<String> pov, String value) {
-        planType.setCell(pov, value);
+    public ImportDataResult setCell(List<String> pov, String value) {
+        return planType.setCell(pov, value);
     }
 
     @Override
-    public void setCells(List<String> pov, Grid<String> values) {
-        planType.setCells(pov, values);
+    public ImportDataResult setCell(List<String> pov, String value, ImportDataOptions importDataOptions) {
+        return planType.setCell(pov, value, importDataOptions);
+    }
+
+    @Override
+    public ImportDataResult setCells(List<String> pov, Grid<String> values) {
+        return planType.setCells(pov, values);
+    }
+
+    @Override
+    public ImportDataResult setCells(List<String> pov, Grid<String> values, ImportDataOptions importDataOptions) {
+        return planType.setCells(pov, values, importDataOptions);
     }
 
     @Override

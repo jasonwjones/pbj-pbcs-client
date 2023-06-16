@@ -10,7 +10,7 @@ public class ImportDataSliceResponse {
 
     private List<String> rejectedCells;
 
-    private List<String> rejectedCellsWithDetails;
+    private List<RejectedCellDetails> rejectedCellsWithDetails;
 
     public int getNumAcceptedCells() {
         return numAcceptedCells;
@@ -36,12 +36,46 @@ public class ImportDataSliceResponse {
         this.rejectedCells = rejectedCells;
     }
 
-    public List<String> getRejectedCellsWithDetails() {
+    public List<RejectedCellDetails> getRejectedCellsWithDetails() {
         return rejectedCellsWithDetails;
     }
 
-    public void setRejectedCellsWithDetails(List<String> rejectedCellsWithDetails) {
+    public void setRejectedCellsWithDetails(List<RejectedCellDetails> rejectedCellsWithDetails) {
         this.rejectedCellsWithDetails = rejectedCellsWithDetails;
+    }
+
+    public static class RejectedCellDetails {
+
+        private List<String> memberNames;
+
+        private List<String> readOnlyReasons;
+
+        private List<String> otherReasons;
+
+        public List<String> getMemberNames() {
+            return memberNames;
+        }
+
+        public void setMemberNames(List<String> memberNames) {
+            this.memberNames = memberNames;
+        }
+
+        public List<String> getReadOnlyReasons() {
+            return readOnlyReasons;
+        }
+
+        public void setReadOnlyReasons(List<String> readOnlyReasons) {
+            this.readOnlyReasons = readOnlyReasons;
+        }
+
+        public List<String> getOtherReasons() {
+            return otherReasons;
+        }
+
+        public void setOtherReasons(List<String> otherReasons) {
+            this.otherReasons = otherReasons;
+        }
+
     }
 
 }

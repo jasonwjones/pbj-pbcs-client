@@ -74,26 +74,53 @@ public interface PbcsPlanType {
 
 	/**
 	 * Sets the value for a single cell. Internally, this method just wraps the "import data slice" endpoint
+	 * and provides the convenience of being able to set a single cell without all the ceremony of creating a grid. This
+	 * method uses the default import options defined in {@link com.jasonwjones.pbcs.client.impl.PbcsPlanTypeImpl#DEFAULT_IMPORT_OPTIONS},
+	 * use the related method if you need full control over how the data import is specified.
+	 *
+	 * @param pov the pov
+	 * @param value the cell value
+	 * @return the data import results
+	 * @see #setCell(List, String, ImportDataOptions) if you need full control over the import data behavior
+	 */
+	ImportDataResult setCell(List<String> pov, String value);
+
+	/**
+	 * Sets the value for a single cell. Internally, this method just wraps the "import data slice" endpoint
 	 * and provides the convenience of being able to set a single cell without all the ceremony of creating a grid
 	 *
 	 * @param pov the pov
 	 * @param value the cell value
+	 * @param importDataOptions the options to use when importing
+	 * @return the data import results
 	 */
-	void setCell(List<String> pov, String value);
+	ImportDataResult setCell(List<String> pov, String value, ImportDataOptions importDataOptions);
 
 	/**
 	 * Update multiple cells using the POV and the given grid. A simple parsing strategy will be used on the grid.
 	 *
 	 * @param pov the pov
 	 * @param values the cell values
+	 * @return the data import results
+	 * @see #setCell(List, String, ImportDataOptions) if you need full control over the import data options
 	 */
-	void setCells(List<String> pov, Grid<String> values);
+	ImportDataResult setCells(List<String> pov, Grid<String> values);
+
+	/**
+	 * Update multiple cells using the POV and the given grid. A simple parsing strategy will be used on the grid.
+	 *
+	 * @param pov the pov
+	 * @param values the cell values
+	 * @return the data import results
+	 */
+	ImportDataResult setCells(List<String> pov, Grid<String> values, ImportDataOptions importDataOptions);
 
 	/**
 	 * Retrieves a single cell of data at the given POV.
 	 *
 	 * @param dataPoint the data point
 	 * @return the value of the cell, may be an empty string
+	 * @see #setCell(List, String) for setting a single cell value
 	 */
 	String getCell(List<String> dataPoint);
 
@@ -210,6 +237,108 @@ public interface PbcsPlanType {
 		 * @param dimensionName the dimension of the member
 		 */
 		void setDimension(String memberName, String dimensionName);
+
+	}
+
+	/**
+	 * Represents the results of importing data to the plan/cube. The values for accepted and rejected cells are
+	 * inherently part of the response to the <code>importDataSlice</code> REST API call, so they are simply passed
+	 * through in this object.
+	 */
+	interface ImportDataResult {
+
+		/**
+		 * The number of cells that were accepted to be updated in the cube.
+		 *
+		 * @return the number of cells
+		 */
+		int getAcceptedCells();
+
+		/**
+		 * The number of cells that were rejected to be updated in the cube.
+		 *
+		 * @return the number of cells
+		 */
+		int getRejectedCells();
+
+	}
+
+	/**
+	 * Represents all the options that can be used on the <code>importDataSlice</code> REST endpoint. Most of these
+	 * options map 1:1 to options in the request payload, however, some are purely niceties in this library, such as
+	 * the ability to throw an exception on any rejected data in the request.
+	 */
+	interface ImportDataOptions {
+
+		/**
+		 * Set to true if values should be added to existing values (no effect for date and text types). Despite the
+		 * name, this has nothing to do with running a calc all on the cube.
+		 *
+		 * @return true to add values, false otherwise
+		 */
+		boolean isAggregateData();
+
+		CellNotesOption getCellNotesOption();
+
+		String getDateFormat();
+
+		boolean isStrictDateValidation();
+
+		/**
+		 * Don't actually import the data
+		 *
+		 * @return true if it's a dry run, false otherwise
+		 */
+		boolean isDryRun();
+
+		/**
+		 * True if rejected cells should be included in response
+		 *
+		 * @return if rejected cells should be included in response
+		 */
+		boolean isIncludeRejectedCells();
+
+		/**
+		 * True if rejected cells should have additional details
+		 *
+		 * @return true if response should include the additional details, false otherwise
+		 */
+		boolean isIncludeRejectedCellsWithDetails();
+
+		/**
+		 * Per the docs, this will normally be null but may be used by planners in Data Management.
+		 *
+		 * @return the post data import rule names
+		 */
+		String getPostDataImportRuleNames();
+
+		/**
+		 * If true, then a {@link com.jasonwjones.pbcs.client.exceptions.PbcsDataImportException} should be thrown if
+		 * any of the cells were rejected.
+		 *
+		 * @return true if exception should be thrown for rejected data, false otherwise
+		 */
+		boolean isThrowExceptionIfAnyRejectedCells();
+
+	}
+
+	enum CellNotesOption {
+
+		OVERWRITE("Overwrite"),
+
+		APPEND("Append"),
+
+		SKIP("Skip");
+
+		private final String apiCode;
+
+		CellNotesOption(String apiCode) {
+			this.apiCode = apiCode;
+		}
+
+		public String getApiCode() {
+			return apiCode;
+		}
 
 	}
 
