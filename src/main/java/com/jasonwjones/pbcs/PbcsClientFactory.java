@@ -10,6 +10,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class PbcsClientFactory {
 
@@ -56,7 +57,9 @@ public class PbcsClientFactory {
 	 * @param username the username
 	 * @param password the password
 	 * @return a PbcsClient constructed with the given parameters
+	 * @deprecated use {@link #createClient(PbcsConnection)} or {@link #createClient(PbcsConnection, PbcsServiceConfiguration)} instead
 	 */
+	@Deprecated
 	public PbcsClient createClient(String server, String identityDomain, String username, String password) {
 		return createClient(new PbcsConnectionImpl(server, identityDomain, username, password));
 	}
@@ -92,6 +95,10 @@ public class PbcsClientFactory {
 	}
 
 	protected RestContext createRestContext(PbcsServiceConfiguration serviceConfiguration, PbcsConnection connection) {
+		Objects.requireNonNull(connection.getServer(), "server");
+		if (connection.getServer().contains("/")) {
+			throw new IllegalArgumentException("Server should not contain protocol, path, or any forward slashes");
+		}
 		String baseUrl = serviceConfiguration.getScheme() + "://" + connection.getServer() + serviceConfiguration.getPlanningRestApiPath() + serviceConfiguration.getPlanningApiVersion() + "/";
 
 		RestTemplate restTemplate = !connection.isToken() ? new RestTemplate(serviceConfiguration.createRequestFactory(connection)) : new RestTemplate();

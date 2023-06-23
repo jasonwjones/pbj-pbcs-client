@@ -18,11 +18,10 @@ public class PbcsConnectionImpl implements PbcsConnection {
 	private String password;
 
 	/**
-	 * Builds a new PBCS Connection object. None of the fields may be null or
-	 * otherwise empty, otherwise an IllegalArgumentException will be thrown.
+	 * Builds a new PBCS Connection object. All fields are required except the identity domain. Gen2 servers do not need
+	 * an identity domain, but it may be required for Gen1 servers.
 	 *
-	 * @param server the server, not including http and not containing anything
-	 *            after the TLD
+	 * @param server the server, not including http and not containing anything after the TLD
 	 * @param identityDomain the identity domain for the user
 	 * @param username the username to connect with
 	 * @param password the password for the user
