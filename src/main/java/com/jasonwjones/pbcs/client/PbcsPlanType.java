@@ -225,31 +225,11 @@ public interface PbcsPlanType {
 		/**
 		 * Gets the name of the dimension that the given member is associated with.
 		 *
-		 * @param memberName the member name to get the dimension of
-		 * @return the name of that member's dimension, null if none is found
-		 * @deprecated use the {@link #getDimensionName(PbcsPlanType, String)} overload
-		 */
-		@Deprecated
-		String getDimensionName(String memberName);
-
-		/**
-		 * Gets the name of the dimension that the given member is associated with.
-		 *
 		 * @param planType the plan type being used (implementations may need to use for cache key)
 		 * @param memberName the member name to get the dimension of
 		 * @return the name of that member's dimension, null if none is found
 		 */
 		String getDimensionName(PbcsPlanType planType, String memberName);
-
-		/**
-		 * Sets the known dimension for a given member.
-		 *
-		 * @param memberName the member name
-		 * @param dimensionName the dimension of the member
-		 * @deprecated use the {@link #setDimension(PbcsPlanType, String, String)} overload
-		 */
-		@Deprecated
-		void setDimension(String memberName, String dimensionName);
 
 		/**
 		 * Sets the known dimension for a given member.

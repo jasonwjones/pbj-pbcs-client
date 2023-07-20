@@ -21,17 +21,12 @@ public class PropertiesMemberDimensionCache implements PbcsPlanType.MemberDimens
     }
 
     @Override
-    public String getDimensionName(String memberName) {
+    public String getDimensionName(PbcsPlanType planType, String memberName) {
         return read().getProperty(memberName);
     }
 
     @Override
-    public String getDimensionName(PbcsPlanType planType, String memberName) {
-        return getDimensionName(memberName);
-    }
-
-    @Override
-    public void setDimension(String memberName, String dimensionName) {
+    public void setDimension(PbcsPlanType planType, String memberName, String dimensionName) {
         Properties properties = read();
         properties.setProperty(memberName, dimensionName);
         try (FileOutputStream fos = new FileOutputStream(file)) {
@@ -39,11 +34,6 @@ public class PropertiesMemberDimensionCache implements PbcsPlanType.MemberDimens
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    @Override
-    public void setDimension(PbcsPlanType planType, String memberName, String dimensionName) {
-        setDimension(memberName, dimensionName);
     }
 
     private Properties read() {

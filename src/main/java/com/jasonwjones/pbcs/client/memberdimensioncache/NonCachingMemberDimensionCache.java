@@ -12,18 +12,8 @@ public class NonCachingMemberDimensionCache implements PbcsPlanType.MemberDimens
     private static final NonCachingMemberDimensionCache INSTANCE = new NonCachingMemberDimensionCache();
 
     @Override
-    public String getDimensionName(String memberName) {
-        return null;
-    }
-
-    @Override
     public String getDimensionName(PbcsPlanType planType, String memberName) {
         return null;
-    }
-
-    @Override
-    public void setDimension(String memberName, String dimensionName) {
-        // nothing
     }
 
     @Override
