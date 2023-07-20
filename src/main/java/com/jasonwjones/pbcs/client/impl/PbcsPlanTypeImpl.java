@@ -325,7 +325,7 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 
 	private String findMemberDimension(String memberName) {
 		// possible TODO: if member name equals a dimension name, we could just shortcut
-		String dimensionName = memberDimensionCache.getDimensionName(memberName);
+		String dimensionName = memberDimensionCache.getDimensionName(this, memberName);
 		if (dimensionName == null) {
 			if (!explicitDimensions.isEmpty()) {
 				logger.debug("Member dimension cache does not contain entry for {}, will search explicitly dimensions {}", memberName, explicitDimensions);
@@ -334,7 +334,7 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 						PbcsMemberProperties memberProperties = getMember(dimension.getName(), memberName);
 						if (memberProperties != null) {
 							dimensionName = dimension.getName();
-							memberDimensionCache.setDimension(memberName, dimensionName);
+							memberDimensionCache.setDimension(this, memberName, dimensionName);
 							break;
 						}
 					} catch (PbcsClientException e) {
