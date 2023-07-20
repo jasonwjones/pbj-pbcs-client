@@ -18,8 +18,18 @@ public class InMemoryMemberDimensionCache implements PbcsPlanType.MemberDimensio
     }
 
     @Override
+    public String getDimensionName(PbcsPlanType planType, String memberName) {
+        return getDimensionName(memberName);
+    }
+
+    @Override
     public void setDimension(String memberName, String dimensionName) {
         dimensionLookup.put(memberName, dimensionName);
+    }
+
+    @Override
+    public void setDimension(PbcsPlanType planType, String memberName, String dimensionName) {
+        setDimension(memberName, dimensionName);
     }
 
 }

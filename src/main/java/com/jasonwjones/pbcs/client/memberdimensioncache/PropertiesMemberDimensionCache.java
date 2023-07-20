@@ -2,7 +2,10 @@ package com.jasonwjones.pbcs.client.memberdimensioncache;
 
 import com.jasonwjones.pbcs.client.PbcsPlanType;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.Properties;
 
 /**
@@ -23,6 +26,11 @@ public class PropertiesMemberDimensionCache implements PbcsPlanType.MemberDimens
     }
 
     @Override
+    public String getDimensionName(PbcsPlanType planType, String memberName) {
+        return getDimensionName(memberName);
+    }
+
+    @Override
     public void setDimension(String memberName, String dimensionName) {
         Properties properties = read();
         properties.setProperty(memberName, dimensionName);
@@ -31,6 +39,11 @@ public class PropertiesMemberDimensionCache implements PbcsPlanType.MemberDimens
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public void setDimension(PbcsPlanType planType, String memberName, String dimensionName) {
+        setDimension(memberName, dimensionName);
     }
 
     private Properties read() {

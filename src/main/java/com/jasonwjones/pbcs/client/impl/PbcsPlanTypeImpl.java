@@ -274,7 +274,28 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 	@Override
 	public PbcsMemberProperties getMemberOrAlias(String memberOrAliasName) {
 		if (explicitDimensions.isEmpty()) throw new IllegalStateException("Must configure explicit dimensions to search for alias");
-		for (PbcsDimension dimension : explicitDimensions) {
+
+		// check for known dimension name for the member or alias in the member to dimension lookup cache
+		String possibleDimension = memberDimensionCache.getDimensionName(this, memberOrAliasName);
+
+		// we *assume* that the dimension in the lookup cache is valid, but leave ourselves some wiggle room just in the
+		// extremely unlikely case that it's somehow wrong (or outdated), and we need to perform the rest of the brute-force
+		// search anyway
+		List<PbcsDimension> dimensionsToSearch = explicitDimensions;
+		if (possibleDimension != null) {
+			dimensionsToSearch = new ArrayList<>(explicitDimensions);
+			for (int index = 0; index < dimensionsToSearch.size(); index++) {
+				PbcsDimension current = dimensionsToSearch.get(index);
+				if (current.getName().equals(possibleDimension)) {
+					// move the presumed dimension to the top of the search order
+					dimensionsToSearch.remove(index);
+					dimensionsToSearch.add(0, current);
+					break;
+				}
+			}
+		}
+
+		for (PbcsDimension dimension : dimensionsToSearch) {
 			logger.debug("Searching dimension {} for member/alias {}", dimension.getName(), memberOrAliasName);
 
 			Queue<PbcsMemberProperties> members = new ArrayDeque<>();
@@ -283,6 +304,10 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 			while (!members.isEmpty()) {
 				PbcsMemberProperties current = members.remove();
 				if (memberOrAliasName.equalsIgnoreCase(current.getName()) || memberOrAliasName.equalsIgnoreCase(current.getAlias())) {
+					// this is technically unneeded if the dimension is the same as possibleDimension, but it will be
+					// set here anyway in case the underlying cache mechanism needs a "hit" in order to update a TTL
+					// or similar value
+					memberDimensionCache.setDimension(this, memberOrAliasName, dimension.getName());
 					return current;
 				}
 				members.addAll(current.getChildren());
