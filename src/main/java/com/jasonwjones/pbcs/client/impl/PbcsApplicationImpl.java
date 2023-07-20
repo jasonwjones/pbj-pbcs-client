@@ -381,7 +381,7 @@ public class PbcsApplicationImpl extends AbstractPbcsObject implements PbcsAppli
 
 	@Override
 	public String toString() {
-		return "PbcsApplicationImpl [application=" + application + "]";
+		return "PbcsApplicationImpl[application=" + application + "]";
 	}
 
 	private static class MemberAdd {

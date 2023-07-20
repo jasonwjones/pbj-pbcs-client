@@ -5,6 +5,7 @@ import com.jasonwjones.pbcs.client.PbcsPlanType;
 import com.jasonwjones.pbcs.client.memberdimensioncache.InMemoryMemberDimensionCache;
 
 import java.util.List;
+import java.util.StringJoiner;
 
 public class PlanTypeConfigurationImpl implements PbcsApplication.PlanTypeConfiguration {
 
@@ -50,6 +51,16 @@ public class PlanTypeConfigurationImpl implements PbcsApplication.PlanTypeConfig
 
     public void setMemberDimensionCache(PbcsPlanType.MemberDimensionCache memberDimensionCache) {
         this.memberDimensionCache = memberDimensionCache;
+    }
+
+    @Override
+    public String toString() {
+        return new StringJoiner(", ", PlanTypeConfigurationImpl.class.getSimpleName() + "[", "]")
+                .add("name='" + name + "'")
+                .add("skipCheck=" + skipCheck)
+                .add("explicitDimensions=" + explicitDimensions)
+                .add("memberDimensionCache=" + memberDimensionCache.getClass().getSimpleName())
+                .toString();
     }
 
 }
