@@ -35,7 +35,7 @@ public class PbcsPlanningClientImpl extends AbstractPbcsObject implements PbcsPl
 		super(restContext);
 		this.server = server;
 
-		if (skipApiCheck) {
+		if (!skipApiCheck) {
 			try {
 				PbcsApi api = getApi();
 				if (!api.isLatest()) {
