@@ -54,6 +54,11 @@ public class VisionCubeIT extends AbstractIntegrationTest {
     }
 
     @Test
+    public void getDimensions() {
+        assertThat(cube.getDimensions().size(), is(DIMENSIONS.size()));
+    }
+
+    @Test
     public void setCell() {
         PbcsPlanType.ImportDataResult result = cube.setCell(LEVEL0_TEST_CELL, CELL_TEST_VALUE);
         assertThat(CELL_TEST_VALUE, is(cube.getCell(LEVEL0_TEST_CELL)));

@@ -26,23 +26,16 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 
 	private final String planType;
 
-	private final List<PbcsDimension> explicitDimensions;
-
-	private final MemberDimensionCache memberDimensionCache;
+	protected final MemberDimensionCache memberDimensionCache;
 
 	PbcsPlanTypeImpl(RestContext context, PbcsApplication application, String planType) {
-		this(context, application, planType, Collections.emptyList(), new InMemoryMemberDimensionCache());
+		this(context, application, planType, new InMemoryMemberDimensionCache());
 	}
 
-	PbcsPlanTypeImpl(RestContext context, PbcsApplication application, String planType, List<String> explicitDimensions, MemberDimensionCache memberDimensionCache) {
+	PbcsPlanTypeImpl(RestContext context, PbcsApplication application, String planType, MemberDimensionCache memberDimensionCache) {
 		super(context);
-		if (explicitDimensions == null) throw new IllegalArgumentException("List of explicit dimensions cannot be null");
 		this.application = application;
 		this.planType = planType;
-		this.explicitDimensions = new ArrayList<>();
-		for (int index = 0; index < explicitDimensions.size(); index++) {
-			this.explicitDimensions.add(new ExplicitDimension(explicitDimensions.get(index), index));
-		}
 		this.memberDimensionCache = memberDimensionCache;
 	}
 
@@ -53,11 +46,7 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 
 	@Override
 	public List<PbcsDimension> getDimensions() {
-		if (!explicitDimensions.isEmpty()) {
-			return explicitDimensions;
-		} else {
-			return application.getDimensions(planType);
-		}
+		return application.getDimensions(planType);
 	}
 
 	@Override
@@ -69,17 +58,12 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 
 	@Override
 	public PbcsDimension getDimension(String dimensionName) {
-		for (PbcsDimension dimension : explicitDimensions) {
-			if (dimension.getName().equals(dimensionName)) {
-				return dimension;
-			}
-		}
-		throw new IllegalArgumentException("No dimension " + dimensionName + " contained in dimension list");
+		throw new IllegalArgumentException("Cannot get dimension in non-explicit dimension plan type");
 	}
 
 	@Override
 	public boolean isExplicitDimensions() {
-		return !explicitDimensions.isEmpty();
+		return false;
 	}
 
 	@Override
@@ -89,7 +73,7 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 
 	@Override
 	public String getCell() {
-		return getCell(dimensions());
+		throw new UnsupportedOperationException("Cannot get default cell when using plan without explicit dimensions");
 	}
 
 	@Override
@@ -102,7 +86,7 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 
 	@Override
 	public DataSliceGrid retrieve() {
-		return retrieve(dimensions());
+		throw new UnsupportedOperationException("Cannot retrieve default cell when using plan without explicit dimensions");
 	}
 
 	@Override
@@ -219,11 +203,11 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 
 	@Override
 	public PbcsMemberProperties getMember(String memberName) {
-		String dimensionName = findMemberDimension(memberName);
+		String dimensionName = findMemberDimensionFromCache(memberName);
 		if (dimensionName != null) {
 			return getMember(dimensionName, memberName);
 		} else {
-			throw new PbcsClientException("Unable to determine dimension for member " + memberName);
+			throw new PbcsClientException("Unable to determine dimension for member (try using explicit dimensions plan type)" + memberName);
 		}
 	}
 
@@ -272,134 +256,25 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 	}
 
 	@Override
-	public PbcsMemberProperties getMemberOrAlias(String memberOrAliasName) {
-		if (explicitDimensions.isEmpty()) throw new IllegalStateException("Must configure explicit dimensions to search for alias");
-
-		// check for known dimension name for the member or alias in the member to dimension lookup cache
-		String possibleDimension = memberDimensionCache.getDimensionName(this, memberOrAliasName);
-
-		// we *assume* that the dimension in the lookup cache is valid, but leave ourselves some wiggle room just in the
-		// extremely unlikely case that it's somehow wrong (or outdated), and we need to perform the rest of the brute-force
-		// search anyway
-		List<PbcsDimension> dimensionsToSearch = explicitDimensions;
-		if (possibleDimension != null) {
-			dimensionsToSearch = new ArrayList<>(explicitDimensions);
-			for (int index = 0; index < dimensionsToSearch.size(); index++) {
-				PbcsDimension current = dimensionsToSearch.get(index);
-				if (current.getName().equals(possibleDimension)) {
-					// move the presumed dimension to the top of the search order
-					dimensionsToSearch.remove(index);
-					dimensionsToSearch.add(0, current);
-					break;
-				}
-			}
-		}
-
-		for (PbcsDimension dimension : dimensionsToSearch) {
-			logger.debug("Searching dimension {} for member/alias {}", dimension.getName(), memberOrAliasName);
-
-			Queue<PbcsMemberProperties> members = new ArrayDeque<>();
-			members.add(dimension.getRoot());
-
-			while (!members.isEmpty()) {
-				PbcsMemberProperties current = members.remove();
-				if (memberOrAliasName.equalsIgnoreCase(current.getName()) || memberOrAliasName.equalsIgnoreCase(current.getAlias())) {
-					// this is technically unneeded if the dimension is the same as possibleDimension, but it will be
-					// set here anyway in case the underlying cache mechanism needs a "hit" in order to update a TTL
-					// or similar value
-					memberDimensionCache.setDimension(this, memberOrAliasName, dimension.getName());
-					return current;
-				}
-				members.addAll(current.getChildren());
-			}
-		}
-		return null;
-	}
-
-	@Override
 	public Set<SubstitutionVariable> getSubstitutionVariables() {
 		String url = this.context.getBaseUrl() + "applications/{application}/plantypes/{planType}/substitutionvariables";
 		ResponseEntity<SubstitutionVariablesWrapper> response = this.context.getTemplate().getForEntity(url, SubstitutionVariablesWrapper.class, application.getName(), getName());
 		return new HashSet<>(response.getBody().getItems());
 	}
 
-	private String findMemberDimension(String memberName) {
-		// possible TODO: if member name equals a dimension name, we could just shortcut
+	@Override
+	public PbcsMemberProperties getMemberOrAlias(String memberOrAliasName) {
+		throw new IllegalStateException("Must configure explicit dimensions to search for alias");
+	}
+
+	public String findMemberDimensionFromCache(String memberName) {
 		String dimensionName = memberDimensionCache.getDimensionName(this, memberName);
 		if (dimensionName == null) {
-			if (!explicitDimensions.isEmpty()) {
-				logger.debug("Member dimension cache does not contain entry for {}, will search explicitly dimensions {}", memberName, explicitDimensions);
-				for (PbcsDimension dimension : explicitDimensions) {
-					try {
-						PbcsMemberProperties memberProperties = getMember(dimension.getName(), memberName);
-						if (memberProperties != null) {
-							dimensionName = dimension.getName();
-							memberDimensionCache.setDimension(this, memberName, dimensionName);
-							break;
-						}
-					} catch (PbcsClientException e) {
-						logger.debug("Did not find member {} in dimension {}", memberName, dimension.getName());
-					}
-				}
-			} else {
-				logger.warn("Cube is trying to perform member resolution from explicit dimension list, but none are defined.");
-			}
+			logger.warn("Tried to find dimension for member {} but this is not an explicit dimensions plan type and the member-dimension cache did not resolve the dimension", memberName);
 		} else {
 			logger.trace("Member {} has dimension {} from cache", memberName, dimensionName);
 		}
 		return dimensionName;
-	}
-
-	private List<String> dimensions() {
-		return explicitDimensions.stream()
-				.map(PbcsDimension::getName)
-				.collect(Collectors.toList());
-	}
-
-	private class ExplicitDimension implements PbcsDimension {
-
-		private final String name;
-
-		private final int number;
-
-		private ExplicitDimension(String name, int number) {
-			this.name = name;
-			this.number = number;
-		}
-
-		@Override
-		public String getName() {
-			return name;
-		}
-
-		@Override
-		public int getNumber() {
-			return number;
-		}
-
-		@Override
-		public PbcsMemberProperties getMember(String memberName) {
-			return PbcsPlanTypeImpl.this.getMember(name, memberName);
-		}
-
-		@Override
-		public boolean equals(Object o) {
-			if (this == o) return true;
-			if (o == null || getClass() != o.getClass()) return false;
-			ExplicitDimension that = (ExplicitDimension) o;
-			return name.equals(that.name);
-		}
-
-		@Override
-		public int hashCode() {
-			return Objects.hash(name);
-		}
-
-		@Override
-		public String toString() {
-			return name;
-		}
-
 	}
 
 	private static class ImportDataResultImpl implements ImportDataResult {

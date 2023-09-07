@@ -487,7 +487,11 @@ public class PbcsApplicationImpl extends AbstractPbcsObject implements PbcsAppli
 		if (!configuration.isSkipCheck()) {
 			validatePlanType(configuration.getName());
 		}
-		return new PbcsPlanTypeImpl(context, this, configuration.getName(), configuration.getExplicitDimensions(), configuration.getMemberDimensionCache());
+		if (configuration.getExplicitDimensions() != null && !configuration.getExplicitDimensions().isEmpty()) {
+			return new PbcsExplicitDimensionsPlanTypeImpl(context, this, configuration.getName(), configuration.getExplicitDimensions(), configuration.getMemberDimensionCache());
+		} else {
+			return new PbcsPlanTypeImpl(context, this, configuration.getName(), configuration.getMemberDimensionCache());
+		}
 	}
 
 	/**
