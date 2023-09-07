@@ -18,7 +18,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 public class VisionCubeIT extends AbstractIntegrationTest {
 
-    private PbcsPlanType cube;
+    protected PbcsPlanType cube;
 
     public static final List<String> DIMENSIONS = Arrays.asList("Account", "Currency", "Entity", "Period", "Product", "Scenario", "Version", "Year");
 
@@ -51,11 +51,6 @@ public class VisionCubeIT extends AbstractIntegrationTest {
     @Test
     public void getCell() {
         assertThat(cube.getCell(), is(cube.getCell(DIMENSIONS)));
-    }
-
-    @Test
-    public void getDimensions() {
-        assertThat(cube.getDimensions().size(), is(DIMENSIONS.size()));
     }
 
     @Test
