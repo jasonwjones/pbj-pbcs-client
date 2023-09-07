@@ -1,13 +1,13 @@
 package com.jasonwjones.pbcs.client;
 
 /**
- * Types are in HSP_OBJECT_TYPE or can be helpfully found at 
+ * Types are in HSP_OBJECT_TYPE or can be helpfully found at
  * http://www.hyperionepm.com/archives/102
- * 
+ *
  * @author Jason Jones
  *
  */
-public enum PbcsObjectType {
+public enum PbcsMemberType {
 
 	/**
 	 * Unknown isn't a real row in the table -- just incude it in case there's
@@ -21,12 +21,12 @@ public enum PbcsObjectType {
 	TIME_PERIOD(34, "Time Period"),
 	VERSION(35, "Version"),
 	YEAR(38, "Year");
-	
+
 	private int objectTypeId;
-	
+
 	private String typeName;
 
-	private PbcsObjectType(int objectTypeId, String typeName) {
+	private PbcsMemberType(int objectTypeId, String typeName) {
 		this.objectTypeId = objectTypeId;
 		this.typeName = typeName;
 	}
@@ -38,14 +38,14 @@ public enum PbcsObjectType {
 	public String getTypeName() {
 		return typeName;
 	}
-	
-	public static PbcsObjectType valueOf(int objectTypeId) {
-		for (PbcsObjectType id : PbcsObjectType.values()) {
+
+	public static PbcsMemberType valueOf(int objectTypeId) {
+		for (PbcsMemberType id : PbcsMemberType.values()) {
 			if (id.getObjectTypeId() == objectTypeId) {
 				return id;
 			}
 		}
-		return PbcsObjectType.UNKNOWN;
+		return PbcsMemberType.UNKNOWN;
 	}
-	
+
 }
