@@ -11,8 +11,9 @@ import java.util.stream.Collectors;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertThrows;
-import static org.hamcrest.Matchers.*;
 
 public class VisionMemberQueryIT extends VisionCubeIT {
 
@@ -26,7 +27,7 @@ public class VisionMemberQueryIT extends VisionCubeIT {
     @Test
     public void searchUsingInvalidMember() {
         PbcsNoSuchObjectException exception = assertThrows(PbcsNoSuchObjectException.class, () -> cube.queryMembers(INVALID_MEMBER, PbcsMemberQueryType.CHILDREN));
-        assertThat(exception.getObjectName(), equals(INVALID_MEMBER));
+        assertThat(exception.getObjectName(), is(INVALID_MEMBER));
     }
 
     @Test
