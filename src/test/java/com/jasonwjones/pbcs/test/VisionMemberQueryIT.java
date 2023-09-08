@@ -2,6 +2,7 @@ package com.jasonwjones.pbcs.test;
 
 import com.jasonwjones.pbcs.client.PbcsMemberProperties;
 import com.jasonwjones.pbcs.client.PbcsMemberQueryType;
+import com.jasonwjones.pbcs.client.PbcsObjectType;
 import com.jasonwjones.pbcs.client.exceptions.PbcsNoSuchObjectException;
 import org.junit.Test;
 
@@ -28,6 +29,7 @@ public class VisionMemberQueryIT extends VisionCubeIT {
     public void searchUsingInvalidMember() {
         PbcsNoSuchObjectException exception = assertThrows(PbcsNoSuchObjectException.class, () -> cube.queryMembers(INVALID_MEMBER, PbcsMemberQueryType.CHILDREN));
         assertThat(exception.getObjectName(), is(INVALID_MEMBER));
+        assertThat(exception.getObjectType(), is(PbcsObjectType.MEMBER));
     }
 
     @Test
