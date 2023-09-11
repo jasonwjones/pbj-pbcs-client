@@ -186,6 +186,17 @@ public interface PbcsPlanType {
 	List<PbcsMemberProperties> queryMembers(String memberName, PbcsMemberQueryType queryType);
 
 	/**
+	 * Perform a search for members matching the criteria specified in the query definition. Not all implementations
+	 * support this method; it is mostly geared towards the {@link com.jasonwjones.pbcs.client.impl.PbcsExplicitDimensionsPlanTypeImpl}
+	 * since that implementation "knows" which dimensions it has and can therefore actually search through them for
+	 * matching members.
+	 *
+	 * @param query the query definition
+	 * @return a list of members matching the criteria
+	 */
+	List<PbcsMemberProperties> searchMembers(MemberSearchQuery query);
+
+	/**
 	 * Similar to {@link #getMember(String)}, this is provided as a convenience to try and find a member using its name
 	 * or alias. The implementation for this method is a little different compared to its counterpart. This method will
 	 * perform a brute-force search through the explicit dimensions, fetch the root member, and then traverse the

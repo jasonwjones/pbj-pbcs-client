@@ -1,13 +1,17 @@
 package com.jasonwjones.pbcs.client.impl;
 
-import com.jasonwjones.pbcs.client.PbcsApplication;
-import com.jasonwjones.pbcs.client.PbcsDimension;
-import com.jasonwjones.pbcs.client.PbcsMemberProperties;
+import com.jasonwjones.pbcs.client.*;
 import com.jasonwjones.pbcs.client.exceptions.PbcsClientException;
+import com.jasonwjones.pbcs.client.exceptions.PbcsNoSuchObjectException;
 import com.jasonwjones.pbcs.client.impl.grid.DataSliceGrid;
+import com.jasonwjones.pbcs.client.impl.membervisitors.AbstractMemberVisitor;
+import com.jasonwjones.pbcs.client.impl.membervisitors.SearchMemberVisitor;
+import com.jasonwjones.pbcs.client.impl.membervisitors.SearchRegexMemberVisitor;
+import com.jasonwjones.pbcs.client.impl.membervisitors.SearchWildMemberVisitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.nio.file.FileVisitResult;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -104,6 +108,13 @@ public class PbcsExplicitDimensionsPlanTypeImpl extends PbcsPlanTypeImpl {
                 .collect(Collectors.toList());
     }
 
+    public boolean hasDimension(String dimensionName) {
+        for (PbcsDimension dimension : explicitDimensions) {
+            if (dimension.getName().equals(dimensionName)) return true;
+        }
+        return false;
+    }
+
     @Override
     public String getCell() {
         return getCell(getDimensionNames());
@@ -142,6 +153,64 @@ public class PbcsExplicitDimensionsPlanTypeImpl extends PbcsPlanTypeImpl {
             }
         }
         return null;
+    }
+
+    @Override
+    public List<PbcsMemberProperties> searchMembers(MemberSearchQuery query) {
+        Set<String> searchDimensions = new HashSet<>();
+
+        if (query.getDimensionName() != null) {
+            if (!hasDimension(query.getDimensionName())) {
+                throw new PbcsNoSuchObjectException(query.getDimensionName(), PbcsObjectType.DIMENSION);
+            }
+            searchDimensions.add(query.getDimensionName());
+        } else {
+            searchDimensions.addAll(getDimensionNames());
+        }
+
+        AbstractMemberVisitor memberVisitor;
+        switch (query.getType()) {
+            case REGEX:
+                memberVisitor = new SearchRegexMemberVisitor(query.getSearchTerm());
+                break;
+            case SEARCH_WILD:
+                memberVisitor = new SearchWildMemberVisitor(query.getSearchTerm());
+                break;
+            case SEARCH:
+                memberVisitor = new SearchMemberVisitor(query.getSearchTerm());
+                break;
+            default:
+                throw new IllegalArgumentException("Unknown search type: " + query.getType());
+        }
+
+        for (String searchDimension : searchDimensions) {
+            walkDimension(searchDimension, query.getMemberName(), memberVisitor);
+        }
+        return memberVisitor.getMatchingMembers();
+    }
+
+    /**
+     * Walks the member tree for a given dimension and starting member (or all dimensions if none specified, and the
+     * root member of each dimension if a starting member isn't specified, calling the given member visitor for each
+     * member node.
+     *
+     * @param dimensionName the dimension to walk, or null if to walk all
+     * @param startingMember the starting member, or null if to use root of dimension
+     * @param memberVisitor the member visitor to call
+     */
+    public void walkDimension(String dimensionName, String startingMember, MemberVisitor memberVisitor) {
+        PbcsDimension dimension = getDimension(dimensionName);
+
+        Queue<PbcsMemberProperties> members = new ArrayDeque<>();
+        members.add(startingMember == null ? dimension.getRoot() : dimension.getMember(startingMember));
+
+        while (!members.isEmpty()) {
+            PbcsMemberProperties current = members.remove();
+            FileVisitResult result = memberVisitor.preVisitMember(current);
+            if (result == FileVisitResult.TERMINATE) break;
+            members.addAll(current.getChildren());
+        }
+
     }
 
     private class ExplicitDimension implements PbcsDimension {

@@ -110,6 +110,11 @@ public class AbstractPbcsPlanType implements PbcsPlanType {
     }
 
     @Override
+    public List<PbcsMemberProperties> searchMembers(MemberSearchQuery query) {
+        return planType.searchMembers(query);
+    }
+
+    @Override
     public PbcsMemberProperties getMemberOrAlias(String memberOrAliasName) {
         return planType.getMemberOrAlias(memberOrAliasName);
     }

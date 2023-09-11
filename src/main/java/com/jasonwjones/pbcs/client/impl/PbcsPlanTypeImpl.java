@@ -262,6 +262,11 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 		return Collections.unmodifiableList(results);
 	}
 
+	@Override
+	public List<PbcsMemberProperties> searchMembers(MemberSearchQuery query) {
+		throw new UnsupportedOperationException();
+	}
+
 	private static void processChildren(List<PbcsMemberProperties> members, PbcsMemberProperties currentMember) {
 		members.add(currentMember);
 		for (PbcsMemberProperties child : currentMember.getChildren()) {
