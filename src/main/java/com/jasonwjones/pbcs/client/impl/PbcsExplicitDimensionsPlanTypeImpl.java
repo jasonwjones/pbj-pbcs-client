@@ -183,9 +183,11 @@ public class PbcsExplicitDimensionsPlanTypeImpl extends PbcsPlanTypeImpl {
                 throw new IllegalArgumentException("Unknown search type: " + query.getType());
         }
 
+        logger.info("Searching {}.{} in dimension(s) {} using search query {}", getApplication().getName(), getName(), searchDimensions, query);
         for (String searchDimension : searchDimensions) {
             walkDimension(searchDimension, query.getMemberName(), memberVisitor);
         }
+        logger.info("Search returned {} members", memberVisitor.getMatchingMembers().size());
         return memberVisitor.getMatchingMembers();
     }
 
