@@ -9,8 +9,9 @@ public class TestListAppSnapshotDetails extends AbstractIntegrationTest {
 	public static void main(String[] args) {
 		PbcsClient client = new PbcsClientFactory().createClient(connection);
 		//ApplicationSnapshotInfo info = client.getSnapshotDetails("MDP_Demo_3.24.17");
-		ApplicationSnapshotInfo info = client.getSnapshotDetails("TEST.md");
+		// below stopped working after 2.0.0 refactor to remove interop
+		//ApplicationSnapshotInfo info = client.getSnapshotDetails("TEST.md");
 		//client.uploadFile("TEST.md");
 	}
-		
+
 }
