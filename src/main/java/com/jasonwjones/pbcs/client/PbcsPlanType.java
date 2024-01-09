@@ -111,6 +111,7 @@ public interface PbcsPlanType {
 	 *
 	 * @param pov the pov
 	 * @param values the cell values
+	 * @param importDataOptions data import options
 	 * @return the data import results
 	 */
 	ImportDataResult setCells(List<String> pov, Grid<String> values, ImportDataOptions importDataOptions);
@@ -245,6 +246,7 @@ public interface PbcsPlanType {
 		/**
 		 * Sets the known dimension for a given member.
 		 *
+		 * @param planType the plan to set this for
 		 * @param memberName the member name
 		 * @param dimensionName the dimension of the member
 		 */
