@@ -1,20 +1,10 @@
 package com.jasonwjones.pbcs.client.impl;
 
-import org.apache.http.HttpHost;
-import org.apache.http.client.HttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.springframework.http.client.BufferingClientHttpRequestFactory;
-import org.springframework.http.client.ClientHttpRequestFactory;
-
-import com.jasonwjones.pbcs.client.PbcsConnection;
 import com.jasonwjones.pbcs.client.PbcsServiceConfiguration;
-import org.springframework.util.StringUtils;
 
 public class PbcsServiceConfigurationImpl implements PbcsServiceConfiguration {
 
 	private String scheme;
-
-	private Integer port;
 
 	private String planningApiVersion;
 
@@ -28,7 +18,7 @@ public class PbcsServiceConfigurationImpl implements PbcsServiceConfiguration {
 
 	private String aifRestApiPath;
 
-	private Boolean skipApiCheck = false;
+	private boolean skipApiCheck = false;
 
 	@Override
 	public String getScheme() {
@@ -37,15 +27,6 @@ public class PbcsServiceConfigurationImpl implements PbcsServiceConfiguration {
 
 	public void setScheme(String scheme) {
 		this.scheme = scheme;
-	}
-
-	@Override
-	public Integer getPort() {
-		return port;
-	}
-
-	public void setPort(Integer port) {
-		this.port = port;
 	}
 
 	@Override
@@ -84,27 +65,12 @@ public class PbcsServiceConfigurationImpl implements PbcsServiceConfiguration {
 		this.interopRestApiPath = interopRestApiPath;
 	}
 
-	public Boolean isSkipApiCheck() {
+	public boolean isSkipApiCheck() {
 		return skipApiCheck;
 	}
 
-	public void setSkipApiCheck(Boolean skipApiCheck) {
+	public void setSkipApiCheck(boolean skipApiCheck) {
 		this.skipApiCheck = skipApiCheck;
-	}
-
-	@Override
-	public ClientHttpRequestFactory createRequestFactory(PbcsConnection connection) {
-		HttpClient httpClient = HttpClients.createDefault();
-		final HttpHost httpHost = new HttpHost(connection.getServer(), port, scheme);
-
-		// in the PBCS gen 1 architecture, the username was the identity name plus a period plus the username. In the
-		// gen 2 architecture, it's just the username. Clients should specify null or a blank string in order to cause
-		// the gen 2 handling to be used
-
-		final String fullUsername = StringUtils.hasText(connection.getIdentityDomain()) ? connection.getIdentityDomain() + "." + connection.getUsername() : connection.getUsername();
-		final AuthHttpComponentsClientHttpRequestFactory requestFactory = new AuthHttpComponentsClientHttpRequestFactory(
-				httpClient, httpHost, fullUsername, connection.getPassword());
-		return new BufferingClientHttpRequestFactory(requestFactory);
 	}
 
 	@Override

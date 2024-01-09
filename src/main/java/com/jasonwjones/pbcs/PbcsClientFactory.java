@@ -4,15 +4,69 @@ import com.jasonwjones.pbcs.client.PbcsConnection;
 import com.jasonwjones.pbcs.client.PbcsPlanningClient;
 import com.jasonwjones.pbcs.client.PbcsServiceConfiguration;
 import com.jasonwjones.pbcs.client.impl.*;
+import com.jasonwjones.pbcs.client.impl.interceptors.BasicCredentialsInterceptor;
 import com.jasonwjones.pbcs.client.impl.interceptors.RefreshableTokenInterceptor;
+import org.apache.http.client.HttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.springframework.http.client.BufferingClientHttpRequestFactory;
+import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * Builds a {@link PbcsClient} object to interact with the PBCS/EPM Cloud REST API.
+ */
 public class PbcsClientFactory {
+
+	private final ClientHttpRequestFactory clientHttpRequestFactory;
+
+	/**
+	 * Builds a PBCS client factory with a default HTTP Client. For more control over the client (such as to use a
+	 * proxy, see {@link PbcsClientFactory#PbcsClientFactory(HttpClient)}). By default, the HTTP client that is
+	 * constructed will use the system settings, such as <code>https.proxyHost</code> and <code>https.proxyPort</code>.
+	 *
+	 * <p>You can therefore use these settings to globally configure the HTTP client to use a system proxy. Note that if
+	 * you get PKIX exceptions, it may indicate that your Java <code>cacerts</code> file needs to have the certificate
+	 * of the proxy server installed.
+	 */
+	public PbcsClientFactory() {
+		this(HttpClients.createSystem());
+	}
+
+	/**
+	 * Builds a PBCS client factory using the given HTTP client.
+	 *
+	 * <p>If's possible, if inadvisable, to construct an HTTP client using this method that will disregard potential
+	 * certificate validation steps. For example, a custom client could be constructed as follows:
+	 *
+	 * <pre>{@code
+	 *
+	 * 		HttpHost proxy = new HttpHost("localhost", 8080);
+	 *
+	 * 		RequestConfig requestConfig = RequestConfig.custom()
+	 * 				.setProxy(proxy)
+	 * 				.build();
+	 *
+	 * 		HttpClient httpClient = HttpClients.custom()
+	 * 				.setDefaultRequestConfig(requestConfig)
+	 * 				.setSSLContext(new SSLContextBuilder().loadTrustMaterial(null, TrustAllStrategy.INSTANCE).build())
+	 * 				.setSSLHostnameVerifier(NoopHostnameVerifier.INSTANCE) // not strictly needed given the above
+	 * 				.build();
+	 *
+ 	 * 		PbcsClient client = new PbcsClientFactory(httpClient).createClient(connection);
+	 * }</pre>
+	 *
+	 * @param httpClient the HTTP client to use
+	 */
+	public PbcsClientFactory(HttpClient httpClient) {
+		HttpComponentsClientHttpRequestFactory componentsClientHttpRequestFactory = new HttpComponentsClientHttpRequestFactory(httpClient);
+		this.clientHttpRequestFactory = new BufferingClientHttpRequestFactory(componentsClientHttpRequestFactory);
+	}
 
 	/**
 	 * Creates a new PbcsClient instances using the supplied connection details.
@@ -82,7 +136,6 @@ public class PbcsClientFactory {
 	public PbcsServiceConfigurationImpl createDefaultServiceConfiguration() {
 		PbcsServiceConfigurationImpl sc = new PbcsServiceConfigurationImpl();
 		sc.setScheme("https");
-		sc.setPort(443);
 		sc.setPlanningApiVersion("v3");
 		sc.setPlanningRestApiPath("/HyperionPlanning/rest/");
 		sc.setInteropApiVersion("11.1.2.3.600");
@@ -101,7 +154,13 @@ public class PbcsClientFactory {
 		}
 		String baseUrl = serviceConfiguration.getScheme() + "://" + connection.getServer() + serviceConfiguration.getPlanningRestApiPath() + serviceConfiguration.getPlanningApiVersion() + "/";
 
-		RestTemplate restTemplate = !connection.isToken() ? new RestTemplate(serviceConfiguration.createRequestFactory(connection)) : new RestTemplate();
+		RestTemplate restTemplate = getRestTemplate(connection);
+		String aifBaseUrl = serviceConfiguration.getScheme() + "://" + connection.getServer() + serviceConfiguration.getAifRestApiPath() + serviceConfiguration.getAifRestApiVersion();
+		return new RestContext(restTemplate, baseUrl, aifBaseUrl);
+	}
+
+	private RestTemplate getRestTemplate(PbcsConnection connection) {
+		RestTemplate restTemplate = !connection.isToken() ? new RestTemplate(clientHttpRequestFactory) : new RestTemplate();
 		restTemplate.setErrorHandler(new MyResponseErrorHandler());
 
 		List<ClientHttpRequestInterceptor> interceptors = new ArrayList<>();
@@ -109,11 +168,13 @@ public class PbcsClientFactory {
 		if (connection.isToken()) {
 			RefreshableTokenInterceptor refreshableTokenInterceptor = new RefreshableTokenInterceptor(connection);
 			interceptors.add(refreshableTokenInterceptor);
+		} else {
+			BasicCredentialsInterceptor basicCredentialsInterceptor = new BasicCredentialsInterceptor(connection);
+			interceptors.add(basicCredentialsInterceptor);
 		}
 
 		restTemplate.setInterceptors(interceptors);
-		String aifBaseUrl = serviceConfiguration.getScheme() + "://" + connection.getServer() + serviceConfiguration.getAifRestApiPath() + serviceConfiguration.getAifRestApiVersion();
-		return new RestContext(restTemplate, baseUrl, aifBaseUrl);
+		return restTemplate;
 	}
 
 }

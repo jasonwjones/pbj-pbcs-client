@@ -4,6 +4,7 @@ import com.jasonwjones.pbcs.client.*;
 import com.jasonwjones.pbcs.client.exceptions.PbcsClientException;
 import com.jasonwjones.pbcs.client.impl.PbcsPlanningClientImpl;
 import com.jasonwjones.pbcs.client.impl.RestContext;
+import org.springframework.util.Assert;
 
 import java.util.List;
 
@@ -32,6 +33,7 @@ public class PbcsClientImpl implements PbcsClient {
 
 	@Override
 	public PbcsApplication getApplication(String applicationName) throws PbcsClientException {
+		Assert.notNull(applicationName, "The application must not be null");
 		return planningClient.getApplication(applicationName);
 	}
 

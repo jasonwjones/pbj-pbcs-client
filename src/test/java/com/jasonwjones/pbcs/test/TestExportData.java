@@ -7,12 +7,12 @@ import com.jasonwjones.pbcs.client.PbcsJobLaunchResult;
 import com.jasonwjones.pbcs.client.PbcsJobStatus;
 
 public class TestExportData extends AbstractIntegrationTest {
-	
+
 	public static void main(String[] args) throws Exception {
 		PbcsClient client = new PbcsClientFactory().createClient(connection);
 
-		PbcsApplication app = client.getApplication("MDP_Demo");
-		PbcsJobLaunchResult result = app.importMetadata("Test");
+		PbcsApplication app = client.getApplication("Vision");
+		PbcsJobLaunchResult result = app.importMetadata("Plan1");
 
 		System.out.println("Result: " + result);
 

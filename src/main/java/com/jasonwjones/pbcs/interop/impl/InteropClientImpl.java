@@ -47,24 +47,25 @@ import com.jasonwjones.pbcs.interop.InteropClient;
 public class InteropClientImpl implements InteropClient {
 
 	private static final Logger logger = LoggerFactory.getLogger(InteropClientImpl.class);
-		
+
 	private RestTemplate restTemplate;
 
 	private String baseUrl;
-		
+
 	private PbcsServiceConfiguration serviceConfiguration;
-	
+
 	public InteropClientImpl(PbcsConnection connection, PbcsServiceConfiguration serviceConfiguration) {
 		logger.debug("Initializing PBCS Interop API");
 		this.serviceConfiguration = serviceConfiguration;
 		this.baseUrl = serviceConfiguration.getScheme() + "://" + connection.getServer() + serviceConfiguration.getInteropRestApiPath(); // + defaultVersion; // + "/" + "applicationsnapshots";
-		this.restTemplate = new RestTemplate(serviceConfiguration.createRequestFactory(connection));
-		
-		// post to base url brings back a JSON object with *links* such as to 
+		throw new UnsupportedOperationException("Disabled until refactor");
+		//this.restTemplate = new RestTemplate(serviceConfiguration.createRequestFactory(connection));
+
+		// post to base url brings back a JSON object with *links* such as to
 		// applicationsnapshots and others
 		//ResponseEntity<String> checkApi = restTemplate.getForEntity(baseUrl + serviceConfiguration.getInteropApiVersion(), String.class);
 		//System.out.println("Content: " + checkApi.getBody());
-		
+
 		//logger.info("Initialized");
 //		ResponseEntity<String> snapshots = restTemplate.getForEntity(baseUrl + defaultVersion + "/applicationsnapshots", String.class);
 //		System.out.println("Content: " + snapshots.getBody());
@@ -72,30 +73,30 @@ public class InteropClientImpl implements InteropClient {
 //		ResponseEntity<ApplicationSnapshotsWrapper> snaps = restTemplate.getForEntity(baseUrl+ defaultVersion + "/applicationsnapshots", ApplicationSnapshotsWrapper.class);
 //		System.out.println("Snaps: " + snaps);
 //
-//		
+//
 //		// known types: LCM, EXTERNAL
 //		String template = "%-20s %-30s %-20s %-20s%n";
 //		System.out.printf(template, "Last Modified Time", "Name", "Type", "Size");
 //		System.out.printf(template, "--------------------", "--------------------", "---", "---");
 //
 //		for (ApplicationSnapshot snapshot : snaps.getBody().getItems()) {
-//			System.out.printf(template, snapshot.getLastModifiedTime(), snapshot.getName(), snapshot.getType(), snapshot.getSize());		
+//			System.out.printf(template, snapshot.getLastModifiedTime(), snapshot.getName(), snapshot.getType(), snapshot.getSize());
 //		}
-//		
+//
 		//Vision SS 14 Feb 2016
 	}
-	
+
 	public void getApiVersions() {
 		logger.info("Listing REST API versions");
 		ResponseEntity<String> response = restTemplate.getForEntity(baseUrl, String.class);
 		System.out.println("Respo: " + response.getBody());
 	}
-	
+
 	public List<ApplicationSnapshot> listFiles() {
-		ResponseEntity<ApplicationSnapshotsWrapper> snaps = restTemplate.getForEntity(baseUrl + serviceConfiguration.getInteropApiVersion() + "/applicationsnapshots", ApplicationSnapshotsWrapper.class);		
+		ResponseEntity<ApplicationSnapshotsWrapper> snaps = restTemplate.getForEntity(baseUrl + serviceConfiguration.getInteropApiVersion() + "/applicationsnapshots", ApplicationSnapshotsWrapper.class);
 		return Collections.unmodifiableList(snaps.getBody().getItems());
 	}
-	
+
 	public ApplicationSnapshotInfo getSnapshotDetails(String name) {
 		//ResponseEntity<ApplicationSnapshotInfo> snaps = restTemplate.getForEntity(baseUrl + serviceConfiguration.getInteropApiVersion() + "/applicationsnapshots", ApplicationSnapshotsWrapper.class);
 		//ResponseEntity<String> snap = restTemplate.getForEntity(baseUrl + serviceConfiguration.getInteropApiVersion() + "/applicationsnapshots/" + name, String.class);
@@ -144,17 +145,17 @@ public class InteropClientImpl implements InteropClient {
 			throw new PbcsClientException("Couldn't read/upload file", e);
 		}
 	}
-	
+
 	// upload local txt to zip
 	public void uploadFile(String remoteFilename, List<String> localFiles) {
 		throw new RuntimeException("Not implemented yet");
 	}
-	
+
 	@Override
 	public File downloadFile(String filename) {
 		return downloadFile(filename, filename);
 	}
-	
+
 	// Should return a rich object:
 	// File getFile()
 	// extract(String targetDir)
@@ -163,29 +164,29 @@ public class InteropClientImpl implements InteropClient {
 	public File downloadFile(String filename, String localFilename) {
 		logger.info("Requested file download: {}", filename);
 		// TODO Auto-generated method stub
-		
+
 		File localFile = new File(localFilename);
 		if (localFile.isDirectory()) {
 			logger.info("Will download {} to local folder {}", filename, localFile);
 		} else {
-			
+
 		}
-		
+
 		String url = this.baseUrl + serviceConfiguration.getInteropApiVersion() + String.format("/applicationsnapshots/%s/contents", filename);
 		//ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
-		
+
 		HttpHeaders headers = new HttpHeaders();
 	    headers.setAccept(Arrays.asList(MediaType.APPLICATION_OCTET_STREAM));
 		HttpEntity<String> entity = new HttpEntity<String>(headers);
 		ResponseEntity<byte[]> response = restTemplate.exchange(url, HttpMethod.GET, entity, byte[].class);
-		
+
 		logger.info("Headers: " + response.getHeaders());
-		
+
 		// likely to be zip or csv (can it be xml?)
 		String extension = response.getHeaders().get("fileExtension").get(0);
-		
-		logger.info("Canonical file extension for local file: {}", extension); 
-		
+
+		logger.info("Canonical file extension for local file: {}", extension);
+
 //		System.out.println("Content-Type: " + response.getHeaders().getContentType());
 //		System.out.println("Is JSON: " + response.getHeaders().getContentType().isCompatibleWith(MediaType.APPLICATION_JSON));
 //		System.out.println("Code: " + response.getStatusCode().value());
@@ -214,17 +215,17 @@ public class InteropClientImpl implements InteropClient {
 																new HashMap<>());
 		return exchange.toString();
 	}
-	
+
 	public void listServices() {
 		logger.info("Listing services");
 		ResponseEntity<ServiceDefinitionWrapper> response = restTemplate.getForEntity(baseUrl + serviceConfiguration.getInteropApiVersion() + "/services", ServiceDefinitionWrapper.class);
 		System.out.println("Code: " + response.getStatusCode().value());
 		System.out.println("Response: " + response.getBody());
-		
+
 		for (HypermediaLink link : response.getBody().getLinks()) {
 			System.out.println(link);
 		}
-		
+
 	}
 
 	@Override
@@ -239,14 +240,14 @@ public class InteropClientImpl implements InteropClient {
 																				map);
 		return response.getBody();
 	}
-	
+
 	//@Override
 	public MaintenanceWindow getMaintenanceWindow() {
 		ResponseEntity<String> response  = restTemplate.getForEntity(baseUrl + serviceConfiguration.getInteropApiVersion() + "/dailymaintenance", String.class);
 		System.out.println("Response: " + response.getBody());
 		return null;
 	}
-	
+
 	@Override
 	public void LcmExport() {
 		// TODO Auto-generated method stub
@@ -335,7 +336,7 @@ public class InteropClientImpl implements InteropClient {
 
 		final HttpHeaders headers = new HttpHeaders();
 		headers.setAccept(Arrays.asList(MediaType.APPLICATION_OCTET_STREAM));
-		
+
 		try {
 			final File outputFile = File.createTempFile(localFilename, "");
 			restTemplate.execute(url, HttpMethod.GET, new RequestCallback() {
@@ -363,5 +364,5 @@ public class InteropClientImpl implements InteropClient {
 			throw new PbcsClientException("Unable to write downloaded file", e);
 		}
 	}
-	
+
 }

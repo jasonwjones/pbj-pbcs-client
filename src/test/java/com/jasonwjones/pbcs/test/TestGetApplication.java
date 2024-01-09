@@ -1,7 +1,9 @@
 package com.jasonwjones.pbcs.test;
 
+import java.util.Arrays;
 import java.util.List;
 
+import com.jasonwjones.pbcs.client.PbcsMemberProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,15 +26,31 @@ public class TestGetApplication extends AbstractIntegrationTest {
 		for (PbcsApplication app : client.getApplications()) {
 			logger.info("App: {}", app);
 			List<PbcsPlanType> planTypes = app.getPlanTypes();
+			System.out.println("HAVE " + planTypes.size() + " plan types");
 			for (PbcsPlanType planType : planTypes) {
 				System.out.println(" - plan: " + planType.getName());
+
 			}
 
 			for (PbcsDimension dimension : app.getDimensions()) {
 				System.out.println(" - " + dimension.getName());
 			}
-
 		}
+
+//		List<PbcsDimension> dims = client.getApplication("Vision").getPlanType("Plan1").getDimensions();
+//		System.out.println("Have " + dims.size() + " dimensions");
+		String cell = client.getApplication("Vision").getPlanType("Plan1").getCell(Arrays.asList("4110", "USD", "000", "Jan", "P_000", "Actual", "Final", "FY22"));
+
+		PbcsMemberProperties actual = client.getApplication("Vision").getPlanType("Plan1").getMember("Scenario", "Actual");
+		System.out.println("Member: " + actual.getName());
+
+		PbcsMemberProperties current = client.getApplication("Vision").getPlanType("Plan1").getMember("Scenario", "Current");
+		System.out.println("Member: " + current.getName());
+		for (PbcsMemberProperties child : current.getChildren()) {
+			System.out.println("Child: " + child.getName());
+		}
+
+		System.out.println("Cell: " + cell);
 
 
 	}

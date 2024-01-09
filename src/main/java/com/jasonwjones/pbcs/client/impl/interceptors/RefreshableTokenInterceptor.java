@@ -19,9 +19,9 @@ public class RefreshableTokenInterceptor implements ClientHttpRequestInterceptor
     }
 
     @Override
-    public ClientHttpResponse intercept(HttpRequest httpRequest, byte[] body, ClientHttpRequestExecution clientHttpRequestExecution) throws IOException {
-        httpRequest.getHeaders().set(HttpHeaders.AUTHORIZATION, "Bearer " + connection.getUsername());
-        return clientHttpRequestExecution.execute(httpRequest, body);
+    public ClientHttpResponse intercept(HttpRequest request, byte[] body, ClientHttpRequestExecution execution) throws IOException {
+        request.getHeaders().set(HttpHeaders.AUTHORIZATION, "Bearer " + connection.getUsername());
+        return execution.execute(request, body);
     }
 
 }
