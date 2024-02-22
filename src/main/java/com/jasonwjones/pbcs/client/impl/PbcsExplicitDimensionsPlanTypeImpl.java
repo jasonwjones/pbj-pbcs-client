@@ -1,15 +1,23 @@
 package com.jasonwjones.pbcs.client.impl;
 
+import com.jasonwjones.pbcs.api.v3.dataslices.DataSlice;
+import com.jasonwjones.pbcs.api.v3.dataslices.DimensionMembers;
+import com.jasonwjones.pbcs.api.v3.dataslices.ExportDataSlice;
+import com.jasonwjones.pbcs.api.v3.dataslices.GridDefinition;
 import com.jasonwjones.pbcs.client.*;
 import com.jasonwjones.pbcs.client.exceptions.PbcsClientException;
+import com.jasonwjones.pbcs.client.exceptions.PbcsInvalidDimensionException;
+import com.jasonwjones.pbcs.client.exceptions.PbcsInvalidMemberException;
 import com.jasonwjones.pbcs.client.exceptions.PbcsNoSuchObjectException;
 import com.jasonwjones.pbcs.client.impl.grid.DataSliceGrid;
 import com.jasonwjones.pbcs.client.impl.membervisitors.AbstractMemberVisitor;
 import com.jasonwjones.pbcs.client.impl.membervisitors.SearchMemberVisitor;
 import com.jasonwjones.pbcs.client.impl.membervisitors.SearchRegexMemberVisitor;
 import com.jasonwjones.pbcs.client.impl.membervisitors.SearchWildMemberVisitor;
+import com.jasonwjones.pbcs.util.GridUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.ResponseEntity;
 
 import java.nio.file.FileVisitResult;
 import java.util.*;
@@ -23,25 +31,44 @@ import java.util.stream.Collectors;
  * <p>Hopefully someday the process of getting the dimensions for a plan will be better supported by the EPM Cloud REST
  * API but for now this lets us significantly enrich functionality.
  */
-public class PbcsExplicitDimensionsPlanTypeImpl extends PbcsPlanTypeImpl {
+public class PbcsExplicitDimensionsPlanTypeImpl extends PbcsPlanTypeImpl implements PbcsExplicitDimensionsPlanType {
 
     private static final Logger logger = LoggerFactory.getLogger(PbcsExplicitDimensionsPlanTypeImpl.class);
 
     private final List<PbcsDimension> explicitDimensions;
 
-    public PbcsExplicitDimensionsPlanTypeImpl(RestContext context, PbcsApplication application, String planType, List<String> explicitDimensions, MemberDimensionCache memberDimensionCache) {
-        super(context, application, planType, memberDimensionCache);
-        Objects.requireNonNull(explicitDimensions);
-        if (explicitDimensions.isEmpty()) throw new IllegalArgumentException("Explicit dimension list cannot be empty");
+    PbcsExplicitDimensionsPlanTypeImpl(RestContext context, PbcsApplication application, PbcsApplication.PlanTypeConfiguration configuration) {
+        super(context, application, configuration.getName(), configuration.getMemberDimensionCache());
+
+        List<String> explicitDimensionNames = configuration.getExplicitDimensions();
+        Objects.requireNonNull(explicitDimensionNames);
+        if (explicitDimensionNames.isEmpty()) throw new IllegalArgumentException("Explicit dimension list cannot be empty");
         this.explicitDimensions = new ArrayList<>();
-        for (int index = 0; index < explicitDimensions.size(); index++) {
-            this.explicitDimensions.add(new ExplicitDimension(explicitDimensions.get(index), index));
+        for (int index = 0; index < explicitDimensionNames.size(); index++) {
+            this.explicitDimensions.add(new ExplicitDimension(explicitDimensionNames.get(index), index));
+        }
+
+        if (configuration.isValidateDimensions()) {
+            validateDimensions();
         }
     }
 
     @Override
     public List<PbcsDimension> getDimensions() {
         return explicitDimensions;
+    }
+
+    @Override
+    public void validateDimensions() {
+        List<String> invalidDimensions = new ArrayList<>();
+        for (PbcsDimension explicitDimension : explicitDimensions) {
+            //try {
+                PbcsMemberProperties dimensionRoot = getMember(explicitDimension.getName(), explicitDimension.getName());
+//            } catch (PbcsNoSuchObjectException e) {
+//                invalidDimensions.add(explicitDimension.getName());
+//            }
+        }
+        //if (!invalidDimensions.isEmpty()) throw new PbcsInvalidDimensionException(invalidDimensions);
     }
 
     @Override
@@ -92,7 +119,8 @@ public class PbcsExplicitDimensionsPlanTypeImpl extends PbcsPlanTypeImpl {
                 if (memberOrAliasName.equalsIgnoreCase(current.getName()) || memberOrAliasName.equalsIgnoreCase(current.getAlias())) {
                     // this is technically unneeded if the dimension is the same as possibleDimension, but it will be
                     // set here anyway in case the underlying cache mechanism needs a "hit" in order to update a TTL
-                    // or similar value
+                    // or similar value. Note: this could cause a lot of traffic to your SoR if the cache writes through
+                    // You may want to use a putIfAbsent paradigm (instead of a put) to avoid unnecessary writes
                     memberDimensionCache.setDimension(this, memberOrAliasName, dimension.getName());
                     return current;
                 }
@@ -192,7 +220,7 @@ public class PbcsExplicitDimensionsPlanTypeImpl extends PbcsPlanTypeImpl {
     }
 
     /**
-     * Walks the member tree for a given dimension and starting member (or all dimensions if none specified, and the
+     * Walks the member tree for a given dimension and starting member (or all dimensions if none specified), and the
      * root member of each dimension if a starting member isn't specified, calling the given member visitor for each
      * member node.
      *
@@ -213,6 +241,62 @@ public class PbcsExplicitDimensionsPlanTypeImpl extends PbcsPlanTypeImpl {
             members.addAll(current.getChildren());
         }
 
+    }
+
+    @Override
+    public DataSliceGrid retrieve(PovGrid<String> grid, RetrieveOptions options) {
+        // get the 'fulcrum' point in the grid
+        int firstRowWithCell = GridUtils.firstNonNullInColumn(grid, 0);
+        int firstColWithCell = GridUtils.firstNonNullInRow(grid, 0);
+        int lastNonNullCol = GridUtils.lastNonNullInRow(grid, 0);
+
+        List<DimensionMembers> top = new ArrayList<>();
+        for (int col = firstColWithCell; col <= lastNonNullCol; col++) {
+            List<String> members = GridUtils.col(grid, col, 0, firstRowWithCell);
+            DimensionMembers dimensionMembers = DimensionMembers.ofMemberNames(members);
+            top.add(dimensionMembers);
+        }
+
+        List<DimensionMembers> left = new ArrayList<>();
+
+        // TODO: check value of isProvideDimensionHints
+        List<String> leftDims = resolveDimensions(GridUtils.row(grid, firstRowWithCell, 0, firstColWithCell));
+
+        for (int row = firstRowWithCell; row < grid.getRows(); row++) {
+            List<String> members = GridUtils.row(grid, row, 0, firstColWithCell);
+            DimensionMembers dimensionMembers = new DimensionMembers(leftDims, members);
+            left.add(dimensionMembers);
+        }
+
+        GridDefinition gridDefinition = new GridDefinition(grid.getPov(), top, left);
+        ExportDataSlice exportDataSlice = new ExportDataSlice(gridDefinition);
+
+        try {
+            ResponseEntity<DataSlice> slice = this.context.getTemplate().postForEntity(this.context.getBaseUrl() + "applications/{application}/plantypes/{planType}/exportdataslice", exportDataSlice, DataSlice.class, getApplication().getName(), getName());
+            if (slice.getStatusCode().is2xxSuccessful()) {
+                DataSlice dataSlice = slice.getBody();
+                return new DataSliceGrid(this, dataSlice);
+            } else {
+                throw new RuntimeException("Error retrieving data, received code: " + slice.getStatusCode());
+            }
+        } catch (Exception e) {
+            logger.error("Exception: {}", e.getMessage());
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+    private List<String> resolveDimensions(List<String> members) {
+        List<String> dimensions = new ArrayList<>();
+        for (String member : members) {
+            PbcsMemberProperties properties = getMemberOrAlias(member);
+            if (properties == null) {
+                throw new PbcsClientException("Unable to resolve member/dimension for " + member);
+            } else {
+                dimensions.add(properties.getDimensionName());
+            }
+        }
+        return dimensions;
     }
 
     private class ExplicitDimension implements PbcsDimension {

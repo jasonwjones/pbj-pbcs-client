@@ -23,26 +23,10 @@ public class GridDefinition {
 
 	public GridDefinition() {}
 
-//	public GridDefinition(List<String> pov, List<List<String>> columns, List<List<String>> rows) {
-//		this.pov = new DimensionMembers(pov);
-//		this.columns = Arrays.asList(DimensionMembers.of(columns));
-//		this.rows = Arrays.asList(DimensionMembers.of(rows));
-//	}
-
 	public GridDefinition(List<String> pov, List<DimensionMembers> columns, List<DimensionMembers> rows) {
 		this.pov = DimensionMembers.ofMemberNames(pov);
 		this.columns = columns;
 		this.rows = rows;
-	}
-
-	// TODO: consolidate
-	public GridDefinition(String... pov) {
-		if (pov.length < 3) throw new IllegalArgumentException("Must provide at least three members");
-		int lastElement = pov.length - 1;
-		int secondToLastElement = lastElement - 1;
-		this.pov = DimensionMembers.of(Arrays.copyOfRange(pov, 0, secondToLastElement));
-		this.columns = Arrays.asList(DimensionMembers.of(pov[secondToLastElement]));
-		this.rows = Arrays.asList(DimensionMembers.of(pov[lastElement]));
 	}
 
 	public GridDefinition(List<String> pov) {

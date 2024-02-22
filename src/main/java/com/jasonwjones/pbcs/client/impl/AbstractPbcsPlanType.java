@@ -95,6 +95,11 @@ public class AbstractPbcsPlanType implements PbcsPlanType {
     }
 
     @Override
+    public DataSliceGrid retrieve(PovGrid<String> grid, RetrieveOptions options) {
+        return planType.retrieve(grid, options);
+    }
+
+    @Override
     public PbcsMemberProperties getMember(String dimensionName, String memberName) {
         return planType.getMember(dimensionName, memberName);
     }

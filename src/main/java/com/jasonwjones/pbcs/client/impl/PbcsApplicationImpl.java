@@ -14,7 +14,7 @@ import java.util.TreeSet;
 
 import com.jasonwjones.pbcs.api.v3.*;
 import com.jasonwjones.pbcs.client.*;
-import com.jasonwjones.pbcs.client.exceptions.PbcsGeneralException;
+import com.jasonwjones.pbcs.client.exceptions.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
@@ -31,9 +31,6 @@ import com.jasonwjones.pbcs.aif.AifApplication;
 import com.jasonwjones.pbcs.aif.AifDimension;
 import com.jasonwjones.pbcs.api.v3.dataslices.DataSlice;
 import com.jasonwjones.pbcs.api.v3.dataslices.ExportDataSlice;
-import com.jasonwjones.pbcs.client.exceptions.PbcsClientException;
-import com.jasonwjones.pbcs.client.exceptions.PbcsNoSuchObjectException;
-import com.jasonwjones.pbcs.client.exceptions.PbcsNoSuchVariableException;
 import com.jasonwjones.pbcs.client.impl.models.PbcsMemberPropertiesImpl;
 import com.jasonwjones.pbcs.interop.impl.SimpleFilenameUtils;
 
@@ -343,7 +340,9 @@ public class PbcsApplicationImpl extends AbstractPbcsObject implements PbcsAppli
 			// wrapping the exception no matter what, as we could end up with a NoSuchObjectFound exception occluding
 			// something more fundamental going on
 			if (e.getMessage() != null && e.getMessage().toLowerCase().startsWith("the member")) {
-				throw new PbcsNoSuchObjectException(memberName, PbcsObjectType.MEMBER);
+				throw new PbcsInvalidMemberException(memberName);
+			} else if (e.getMessage() != null && e.getMessage().toLowerCase().startsWith("the dimension")) {
+				throw new PbcsInvalidDimensionException(memberName);
 			} else {
 				throw e;
 			}
@@ -488,7 +487,7 @@ public class PbcsApplicationImpl extends AbstractPbcsObject implements PbcsAppli
 			validatePlanType(configuration.getName());
 		}
 		if (configuration.getExplicitDimensions() != null && !configuration.getExplicitDimensions().isEmpty()) {
-			return new PbcsExplicitDimensionsPlanTypeImpl(context, this, configuration.getName(), configuration.getExplicitDimensions(), configuration.getMemberDimensionCache());
+			return new PbcsExplicitDimensionsPlanTypeImpl(context, this, configuration);
 		} else {
 			return new PbcsPlanTypeImpl(context, this, configuration.getName(), configuration.getMemberDimensionCache());
 		}

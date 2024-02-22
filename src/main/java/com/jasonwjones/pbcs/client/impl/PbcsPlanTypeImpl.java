@@ -119,11 +119,13 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 		}
 
 		List<DimensionMembers> left = new ArrayList<>();
-		for (int row = firstRowWithCell; row < grid.getRows(); row++) {
-			List<String> members = GridUtils.row(grid, row, 0, firstColWithCell);
-			DimensionMembers dimensionMembers = DimensionMembers.ofMemberNames(members);
-			left.add(dimensionMembers);
+		List<List<String>> columns = new ArrayList<>();
+		for (int col = 0; col < firstColWithCell; col++) {
+			List<String> colMembers = GridUtils.col(grid, col, firstRowWithCell, grid.getRows());
+			columns.add(colMembers);
 		}
+		DimensionMembers leftDimMembers = DimensionMembers.of(columns);
+		left.add(leftDimMembers);
 
 		GridDefinition gridDefinition = new GridDefinition(pov, top, left);
 		ExportDataSlice exportDataSlice = new ExportDataSlice(gridDefinition);
@@ -141,6 +143,11 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 			e.printStackTrace();
 			throw e;
 		}
+	}
+
+	@Override
+	public DataSliceGrid retrieve(PovGrid<String> grid, RetrieveOptions options) {
+		throw new UnsupportedOperationException("Can only retrieve with options on explicit dimension plan");
 	}
 
 	@Override

@@ -134,6 +134,18 @@ public interface PbcsApplication {
 
 	PbcsMemberProperties addMember(String dimensionName, String memberName, String parentName);
 
+	/**
+	 * Get information about a member. This is considered the canonical way to get a member from the PBCS/EPM Cloud
+	 * member info API since it can make a straight call to the proper end point. The REST API endpoint has the dimension
+	 * name in it, which necessitates knowing the dimension name ahead of time (unfortunately).
+	 *
+	 * <p>You will almost always be better served using methods on the {@link PbcsPlanType}, such as the equivalent method
+	 * {@link PbcsPlanType#getMember(String, String)}.</p>
+	 *
+	 * @param dimensionName the name of the dimension that the member is in
+	 * @param memberName the member name to look up
+	 * @return the member
+	 */
 	PbcsMemberProperties getMember(String dimensionName, String memberName);
 
 	/**
@@ -282,6 +294,15 @@ public interface PbcsApplication {
 		 * @return true if the validity check should be skipped, false otherwise.
 		 */
 		boolean isSkipCheck();
+
+		/**
+		 * If explicit dimensions are defined, then each one will be validated by issuing a "get member" call using the
+		 * dimension name as the dimension and root member. This does not ensure that a list of dimensions is complete,
+		 * just that all the defined dimensions are valid.
+		 *
+		 * @return true to perform dimension validation
+		 */
+		boolean isValidateDimensions();
 
 		/**
 		 * The list of explicit dimensions that are being set for the plan. It's not required to set dimensions to use

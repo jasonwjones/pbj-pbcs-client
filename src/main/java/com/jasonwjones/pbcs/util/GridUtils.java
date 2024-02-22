@@ -14,6 +14,17 @@ public class GridUtils {
         return row(grid, rowIndex, 0);
     }
 
+    public static <E> Grid<E> subgrid(Grid<E> grid, int startRow) {
+        Grid<E> subGrid = new HashMapGrid<>(grid.getRows() - startRow, grid.getColumns());
+        for (int row = startRow; row < grid.getRows(); row++) {
+            for (int col = 0; col < grid.getColumns(); col++) {
+                E value = grid.getCell(row, col);
+                subGrid.setCell(row - startRow, col, value);
+            }
+        }
+        return subGrid;
+    }
+
     public static <E> List<E> row(Grid<E> grid, int rowIndex, int startCol) {
         List<E> row = new ArrayList<>(grid.getColumns() - startCol);
         for (int col = startCol; col < grid.getColumns(); col++) {

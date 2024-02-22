@@ -50,7 +50,8 @@ public interface PbcsPlanType {
 	PbcsDimension getDimension(String dimensionName);
 
 	/**
-	 * Checks if this plan has been configured with explicit dimensions or not.
+	 * Checks if this plan has been configured with explicit dimensions or not. If this method returns true, then it
+	 * should always be safe to case this object to a {@link PbcsExplicitDimensionsPlanType}.
 	 *
 	 * @return true if explicit dimensions are being used, false otherwise
 	 */
@@ -153,6 +154,8 @@ public interface PbcsPlanType {
 	 * @return a data slice for the defined POV/grid
 	 */
 	DataSliceGrid retrieve(List<String> pov, Grid<String> grid);
+
+	DataSliceGrid retrieve(PovGrid<String> grid, RetrieveOptions options);
 
 	/**
 	 * This is the canonical call to get member information from the corresponding PBCS endpoint for doing
@@ -333,6 +336,24 @@ public interface PbcsPlanType {
 		 * @return true if exception should be thrown for rejected data, false otherwise
 		 */
 		boolean isThrowExceptionIfAnyRejectedCells();
+
+	}
+
+	/**
+	 * Options for performing a retrieve.
+	 */
+	interface RetrieveOptions {
+
+		/**
+		 * Set to true if the "dimension hints" should be provided on the "export data slice" call. This will add
+		 * dimension definitions to the 'left' axis. Although the REST API documentation states that defining dimensions
+		 * improves performance, it doesn't seem to make a big difference. The main reason for this being an option now
+		 * is that without dimension hints, retrieves with an attribute dimension in the left/rows orientation will
+		 * return invalid results (e.g. the attribute dimension axis will be lost).
+		 *
+		 * @return true if dimension hints should be provided, false otherwise
+		 */
+		boolean isProvideDimensionHints();
 
 	}
 

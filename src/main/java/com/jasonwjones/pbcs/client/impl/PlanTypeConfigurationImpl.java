@@ -13,6 +13,8 @@ public class PlanTypeConfigurationImpl implements PbcsApplication.PlanTypeConfig
 
     private boolean skipCheck;
 
+    private boolean validateDimensions;
+
     private List<String> explicitDimensions;
 
     private PbcsPlanType.MemberDimensionCache memberDimensionCache = new InMemoryMemberDimensionCache();
@@ -25,6 +27,15 @@ public class PlanTypeConfigurationImpl implements PbcsApplication.PlanTypeConfig
     @Override
     public boolean isSkipCheck() {
         return skipCheck;
+    }
+
+    public void setValidateDimensions(boolean validateDimensions) {
+        this.validateDimensions = validateDimensions;
+    }
+
+    @Override
+    public boolean isValidateDimensions() {
+        return validateDimensions;
     }
 
     @Override
@@ -58,6 +69,7 @@ public class PlanTypeConfigurationImpl implements PbcsApplication.PlanTypeConfig
         return new StringJoiner(", ", PlanTypeConfigurationImpl.class.getSimpleName() + "[", "]")
                 .add("name='" + name + "'")
                 .add("skipCheck=" + skipCheck)
+                .add("validateDimensions=" + validateDimensions)
                 .add("explicitDimensions=" + explicitDimensions)
                 .add("memberDimensionCache=" + memberDimensionCache.getClass().getSimpleName())
                 .toString();

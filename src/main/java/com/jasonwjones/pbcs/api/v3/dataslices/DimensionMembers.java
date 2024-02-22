@@ -135,18 +135,6 @@ public class DimensionMembers {
 		this.members.get(0).addAll(addMembers);
 	}
 
-	public DimensionMembers withMemberReplacement(String oldMember, String newDefinition) {
-		for (List<String> memberList : members) {
-			for (int index = 0; index < memberList.size(); index++) {
-				if (memberList.get(index).equals(oldMember)) {
-					System.out.println("Replacing " + oldMember + " with " + newDefinition);
-					memberList.set(index, newDefinition);
-				}
-			}
-		}
-		return null;
-	}
-
 	public static List<String> mutableList(String... items) {
 		List<String> list = new ArrayList<String>();
 		for (String item : items) {
@@ -159,6 +147,10 @@ public class DimensionMembers {
 		List<List<String>> lists = new ArrayList<List<String>>();
 		lists.add(list);
 		return lists;
+	}
+
+	public List<String> getDimensions() {
+		return dimensions;
 	}
 
 }

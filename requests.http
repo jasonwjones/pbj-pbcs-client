@@ -32,6 +32,24 @@ GET https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/dimensions/
 Authorization: {{creds}}
 Accept: application/json
 
+### Get Member Info
+
+GET https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/dimensions/Entity/members/Sales
+Authorization: {{creds}}
+Accept: application/json
+
+### Get Member Info - Attribute Dimension Member
+
+GET https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/dimensions/Market Size/members/Small
+Authorization: {{creds}}
+Accept: application/json
+
+### Get Member Info - Attribute Dimension (Root)
+
+GET https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/dimensions/Market Size/members/Market Size
+Authorization: {{creds}}
+Accept: application/json
+
 ### Get Member Info - 4110
 
 GET https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/dimensions/Account/members/Jan
@@ -411,6 +429,425 @@ Content-Type: application/json
     ]
   }
 }
+
+### Export Data Slice - Attribute dims in columns (works)
+
+POST https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/plantypes/Plan1/exportdataslice
+Authorization: {{creds}}
+Accept: application/json
+Content-Type: application/json
+
+{
+  "exportPlanningData": false,
+  "gridDefinition": {
+    "columns": [
+      {
+        "dimensions": ["Market Size"],
+        "members": [
+          [
+            "Market Size" ,"Small", "Medium", "Large"
+          ]
+        ]
+      }
+    ],
+    "pov": {
+      "members": [
+        ["Working"], ["4110"], ["USD"], ["Product"], ["Actual"], ["FY22"], ["Jan"]
+      ]
+    },
+    "rows": [
+      {
+        "members": [
+          [
+            "Sales"
+          ]
+        ]
+      }
+    ],
+    "suppressMissingBlocks": false
+  }
+}
+
+### Export Data Slice - Attribute dims in POV (works)
+
+POST https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/plantypes/Plan1/exportdataslice
+Authorization: {{creds}}
+Accept: application/json
+Content-Type: application/json
+
+{
+  "exportPlanningData": false,
+  "gridDefinition": {
+    "columns": [
+      {
+        "members": [
+          [
+            "Jan"
+          ]
+        ]
+      }
+    ],
+    "pov": {
+      "members": [
+        ["Working"], ["4110"], ["USD"], ["Product"], ["Actual"], ["FY22"], ["Medium"]
+      ]
+    },
+    "rows": [
+      {
+        "members": [
+          [
+            "Sales"
+          ]
+        ]
+      }
+    ],
+    "suppressMissingBlocks": false
+  }
+}
+
+### Export Data Slice - Attribute dims in rows
+# Shows that in order to have an attribute dim in the row orientation, you MUST provide the dimension hints
+# Also shows that when you have duplicate row definitions in the same rows object, they get collapsed
+
+POST https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/plantypes/Plan1/exportdataslice
+Authorization: {{creds}}
+Accept: application/json
+Content-Type: application/json
+
+{
+  "exportPlanningData": false,
+  "gridDefinition": {
+    "suppressMissingBlocks": false,
+    "pov": {
+      "members": [
+        ["Working"], ["4110"], ["USD"], ["Product"], ["Actual"]
+      ]
+    },
+    "columns": [
+      {
+        "members": [
+          [
+            "Jan"
+          ]
+        ]
+      }
+    ],
+    "rows": [
+      {
+        "dimensions" : ["Entity", "Year", "Market Size"],
+        "members": [
+          ["403", "403"], ["FY22", "FY22"], ["Medium", "Medium"]
+        ]
+      }
+    ]
+  }
+}
+
+### Export Data Slice - Attribute dims in rows
+# Shows that in order to have an attribute dim in the row orientation, you MUST provide the dimension hints
+# Also shows collapsing rows but also that providing two identical groups definitely results in two rows even after
+# collapsing
+
+POST https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/plantypes/Plan1/exportdataslice
+Authorization: {{creds}}
+Accept: application/json
+Content-Type: application/json
+
+{
+  "exportPlanningData": false,
+  "gridDefinition": {
+    "suppressMissingBlocks": false,
+    "pov": {
+      "members": [
+        ["Working"], ["4110"], ["USD"], ["Product"], ["Actual"]
+      ]
+    },
+    "columns": [
+      {
+        "members": [
+          [
+            "Jan"
+          ]
+        ]
+      }
+    ],
+    "rows": [
+      {
+        "dimensions" : ["Entity", "Year", "Market Size"],
+        "members": [
+          ["403", "403"], ["FY22", "FY22"], ["Medium", "Medium"]
+        ]
+      }
+      ,
+      {
+        "dimensions" : ["Entity", "Year", "Market Size"],
+        "members": [
+          ["403", "403"], ["FY22", "FY22"], ["Medium", "Small"]
+        ]
+      }
+
+    ]
+  }
+}
+
+### Export Data Slice - Attribute dims in rows multi rows
+# Shows that in order to have an attribute dim in the row orientation, you MUST provide the dimension hints
+
+POST https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/plantypes/Plan1/exportdataslice
+Authorization: {{creds}}
+Accept: application/json
+Content-Type: application/json
+
+{
+  "exportPlanningData": false,
+  "gridDefinition": {
+    "suppressMissingBlocks": false,
+    "pov": {
+      "members": [
+        ["Working"], ["4110"], ["USD"], ["Product"], ["Actual"]
+      ]
+    },
+    "columns": [
+      {
+        "members": [
+          [
+            "Jan"
+          ]
+        ]
+      }
+    ],
+    "rows": [
+      {
+        "dimensions" : ["Entity", "Year", "Market Size"],
+        "members": [
+          ["403"], ["FY22"], ["Medium"]
+        ]
+      },
+      {
+        "dimensions" : ["Entity", "Year", "Market Size"],
+        "members": [
+          ["403"], ["FY22"], ["Medium"]
+        ]
+      }
+
+    ]
+  }
+}
+
+### Export Data Slice - Multi Row
+
+POST https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/plantypes/Plan1/exportdataslice
+Authorization: {{creds}}
+Accept: application/json
+Content-Type: application/json
+
+{
+  "gridDefinition": {
+    "suppressMissingBlocks": false,
+    "pov": {
+      "members": [
+        ["4110"], ["USD"], ["Actual"], ["Working"], ["Product"]
+      ]
+    },
+    "columns": [
+      {
+        "members": [
+          ["FY22", "FY22"]
+        ]
+      }
+    ],
+    "rows": [
+      {
+        "members": [
+          ["Sales", "Sales", "Sales"], ["Jan", "Feb", "Mar"]
+        ]
+      }
+    ]
+  }
+}
+
+### Export Data Slice - Bad
+
+POST https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/plantypes/Plan1/exportdataslice
+Authorization: {{creds}}
+Accept: application/json
+Content-Type: application/json
+
+{
+  "gridDefinition": {
+    "suppressMissingBlocks": false,
+    "suppressMissingRows": false,
+    "suppressMissingColumns": false,
+    "pov": {
+      "members": [
+        ["4110"], ["USD"], ["Actual"], ["Working"], ["Product"], ["Jan"]
+      ]
+    },
+    "columns": [
+      {
+        "members": [
+          ["FY22", "FY23"]
+        ]
+      }
+    ],
+    "rows": [
+      {
+        "members": [
+          ["403", "403"]
+        ]
+      }
+    ]
+  }
+}
+
+### Export Data Slice - Attribute Dims
+
+POST https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/plantypes/Plan1/exportdataslice
+Authorization: {{creds}}
+Accept: application/json
+Content-Type: application/json
+
+{
+  "exportPlanningData": false,
+  "gridDefinition": {
+    "suppressMissingBlocks": false,
+    "pov": {
+      "members": [
+        [
+          "Actual"
+        ],
+        [
+          "Working"
+        ],
+        [
+          "USD"
+        ],
+        [
+          "Product"
+        ],
+        [
+          "Jan"
+        ],
+        [
+          "4110"
+        ]
+      ]
+    },
+    "columns": [
+      {
+        "members": [
+          [
+            "FY22"
+          ]
+        ]
+      },
+      {
+        "members": [
+          [
+            "FY22"
+          ]
+        ]
+      },
+      {
+        "members": [
+          [
+            "FY22"
+          ]
+        ]
+      },
+      {
+        "members": [
+          [
+            "FY22"
+          ]
+        ]
+      }
+    ],
+    "rows": [
+      {
+        "members": [
+          [
+            "403"
+          ],
+          [
+            "Market Size"
+          ]
+        ]
+      },
+      {
+        "members": [
+          [
+            "403"
+          ],
+          [
+            "Small"
+          ]
+        ]
+      },
+      {
+        "members": [
+          [
+            "403"
+          ],
+          [
+            "Medium"
+          ]
+        ]
+      },
+      {
+        "members": [
+          [
+            "403"
+          ],
+          [
+            "Large"
+          ]
+        ]
+      },
+      {
+        "members": [
+          [
+            "Total Entity"
+          ],
+          [
+            "Market Size"
+          ]
+        ]
+      },
+      {
+        "members": [
+          [
+            "Total Entity"
+          ],
+          [
+            "Small"
+          ]
+        ]
+      },
+      {
+        "members": [
+          [
+            "Total Entity"
+          ],
+          [
+            "Medium"
+          ]
+        ]
+      },
+      {
+        "members": [
+          [
+            "Total Entity"
+          ],
+          [
+            "Large"
+          ]
+        ]
+      }
+    ]
+  }
+}
+
 
 ### Export Data Slice (Single Cell2)
 

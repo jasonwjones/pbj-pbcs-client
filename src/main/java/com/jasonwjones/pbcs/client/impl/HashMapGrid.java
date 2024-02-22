@@ -52,6 +52,7 @@ public class HashMapGrid<E> implements Grid<E> {
 		return data.get(offset(row, column));
 	}
 
+	@Override
 	public void setCell(int row, int column, E value) {
 		data.put(offset(row, column), value);
 	}

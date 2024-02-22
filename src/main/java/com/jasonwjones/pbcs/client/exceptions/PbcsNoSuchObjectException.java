@@ -18,7 +18,6 @@ public class PbcsNoSuchObjectException extends PbcsClientException {
 		this.objectType = objectType;
 	}
 
-
 	/**
 	 * Gets the name of the object that doesn't exist (e.g. the name of a member that was requested but doesn't exist).
 	 *
