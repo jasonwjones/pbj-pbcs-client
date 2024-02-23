@@ -3,6 +3,7 @@ package com.jasonwjones.pbcs.test;
 import com.jasonwjones.pbcs.client.*;
 import com.jasonwjones.pbcs.client.exceptions.PbcsInvalidDimensionException;
 import com.jasonwjones.pbcs.client.exceptions.PbcsJobLaunchException;
+import com.jasonwjones.pbcs.client.exceptions.PbcsNoSuchObjectException;
 import com.jasonwjones.pbcs.client.impl.PlanTypeConfigurationImpl;
 import com.jasonwjones.pbcs.utils.PbcsClientUtils;
 import org.junit.Before;
@@ -17,13 +18,16 @@ import java.util.stream.Collectors;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
 public class VisionIT {
 
     private static final Logger logger = LoggerFactory.getLogger(VisionIT.class);
+
+    @SuppressWarnings("SpellCheckingInspection")
+    private static final String CALC_ALL = "calcall";
 
     public static final List<String> DIMENSIONS = Arrays.asList("Account", "Currency", "Entity", "Period", "Product", "Scenario", "Version", "Year");
 
@@ -54,6 +58,7 @@ public class VisionIT {
     @Test
     public void whenListJobs() {
         List<PbcsJobDefinition> jobs = app.getJobDefinitions();
+        assertThat(jobs, is(not(empty())));
         for (PbcsJobDefinition job : jobs) {
             logger.info("Job: {}", job);
         }
@@ -68,7 +73,7 @@ public class VisionIT {
 
     @Test
     public void whenLaunchValidRuleThenReturnsInProgress() {
-        PbcsJobStatus result = app.launchBusinessRule("calcall");
+        PbcsJobStatus result = app.launchBusinessRule(CALC_ALL);
         assertThat(result.getJobStatusType(), is(PbcsJobStatusCode.IN_PROGRESS));
     }
 
@@ -76,9 +81,9 @@ public class VisionIT {
     public void whenGetRulesThenHasSpecificRule() {
         List<PbcsJobDefinition> rules = app.getJobDefinitions(PbcsJobType.RULES);
         List<String> jobNames = rules.stream()
-                .map(r -> r.getJobName())
+                .map(PbcsJobDefinition::getJobName)
                 .collect(Collectors.toList());
-        assertThat(jobNames, hasItem("calcall"));
+        assertThat(jobNames, hasItem(CALC_ALL));
     }
 
     @Test
@@ -90,7 +95,16 @@ public class VisionIT {
     @Test
     public void whenGetValidMember() {
         PbcsMemberProperties member = app.getMember("Account", "Cash from Current Operations");
+        assertThat(member.getDimensionName(), is("Account"));
         printMember(member, 0);
+    }
+
+    @Test
+    public void whenNoSuchPlanThenThrowException() {
+        final String invalidPlanName = "InvalidPlan";
+        PbcsNoSuchObjectException exception = assertThrows(PbcsNoSuchObjectException.class, () -> app.getPlanType(invalidPlanName));
+        assertThat(exception.getObjectName(), is(invalidPlanName));
+        assertThat(exception.getObjectType(), is(PbcsObjectType.PLAN));
     }
 
     private static void printMember(PbcsMemberProperties member, int level) {
