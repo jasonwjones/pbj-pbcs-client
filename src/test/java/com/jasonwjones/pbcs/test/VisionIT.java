@@ -2,6 +2,7 @@ package com.jasonwjones.pbcs.test;
 
 import com.jasonwjones.pbcs.client.*;
 import com.jasonwjones.pbcs.client.exceptions.PbcsInvalidDimensionException;
+import com.jasonwjones.pbcs.client.exceptions.PbcsInvalidMemberException;
 import com.jasonwjones.pbcs.client.exceptions.PbcsJobLaunchException;
 import com.jasonwjones.pbcs.client.exceptions.PbcsNoSuchObjectException;
 import com.jasonwjones.pbcs.client.impl.PlanTypeConfigurationImpl;
@@ -97,6 +98,13 @@ public class VisionIT {
         PbcsMemberProperties member = app.getMember("Account", "Cash from Current Operations");
         assertThat(member.getDimensionName(), is("Account"));
         printMember(member, 0);
+    }
+
+    @Test
+    public void whenGetInvalidMember() {
+        final String invalidMember = "4110X";
+        PbcsInvalidMemberException exception = assertThrows(PbcsInvalidMemberException.class, () -> app.getMember("Account", invalidMember));
+        assertThat(exception.getObjectName(), is(invalidMember));
     }
 
     @Test
