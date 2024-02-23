@@ -43,8 +43,6 @@ public class PbcsMemberPropertiesImpl implements PbcsMemberProperties {
 
 	private int generation;
 
-	private PbcsMemberType type;
-
 	public List<PbcsMemberPropertiesImpl> getChildren() {
 		if (children != null) {
 			return children;
