@@ -16,6 +16,7 @@ import com.jasonwjones.pbcs.util.GridDefinitionPrinter;
 import com.jasonwjones.pbcs.util.GridPrinter;
 import com.jasonwjones.pbcs.util.GridUtils;
 import com.jasonwjones.pbcs.util.TextGridReader;
+import com.jasonwjones.pbcs.utils.PbcsClientUtils;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -32,6 +33,8 @@ public class VisionCubeAdhocIT extends AbstractIntegrationTest {
 
     protected PbcsPlanType cube;
 
+    public static final List<String> BASE_DIMENSIONS = Arrays.asList("Account", "Currency", "Entity", "Period", "Product", "Scenario", "Version", "Year");
+
     public static final List<String> DIMENSIONS = Arrays.asList("Account", "Currency", "Entity", "Period", "Product", "Scenario", "Version", "Year", "Market Size");
 
     public static final List<String> LEVEL0_TEST_CELL = Arrays.asList("Actual", "FY21", "Final", "USD", "000", "P_000", "Jan", "4110");
@@ -45,8 +48,7 @@ public class VisionCubeAdhocIT extends AbstractIntegrationTest {
 
     @Before
     public void setUp() {
-        PbcsClient client = new PbcsClientFactory().createClient(connection);
-        PbcsApplication app = client.getApplication("Vision");
+        PbcsApplication app = PbcsClientUtils.vision();
 
         PlanTypeConfigurationImpl configuration = new PlanTypeConfigurationImpl();
         configuration.setName("Plan1");
@@ -65,6 +67,12 @@ public class VisionCubeAdhocIT extends AbstractIntegrationTest {
 
         DataSliceGrid dataSliceGrid = cube.retrieve(pov, actualGrid);
         DataSliceGridPrinter.print(dataSliceGrid);
+    }
+
+    @Test
+    public void whenGetCell() {
+        assertThat(cube.getCell(BASE_DIMENSIONS), is("")); // ?
+        assertThat(cube.getCell(LEVEL0_TEST_CELL), is(CELL_TEST_VALUE));
     }
 
     @Test
