@@ -120,6 +120,12 @@ public interface PbcsApplication {
 
 	PbcsJobStatus exportData(String exportName);
 
+	/**
+	 * Despite the name, this seems to be a call to refresh the entire application. The documentation makes mention of
+	 * 'the' planning cube, but I think in practice this is really the whole application.
+	 *
+	 * @return a job for tracking the refresh operation
+	 */
 	PbcsJobStatus refreshCube();
 
 	/**
