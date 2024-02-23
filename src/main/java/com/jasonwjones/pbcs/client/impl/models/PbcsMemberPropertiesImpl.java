@@ -6,6 +6,7 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.jasonwjones.pbcs.client.PbcsMemberProperties;
+import com.jasonwjones.pbcs.client.PbcsMemberType;
 
 public class PbcsMemberPropertiesImpl implements PbcsMemberProperties {
 
@@ -41,6 +42,8 @@ public class PbcsMemberPropertiesImpl implements PbcsMemberProperties {
 	}
 
 	private int generation;
+
+	private PbcsMemberType type;
 
 	public List<PbcsMemberPropertiesImpl> getChildren() {
 		if (children != null) {
@@ -79,6 +82,11 @@ public class PbcsMemberPropertiesImpl implements PbcsMemberProperties {
 
 	public Integer getObjectType() {
 		return objectType;
+	}
+
+	@Override
+	public PbcsMemberType getType() {
+		return PbcsMemberType.valueOf(objectType);
 	}
 
 	public void setObjectType(Integer objectType) {

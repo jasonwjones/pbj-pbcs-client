@@ -108,6 +108,11 @@ public class VisionIT {
     }
 
     @Test
+    public void whenGetSharedMember() {
+        app.getMember("Entity", "Sales Director 1");
+    }
+
+    @Test
     public void whenNoSuchPlanThenThrowException() {
         final String invalidPlanName = "InvalidPlan";
         PbcsNoSuchObjectException exception = assertThrows(PbcsNoSuchObjectException.class, () -> app.getPlanType(invalidPlanName));

@@ -32,6 +32,29 @@ GET https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/dimensions/
 Authorization: {{creds}}
 Accept: application/json
 
+### Get Member Info
+
+GET https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/dimensions/Year/members/Year
+Authorization: {{creds}}
+Accept: application/json
+
+### Get Member Info -- child has share
+
+GET https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/dimensions/Entity/members/Sales Director 1
+Authorization: {{creds}}
+Accept: application/json
+
+### Get Member Info -- child has share
+# Shows that even when we query for a member with a share, the query comes back with info about the prototype member
+# Note that the prototype member will have an actual object type (in this case, 33 for Entity member), as opposed to 45
+# for being shared
+# Doesn't seem possible to query on 'uniqueName' value such as [Sales Director 1].[240]
+
+GET https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/dimensions/Entity/members/240
+Authorization: {{creds}}
+Accept: application/json
+
+
 ### Get Member Info (Dimension)
 # object type 34
 

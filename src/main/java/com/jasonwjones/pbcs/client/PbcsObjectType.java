@@ -1,7 +1,8 @@
 package com.jasonwjones.pbcs.client;
 
 /**
- * Enumeration for various objects that exist in PBCS system. Mostly used for typing in {@link com.jasonwjones.pbcs.client.exceptions.PbcsNoSuchObjectException}.
+ * Enumeration for various objects that exist in PBCS system. Mostly used for typing in
+ * {@link com.jasonwjones.pbcs.client.exceptions.PbcsNoSuchObjectException}.
  */
 public enum PbcsObjectType {
 

@@ -2,7 +2,7 @@ package com.jasonwjones.pbcs.client;
 
 /**
  * Types are in HSP_OBJECT_TYPE or can be helpfully found at
- * http://www.hyperionepm.com/archives/102
+ * <a href="http://www.hyperionepm.com/archives/102">...</a>
  *
  * @author Jason Jones
  *
@@ -10,23 +10,33 @@ package com.jasonwjones.pbcs.client;
 public enum PbcsMemberType {
 
 	/**
-	 * Unknown isn't a real row in the table -- just incude it in case there's
+	 * Unknown isn't a real row in the table -- just include it in case there's
 	 * an object type we don't have a mapping for
 	 */
 	UNKNOWN(0, "Unknown"), // not a real row in table, just give
-	FOLDER(1, "Folder"),
+
 	SCENARIO(31, "Scenario"),
-	ACCOUNT(32, "Accont"),
+
+	ACCOUNT(32, "Account"),
+
 	ENTITY(33, "Entity"),
+
 	TIME_PERIOD(34, "Time Period"),
+
 	VERSION(35, "Version"),
-	YEAR(38, "Year");
 
-	private int objectTypeId;
+	YEAR(38, "Year"),
 
-	private String typeName;
+	// note that the Currency DIMENSION member itself seems to report a type of 9 while members in it are 37
+	CURRENCY(37, "Currency"),
 
-	private PbcsMemberType(int objectTypeId, String typeName) {
+	SHARED(45, "Shared");
+
+	private final int objectTypeId;
+
+	private final String typeName;
+
+	PbcsMemberType(int objectTypeId, String typeName) {
 		this.objectTypeId = objectTypeId;
 		this.typeName = typeName;
 	}

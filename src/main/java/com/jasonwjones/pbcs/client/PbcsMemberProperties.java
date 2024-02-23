@@ -76,18 +76,23 @@ public interface PbcsMemberProperties {
 	 */
 	String getDataType();
 
-	// seems to be the object types from the HSP table:
-	// https://www.epmmarshall.com/the-planning-repository-hsp_object-and-hsp_object_type/
-
-	// Confirmed values:
-	// 31: Scenario
-	// 32: Account
-	// 33: Entity
-	// 34: Time Period (also seen on member such as H-T-D)
-	// 35: Version
-	// 38: Year
-	// 45: Shared Member
+	/**
+	 * Get the object type that came back with the member info. Only use this method if the type you have is somehow
+	 * not represented in {@link PbcsMemberType}.
+	 *
+	 * @return the original object type value
+	 */
 	Integer getObjectType();
+
+	/**
+	 * Gets the member type, corresponding to the known planning member types, such as Scenario or Account. If the type
+	 * is not known (to the enum) then {@link PbcsMemberType#UNKNOWN} will be returned. If you need to parse some
+	 * specific [but unknown] member type that's not represented in the enum, then use the {@link #getObjectType()}
+	 * method.
+	 *
+	 * @return the member type (if known)
+	 */
+	PbcsMemberType getType();
 
 	/**
 	 * Returns the data storage type of the member, such as "Store Data". This method will always return the literal value
