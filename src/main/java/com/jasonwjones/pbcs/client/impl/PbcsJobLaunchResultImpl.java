@@ -2,7 +2,6 @@ package com.jasonwjones.pbcs.client.impl;
 
 import com.jasonwjones.pbcs.api.v3.JobLaunchResponse;
 import com.jasonwjones.pbcs.client.PbcsApplication;
-import com.jasonwjones.pbcs.client.PbcsJobLaunchResult;
 import com.jasonwjones.pbcs.client.PbcsJobStatus;
 import com.jasonwjones.pbcs.client.PbcsJobStatusCode;
 import org.slf4j.Logger;
@@ -10,7 +9,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.TimeUnit;
 
-public class PbcsJobLaunchResultImpl implements PbcsJobLaunchResult {
+public class PbcsJobLaunchResultImpl implements PbcsJobStatus {
 
 	private static final Logger logger = LoggerFactory.getLogger(PbcsJobLaunchResultImpl.class);
 

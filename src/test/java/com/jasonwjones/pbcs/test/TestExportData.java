@@ -3,7 +3,6 @@ package com.jasonwjones.pbcs.test;
 import com.jasonwjones.pbcs.PbcsClient;
 import com.jasonwjones.pbcs.PbcsClientFactory;
 import com.jasonwjones.pbcs.client.PbcsApplication;
-import com.jasonwjones.pbcs.client.PbcsJobLaunchResult;
 import com.jasonwjones.pbcs.client.PbcsJobStatus;
 
 public class TestExportData extends AbstractIntegrationTest {
@@ -12,7 +11,7 @@ public class TestExportData extends AbstractIntegrationTest {
 		PbcsClient client = new PbcsClientFactory().createClient(connection);
 
 		PbcsApplication app = client.getApplication("Vision");
-		PbcsJobLaunchResult result = app.importMetadata("Plan1");
+		PbcsJobStatus result = app.importMetadata("Plan1");
 
 		System.out.println("Result: " + result);
 

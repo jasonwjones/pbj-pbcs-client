@@ -55,7 +55,7 @@ public class VisionIT {
 
     @Test
     public void whenLaunchValidRuleThenReturnsInProgress() {
-        PbcsJobLaunchResult result = app.launchBusinessRule("calcall");
+        PbcsJobStatus result = app.launchBusinessRule("calcall");
         assertThat(result.getJobStatusType(), is(PbcsJobStatusCode.IN_PROGRESS));
     }
 

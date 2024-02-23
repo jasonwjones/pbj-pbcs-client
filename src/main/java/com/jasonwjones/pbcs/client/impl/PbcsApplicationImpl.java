@@ -88,12 +88,12 @@ public class PbcsApplicationImpl extends AbstractPbcsObject implements PbcsAppli
 	}
 
 	@Override
-	public PbcsJobLaunchResult launchBusinessRule(String ruleName) {
+	public PbcsJobStatus launchBusinessRule(String ruleName) {
 		return launchBusinessRule(ruleName, new HashMap<>());
 	}
 
 	@Override
-	public PbcsJobLaunchResult launchBusinessRule(String ruleName, Map<String, String> parameters) {
+	public PbcsJobStatus launchBusinessRule(String ruleName, Map<String, String> parameters) {
 		String url = this.context.getBaseUrl() + JOBS_ENDPOINT;
 		MetadataImportPayload payload = new MetadataImportPayload("RULES", ruleName);
 		payload.setParameters(parameters);
@@ -110,12 +110,12 @@ public class PbcsApplicationImpl extends AbstractPbcsObject implements PbcsAppli
 	}
 
 	@Override
-	public PbcsJobLaunchResult launchRuleSet(String ruleSetName) {
+	public PbcsJobStatus launchRuleSet(String ruleSetName) {
 		return launchRuleSet(ruleSetName, Collections.emptyMap());
 	}
 
 	@Override
-	public PbcsJobLaunchResult launchRuleSet(String ruleSetName, Map<String, String> parameters) {
+	public PbcsJobStatus launchRuleSet(String ruleSetName, Map<String, String> parameters) {
 		String url = context.getBaseUrl() + JOBS_ENDPOINT;
 		JobLaunchPayload payload = new JobLaunchPayload("RULESET", ruleSetName);
 		payload.setParameters(parameters);
@@ -125,7 +125,7 @@ public class PbcsApplicationImpl extends AbstractPbcsObject implements PbcsAppli
 	}
 
 	@Override
-	public PbcsJobLaunchResult launchDataRule(String dataRuleName, Map<String, String> parameters) {
+	public PbcsJobStatus launchDataRule(String dataRuleName, Map<String, String> parameters) {
 		String url = context.getAifUrl("/jobs");
 		JobLaunchPayload payload = new JobLaunchPayload("DATARULE", dataRuleName);
 		payload.setParameters(parameters);
@@ -135,7 +135,7 @@ public class PbcsApplicationImpl extends AbstractPbcsObject implements PbcsAppli
 	}
 
 	@Override
-	public PbcsJobLaunchResult launchIntegration(String integrationName, Map<String, String> parameters) {
+	public PbcsJobStatus launchIntegration(String integrationName, Map<String, String> parameters) {
 		String url = context.getAifUrl("/jobs");
 		JobLaunchPayload payload = new JobLaunchPayload("INTEGRATION", integrationName);
 		payload.setParameters(parameters);
@@ -158,12 +158,12 @@ public class PbcsApplicationImpl extends AbstractPbcsObject implements PbcsAppli
 	}
 
 	@Override
-	public PbcsJobLaunchResult importMetadata(String metadataImportName) {
+	public PbcsJobStatus importMetadata(String metadataImportName) {
 		return importMetadata(metadataImportName, null);
 	}
 
 	@Override
-	public PbcsJobLaunchResult importMetadata(String metadataImportName, String dataFile) {
+	public PbcsJobStatus importMetadata(String metadataImportName, String dataFile) {
 		logger.info("Launching metadata import data job: {}", metadataImportName);
 		String url = this.context.getBaseUrl() + JOBS_ENDPOINT;
 		MetadataImportPayload payload = new MetadataImportPayload("IMPORT_METADATA", metadataImportName);
@@ -186,11 +186,11 @@ public class PbcsApplicationImpl extends AbstractPbcsObject implements PbcsAppli
 	}
 
 	@Override
-	public PbcsJobLaunchResult launchDataImport(String dataImportName) {
+	public PbcsJobStatus launchDataImport(String dataImportName) {
 		return this.launchDataImport(dataImportName, Optional.empty());
 	}
 	@Override
-	public PbcsJobLaunchResult launchDataImport(String dataImportName, Optional<String> importFileName) {
+	public PbcsJobStatus launchDataImport(String dataImportName, Optional<String> importFileName) {
 		logger.info("Launching import data job: {}", dataImportName);
 		String url = this.context.getBaseUrl() + JOBS_ENDPOINT;
 		JobLaunchPayload payload = new JobLaunchPayload("IMPORT_DATA", dataImportName);
@@ -218,7 +218,7 @@ public class PbcsApplicationImpl extends AbstractPbcsObject implements PbcsAppli
 	}
 
 	@Override
-	public PbcsJobLaunchResult exportData(String exportName) {
+	public PbcsJobStatus exportData(String exportName) {
 		String url = this.context.getBaseUrl() + JOBS_ENDPOINT;
 		JobLaunchPayload payload = new JobLaunchPayload("EXPORT_DATA", exportName);
 		ResponseEntity<JobLaunchResponse> output = this.context.getTemplate().postForEntity(url, payload,
@@ -228,12 +228,12 @@ public class PbcsApplicationImpl extends AbstractPbcsObject implements PbcsAppli
 	}
 
 	@Override
-	public PbcsJobLaunchResult refreshCube() {
+	public PbcsJobStatus refreshCube() {
 		return refreshCube("CubeRefresh");
 	}
 
 	@Override
-	public PbcsJobLaunchResult refreshCube(String cubeRefreshName) {
+	public PbcsJobStatus refreshCube(String cubeRefreshName) {
 		String url = this.context.getBaseUrl() + JOBS_ENDPOINT;
 		MetadataImportPayload payload = new MetadataImportPayload("CUBE_REFRESH", cubeRefreshName);
 		ResponseEntity<JobLaunchResponse> output = this.context.getTemplate().postForEntity(url, getRequestEntityWithHeaders(payload),

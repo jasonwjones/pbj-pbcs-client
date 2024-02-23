@@ -84,7 +84,7 @@ public interface PbcsApplication {
 	 *            the application
 	 * @return a job launch result
 	 */
-	PbcsJobLaunchResult launchBusinessRule(String ruleName);
+	PbcsJobStatus launchBusinessRule(String ruleName);
 
 	/**
 	 * Launches a business rule on the application, providing additional
@@ -95,17 +95,17 @@ public interface PbcsApplication {
 	 * @param parameters the parameters to pass along
 	 * @return a job launch result
 	 */
-	PbcsJobLaunchResult launchBusinessRule(String ruleName, Map<String, String> parameters);
+	PbcsJobStatus launchBusinessRule(String ruleName, Map<String, String> parameters);
 
-	PbcsJobLaunchResult launchRuleSet(String ruleSetName, Map<String, String> parameters);
-	PbcsJobLaunchResult launchRuleSet(String ruleSetName);
+	PbcsJobStatus launchRuleSet(String ruleSetName, Map<String, String> parameters);
+	PbcsJobStatus launchRuleSet(String ruleSetName);
 
-	PbcsJobLaunchResult launchDataImport(String dataImportName, Optional<String> dataFile);
-	PbcsJobLaunchResult launchDataImport(String dataImportName);
+	PbcsJobStatus launchDataImport(String dataImportName, Optional<String> dataFile);
+	PbcsJobStatus launchDataImport(String dataImportName);
 
-	PbcsJobLaunchResult importMetadata(String metadataImportName, String dataFile);
+	PbcsJobStatus importMetadata(String metadataImportName, String dataFile);
 
-	PbcsJobLaunchResult launchDataRule(String dataRuleName, Map<String, String> parameters);
+	PbcsJobStatus launchDataRule(String dataRuleName, Map<String, String> parameters);
 
 	/**
 	 * The INTEGRATION job type is an enhanced version of DATARULE job type (see Running Data Rules). It is recommended that you use the INTEGRATION job type for future integration jobs
@@ -114,13 +114,13 @@ public interface PbcsApplication {
 	 * @param parameters      - parameters for integration
 	 * @return job result
 	 */
-	PbcsJobLaunchResult launchIntegration(String integrationName, Map<String, String> parameters);
+	PbcsJobStatus launchIntegration(String integrationName, Map<String, String> parameters);
 
-	PbcsJobLaunchResult importMetadata(String metadataImportName);
+	PbcsJobStatus importMetadata(String metadataImportName);
 
-	PbcsJobLaunchResult exportData(String exportName);
+	PbcsJobStatus exportData(String exportName);
 
-	PbcsJobLaunchResult refreshCube();
+	PbcsJobStatus refreshCube();
 
 	/**
 	 * Refreshes the cube with the refresh name. If the refresh name listed in
@@ -130,7 +130,7 @@ public interface PbcsApplication {
 	 * @param cubeRefreshName the CUBE_REFRESH name
 	 * @return a job launch result
 	 */
-	PbcsJobLaunchResult refreshCube(String cubeRefreshName);
+	PbcsJobStatus refreshCube(String cubeRefreshName);
 
 	PbcsMemberProperties addMember(String dimensionName, String memberName, String parentName);
 
