@@ -107,6 +107,14 @@ public class VisionIT {
         assertThat(exception.getObjectType(), is(PbcsObjectType.PLAN));
     }
 
+    @Test
+    public void whenNoSuchApplicationThenThrowException() {
+        final String invalidApplicationName = "InvalidApp";
+        PbcsNoSuchObjectException exception = assertThrows(PbcsNoSuchObjectException.class, () -> app.getClient().getApplication(invalidApplicationName));
+        assertThat(exception.getObjectName(), is(invalidApplicationName));
+        assertThat(exception.getObjectType(), is(PbcsObjectType.APPLICATION));
+    }
+
     private static void printMember(PbcsMemberProperties member, int level) {
         for (int i = 0; i < level; i++) System.out.print("    ");
         System.out.printf("%s (%s) %n", member.getName(), member.getDataStorage());
