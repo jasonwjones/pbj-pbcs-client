@@ -52,7 +52,7 @@ public class PbcsApplicationImpl extends AbstractPbcsObject implements PbcsAppli
 
 	@Override
 	public List<PbcsJobDefinition> getJobDefinitions() {
-		logger.info("Getting job definitions for {}", application.getName());
+		logger.info("Getting job definitions for {}", getName());
 		JobDefinitionsWrapper jobDefinitions = get("applications/{application}/jobdefinitions", JobDefinitionsWrapper.class, getName());
 
 		List<PbcsJobDefinition> pbcsJobDefs = new ArrayList<>();
@@ -65,20 +65,23 @@ public class PbcsApplicationImpl extends AbstractPbcsObject implements PbcsAppli
 
 	@Override
 	public List<PbcsJobDefinition> getJobDefinitions(PbcsJobType jobType) {
-		List<PbcsJobDefinition> filteredJobDefinitions = new ArrayList<>();
-		for (PbcsJobDefinition currentDef : getJobDefinitions()) {
-			if (currentDef.getJobType().equals(jobType.name())) {
-				filteredJobDefinitions.add(currentDef);
-			}
+		// someone messed up how the payload for this call should look like, but we craft this fake 'variable' to stick
+		// on to the query string and make it work
+		String jobTypeFragment = "{'jobType':'" + jobType.name() + "'}";
+		JobDefinitionsWrapper jobDefinitions = get("applications/{application}/jobdefinitions?q={jobTypeFragment}", JobDefinitionsWrapper.class, getName(), jobTypeFragment);
+		List<PbcsJobDefinition> pbcsJobDefs = new ArrayList<>();
+		for (JobDefinition jobDefinition : jobDefinitions.getItems()) {
+			PbcsJobDefinition pbcsJobDef = new PbcsJobDefinitionImpl(context, jobDefinition);
+			pbcsJobDefs.add(pbcsJobDef);
 		}
-		return filteredJobDefinitions;
+		return pbcsJobDefs;
 	}
 
 	@Override
 	public PbcsJobStatus getJobStatus(Integer jobId) {
 		try {
 			JobLaunchResponse jobLaunchResponse = get("applications/{application}/jobs/{jobId}", JobLaunchResponse.class, getName(), jobId);
-			return new PbcsJobStatusImpl(jobLaunchResponse);
+			return new PbcsJobLaunchResultImpl(this, jobLaunchResponse);
 		} catch (HttpServerErrorException e) {
 			throw new PbcsClientException("Error fetching job with status ID " + jobId + ". Perhaps it doesn't exist?");
 		}
@@ -94,9 +97,16 @@ public class PbcsApplicationImpl extends AbstractPbcsObject implements PbcsAppli
 		String url = this.context.getBaseUrl() + JOBS_ENDPOINT;
 		MetadataImportPayload payload = new MetadataImportPayload("RULES", ruleName);
 		payload.setParameters(parameters);
-		ResponseEntity<JobLaunchResponse> output = this.context.getTemplate().postForEntity(url, getRequestEntityWithHeaders(payload),
-				JobLaunchResponse.class, application.getName());
-		return new PbcsJobLaunchResultImpl(output.getBody());
+		try {
+			logger.info("Launching {} business rule {} with parameters {}", getName(), ruleName, parameters);
+			ResponseEntity<JobLaunchResponse> output = this.context.getTemplate().postForEntity(url, getRequestEntityWithHeaders(payload),
+					JobLaunchResponse.class, application.getName());
+			logger.info("Launched business rule, job ID is {}", output.getBody().getJobId());
+			return new PbcsJobLaunchResultImpl(this, output.getBody());
+		} catch (Exception e) {
+			logger.error("Exception launching business rule {}", ruleName);
+			throw new PbcsJobLaunchException(ruleName, e);
+		}
 	}
 
 	@Override
@@ -111,7 +121,7 @@ public class PbcsApplicationImpl extends AbstractPbcsObject implements PbcsAppli
 		payload.setParameters(parameters);
 		HttpEntity<?> requestEntity = getRequestEntityWithHeaders(payload);
 		ResponseEntity<JobLaunchResponse> output = context.getTemplate().postForEntity(url, requestEntity, JobLaunchResponse.class, getName());
-		return new PbcsJobLaunchResultImpl(output.getBody());
+		return new PbcsJobLaunchResultImpl(this, output.getBody());
 	}
 
 	@Override
@@ -121,7 +131,7 @@ public class PbcsApplicationImpl extends AbstractPbcsObject implements PbcsAppli
 		payload.setParameters(parameters);
 		HttpEntity<?> requestEntity = getRequestEntityWithHeaders(payload);
 		ResponseEntity<JobLaunchResponse> output = context.getTemplate().postForEntity(url, requestEntity, JobLaunchResponse.class, getName());
-		return new PbcsJobLaunchResultImpl(output.getBody());
+		return new PbcsJobLaunchResultImpl(this, output.getBody());
 	}
 
 	@Override
@@ -132,7 +142,7 @@ public class PbcsApplicationImpl extends AbstractPbcsObject implements PbcsAppli
 		HttpEntity<?> requestEntity = getRequestEntityWithHeaders(payload);
 		ResponseEntity<JobLaunchResponse> output = context.getTemplate()
 														  .postForEntity(url, requestEntity, JobLaunchResponse.class, getName());
-		return new PbcsJobLaunchResultImpl(output.getBody());
+		return new PbcsJobLaunchResultImpl(this, output.getBody());
 	}
 
 	private HttpEntity<?> getRequestEntityWithHeaders(Payload payload) {
@@ -172,7 +182,7 @@ public class PbcsApplicationImpl extends AbstractPbcsObject implements PbcsAppli
 			payload.setParameters(params);
 		}
 		ResponseEntity<JobLaunchResponse> output = this.context.getTemplate().postForEntity(url, getRequestEntityWithHeaders(payload), JobLaunchResponse.class, getName());
-		return new PbcsJobLaunchResultImpl(output.getBody());
+		return new PbcsJobLaunchResultImpl(this, output.getBody());
 	}
 
 	@Override
@@ -204,7 +214,7 @@ public class PbcsApplicationImpl extends AbstractPbcsObject implements PbcsAppli
 		ResponseEntity<JobLaunchResponse> output = context.getTemplate()
 															.exchange(body, JobLaunchResponse.class);
 
-		return new PbcsJobLaunchResultImpl(output.getBody());
+		return new PbcsJobLaunchResultImpl(this, output.getBody());
 	}
 
 	@Override
@@ -214,7 +224,7 @@ public class PbcsApplicationImpl extends AbstractPbcsObject implements PbcsAppli
 		ResponseEntity<JobLaunchResponse> output = this.context.getTemplate().postForEntity(url, payload,
 				JobLaunchResponse.class, getName());
 		logger.info("Export data HTTP code: {}", output.getStatusCode().value());
-		return new PbcsJobLaunchResultImpl(output.getBody());
+		return new PbcsJobLaunchResultImpl(this, output.getBody());
 	}
 
 	@Override
@@ -229,7 +239,7 @@ public class PbcsApplicationImpl extends AbstractPbcsObject implements PbcsAppli
 		ResponseEntity<JobLaunchResponse> output = this.context.getTemplate().postForEntity(url, getRequestEntityWithHeaders(payload),
 				JobLaunchResponse.class, getName());
 		logger.info("Cube refresh launched");
-		return new PbcsJobLaunchResultImpl(output.getBody());
+		return new PbcsJobLaunchResultImpl(this, output.getBody());
 	}
 
 	@Override

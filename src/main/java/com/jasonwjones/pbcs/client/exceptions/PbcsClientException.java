@@ -1,6 +1,7 @@
 package com.jasonwjones.pbcs.client.exceptions;
 
 import java.io.IOException;
+import java.io.Serializable;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import org.springframework.http.client.ClientHttpResponse;
@@ -73,7 +74,7 @@ public class PbcsClientException extends RuntimeException {
 		}
 	}
 
-	public static class PbcsErrorResponse {
+	public static class PbcsErrorResponse implements Serializable {
 
 		// some errors that come back seem to erroneously have a field named 'detail'. If/when we upgrade to dependencies
 		// that include a version of Jackson that is 2.9+, we might consider using JsonAlias to help with this
@@ -150,5 +151,6 @@ public class PbcsClientException extends RuntimeException {
 		public void setLinks(String links) {
 			this.links = links;
 		}
+
 	}
 }

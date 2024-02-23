@@ -8,16 +8,16 @@ import com.jasonwjones.pbcs.client.impl.PbcsConnectionImpl;
 
 public abstract class AbstractIntegrationTest {
 
-	private static final String PROPS = System.getProperty("user.home") +"/pbcs-client.properties";
-	
+	private static final String PROPS = System.getProperty("user.home") + "/pbcs-client.properties";
+
 	protected static final String server;
 	protected static final String identityDomain;
 	protected static final String username;
 	protected static final String password;
 	protected static final String appName;
-	
+
 	protected static PbcsConnection connection;
-	
+
 	static {
 		Properties properties = new Properties();
 		try {
@@ -33,7 +33,7 @@ public abstract class AbstractIntegrationTest {
 		appName = properties.getProperty("appName");
 		connection = PbcsConnectionImpl.fromProperties(properties);
 	}
-			
+
 	public static Properties loadLoginProperties() {
 		Properties properties = new Properties();
 		try {
@@ -44,7 +44,7 @@ public abstract class AbstractIntegrationTest {
 		}
 		return properties;
 	}
-	
+
 	public static String repeat(String text, int times) {
 		StringBuilder sb = new StringBuilder(times * text.length());
 		for (int i = 0; i < times; i++) {
@@ -52,5 +52,5 @@ public abstract class AbstractIntegrationTest {
 		}
 		return sb.toString();
 	}
-	
+
 }

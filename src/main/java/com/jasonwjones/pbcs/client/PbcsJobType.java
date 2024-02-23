@@ -8,7 +8,9 @@ public enum PbcsJobType {
 
 	PLAN_TYPE_MAP("Plan Type Map"),
 
-	RULES("Rules");
+	RULES("Rules"),
+
+	OTHER("Other");
 
 	private final String description;
 
@@ -18,6 +20,15 @@ public enum PbcsJobType {
 
 	public String getDescription() {
 		return description;
+	}
+
+	public static PbcsJobType parse(String type) {
+		for (PbcsJobType knownJobType : values()) {
+			if (knownJobType.getDescription().equalsIgnoreCase(type)) {
+				return knownJobType;
+			}
+		}
+		return OTHER;
 	}
 
 }

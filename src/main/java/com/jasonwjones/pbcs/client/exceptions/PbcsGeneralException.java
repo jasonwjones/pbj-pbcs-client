@@ -5,13 +5,12 @@ public class PbcsGeneralException extends PbcsClientException {
 	private final PbcsErrorResponse errorResponse;
 
 	public PbcsGeneralException(PbcsErrorResponse errorResponse) {
-		super(errorResponse.getDetails());
+		super(errorResponse.getDetails() != null ? errorResponse.getDetails() : errorResponse.getMessage());
 		this.errorResponse = errorResponse;
 	}
 
-	@Override
-	public String getMessage() {
-		return errorResponse.getMessage();
+	public PbcsErrorResponse getErrorResponse() {
+		return errorResponse;
 	}
 
 }

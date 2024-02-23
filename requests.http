@@ -32,6 +32,20 @@ GET https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/dimensions/
 Authorization: {{creds}}
 Accept: application/json
 
+### Get Member Info (Dimension)
+# object type 34
+
+GET https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/dimensions/Period/members/Jan
+Authorization: {{creds}}
+Accept: application/json
+
+### Get Member Info (Scenario)
+# object type 34
+
+GET https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/dimensions/Scenario/members/Scenario
+Authorization: {{creds}}
+Accept: application/json
+
 ### Get Member Info
 
 GET https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/dimensions/Entity/members/Sales
@@ -45,14 +59,24 @@ Authorization: {{creds}}
 Accept: application/json
 
 ### Get Member Info - Attribute Dimension (Root)
+#
+# Object type 30
 
 GET https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/dimensions/Market Size/members/Market Size
 Authorization: {{creds}}
 Accept: application/json
 
+### Get Member Info - Attribute Dimension (Root)
+#
+# Object type 30
+
+GET https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/dimensions/Currency/members/Currency
+Authorization: {{creds}}
+Accept: application/json
+
 ### Get Member Info - 4110
 
-GET https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/dimensions/Account/members/Jan
+GET https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/dimensions/Period/members/Jan
 Authorization: {{creds}}
 Accept: application/json
 
@@ -87,9 +111,22 @@ GET https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/jobdefiniti
 Authorization: {{creds}}
 Accept: application/json
 
+### Get Job Definitions (Specifc Type)
+# Someone messed up their parameter definitions on this call...
+
+GET https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/jobdefinitions?q={"jobType":"RULES"}
+Authorization: {{creds}}
+Accept: application/json
+
 ### Get Job Definitions
 
 GET https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/jobs
+Authorization: {{creds}}
+Accept: application/json
+
+### Get Job Status
+
+GET https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/jobs/7
 Authorization: {{creds}}
 Accept: application/json
 

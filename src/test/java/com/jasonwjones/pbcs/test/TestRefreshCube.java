@@ -7,7 +7,7 @@ import com.jasonwjones.pbcs.client.PbcsJobLaunchResult;
 
 public class TestRefreshCube extends AbstractIntegrationTest {
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws InterruptedException {
 		PbcsClient client = new PbcsClientFactory().createClient(connection);
 		PbcsApplication app = client.getApplication("Vision");
 		PbcsJobLaunchResult result = app.refreshCube();

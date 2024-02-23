@@ -60,4 +60,13 @@ public enum PbcsJobStatusCode {
 		return code != -1 && code != 2;
 	}
 
+	/**
+	 * Returns true if the job was successful, i.e. is equal to {@link #SUCCESS}.
+	 *
+	 * @return true if successful, false otherwise
+	 */
+	public boolean isSuccessful() {
+		return this == SUCCESS;
+	}
+
 }
