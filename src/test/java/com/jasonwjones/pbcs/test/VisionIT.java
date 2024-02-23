@@ -17,6 +17,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.assertTrue;
 
 public class VisionIT {
 
@@ -60,12 +61,18 @@ public class VisionIT {
     }
 
     @Test
-    public void whenGetRules() {
+    public void whenGetRulesThenHasSpecificRule() {
         List<PbcsJobDefinition> rules = app.getJobDefinitions(PbcsJobType.RULES);
         List<String> jobNames = rules.stream()
                 .map(r -> r.getJobName())
                 .collect(Collectors.toList());
         assertThat(jobNames, hasItem("calcall"));
+    }
+
+    @Test
+    public void whenRefreshCube() throws InterruptedException {
+        PbcsJobStatus job = app.refreshCube().waitUntilFinished();
+        assertTrue(job.isSuccessful());
     }
 
 }

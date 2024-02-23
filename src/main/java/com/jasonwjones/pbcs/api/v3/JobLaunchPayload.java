@@ -24,4 +24,5 @@ public class JobLaunchPayload extends Payload {
 	public Map<String, String> getParameters() {
 		return super.getParameters();
 	}
+
 }

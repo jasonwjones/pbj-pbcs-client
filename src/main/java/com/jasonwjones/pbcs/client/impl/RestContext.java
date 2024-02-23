@@ -28,6 +28,8 @@ public class RestContext {
 		return this.aifBaseUrl;
 	}
 
+	// Trying to carge the AIF/Interop stuff out of the 'core' EPM cloud API
+	@Deprecated
 	public String getAifUrl(String suffix) {
 		return this.aifBaseUrl + suffix;
 	}

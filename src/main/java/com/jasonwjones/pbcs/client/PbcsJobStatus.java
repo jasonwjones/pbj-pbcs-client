@@ -7,7 +7,7 @@ import java.util.concurrent.TimeUnit;
  */
 public interface PbcsJobStatus {
 
-	long DEFAULT_CHECK_INTERVAL_MILLIS = 1000;
+	long DEFAULT_CHECK_INTERVAL_MILLIS = 3000;
 
 	/**
 	 * Returns the numeric status of the job:
