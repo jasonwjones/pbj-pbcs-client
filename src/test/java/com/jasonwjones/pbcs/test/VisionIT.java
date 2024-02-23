@@ -7,6 +7,8 @@ import com.jasonwjones.pbcs.client.impl.PlanTypeConfigurationImpl;
 import com.jasonwjones.pbcs.utils.PbcsClientUtils;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -20,6 +22,8 @@ import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
 public class VisionIT {
+
+    private static final Logger logger = LoggerFactory.getLogger(VisionIT.class);
 
     public static final List<String> DIMENSIONS = Arrays.asList("Account", "Currency", "Entity", "Period", "Product", "Scenario", "Version", "Year");
 
@@ -48,6 +52,14 @@ public class VisionIT {
     }
 
     @Test
+    public void whenListJobs() {
+        List<PbcsJobDefinition> jobs = app.getJobDefinitions();
+        for (PbcsJobDefinition job : jobs) {
+            logger.info("Job: {}", job);
+        }
+    }
+
+    @Test
     public void whenInvalidBusinessRuleRequestedThenThrowException() {
         final String invalidRule = "SomeInvalidRule";
         PbcsJobLaunchException exception = assertThrows(PbcsJobLaunchException.class, () -> app.launchBusinessRule(invalidRule));
@@ -73,6 +85,21 @@ public class VisionIT {
     public void whenRefreshCube() throws InterruptedException {
         PbcsJobStatus job = app.refreshCube().waitUntilFinished();
         assertTrue(job.isSuccessful());
+    }
+
+    @Test
+    public void whenGetValidMember() {
+        PbcsMemberProperties member = app.getMember("Account", "Cash from Current Operations");
+        printMember(member, 0);
+    }
+
+    private static void printMember(PbcsMemberProperties member, int level) {
+        for (int i = 0; i < level; i++) System.out.print("    ");
+        System.out.printf("%s (%s) %n", member.getName(), member.getDataStorage());
+
+        for (PbcsMemberProperties child : member.getChildren()) {
+            printMember(child, level + 1);
+        }
     }
 
 }
