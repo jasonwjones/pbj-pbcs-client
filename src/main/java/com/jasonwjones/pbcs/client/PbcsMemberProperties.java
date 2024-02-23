@@ -136,10 +136,10 @@ public interface PbcsMemberProperties {
 	int getLevel();
 
 	/**
-	 * Generation of the member. Note: this doesn't seem to be coming back in the JSON response anymore.
-	 * TODO: check if this is coming back or needs to be implemented manually
-	 * @return the generation of the member (1 for dimension, 2 for child of dimension, and so on). The outline itself
-	 * is considered to be "generation 0".
+	 * Generation of the member. Tops of dimensions are, by definition, generation 1. The "outline itself" is considered
+	 * to be generation 0 (philosophically).
+	 *
+	 * @return the generation of the member (1 for dimension, 2 for child of dimension, and so on)
 	 */
 	int getGeneration();
 
