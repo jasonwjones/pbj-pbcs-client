@@ -210,7 +210,6 @@ public interface PbcsApplication {
 	 *
 	 * @return the dimensions for the application
 	 */
-
 	List<PbcsAppDimension> getDimensions();
 
 	/**
