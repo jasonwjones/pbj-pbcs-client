@@ -1103,10 +1103,15 @@ Accept: application/json
 #
 # This is documented in the REST API but doesn't seem to work. It also seems to have a slightly different URL. I think
 # it's an oversight in the documentation of some kind. The documented URL contains "epm" such as:
-# GET /HyperionPlanning/rest/epm/{api_version}/applications/{application}/connections/{connectionRef}
+GET /HyperionPlanning/rest/epm/{api_version}/applications/{application}/connections/{connectionRef}
+Authorization: {{creds}}
+Accept: application/json
+Content-Type: application/json
 
 
-POST https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/connections
+### View Connections -- Works -- V1??
+
+GET https://{{server}}/HyperionPlanning/rest/epm/v1/applications/{{app}}/connections
 Authorization: {{creds}}
 Accept: application/json
 Content-Type: application/json
