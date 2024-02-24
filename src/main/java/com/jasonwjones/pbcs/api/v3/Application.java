@@ -16,12 +16,18 @@ public class Application {
 	private String helpServerUrl;
 
 	// seems to be Oracle's stupid typo
+	// example value: https://appliedolapepm-test-appliedolapepm.epm.us-phoenix-1.ocs.oraclecloud.com:443
+	// e.g: https://<SERVICE_NAME>-<TENANT_NAME>.<SERVICE_TYPE>.<dcX>.oraclecloud.com
 	@JsonProperty("workpaceServerUrl")
 	private String workspaceServerUrl;
 
 	// seems to be a lame 'embedded JSON' value, which pops up from time to time in Oracle APIs
 	private String webBotDetails;
 
+	// per the docs:
+	// Indicates if the application's login level is set to Administrators. Returns a Boolean value where true indicates
+	// that the login level for the application is set to Administrators and false indicates that the login level is set
+	// to All Users.
 	private boolean adminMode;
 
 	// probably always true?

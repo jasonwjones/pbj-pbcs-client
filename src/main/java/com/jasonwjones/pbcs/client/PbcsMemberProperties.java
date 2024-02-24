@@ -28,7 +28,9 @@ public interface PbcsMemberProperties {
 	String getName();
 
 	/**
-	 * The alias for this member.
+	 * The alias for this member. Although EPM cloud supports alias tables, the aliases don't seem to surface in the
+	 * REST endpoint for fetching member information. The alias you get here is the "default" alias that comes back as
+	 * a single property from the member info endpoint.
 	 *
 	 * @return the member alias
 	 */

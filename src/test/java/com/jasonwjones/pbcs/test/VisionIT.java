@@ -113,6 +113,11 @@ public class VisionIT {
     }
 
     @Test
+    public void testAppType() {
+        assertThat(app.getAppType(), is(PbcsAppType.PLANNING));
+    }
+
+    @Test
     public void whenNoSuchPlanThenThrowException() {
         final String invalidPlanName = "InvalidPlan";
         PbcsNoSuchObjectException exception = assertThrows(PbcsNoSuchObjectException.class, () -> app.getPlanType(invalidPlanName));
