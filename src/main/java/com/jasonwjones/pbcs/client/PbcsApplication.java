@@ -227,6 +227,8 @@ public interface PbcsApplication {
 	 *
 	 * @param planType the plan name
 	 * @return the list of dimensions
+	 * @deprecated since this call uses the undocumented AIF endpoint that I'd like to carve out of this API. Clients are
+	 * advised to use the explicit dimensions concept on plan types (for now).
 	 */
 	@Deprecated
 	List<PbcsDimension> getDimensions(String planType);
