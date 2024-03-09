@@ -6,8 +6,6 @@ import java.io.Serializable;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import org.springframework.http.client.ClientHttpResponse;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
@@ -153,4 +151,5 @@ public class PbcsClientException extends RuntimeException {
 		}
 
 	}
+
 }
