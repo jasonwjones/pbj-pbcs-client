@@ -7,6 +7,9 @@ import java.util.concurrent.TimeUnit;
  */
 public interface PbcsJobStatus {
 
+	/**
+	 * The default check interval for {@link #waitUntilFinished()} is 3,000ms (three seconds).
+	 */
 	long DEFAULT_CHECK_INTERVAL_MILLIS = 3000;
 
 	/**
@@ -43,7 +46,7 @@ public interface PbcsJobStatus {
 	boolean isSuccessful();
 
 	/**
-	 * Check for updates on this job and return a new object with the updated values.
+	 * Check for updates on this job and returns a new object with the updated values.
 	 *
 	 * @return a new job status object
 	 */
