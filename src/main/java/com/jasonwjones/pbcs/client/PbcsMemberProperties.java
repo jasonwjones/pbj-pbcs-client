@@ -17,6 +17,7 @@ import java.util.List;
  * id: "fd942166-21ae-4b36-b9f8-287164c1940c",
  * path: "/Account/CF/Cash Ending Balance/Total Cash Flow/Net Cash from Operations/Cash from Current Operations/[Cash from Current Operations].[NI]",
  * </pre>
+ * TODO: should oldName be a synthetic alias table?
  */
 public interface PbcsMemberProperties {
 
