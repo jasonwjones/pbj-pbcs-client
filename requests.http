@@ -1,3 +1,10 @@
+### Get All API Version Info
+#
+# The trailing slash is required
+GET https://{{server}}/HyperionPlanning/rest/
+Authorization: {{creds}}
+Accept: application/json
+
 ### Get API Version Info
 
 # You're supposed to be able to hit https://{{server}}/HyperionPlanning/rest (no v3 suffix) but that seems to force
@@ -18,13 +25,6 @@ Accept: application/json
 GET https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}
 Authorization: {{creds}}
 Accept: application/json
-
-### Get Plans (AIF)
-
-GET https://{{server}}/aif/rest/V1/applications/{{app}}
-Authorization: {{creds}}
-Accept: application/json
-Content-Type: application/json
 
 ### Get Member Info
 
@@ -59,6 +59,13 @@ Accept: application/json
 # object type 34
 
 GET https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/dimensions/Period/members/Jan
+Authorization: {{creds}}
+Accept: application/json
+
+### Get Product Dimension
+# object type 34
+
+GET https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/dimensions/Product/members/Product
 Authorization: {{creds}}
 Accept: application/json
 
@@ -917,19 +924,6 @@ Accept: application/json
 Content-Type: application/json
 
 {"exportPlanningData":false,"gridDefinition":{"suppressMissingBlocks":false,"pov":{"members":[["Account","Currency","Entity","Period","Scenario"]]},"columns":[{"members":[["Version"]]}],"rows":[{"members":[["Years"]]}]}}
-
-### DM
-
-GET https://{{server}}/aif/rest/V1
-Authorization: {{creds}}
-Accept: application/json
-
-
-### Data Management (unofficial API)
-
-GET https://{{server}}/aif/rest/V1/applications/{{app}}
-Authorization: {{creds}}
-Accept: application/json
 
 ### Export Data Slice 2
 

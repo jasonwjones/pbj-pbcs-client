@@ -1,0 +1,73 @@
+### Get Base Level Info
+# Not documented, but works
+
+GET https://{{server}}/interop/rest/
+Authorization: {{creds}}
+Accept: application/json
+Content-Type: application/json
+
+### Get Version Info
+# Not documented, but works
+
+#"items": [
+#{
+#"version": "11.1.2.3.600",
+#"lifecycle": "active",
+#"buildVersion": "24.03.46",
+#"serverVersion": "24.03.55",
+#"skuType": "Standard",
+#"essbaseVersion": "11.1.2.4.516.524",
+#"serviceType": "EPBCS",
+# 11.1.2.3.600
+# https://appliedolapepm-test-appliedolapepm.epm.us-phoenix-1.ocs.oraclecloud.com:443/interop/rest/11.1.2.3.600/applications
+# advertises /services, /applications, and /applicationsnapshots -- but don't seem to work
+
+GET https://{{server}}/interop/rest/11.1.2.3.600
+Authorization: {{creds}}
+Accept: application/json
+Content-Type: application/json
+
+### Get Base Level Info
+# Not documented, but works
+
+GET https://appliedolapepm-test-appliedolapepm.epm.us-phoenix-1.ocs.oraclecloud.com:443/interop/rest/v2/applications
+Authorization: {{creds}}
+Accept: application/json
+Content-Type: application/json
+
+### Get User Group Report
+
+GET https://{{server}}/interop/rest/security/v2/report/usergroupreport
+Authorization: {{creds}}
+Accept: application/json
+Content-Type: application/json
+
+### Get Available Roles
+
+GET https://{{server}}/interop/rest/security/v2/role/getavailableroles
+Authorization: {{creds}}
+Accept: application/json
+Content-Type: application/json
+
+### Get Available Roles
+# WTF is v1???
+
+POST https://{{server}}/interop/rest/security/v1/roleassignmentreport/
+Authorization: {{creds}}
+Accept: application/json
+Content-Type: application/json
+
+### Get Available Roles
+# WTF is v1???
+
+GET https://{{server}}/interop/rest/security/v2/report/usergroupreport
+Authorization: {{creds}}
+Accept: application/json
+Content-Type: application/json
+
+### Get Essbase query governor time
+
+GET https://{{server}}/interop/rest/v2/config/services/essbaseqrygovexectime
+Authorization: {{creds}}
+Accept: application/json
+Content-Type: application/json

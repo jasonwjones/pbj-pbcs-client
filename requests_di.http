@@ -1,0 +1,48 @@
+### Get Data Management Versions
+# Data Management and Data Integration seem to be the "same" APIs
+#
+# Note: the trailing slash is required
+
+GET https://{{server}}/aif/rest/
+Authorization: {{creds}}
+Accept: application/json
+Content-Type: application/json
+
+### Get Data Management Version
+
+GET https://{{server}}/aif/rest/V1
+Authorization: {{creds}}
+Accept: application/json
+
+### Get Data Management Jobs
+
+GET https://{{server}}/aif/rest/V1/jobs
+Authorization: {{creds}}
+Accept: application/json
+
+### Get Apps
+
+GET https://{{server}}/aif/rest/V1/applications/
+Authorization: {{creds}}
+Accept: application/json
+Content-Type: application/json
+
+### Get Plans (AIF)
+
+GET https://{{server}}/aif/rest/V1/applications/{{app}}
+Authorization: {{creds}}
+Accept: application/json
+Content-Type: application/json
+
+### Get Dimension members (undocumented)
+
+GET https://{{server}}/aif/rest/V1/applications/{{app}}/dimension/Scenario/
+Authorization: {{creds}}
+Accept: application/json
+Content-Type: application/json
+
+### Data Management (unofficial API)
+
+GET https://{{server}}/aif/rest/V1/applications/{{app}}
+Authorization: {{creds}}
+Accept: application/json
