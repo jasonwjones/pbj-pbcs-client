@@ -1,6 +1,7 @@
 package com.jasonwjones.pbcs.client.memberdimensioncache;
 
 import com.jasonwjones.pbcs.client.PbcsPlanType;
+import com.jasonwjones.pbcs.client.exceptions.PbcsClientException;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -32,7 +33,7 @@ public class PropertiesMemberDimensionCache implements PbcsPlanType.MemberDimens
         try (FileOutputStream fos = new FileOutputStream(file)) {
             properties.storeToXML(fos, "Member to dimension mapping");
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new PbcsClientException("Unable to set dimension for member", e);
         }
     }
 
@@ -43,7 +44,7 @@ public class PropertiesMemberDimensionCache implements PbcsPlanType.MemberDimens
             properties.loadFromXML(fis);
             return properties;
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new PbcsClientException("Unable read member dimension cache", e);
         }
     }
 
