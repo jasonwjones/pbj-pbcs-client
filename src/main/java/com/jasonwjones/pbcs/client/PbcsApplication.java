@@ -26,7 +26,8 @@ public interface PbcsApplication {
 	PbcsPlanningClient getClient();
 
 	/**
-	 * Whether the application supports decision packages
+	 * Whether the application supports decision packages. I really have no idea what
+	 * these are and if they are used.
 	 *
 	 * @return true if DPs are supported, false otherwise
 	 */
