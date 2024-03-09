@@ -1,7 +1,6 @@
 package com.jasonwjones.pbcs;
 
 import com.jasonwjones.pbcs.client.PbcsPlanningClient;
-import com.jasonwjones.pbcs.interop.InteropClient;
 
 /**
  * The PbcsClient interface is the main interface that programs using this API
