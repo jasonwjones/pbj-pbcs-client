@@ -1,5 +1,7 @@
 package com.jasonwjones.pbcs;
 
+import com.jasonwjones.di.DataManagementClient;
+import com.jasonwjones.di.impl.DataManagementClientImpl;
 import com.jasonwjones.pbcs.client.PbcsConnection;
 import com.jasonwjones.pbcs.client.PbcsPlanningClient;
 import com.jasonwjones.pbcs.client.PbcsServiceConfiguration;
@@ -83,6 +85,13 @@ public class PbcsClientFactory {
 		return createClient(connection, config);
 	}
 
+	public DataManagementClient createDataManagementClient(PbcsConnection connection) {
+		PbcsServiceConfiguration serviceConfiguration = createDefaultServiceConfiguration();
+		RestContext restContext = createRestContext(serviceConfiguration, connection);
+		return new DataManagementClientImpl(restContext);
+
+	}
+
 	/**
 	 * Creates a new client instance with supplied connection and service
 	 * configuration.
@@ -156,7 +165,7 @@ public class PbcsClientFactory {
 
 		RestTemplate restTemplate = getRestTemplate(connection);
 		String aifBaseUrl = serviceConfiguration.getScheme() + "://" + connection.getServer() + serviceConfiguration.getAifRestApiPath() + serviceConfiguration.getAifRestApiVersion();
-		return new RestContext(restTemplate, baseUrl, aifBaseUrl);
+		return new RestContext(restTemplate, connection.getServer(), baseUrl, aifBaseUrl);
 	}
 
 	private RestTemplate getRestTemplate(PbcsConnection connection) {

@@ -6,12 +6,15 @@ public class RestContext {
 
 	private final RestTemplate template;
 
+	private final String server;
+
 	private final String baseUrl;
 
 	private final String aifBaseUrl;
 
-	public RestContext(RestTemplate template, String baseUrl, String aifBaseUrl) {
+	public RestContext(RestTemplate template, String server, String baseUrl, String aifBaseUrl) {
 		this.template = template;
+		this.server = server;
 		this.baseUrl = baseUrl;
 		this.aifBaseUrl = aifBaseUrl;
 	}
@@ -20,15 +23,15 @@ public class RestContext {
 		return template;
 	}
 
+	public String getServer() {
+		return server;
+	}
+
 	public String getBaseUrl() {
 		return baseUrl;
 	}
 
-	public String getAifBaseUrl() {
-		return this.aifBaseUrl;
-	}
-
-	// Trying to carge the AIF/Interop stuff out of the 'core' EPM cloud API
+	// Trying to carve the AIF/Interop stuff out of the 'core' EPM cloud API
 	@Deprecated
 	public String getAifUrl(String suffix) {
 		return this.aifBaseUrl + suffix;
