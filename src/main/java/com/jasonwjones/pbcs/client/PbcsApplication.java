@@ -277,6 +277,12 @@ public interface PbcsApplication extends PbcsObject {
 	 * The number of overloads of {@link #getPlanType(String)} started to proliferate, so there is now a generic
 	 * configuration object where the plan definition is specified and then passed to the {@link #getPlanType(PlanTypeConfiguration)}
 	 * method.
+	 *
+	 * <p>As can be noticed in the extensive number of options, there is a fair bit of "ceremony"
+	 * in constructing a {@link PbcsPlanType} object. Some of the objects may carry relatively
+	 * significant performance penalties (e.g. validating all dimensions). It is recommended that
+	 * in environments that may be instantiating plan objects repeatedly (e.g. in a data gateway
+	 * servlet), some form of connection pooling will be used.
 	 */
 	interface PlanTypeConfiguration {
 

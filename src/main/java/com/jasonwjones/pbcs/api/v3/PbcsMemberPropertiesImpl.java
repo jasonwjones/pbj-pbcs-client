@@ -1,15 +1,11 @@
-package com.jasonwjones.pbcs.client.impl.models;
+package com.jasonwjones.pbcs.api.v3;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.Collections;
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.jasonwjones.pbcs.client.PbcsMemberProperties;
-import com.jasonwjones.pbcs.client.PbcsMemberType;
-import com.jasonwjones.pbcs.client.PbcsObjectType;
-
-public class PbcsMemberPropertiesImpl implements PbcsMemberProperties {
+public class PbcsMemberPropertiesImpl {
 
 	private String name;
 
@@ -38,11 +34,6 @@ public class PbcsMemberPropertiesImpl implements PbcsMemberProperties {
 		return name;
 	}
 
-	@Override
-	public PbcsObjectType getObjectType() {
-		return PbcsObjectType.MEMBER;
-	}
-
 	public void setName(String name) {
 		this.name = name;
 	}
@@ -50,6 +41,7 @@ public class PbcsMemberPropertiesImpl implements PbcsMemberProperties {
 	private int generation;
 
 	public List<PbcsMemberPropertiesImpl> getChildren() {
+		// probably unneeded after splitting member/properties but doesn't hurt
 		if (children != null) {
 			return children;
 		}
@@ -84,13 +76,8 @@ public class PbcsMemberPropertiesImpl implements PbcsMemberProperties {
 		this.dataType = dataType;
 	}
 
-	public Integer getObjectNumericType() {
+	public Integer getObjectType() {
 		return objectType;
-	}
-
-	@Override
-	public PbcsMemberType getType() {
-		return PbcsMemberType.valueOf(objectType);
 	}
 
 	public void setObjectType(Integer objectType) {
@@ -99,12 +86,6 @@ public class PbcsMemberPropertiesImpl implements PbcsMemberProperties {
 
 	public String getDataStorage() {
 		return dataStorage;
-	}
-
-	@JsonIgnore
-	@Override
-	public DataStorage getDataStorageType() {
-		return DataStorage.valueOfOrOther(dataStorage);
 	}
 
 	public void setDataStorage(String dataStorage) {
@@ -127,13 +108,6 @@ public class PbcsMemberPropertiesImpl implements PbcsMemberProperties {
 		this.twoPass = twoPass;
 	}
 
-	@JsonIgnore
-	@Override
-	public boolean isLeaf() {
-		return getChildren().isEmpty();
-	}
-
-	@Override
 	public List<String> getUsedIn() {
 		return usedIn;
 	}
@@ -142,25 +116,6 @@ public class PbcsMemberPropertiesImpl implements PbcsMemberProperties {
 		this.usedIn = usedIn;
 	}
 
-	@JsonIgnore
-	@Override
-	public int getLevel() {
-		if (children == null || children.isEmpty()) {
-			return 0;
-		} else {
-			int minLevel = -1;
-			for (PbcsMemberProperties child : children) {
-				if (minLevel == -1) {
-					minLevel = child.getLevel();
-				} else {
-					minLevel = Math.min(minLevel, child.getLevel());
-				}
-			}
-			return minLevel + 1;
-		}
-	}
-
-	@Override
 	public String getAlias() {
 		return alias;
 	}
@@ -169,19 +124,12 @@ public class PbcsMemberPropertiesImpl implements PbcsMemberProperties {
 		this.alias = alias;
 	}
 
-	@Override
 	public int getGeneration() {
 		return generation;
 	}
 
 	public void setGeneration(int generation) {
 		this.generation = generation;
-	}
-
-	@Override
-	public String toString() {
-		String aliasText = alias != null ? " (alias: " + alias + ")" : "";
-		return name + aliasText;
 	}
 
 }

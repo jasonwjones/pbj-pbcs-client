@@ -31,7 +31,7 @@ import com.jasonwjones.pbcs.aif.AifApplication;
 import com.jasonwjones.pbcs.aif.AifDimension;
 import com.jasonwjones.pbcs.api.v3.dataslices.DataSlice;
 import com.jasonwjones.pbcs.api.v3.dataslices.ExportDataSlice;
-import com.jasonwjones.pbcs.client.impl.models.PbcsMemberPropertiesImpl;
+import com.jasonwjones.pbcs.api.v3.PbcsMemberPropertiesImpl;
 import com.jasonwjones.pbcs.interop.impl.SimpleFilenameUtils;
 
 public class PbcsApplicationImpl extends AbstractPbcsObject implements PbcsApplication {
@@ -339,14 +339,14 @@ public class PbcsApplicationImpl extends AbstractPbcsObject implements PbcsAppli
 	}
 
 	@Override
-	public PbcsMemberProperties getMember(String dimensionName, String memberName) {
+	public PbcsMember getMember(String dimensionName, String memberName) {
 		Assert.hasText(dimensionName, "Must specify a dimension name");
 		Assert.hasText(memberName, "Must specify a member name");
 
 		logger.debug("Fetching member properties for {} from dimension {}", memberName, dimensionName);
-		String url = this.context.getBaseUrl() + "applications/{application}/dimensions/{dimName}/members/{member}";
 		try {
-			return get("applications/{application}/dimensions/{dimName}/members/{member}", PbcsMemberPropertiesImpl.class, getName(), dimensionName, memberName);
+			PbcsMemberPropertiesImpl properties = get("applications/{application}/dimensions/{dimName}/members/{member}", PbcsMemberPropertiesImpl.class, getName(), dimensionName, memberName);
+			return new PbcsMemberImpl(this, properties);
 		} catch (PbcsGeneralException e) {
 			// catch a general exception that is intercepted by the error handler, and confirm that it's about no such
 			// member. If so, let's throw a better error that the object doesn't exist. If not, we'll just rethrow it.
