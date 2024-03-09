@@ -16,7 +16,7 @@ import com.jasonwjones.pbcs.api.v3.dataslices.ExportDataSlice;
  * @author jasonwjones
  *
  */
-public interface PbcsApplication {
+public interface PbcsApplication extends PbcsObject {
 
 	/**
 	 * Gets the client used to connect to this application.
@@ -32,13 +32,6 @@ public interface PbcsApplication {
 	 * @return true if DPs are supported, false otherwise
 	 */
 	boolean isDpEnabled();
-
-	/**
-	 * Get the name of the application
-	 *
-	 * @return the name of the application
-	 */
-	String getName();
 
 	/**
 	 * Gets the product type. Possible values: HFM, HP.

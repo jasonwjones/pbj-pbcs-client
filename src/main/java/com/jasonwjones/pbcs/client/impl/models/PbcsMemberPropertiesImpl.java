@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.jasonwjones.pbcs.client.PbcsMemberProperties;
 import com.jasonwjones.pbcs.client.PbcsMemberType;
+import com.jasonwjones.pbcs.client.PbcsObjectType;
 
 public class PbcsMemberPropertiesImpl implements PbcsMemberProperties {
 
@@ -35,6 +36,11 @@ public class PbcsMemberPropertiesImpl implements PbcsMemberProperties {
 
 	public String getName() {
 		return name;
+	}
+
+	@Override
+	public PbcsObjectType getObjectType() {
+		return PbcsObjectType.MEMBER;
 	}
 
 	public void setName(String name) {
@@ -78,7 +84,7 @@ public class PbcsMemberPropertiesImpl implements PbcsMemberProperties {
 		this.dataType = dataType;
 	}
 
-	public Integer getObjectType() {
+	public Integer getObjectNumericType() {
 		return objectType;
 	}
 

@@ -28,6 +28,11 @@ public class PbcsDimensionImpl implements PbcsAppDimension {
 	}
 
 	@Override
+	public PbcsObjectType getObjectType() {
+		return PbcsObjectType.DIMENSION;
+	}
+
+	@Override
 	public int getNumber() {
 		return number;
 	}

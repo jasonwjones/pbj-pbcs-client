@@ -316,6 +316,11 @@ public class PbcsExplicitDimensionsPlanTypeImpl extends PbcsPlanTypeImpl impleme
         }
 
         @Override
+        public PbcsObjectType getObjectType() {
+            return PbcsObjectType.DIMENSION;
+        }
+
+        @Override
         public int getNumber() {
             return number;
         }

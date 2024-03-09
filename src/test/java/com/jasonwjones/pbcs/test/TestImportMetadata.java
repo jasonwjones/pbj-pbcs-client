@@ -16,7 +16,7 @@ public class TestImportMetadata extends AbstractIntegrationTest {
 
 		try {
 			for (PbcsJobDefinition job : app.getJobDefinitions()) {
-				System.out.println("Job: " + job.getJobName() + " type: " + job.getJobType());
+				System.out.println("Job: " + job.getName() + " type: " + job.getJobType());
 			}
 			PbcsJobStatus result = app.importMetadata("testimport");
 			System.out.println("Result: "+ result);

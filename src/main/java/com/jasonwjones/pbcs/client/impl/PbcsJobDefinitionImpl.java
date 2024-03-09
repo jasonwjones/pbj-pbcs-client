@@ -3,6 +3,7 @@ package com.jasonwjones.pbcs.client.impl;
 import com.jasonwjones.pbcs.api.v3.JobDefinition;
 import com.jasonwjones.pbcs.client.PbcsJobDefinition;
 import com.jasonwjones.pbcs.client.PbcsJobType;
+import com.jasonwjones.pbcs.client.PbcsObjectType;
 
 public class PbcsJobDefinitionImpl extends AbstractPbcsObject implements PbcsJobDefinition {
 
@@ -27,8 +28,13 @@ public class PbcsJobDefinitionImpl extends AbstractPbcsObject implements PbcsJob
 	}
 
 	@Override
-	public String getJobName() {
+	public String getName() {
 		return jobDefinition.getJobName();
+	}
+
+	@Override
+	public PbcsObjectType getObjectType() {
+		return PbcsObjectType.JOB;
 	}
 
 	@Override
@@ -38,7 +44,7 @@ public class PbcsJobDefinitionImpl extends AbstractPbcsObject implements PbcsJob
 
 	@Override
 	public String toString() {
-		return String.format("PbcsJobDefinitionImpl [name=%s, type=%s]", getJobName(), jobType);
+		return String.format("PbcsJobDefinitionImpl [name=%s, type=%s]", getName(), jobType);
 	}
 
 }

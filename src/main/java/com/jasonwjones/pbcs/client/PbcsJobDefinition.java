@@ -3,7 +3,7 @@ package com.jasonwjones.pbcs.client;
 /**
  * Represents a job definition that exists in the application.
  */
-public interface PbcsJobDefinition {
+public interface PbcsJobDefinition extends PbcsObject {
 
 	/**
      * The job type, such as <code>Cube Refresh</code> or <code>Rules</code>. Note: not all job types are currently
@@ -23,13 +23,6 @@ public interface PbcsJobDefinition {
 	 * @return the original job type from the server
 	 */
 	String getOriginalJobType();
-
-	/**
-	 * The job name, such as <code>RefreshCube</code> or <code>calcall</code>.
-	 *
-	 * @return the job name
-	 */
-	String getJobName();
 
 	/**
 	 * Gets the plan type name that this job is specific to, null if none (such as the Cube Refresh job)

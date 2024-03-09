@@ -82,7 +82,7 @@ public class VisionIT {
     public void whenGetRulesThenHasSpecificRule() {
         List<PbcsJobDefinition> rules = app.getJobDefinitions(PbcsJobType.RULES);
         List<String> jobNames = rules.stream()
-                .map(PbcsJobDefinition::getJobName)
+                .map(PbcsJobDefinition::getName)
                 .collect(Collectors.toList());
         assertThat(jobNames, hasItem(CALC_ALL));
     }

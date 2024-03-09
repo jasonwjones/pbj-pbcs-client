@@ -24,6 +24,11 @@ public enum PbcsObjectType {
     /**
      * Represents a member in the application.
      */
-    MEMBER
+    MEMBER,
+
+    /**
+     * Represents a job that can be run, such as a refresh cube operation.
+     */
+    JOB
 
 }

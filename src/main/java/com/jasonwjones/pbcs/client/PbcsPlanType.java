@@ -11,14 +11,7 @@ import java.util.Set;
  * necessarily make a strong distinction between the application and the plan type, but it is modeled explicitly in this
  * API as it keeps a lot of semantics cleaner, particularly with respect to which dimensions are in which cube.
  */
-public interface PbcsPlanType {
-
-	/**
-	 * The name of this plan/cube.
-	 *
-	 * @return the name of the cube
-	 */
-	String getName();
+public interface PbcsPlanType extends PbcsObject {
 
 	/**
 	 * Gets the list of dimensions for this plan/cube. This will be either the explicitly specified dimensions

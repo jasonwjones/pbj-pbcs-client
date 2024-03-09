@@ -258,6 +258,11 @@ public class PbcsApplicationImpl extends AbstractPbcsObject implements PbcsAppli
 	}
 
 	@Override
+	public PbcsObjectType getObjectType() {
+		return PbcsObjectType.APPLICATION;
+	}
+
+	@Override
 	public String getType() {
 		return application.getType();
 	}

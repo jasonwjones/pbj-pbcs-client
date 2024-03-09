@@ -25,6 +25,11 @@ public class AbstractPbcsPlanType implements PbcsPlanType {
     }
 
     @Override
+    public PbcsObjectType getObjectType() {
+        return PbcsObjectType.PLAN;
+    }
+
+    @Override
     public List<PbcsDimension> getDimensions() {
         return planType.getDimensions();
     }

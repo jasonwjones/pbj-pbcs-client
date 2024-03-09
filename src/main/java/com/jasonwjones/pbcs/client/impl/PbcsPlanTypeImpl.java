@@ -46,6 +46,11 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 	}
 
 	@Override
+	public PbcsObjectType getObjectType() {
+		return PbcsObjectType.PLAN;
+	}
+
+	@Override
 	public List<PbcsDimension> getDimensions() {
 		return application.getDimensions(planType);
 	}

@@ -19,14 +19,7 @@ import java.util.List;
  * </pre>
  * TODO: should oldName be a synthetic alias table?
  */
-public interface PbcsMemberProperties {
-
-	/**
-	 * The name of this member.
-	 *
-	 * @return the name of the member
-	 */
-	String getName();
+public interface PbcsMemberProperties extends PbcsObject {
 
 	/**
 	 * The alias for this member. Although EPM cloud supports alias tables, the aliases don't seem to surface in the
@@ -85,12 +78,12 @@ public interface PbcsMemberProperties {
 	 *
 	 * @return the original object type value
 	 */
-	Integer getObjectType();
+	Integer getObjectNumericType();
 
 	/**
 	 * Gets the member type, corresponding to the known planning member types, such as Scenario or Account. If the type
 	 * is not known (to the enum) then {@link PbcsMemberType#UNKNOWN} will be returned. If you need to parse some
-	 * specific [but unknown] member type that's not represented in the enum, then use the {@link #getObjectType()}
+	 * specific [but unknown] member type that's not represented in the enum, then use the {@link #getObjectNumericType()}
 	 * method.
 	 *
 	 * @return the member type (if known)

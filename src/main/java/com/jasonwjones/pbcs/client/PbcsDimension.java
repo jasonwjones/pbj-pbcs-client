@@ -7,14 +7,7 @@ package com.jasonwjones.pbcs.client;
  * @author jasonwjones
  *
  */
-public interface PbcsDimension {
-
-	/**
-	 * The name of the dimension.
-	 *
-	 * @return the name of the dimension.
-	 */
-	String getName();
+public interface PbcsDimension extends PbcsObject {
 
 	/**
 	 * Gets the explicit number of the dimension. This is not a PBCS construct; it is an arbitrary value assigned by
@@ -42,5 +35,8 @@ public interface PbcsDimension {
 	default PbcsMemberProperties getRoot() {
 		return getMember(getName());
 	}
+
+	// TODO: placeholder
+	default PbcsMemberType getDimensionType() { return PbcsMemberType.UNKNOWN; }
 
 }
