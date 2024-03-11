@@ -52,11 +52,13 @@ public class PbcsExplicitDimensionsPlanTypeImpl extends PbcsPlanTypeImpl impleme
         }
 
         // add in explicit attribute dimensions, if any
-        for (String attribDimName : configuration.getExplicitAttributeDimensions()) {
-            PbcsMemberType type = configuration.isValidateDimensions() ?
-                    application.getMember(attribDimName, attribDimName).getType() :
-                    PbcsMemberType.ATTRIBUTE;
-            this.explicitDimensions.add(new ExplicitDimension(attribDimName, dimNumber++, type));
+        if (configuration.getExplicitAttributeDimensions() != null) {
+            for (String attribDimName : configuration.getExplicitAttributeDimensions()) {
+                PbcsMemberType type = configuration.isValidateDimensions() ?
+                        application.getMember(attribDimName, attribDimName).getType() :
+                        PbcsMemberType.ATTRIBUTE;
+                this.explicitDimensions.add(new ExplicitDimension(attribDimName, dimNumber++, type));
+            }
         }
     }
 
