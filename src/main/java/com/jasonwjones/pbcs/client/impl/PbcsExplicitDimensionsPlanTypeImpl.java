@@ -7,7 +7,6 @@ import com.jasonwjones.pbcs.api.v3.dataslices.GridDefinition;
 import com.jasonwjones.pbcs.client.*;
 import com.jasonwjones.pbcs.client.exceptions.PbcsClientException;
 import com.jasonwjones.pbcs.client.exceptions.PbcsInvalidDimensionException;
-import com.jasonwjones.pbcs.client.exceptions.PbcsInvalidMemberException;
 import com.jasonwjones.pbcs.client.exceptions.PbcsNoSuchObjectException;
 import com.jasonwjones.pbcs.client.impl.grid.DataSliceGrid;
 import com.jasonwjones.pbcs.client.impl.membervisitors.AbstractMemberVisitor;
@@ -39,17 +38,25 @@ public class PbcsExplicitDimensionsPlanTypeImpl extends PbcsPlanTypeImpl impleme
 
     PbcsExplicitDimensionsPlanTypeImpl(RestContext context, PbcsApplication application, PbcsApplication.PlanTypeConfiguration configuration) {
         super(context, application, configuration.getName(), configuration.getMemberDimensionCache());
-
-        List<String> explicitDimensionNames = configuration.getExplicitDimensions();
-        Objects.requireNonNull(explicitDimensionNames);
-        if (explicitDimensionNames.isEmpty()) throw new IllegalArgumentException("Explicit dimension list cannot be empty");
+        Objects.requireNonNull(configuration.getExplicitDimensions());
+        if (configuration.getExplicitDimensions().isEmpty()) throw new IllegalArgumentException("Explicit dimension list cannot be empty");
         this.explicitDimensions = new ArrayList<>();
-        for (int index = 0; index < explicitDimensionNames.size(); index++) {
-            this.explicitDimensions.add(new ExplicitDimension(explicitDimensionNames.get(index), index));
+
+        int dimNumber = 0;
+
+        for (String dimName : configuration.getExplicitDimensions()) {
+            PbcsMemberType type = configuration.isValidateDimensions() ?
+                    application.getMember(dimName, dimName).getType() :
+                    PbcsMemberType.UNKNOWN;
+            this.explicitDimensions.add(new ExplicitDimension(dimName, dimNumber++, type));
         }
 
-        if (configuration.isValidateDimensions()) {
-            validateDimensions();
+        // add in explicit attribute dimensions, if any
+        for (String attribDimName : configuration.getExplicitAttributeDimensions()) {
+            PbcsMemberType type = configuration.isValidateDimensions() ?
+                    application.getMember(attribDimName, attribDimName).getType() :
+                    PbcsMemberType.ATTRIBUTE;
+            this.explicitDimensions.add(new ExplicitDimension(attribDimName, dimNumber++, type));
         }
     }
 
@@ -60,15 +67,9 @@ public class PbcsExplicitDimensionsPlanTypeImpl extends PbcsPlanTypeImpl impleme
 
     @Override
     public void validateDimensions() {
-        List<String> invalidDimensions = new ArrayList<>();
         for (PbcsDimension explicitDimension : explicitDimensions) {
-            //try {
-                PbcsMemberProperties dimensionRoot = getMember(explicitDimension.getName(), explicitDimension.getName());
-//            } catch (PbcsNoSuchObjectException e) {
-//                invalidDimensions.add(explicitDimension.getName());
-//            }
+            explicitDimension.getRoot();
         }
-        //if (!invalidDimensions.isEmpty()) throw new PbcsInvalidDimensionException(invalidDimensions);
     }
 
     @Override
@@ -78,7 +79,7 @@ public class PbcsExplicitDimensionsPlanTypeImpl extends PbcsPlanTypeImpl impleme
                 return dimension;
             }
         }
-        throw new IllegalArgumentException("No dimension " + dimensionName + " contained in dimension list");
+        throw new PbcsInvalidDimensionException(dimensionName);
     }
 
     @Override
@@ -281,7 +282,6 @@ public class PbcsExplicitDimensionsPlanTypeImpl extends PbcsPlanTypeImpl impleme
             }
         } catch (Exception e) {
             logger.error("Exception: {}", e.getMessage());
-            e.printStackTrace();
             throw e;
         }
     }
@@ -305,9 +305,12 @@ public class PbcsExplicitDimensionsPlanTypeImpl extends PbcsPlanTypeImpl impleme
 
         private final int number;
 
-        private ExplicitDimension(String name, int number) {
+        private final PbcsMemberType type;
+
+        private ExplicitDimension(String name, int number, PbcsMemberType type) {
             this.name = name;
             this.number = number;
+            this.type = type;
         }
 
         @Override
@@ -328,6 +331,11 @@ public class PbcsExplicitDimensionsPlanTypeImpl extends PbcsPlanTypeImpl impleme
         @Override
         public PbcsMemberProperties getMember(String memberName) {
             return PbcsExplicitDimensionsPlanTypeImpl.this.getMember(name, memberName);
+        }
+
+        @Override
+        public PbcsMemberType getDimensionType() {
+            return type;
         }
 
         @Override

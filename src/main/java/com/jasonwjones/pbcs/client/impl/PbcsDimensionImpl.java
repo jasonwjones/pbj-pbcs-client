@@ -37,10 +37,15 @@ public class PbcsDimensionImpl implements PbcsAppDimension {
 		return number;
 	}
 
-
 	@Override
 	public PbcsMemberProperties getMember(String memberName) {
 		return application.getMember(getName(), memberName);
+	}
+
+	@Override
+	public PbcsMemberType getDimensionType() {
+		// TODO: since this is built with the AIF response info already, we can actually provide a real type here
+		return PbcsMemberType.UNKNOWN;
 	}
 
 	@Override

@@ -458,7 +458,7 @@ public class PbcsApplicationImpl extends AbstractPbcsObject implements PbcsAppli
 				return dimension;
 			}
 		}
-		throw new PbcsNoSuchObjectException(dimensionName, PbcsObjectType.DIMENSION);
+		throw new PbcsInvalidDimensionException(dimensionName);
 	}
 
 	@Override

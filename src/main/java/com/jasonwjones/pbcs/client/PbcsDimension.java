@@ -26,6 +26,15 @@ public interface PbcsDimension extends PbcsObject {
 	PbcsMemberProperties getMember(String memberName);
 
 	/**
+	 * Gets the type of dimension. This uses the member type enumeration since the dimension and
+	 * member types are basically the same. If the dimension types are not specifically resolved
+	 * then you may only get UNKNOWN or ATTRIBUTE for the dimension, as the case may be.
+	 *
+	 * @return the dimension type
+	 */
+	PbcsMemberType getDimensionType();
+
+	/**
 	 * Gets the root member of the dimension, which is assumed to be a member with the same name as the dimension itself.
 	 * In other words, calling this member should be equivalent to calling <code>getMember(getName())</code>, which is
 	 * how this method is implemented (and should never return null).
@@ -35,8 +44,5 @@ public interface PbcsDimension extends PbcsObject {
 	default PbcsMemberProperties getRoot() {
 		return getMember(getName());
 	}
-
-	// TODO: placeholder
-	default PbcsMemberType getDimensionType() { return PbcsMemberType.UNKNOWN; }
 
 }

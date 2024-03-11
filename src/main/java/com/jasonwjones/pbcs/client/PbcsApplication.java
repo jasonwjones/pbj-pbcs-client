@@ -321,6 +321,17 @@ public interface PbcsApplication extends PbcsObject {
 		List<String> getExplicitDimensions();
 
 		/**
+		 * You can specify a list of dimensions that are explicitly attribute dimensions, and as
+		 * such their {@link PbcsDimension#getDimensionType()} will return {@link PbcsMemberType#ATTRIBUTE}.
+		 * Being able to differentiate attribute dimensions is useful for certain grid parsing operations
+		 * that may need to know which dimension axes are optional. Not all attribute dimensions have
+		 * to be specified.
+		 *
+		 * @return the list of dimension names that are attribute dimensions
+		 */
+		List<String> getExplicitAttributeDimensions();
+
+		/**
 		 * Gets the member dimension cache that will be used for the plan type. The default implementation is generally
 		 * just a simple {@link com.jasonwjones.pbcs.client.memberdimensioncache.InMemoryMemberDimensionCache} but for
 		 * performance or other reasons, the caller may want to specify their own resolver
