@@ -254,6 +254,10 @@ public interface PbcsPlanType extends PbcsObject {
 	 * Represents the results of importing data to the plan/cube. The values for accepted and rejected cells are
 	 * inherently part of the response to the <code>importDataSlice</code> REST API call, so they are simply passed
 	 * through in this object.
+	 *
+	 * <p>Dev note: the response payload for <code>importdataslice</code> also returns arrays for <code>rejectedCells</code>
+	 * and <code>rejectedCellsWithDetails</code> but I haven't ever seen those populated with data so they aren't mapped
+	 * here, as I don't know if they are arrays of strings or objects.</p>
 	 */
 	interface ImportDataResult {
 

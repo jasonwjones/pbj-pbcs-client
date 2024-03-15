@@ -228,7 +228,7 @@ public interface PbcsApplication extends PbcsObject {
 
 	/**
 	 * Get the list of cubes/plans in this application. The endpoint for this REST call doesn't seem to exist for FCCS
-	 * apps.
+	 * apps (need to confirm this, there may have been some sort of testing issue).
 	 *
 	 * @return the list of plans for this application
 	 */
