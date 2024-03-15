@@ -493,10 +493,6 @@ public class PbcsApplicationImpl extends AbstractPbcsObject implements PbcsAppli
 		return validatePlanType(planTypeName);
 	}
 
-	public PbcsPlanType getPlanType(String planTypeName, boolean skipCheck) {
-		return getPlanType(planTypeName, skipCheck, Collections.emptyList());
-	}
-
 	@Deprecated
 	public PbcsPlanType getPlanType(String planTypeName, boolean skipCheck, List<String> dimensions) {
 		PlanTypeConfigurationImpl configuration = new PlanTypeConfigurationImpl();

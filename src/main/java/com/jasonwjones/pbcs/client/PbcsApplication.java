@@ -220,10 +220,7 @@ public interface PbcsApplication extends PbcsObject {
 	 *
 	 * @param planType the plan name
 	 * @return the list of dimensions
-	 * @deprecated since this call uses the undocumented AIF endpoint that I'd like to carve out of this API. Clients are
-	 * advised to use the explicit dimensions concept on plan types (for now).
 	 */
-	@Deprecated
 	List<PbcsDimension> getDimensions(String planType);
 
 	/**
@@ -241,16 +238,6 @@ public interface PbcsApplication extends PbcsObject {
 	 * @return the plan/cube
 	 */
 	PbcsPlanType getPlanType(String planTypeName);
-
-	/**
-	 * Gets the plan with the given name.
-	 *
-	 * @param planTypeName the plan name
-	 * @param skipCheck true if the plan name should be validated
-	 * @return the plan
-	 * @deprecated use the {@link #getPlanType(PlanTypeConfiguration)} method
-	 */
-	PbcsPlanType getPlanType(String planTypeName, boolean skipCheck);
 
 	/**
 	 * Gets the plan using the given name, skip check value, and explicit dimensions
