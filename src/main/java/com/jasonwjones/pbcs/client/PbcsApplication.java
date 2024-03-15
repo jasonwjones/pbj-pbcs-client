@@ -232,24 +232,14 @@ public interface PbcsApplication extends PbcsObject {
 	List<PbcsPlanType> getPlanTypes();
 
 	/**
-	 * Gets the plan with the given name.
+	 * Gets the plan with the given name. This method is easy to use, but callers are strongly encourage to use the
+	 * full {@link #getPlanType(PlanTypeConfiguration)} method, which provides much more control over how the cube
+	 * is instantiated and validated.
 	 *
 	 * @param planTypeName the plan name
 	 * @return the plan/cube
 	 */
 	PbcsPlanType getPlanType(String planTypeName);
-
-	/**
-	 * Gets the plan using the given name, skip check value, and explicit dimensions
-	 *
-	 * @param planTypeName the name of the plan
-	 * @param skipCheck true if the plan name should be verified or not
-	 * @param dimensions explicit dimension list to initialize with
-	 * @return the plan type
-	 * @deprecated use the {@link #getPlanType(PlanTypeConfiguration)} method
-	 */
-	@Deprecated
-	PbcsPlanType getPlanType(String planTypeName, boolean skipCheck, List<String> dimensions);
 
 	/**
 	 * Gets the plan/cube using the given configuration. This method mostly exists so that we don't have to keep

@@ -7,6 +7,7 @@ import com.jasonwjones.pbcs.client.PbcsDimension;
 import com.jasonwjones.pbcs.client.PbcsMemberProperties;
 import com.jasonwjones.pbcs.client.PbcsPlanType;
 import com.jasonwjones.pbcs.client.impl.PbcsPlanTypeImpl;
+import com.jasonwjones.pbcs.client.impl.PlanTypeConfigurationImpl;
 
 import java.util.Arrays;
 import java.util.List;
@@ -18,7 +19,11 @@ public class TestGetMemberWithAlias extends AbstractIntegrationTest {
 		PbcsApplication app = client.getApplication("Vision");
 
 		List<String> dims = Arrays.asList("Account", "Currency", "Entity", "Period", "Product", "Scenario", "Version", "Year");
-		PbcsPlanType cube = app.getPlanType("Plan1", true, dims);
+		PbcsApplication.PlanTypeConfiguration configuration = new PlanTypeConfigurationImpl.Builder("Plan1")
+				.skipCheck()
+				.dimensions(dims)
+				.build();
+		PbcsPlanType cube = app.getPlanType(configuration);
 
 		PbcsMemberProperties mgmtRollup = cube.getMemberOrAlias("Management Rollup");
 		PbcsMemberProperties hardware = cube.getMemberOrAlias("4110: Hardware");

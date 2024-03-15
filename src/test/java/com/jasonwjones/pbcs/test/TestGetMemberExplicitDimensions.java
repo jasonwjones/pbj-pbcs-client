@@ -6,6 +6,7 @@ import com.jasonwjones.pbcs.client.PbcsApplication;
 import com.jasonwjones.pbcs.client.PbcsDimension;
 import com.jasonwjones.pbcs.client.PbcsMemberProperties;
 import com.jasonwjones.pbcs.client.PbcsPlanType;
+import com.jasonwjones.pbcs.client.impl.PlanTypeConfigurationImpl;
 
 import java.util.Arrays;
 import java.util.List;
@@ -17,7 +18,11 @@ public class TestGetMemberExplicitDimensions extends AbstractIntegrationTest {
 		PbcsApplication app = client.getApplication("Vision");
 
 		List<String> dims = Arrays.asList("Account", "Currency", "Entity", "Period", "Product", "Scenario", "Version", "Year");
-		PbcsPlanType cube = app.getPlanType("Plan1", true, dims);
+		PbcsApplication.PlanTypeConfiguration configuration = new PlanTypeConfigurationImpl.Builder("Plan1")
+				.skipCheck()
+				.dimensions(dims)
+				.build();
+		PbcsPlanType cube = app.getPlanType(configuration);
 
 		for (PbcsDimension dimension : cube.getDimensions()) {
 			System.out.println("Dim: " + dimension.getName());
