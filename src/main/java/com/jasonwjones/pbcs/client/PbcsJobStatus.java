@@ -3,9 +3,10 @@ package com.jasonwjones.pbcs.client;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Model for a job that is executed on a PBCS server. Jobs include running business rules (calcs), data imports, and more.
+ * Model for a job that is executed on a PBCS server. Jobs include running business rules (calc scripts), data imports,
+ * and more.
  */
-public interface PbcsJobStatus {
+public interface PbcsJobStatus extends PbcsObject {
 
 	/**
 	 * The default check interval for {@link #waitUntilFinished()} is 3,000ms (three seconds).
@@ -74,13 +75,6 @@ public interface PbcsJobStatus {
 	Integer getJobId();
 
 	/**
-	 * The name of the job. May vary by type. In the case of a business rule, the job name is the business rule name.
-	 *
-	 * @return the name of the job
-	 */
-	String getJobName();
-
-	/**
 	 * Convenience method to wait (and poll) until the job is finished, one way or the other. This method calls {@link #waitUntilFinished(long, TimeUnit)}
 	 * using the {@link PbcsJobStatus#DEFAULT_CHECK_INTERVAL_MILLIS} value.
 	 *
@@ -91,7 +85,7 @@ public interface PbcsJobStatus {
 
 	/**
 	 * Wait until job is finished (success or failure). This mechanism serves mostly a quick convenience that just loops
-	 * until the job is finished. If you are concerned that the task might be waiting for a long time, you may be beter
+	 * until the job is finished. If you are concerned that the task might be waiting for a long time, you may be better
 	 * served refreshing the status yourself with the {@link #refresh()} method used inside an Executor, in order to
 	 * avoid busy waiting the thread.
 	 *

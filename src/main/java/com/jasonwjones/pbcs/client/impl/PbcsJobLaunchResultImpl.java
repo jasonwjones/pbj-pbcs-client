@@ -4,6 +4,7 @@ import com.jasonwjones.pbcs.api.v3.JobLaunchResponse;
 import com.jasonwjones.pbcs.client.PbcsApplication;
 import com.jasonwjones.pbcs.client.PbcsJobStatus;
 import com.jasonwjones.pbcs.client.PbcsJobStatusCode;
+import com.jasonwjones.pbcs.client.PbcsObjectType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,11 +62,6 @@ public class PbcsJobLaunchResultImpl implements PbcsJobStatus {
 	}
 
 	@Override
-	public String getJobName() {
-		return jobLaunchResponse.getJobName();
-	}
-
-	@Override
 	public PbcsJobStatus refresh() {
 		logger.info("Refreshing job {}", this);
 		return application.getJobStatus(getJobId());
@@ -83,15 +79,25 @@ public class PbcsJobLaunchResultImpl implements PbcsJobStatus {
 
 	@Override
 	public PbcsJobStatus waitUntilFinished(long checkInterval, TimeUnit unit) throws InterruptedException {
-		PbcsJobStatus status = this;
+		PbcsJobStatus currentStatus = this;
 		long startTime = System.currentTimeMillis();
-		while (!status.isFinished()) {
+		while (!currentStatus.isFinished()) {
 			Thread.sleep(unit.toMillis(checkInterval));
-			status = status.refresh();
+			currentStatus = currentStatus.refresh();
 		}
 		long duration = System.currentTimeMillis() - startTime;
-		logger.info("Waited {}ms for {} to finish, result: {}", duration, status, status.getJobStatusType());
-		return status;
+		logger.info("Waited {}ms for {} to finish, result: {}", duration, status, currentStatus.getJobStatusType());
+		return currentStatus;
+	}
+
+	@Override
+	public String getName() {
+		return jobLaunchResponse.getJobName();
+	}
+
+	@Override
+	public PbcsObjectType getObjectType() {
+		return PbcsObjectType.JOB;
 	}
 
 }
