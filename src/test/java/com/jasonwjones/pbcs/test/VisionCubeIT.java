@@ -18,6 +18,8 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 public class VisionCubeIT extends AbstractIntegrationTest {
 
+    protected PbcsApplication app;
+
     protected PbcsPlanType cube;
 
     public static final List<String> DIMENSIONS = Arrays.asList("Account", "Currency", "Entity", "Period", "Product", "Scenario", "Version", "Year");
@@ -34,7 +36,7 @@ public class VisionCubeIT extends AbstractIntegrationTest {
     @Before
     public void setUp() {
         PbcsClient client = new PbcsClientFactory().createClient(connection);
-        PbcsApplication app = client.getApplication("Vision");
+        app = client.getApplication("Vision");
 
         PlanTypeConfigurationImpl configuration = new PlanTypeConfigurationImpl();
         configuration.setName("Plan1");

@@ -14,6 +14,8 @@ public class PlanTypeConfigurationImpl implements PbcsApplication.PlanTypeConfig
 
     private boolean skipCheck;
 
+    private boolean queryDimensions;
+
     private boolean validateDimensions;
 
     private List<String> explicitDimensions;
@@ -30,6 +32,15 @@ public class PlanTypeConfigurationImpl implements PbcsApplication.PlanTypeConfig
     @Override
     public boolean isSkipCheck() {
         return skipCheck;
+    }
+
+    @Override
+    public boolean isQueryDimensions() {
+        return queryDimensions;
+    }
+
+    public void setQueryDimensions(boolean queryDimensions) {
+        this.queryDimensions = queryDimensions;
     }
 
     public void setValidateDimensions(boolean validateDimensions) {
@@ -99,6 +110,11 @@ public class PlanTypeConfigurationImpl implements PbcsApplication.PlanTypeConfig
 
         public Builder skipCheck() {
             configuration.setSkipCheck(true);
+            return this;
+        }
+
+        public Builder queryDimensions() {
+            configuration.setQueryDimensions(true);
             return this;
         }
 

@@ -38,13 +38,30 @@ public class PbcsExplicitDimensionsPlanTypeImpl extends PbcsPlanTypeImpl impleme
 
     PbcsExplicitDimensionsPlanTypeImpl(RestContext context, PbcsApplication application, PbcsApplication.PlanTypeConfiguration configuration) {
         super(context, application, configuration.getName(), configuration.getMemberDimensionCache());
-        Objects.requireNonNull(configuration.getExplicitDimensions());
-        if (configuration.getExplicitDimensions().isEmpty()) throw new IllegalArgumentException("Explicit dimension list cannot be empty");
+
+        List<String> dimensionNames = new ArrayList<>();
+
+        if (configuration.isQueryDimensions()) {
+            if (configuration.isQueryDimensions()) {
+                List<PbcsDimension> dimensions = application.getDimensions(configuration.getName());
+                for (PbcsDimension dimension : dimensions) {
+                    dimensionNames.add(dimension.getName());
+                }
+            }
+        } else {
+            if (configuration.getExplicitDimensions() == null || configuration.getExplicitDimensions().isEmpty()) throw new IllegalArgumentException("Explicit dimension list cannot be empty");
+            dimensionNames.addAll(configuration.getExplicitDimensions());
+        }
+
+        if (dimensionNames.isEmpty()) {
+            throw new IllegalArgumentException("Dimension name list cannot be empty: provide dimension names or enable query dimensions");
+        }
+
         this.explicitDimensions = new ArrayList<>();
 
         int dimNumber = 0;
 
-        for (String dimName : configuration.getExplicitDimensions()) {
+        for (String dimName : dimensionNames) {
             PbcsMemberType type = configuration.isValidateDimensions() ?
                     application.getMember(dimName, dimName).getType() :
                     PbcsMemberType.UNKNOWN;
@@ -274,18 +291,9 @@ public class PbcsExplicitDimensionsPlanTypeImpl extends PbcsPlanTypeImpl impleme
         GridDefinition gridDefinition = new GridDefinition(grid.getPov(), top, left);
         ExportDataSlice exportDataSlice = new ExportDataSlice(gridDefinition);
 
-        try {
-            ResponseEntity<DataSlice> slice = this.context.getTemplate().postForEntity(this.context.getBaseUrl() + "applications/{application}/plantypes/{planType}/exportdataslice", exportDataSlice, DataSlice.class, getApplication().getName(), getName());
-            if (slice.getStatusCode().is2xxSuccessful()) {
-                DataSlice dataSlice = slice.getBody();
-                return new DataSliceGrid(this, dataSlice);
-            } else {
-                throw new RuntimeException("Error retrieving data, received code: " + slice.getStatusCode());
-            }
-        } catch (Exception e) {
-            logger.error("Exception: {}", e.getMessage());
-            throw e;
-        }
+        // todo: catch exception and provide custom with some analysis on potential causes of problem
+        DataSlice slice = post("applications/{application}/plantypes/{planType}/exportdataslice", exportDataSlice, DataSlice.class, getApplication().getName(), getName());
+        return new DataSliceGrid(this, slice);
     }
 
     private List<String> resolveDimensions(List<String> members) {

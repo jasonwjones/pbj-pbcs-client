@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 import com.jasonwjones.pbcs.api.v3.*;
 import com.jasonwjones.pbcs.client.*;
@@ -463,7 +464,16 @@ public class PbcsApplicationImpl extends AbstractPbcsObject implements PbcsAppli
 
 	@Override
 	public List<PbcsDimension> getDimensions(String planType) {
-		throw new UnsupportedOperationException();
+		List<PbcsDimension> planDimensions = new ArrayList<>();
+		for (PbcsAppDimension dimension : getDimensions()) {
+			if (dimension.isValidForPlan(planType)) {
+				planDimensions.add(dimension);
+			}
+		}
+		if (planDimensions.isEmpty()) {
+			throw new IllegalArgumentException("No dimensions found for " + planType + ", wrong plan name?");
+		}
+		return planDimensions;
 	}
 
 	@Override
@@ -501,7 +511,8 @@ public class PbcsApplicationImpl extends AbstractPbcsObject implements PbcsAppli
 		if (!configuration.isSkipCheck()) {
 			validatePlanType(configuration.getName());
 		}
-		if (configuration.getExplicitDimensions() != null && !configuration.getExplicitDimensions().isEmpty()) {
+
+		if (configuration.isQueryDimensions() || (configuration.getExplicitDimensions() != null && !configuration.getExplicitDimensions().isEmpty())) {
 			return new PbcsExplicitDimensionsPlanTypeImpl(context, this, configuration);
 		} else {
 			return new PbcsPlanTypeImpl(context, this, configuration.getName(), configuration.getMemberDimensionCache());

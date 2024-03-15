@@ -294,6 +294,18 @@ public interface PbcsApplication extends PbcsObject {
 		String getName();
 
 		/**
+		 * If true, an explicit dimension plan type will be created and the AIF endpoint will be queried to get the list
+		 * of dimensions to populate. This option is off by default. "Regular" users may not have permissions to query
+		 * the endpoint, so this method will generally only work for users with Service Administrator privileges and
+		 * above. If set to true, the value of {@link #getExplicitDimensions()} will be ignored. Note that attribute
+		 * dimensions are not returned from this [undocumented] REST endpoint, so if you need attribute dimensions then
+		 * you should still populate them through {@link #getExplicitAttributeDimensions()}.
+		 *
+		 * @return the value for query dimensions
+		 */
+		boolean isQueryDimensions();
+
+		/**
 		 * Determines if a check (a REST call) should be performed to validate that the given plan name is actually valid
 		 * or if we should just assume that it is. You'll get a slightly faster response when creating a {@link PbcsPlanType}
 		 * because you'll skip a REST call.

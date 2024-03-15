@@ -84,4 +84,16 @@ public class VisionCubeInstantiationIT extends AbstractIntegrationTest {
         assertThat(dimension.getDimensionType(), is(PbcsMemberType.ATTRIBUTE));
     }
 
+    @Test
+    public void whenQueryDimensionsThenValidCubeCreated() {
+        PbcsApplication.PlanTypeConfiguration configuration = new PlanTypeConfigurationImpl.Builder("Plan1")
+                .skipCheck()
+                .queryDimensions()
+                .validateDimensions()
+                .build();
+        PbcsPlanType plan = application.getPlanType(configuration);
+        assertThat(plan.isExplicitDimensions(), is(true));
+        assertThat(plan.getDimension("Scenario").getDimensionType(), is(PbcsMemberType.SCENARIO));
+    }
+
 }
