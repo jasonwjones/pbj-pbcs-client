@@ -71,3 +71,25 @@ GET https://{{server}}/interop/rest/v2/config/services/essbaseqrygovexectime
 Authorization: {{creds}}
 Accept: application/json
 Content-Type: application/json
+
+### Send an email (didn't seem to work, perhaps attachment is required?)
+# "attachments":"apr/Feedback 2022-03-01 07_42_04/access_log.zip"
+POST https://{{server}}/interop/rest/v2/mails/send
+Authorization: {{creds}}
+Accept: application/json
+Content-Type: application/json
+
+{
+  "to": "jason@appliedolap.com",
+  "subject": "EPM",
+  "body": "EPM weekly email",
+  "parameters": {
+
+  }
+}
+
+### Get Essbase email job details
+POST https://{{server}}/interop/rest/v2/status/jobs/81960945213340578
+Authorization: {{creds}}
+Accept: application/json
+Content-Type: application/json
