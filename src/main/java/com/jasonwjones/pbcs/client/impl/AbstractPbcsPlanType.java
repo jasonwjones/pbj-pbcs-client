@@ -5,6 +5,7 @@ import com.jasonwjones.pbcs.client.*;
 import com.jasonwjones.pbcs.client.impl.grid.DataSliceGrid;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -16,6 +17,7 @@ public class AbstractPbcsPlanType implements PbcsPlanType {
     protected final PbcsPlanType planType;
 
     public AbstractPbcsPlanType(PbcsPlanType planType) {
+        Objects.requireNonNull(planType);
         this.planType = planType;
     }
 
