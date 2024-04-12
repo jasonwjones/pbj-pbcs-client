@@ -420,17 +420,20 @@ public class PbcsApplicationImpl extends AbstractPbcsObject implements PbcsAppli
 		List<String> plans = Arrays.asList(application.getPlan1Name(), application.getPlan2Name(), application.getPlan3Name(), application.getPlan4Name(), application.getPlan5Name(), application.getPlan6Name());
 
 		List<PbcsAppDimension> dimensions = new ArrayList<>();
-		int dimIndex = 0;
-		for (AifDimension aifDimension : result.getBody().getItems()) {
-			List<Integer> validForPlans = Arrays.asList(aifDimension.getValidForPlan1(), aifDimension.getValidForPlan2(), aifDimension.getValidForPlan3(), aifDimension.getValidForPlan4(), aifDimension.getValidForPlan5(), aifDimension.getValidForPlan6());
-			Set<String> plansForDim = new TreeSet<>();
-			for (int validIndex = 0; validIndex < 6; validIndex++) {
-				if (validForPlans.get(validIndex) == 1) {
-					plansForDim.add(plans.get(validIndex));
+
+		if (result.getBody() != null) { // this can apparently be null
+			int dimIndex = 0;
+			for (AifDimension aifDimension : result.getBody().getItems()) {
+				List<Integer> validForPlans = Arrays.asList(aifDimension.getValidForPlan1(), aifDimension.getValidForPlan2(), aifDimension.getValidForPlan3(), aifDimension.getValidForPlan4(), aifDimension.getValidForPlan5(), aifDimension.getValidForPlan6());
+				Set<String> plansForDim = new TreeSet<>();
+				for (int validIndex = 0; validIndex < 6; validIndex++) {
+					if (validForPlans.get(validIndex) == 1) {
+						plansForDim.add(plans.get(validIndex));
+					}
 				}
+				PbcsDimensionImpl dim = new PbcsDimensionImpl(plansForDim, this, aifDimension, dimIndex++);
+				dimensions.add(dim);
 			}
-			PbcsDimensionImpl dim = new PbcsDimensionImpl(plansForDim, this, aifDimension, dimIndex++);
-			dimensions.add(dim);
 		}
 		return dimensions;
 	}
