@@ -148,6 +148,14 @@ public interface PbcsPlanType extends PbcsObject {
 	 */
 	DataSliceGrid retrieve(List<String> pov, Grid<String> grid);
 
+	/**
+	 * Retrieves using the given retrieval options. Note: you cannot use the dimension hints option when retrieving
+	 * against a non-explicit dimension plan type.
+	 *
+	 * @param grid  the grid to retrieve
+	 * @param options the retrieval options
+	 * @return a data slice grid
+	 */
 	DataSliceGrid retrieve(PovGrid<String> grid, RetrieveOptions options);
 
 	/**
