@@ -327,7 +327,7 @@ public class PbcsApplicationImpl extends AbstractPbcsObject implements PbcsAppli
 		Assert.hasText(dimensionName, "Must specify a dimension name");
 		Assert.hasText(memberName, "Must specify a member name");
 
-		logger.debug("Fetching member properties for {} from dimension {}", memberName, dimensionName);
+		logger.trace("Fetching member properties for {} from dimension {}", memberName, dimensionName);
 		try {
 			PbcsMemberPropertiesImpl properties = get("applications/{application}/dimensions/{dimName}/members/{member}", PbcsMemberPropertiesImpl.class, getName(), dimensionName, memberName);
 			return new PbcsMemberImpl(this, properties);

@@ -16,10 +16,13 @@ import com.jasonwjones.pbcs.client.impl.membervisitors.SearchWildMemberVisitor;
 import com.jasonwjones.pbcs.util.GridUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.ResponseEntity;
 
 import java.nio.file.FileVisitResult;
 import java.util.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 /**
@@ -35,6 +38,8 @@ public class PbcsExplicitDimensionsPlanTypeImpl extends PbcsPlanTypeImpl impleme
     private static final Logger logger = LoggerFactory.getLogger(PbcsExplicitDimensionsPlanTypeImpl.class);
 
     private final List<PbcsDimension> explicitDimensions;
+
+    private final ExecutorService executorService;
 
     PbcsExplicitDimensionsPlanTypeImpl(RestContext context, PbcsApplication application, PbcsApplication.PlanTypeConfiguration configuration) {
         super(context, application, configuration.getName(), configuration.getMemberDimensionCache());
@@ -77,6 +82,9 @@ public class PbcsExplicitDimensionsPlanTypeImpl extends PbcsPlanTypeImpl impleme
                 this.explicitDimensions.add(new ExplicitDimension(attribDimName, dimNumber++, type));
             }
         }
+
+        logger.debug("Using {} thread(s) to perform member name/alias search", configuration.getMemberSearchThreads());
+        executorService = Executors.newFixedThreadPool(configuration.getMemberSearchThreads());
     }
 
     @Override
@@ -108,46 +116,45 @@ public class PbcsExplicitDimensionsPlanTypeImpl extends PbcsPlanTypeImpl impleme
 
     @Override
     public PbcsMemberProperties getMemberOrAlias(String memberOrAliasName) {
-        // check for known dimension name for the member or alias in the member to dimension lookup cache
-        String possibleDimension = memberDimensionCache.getDimensionName(this, memberOrAliasName);
+        PbcsMemberProperties matchingMember = oneOffSearchInDimension(memberOrAliasName);
+        if (matchingMember != null) return matchingMember;
 
-        // we *assume* that the dimension in the lookup cache is valid, but leave ourselves some wiggle room just in the
-        // extremely unlikely case that it's somehow wrong (or outdated), and we need to perform the rest of the brute-force
-        // search anyway
-        List<PbcsDimension> dimensionsToSearch = explicitDimensions;
-        if (possibleDimension != null) {
-            dimensionsToSearch = new ArrayList<>(explicitDimensions);
-            for (int index = 0; index < dimensionsToSearch.size(); index++) {
-                PbcsDimension current = dimensionsToSearch.get(index);
-                if (current.getName().equals(possibleDimension)) {
-                    // move the presumed dimension to the top of the search order
-                    dimensionsToSearch.remove(index);
-                    dimensionsToSearch.add(0, current);
-                    break;
-                }
-            }
-        }
+        // you'll technically research a dimension, but that only happens when you have a bad cache
+        List<MemberSearchCallable> searchers = explicitDimensions.stream()
+                .map(dimension -> new MemberSearchCallable(dimension, memberOrAliasName))
+                .collect(Collectors.toList());
 
-        for (PbcsDimension dimension : dimensionsToSearch) {
-            logger.debug("Searching dimension {} for member/alias {}", dimension.getName(), memberOrAliasName);
-
-            Queue<PbcsMemberProperties> members = new ArrayDeque<>();
-            members.add(dimension.getRoot());
-
-            while (!members.isEmpty()) {
-                PbcsMemberProperties current = members.remove();
-                if (memberOrAliasName.equalsIgnoreCase(current.getName()) || memberOrAliasName.equalsIgnoreCase(current.getAlias())) {
-                    // this is technically unneeded if the dimension is the same as possibleDimension, but it will be
-                    // set here anyway in case the underlying cache mechanism needs a "hit" in order to update a TTL
-                    // or similar value. Note: this could cause a lot of traffic to your SoR if the cache writes through
-                    // You may want to use a putIfAbsent paradigm (instead of a put) to avoid unnecessary writes
-                    memberDimensionCache.setDimension(this, memberOrAliasName, dimension.getName());
-                    return current;
-                }
-                members.addAll(current.getChildren());
-            }
+        try {
+            PbcsMemberProperties member = executorService.invokeAny(searchers);
+            memberDimensionCache.setDimension(this, memberOrAliasName, member.getDimensionName());
+            logger.debug("Found member {} (via {}) in dimension {}", member.getName(), memberOrAliasName, member.getDimensionName());
+            return member;
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        } catch (ExecutionException e) {
+            logger.warn("Unable to find member {}", memberOrAliasName);
         }
         return null;
+    }
+
+    /**
+     * Check if the dimension for the member is already in the cache, and check it.
+     *
+     * @param memberOrAliasName the member or alias name to look for
+     * @return the member, if found, null otherwise
+     */
+    private PbcsMemberProperties oneOffSearchInDimension(String memberOrAliasName) {
+        String possibleDimension = memberDimensionCache.getDimensionName(this, memberOrAliasName);
+        if (possibleDimension != null) {
+            PbcsDimension dimension = getDimension(possibleDimension);
+            PbcsMemberProperties matchingMember = dimension.getRoot().searchForDescendant(memberOrAliasName);
+            if (matchingMember == null) {
+                logger.warn("Looking cached dimension {} for {} but couldn't find it, cache is invalid", possibleDimension, memberOrAliasName);
+            }
+            return matchingMember;
+        } else {
+            return null;
+        }
     }
 
     protected List<String> getDimensionNames() {
@@ -364,6 +371,32 @@ public class PbcsExplicitDimensionsPlanTypeImpl extends PbcsPlanTypeImpl impleme
         @Override
         public String toString() {
             return name;
+        }
+
+    }
+
+    private static class MemberSearchCallable implements Callable<PbcsMemberProperties> {
+
+        private final PbcsDimension dimension;
+
+        private final String memberOrAliasName;
+
+        private MemberSearchCallable(PbcsDimension searchDimension, String memberOrAliasName) {
+            this.dimension = searchDimension;
+            this.memberOrAliasName = memberOrAliasName;
+        }
+
+        @Override
+        public PbcsMemberProperties call() throws Exception {
+            logger.debug("Searching dimension {} for member/alias {}", dimension.getName(), memberOrAliasName);
+            PbcsMemberProperties rootMember = dimension.getRoot();
+
+            PbcsMemberProperties matchingMember = rootMember.searchForDescendant(memberOrAliasName);
+            if (matchingMember != null) {
+                return matchingMember;
+            } else {
+                throw new RuntimeException("Couldn't find " + memberOrAliasName + " in dimension " + dimension.getName());
+            }
         }
 
     }

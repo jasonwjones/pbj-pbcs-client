@@ -28,7 +28,8 @@ public interface PbcsDimension extends PbcsObject {
 	/**
 	 * Gets the type of dimension. This uses the member type enumeration since the dimension and
 	 * member types are basically the same. If the dimension types are not specifically resolved
-	 * then you may only get UNKNOWN or ATTRIBUTE for the dimension, as the case may be.
+	 * then you may only get {@link PbcsMemberType#UNKNOWN} or {@link PbcsMemberType#ATTRIBUTE} for the dimension, as
+	 * the case may be.
 	 *
 	 * @return the dimension type
 	 */

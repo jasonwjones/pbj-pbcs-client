@@ -329,6 +329,13 @@ public interface PbcsApplication extends PbcsObject {
 		 */
 		PbcsPlanType.MemberDimensionCache getMemberDimensionCache();
 
+		/**
+		 * The number of threads that will be used in a {@link PbcsPlanType#getMemberOrAlias(String)} search operation.
+		 *
+		 * @return the threads for a fixed thread pool executor
+		 */
+		int getMemberSearchThreads();
+
 	}
 
 }

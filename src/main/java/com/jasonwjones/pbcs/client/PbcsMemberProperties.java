@@ -145,6 +145,14 @@ public interface PbcsMemberProperties extends PbcsObject {
 	int getGeneration();
 
 	/**
+	 * Recursively search this member and all members below it looking for a member with the given name or alias.
+	 *
+	 * @param memberOrAliasName the member name or alias to search for
+	 * @return a member if found, null if not
+	 */
+	PbcsMemberProperties searchForDescendant(String memberOrAliasName);
+
+	/**
 	 * Models the possible data storage types. For a member. There isn't actually an "Other" type, it's just included
 	 * in case it's not possible to map the actual type for some reason. If for some reason in the future callers have
 	 * an issue with getting the actual type, you can rely on the normal {@link #getDataStorage()} method to simply

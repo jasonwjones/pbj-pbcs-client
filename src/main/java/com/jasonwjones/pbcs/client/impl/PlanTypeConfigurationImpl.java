@@ -24,6 +24,8 @@ public class PlanTypeConfigurationImpl implements PbcsApplication.PlanTypeConfig
 
     private PbcsPlanType.MemberDimensionCache memberDimensionCache = new InMemoryMemberDimensionCache();
 
+    private int memberSearchThreads = 1;
+
     @Override
     public String getName() {
         return name;
@@ -88,6 +90,15 @@ public class PlanTypeConfigurationImpl implements PbcsApplication.PlanTypeConfig
     }
 
     @Override
+    public int getMemberSearchThreads() {
+        return memberSearchThreads;
+    }
+
+    public void setMemberSearchThreads(int memberSearchThreads) {
+        this.memberSearchThreads = memberSearchThreads;
+    }
+
+    @Override
     public String toString() {
         return new StringJoiner(", ", PlanTypeConfigurationImpl.class.getSimpleName() + "[", "]")
                 .add("name='" + name + "'")
@@ -96,6 +107,7 @@ public class PlanTypeConfigurationImpl implements PbcsApplication.PlanTypeConfig
                 .add("explicitDimensions=" + explicitDimensions)
                 .add("explicitAttributeDimensions=" + explicitAttributeDimensions)
                 .add("memberDimensionCache=" + memberDimensionCache.getClass().getSimpleName())
+                .add("memberSearchThreads=" + memberSearchThreads)
                 .toString();
     }
 
@@ -133,6 +145,11 @@ public class PlanTypeConfigurationImpl implements PbcsApplication.PlanTypeConfig
 
         public Builder validateDimensions() {
             configuration.setValidateDimensions(true);
+            return this;
+        }
+
+        public Builder searchThreads(int searchThreads) {
+            configuration.setMemberSearchThreads(searchThreads);
             return this;
         }
 

@@ -3,8 +3,10 @@ package com.jasonwjones.pbcs.client.impl;
 import com.jasonwjones.pbcs.api.v3.PbcsMemberPropertiesImpl;
 import com.jasonwjones.pbcs.client.*;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Queue;
 
 public class PbcsMemberImpl implements PbcsMember {
 
@@ -130,6 +132,26 @@ public class PbcsMemberImpl implements PbcsMember {
     @Override
     public PbcsApplication getApplication() {
         return application;
+    }
+
+    @Override
+    public PbcsMemberProperties searchForDescendant(String memberOrAliasName) {
+        Queue<PbcsMemberProperties> members = new ArrayDeque<>();
+        members.add(this);
+
+        while (!members.isEmpty()) {
+            PbcsMemberProperties current = members.remove();
+            if (memberOrAliasName.equalsIgnoreCase(current.getName()) || memberOrAliasName.equalsIgnoreCase(current.getAlias())) {
+                // this is technically unneeded if the dimension is the same as possibleDimension, but it will be
+                // set here anyway in case the underlying cache mechanism needs a "hit" in order to update a TTL
+                // or similar value. Note: this could cause a lot of traffic to your SoR if the cache writes through
+                // You may want to use a putIfAbsent paradigm (instead of a put) to avoid unnecessary writes
+                //memberDimensionCache.setDimension(this, memberOrAliasName, dimension.getName());
+                return current;
+            }
+            members.addAll(current.getChildren());
+        }
+        return null;
     }
 
 }
