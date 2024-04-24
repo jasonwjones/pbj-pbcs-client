@@ -14,10 +14,10 @@ import com.jasonwjones.pbcs.client.impl.membervisitors.SearchMemberVisitor;
 import com.jasonwjones.pbcs.client.impl.membervisitors.SearchRegexMemberVisitor;
 import com.jasonwjones.pbcs.client.impl.membervisitors.SearchWildMemberVisitor;
 import com.jasonwjones.pbcs.util.GridUtils;
+import com.jasonwjones.pbcs.util.PlanTypeWalker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.nio.file.FileVisitResult;
 import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -218,7 +218,7 @@ public class PbcsExplicitDimensionsPlanTypeImpl extends PbcsPlanTypeImpl impleme
     }
 
     @Override
-    public List<PbcsMemberProperties> searchMembers(MemberSearchQuery query) {
+    public List<PbcsMember> searchMembers(MemberSearchQuery query) {
         Set<String> searchDimensions = new HashSet<>();
 
         if (query.getDimensionName() != null) {
@@ -262,16 +262,16 @@ public class PbcsExplicitDimensionsPlanTypeImpl extends PbcsPlanTypeImpl impleme
      * @param startingMember the starting member, or null if to use root of dimension
      * @param memberVisitor the member visitor to call
      */
-    public void walkDimension(String dimensionName, String startingMember, MemberVisitor memberVisitor) {
+    public void walkDimension(String dimensionName, String startingMember, PlanTypeWalker.Visitor memberVisitor) {
         PbcsDimension dimension = getDimension(dimensionName);
 
-        Queue<PbcsMemberProperties> members = new ArrayDeque<>();
+        Queue<PbcsMember> members = new ArrayDeque<>();
         members.add(startingMember == null ? dimension.getRoot() : dimension.getMember(startingMember));
 
         while (!members.isEmpty()) {
-            PbcsMemberProperties current = members.remove();
-            FileVisitResult result = memberVisitor.preVisitMember(current);
-            if (result == FileVisitResult.TERMINATE) break;
+            PbcsMember current = members.remove();
+            PlanTypeWalker.MemberVisitResult result = memberVisitor.visitMember(this, current);
+            if (result == PlanTypeWalker.MemberVisitResult.TERMINATE) break;
             members.addAll(current.getChildren());
         }
 
@@ -308,6 +308,14 @@ public class PbcsExplicitDimensionsPlanTypeImpl extends PbcsPlanTypeImpl impleme
         // todo: catch exception and provide custom with some analysis on potential causes of problem
         DataSlice slice = post("applications/{application}/plantypes/{planType}/exportdataslice", exportDataSlice, DataSlice.class, getApplication().getName(), getName());
         return new DataSliceGrid(this, slice);
+    }
+
+    @Override
+    public void cache() {
+        logger.info("Caching outline for {}, dimensions: {}", getName(), getDimensionNames());
+        CachingMemberResolverVisitor visitor = new CachingMemberResolverVisitor();
+        PlanTypeWalker.walk(this, visitor);
+        logger.info("Finished walking outline for {}", getName());
     }
 
     private List<String> resolveDimensions(List<String> members) {
@@ -404,6 +412,39 @@ public class PbcsExplicitDimensionsPlanTypeImpl extends PbcsPlanTypeImpl impleme
             } else {
                 throw new RuntimeException("Couldn't find " + memberOrAliasName + " in dimension " + dimension.getName());
             }
+        }
+
+    }
+
+    private class CachingMemberResolverVisitor extends PlanTypeWalker.AbstractVisitor implements PlanTypeWalker.Visitor {
+
+        private int numCached;
+
+        @Override
+        public void endPlan(PbcsPlanType plan) {
+            logger.info("Finished walking outline of {}, cached {} items", plan.getName(), numCached);
+        }
+
+        @Override
+        public PlanTypeWalker.MemberVisitResult startDimension(PbcsDimension dimension) {
+            logger.info("Starting dimension {}", dimension);
+            return PlanTypeWalker.MemberVisitResult.CONTINUE;
+        }
+
+        @Override
+        public void endDimension(PbcsDimension dimension) {
+            logger.info("Finished dimension {}", dimension);
+        }
+
+        @Override
+        public PlanTypeWalker.MemberVisitResult visitMember(PbcsPlanType planType, PbcsMember member) {
+            memberResolver.setMember(planType, member.getName(), member);
+            numCached++;
+            if (member.getAlias() != null && member.getAlias().isEmpty() && !member.getName().equals(member.getAlias())) {
+                memberResolver.setMember(planType, member.getAlias(), member);
+                numCached++;
+            }
+            return PlanTypeWalker.MemberVisitResult.CONTINUE;
         }
 
     }

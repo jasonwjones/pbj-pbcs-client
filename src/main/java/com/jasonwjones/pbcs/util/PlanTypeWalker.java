@@ -1,9 +1,8 @@
 package com.jasonwjones.pbcs.util;
 
 import com.jasonwjones.pbcs.client.PbcsDimension;
-import com.jasonwjones.pbcs.client.PbcsMemberProperties;
+import com.jasonwjones.pbcs.client.PbcsMember;
 import com.jasonwjones.pbcs.client.PbcsPlanType;
-import org.springframework.util.StringUtils;
 
 import java.io.PrintStream;
 import java.util.ArrayDeque;
@@ -29,12 +28,12 @@ public class PlanTypeWalker {
 
         for (PbcsDimension dimension : planType.getDimensions()) {
             if (visitor.startDimension(dimension) == MemberVisitResult.CONTINUE) {
-                Queue<PbcsMemberProperties> members = new ArrayDeque<>();
+                Queue<PbcsMember> members = new ArrayDeque<>();
                 members.add(dimension.getRoot());
 
                 while (!members.isEmpty()) {
-                    PbcsMemberProperties current = members.remove();
-                    if (visitor.visitMember(current) == MemberVisitResult.CONTINUE) {
+                    PbcsMember current = members.remove();
+                    if (visitor.visitMember(planType, current) == MemberVisitResult.CONTINUE) {
                         members.addAll(current.getChildren());
                     }
                 }
@@ -58,7 +57,7 @@ public class PlanTypeWalker {
 
         void endDimension(PbcsDimension dimension);
 
-        MemberVisitResult visitMember(PbcsMemberProperties member);
+        MemberVisitResult visitMember(PbcsPlanType planType, PbcsMember member);
 
     }
 
@@ -74,7 +73,7 @@ public class PlanTypeWalker {
      * A base class that can be extended by those implementing the Visitor interface. All methods are stubbed out so
      * that implementers only need to worry about method they care about.
      */
-    public static abstract class AbstractVisitor implements Visitor {
+    public abstract static class AbstractVisitor implements Visitor {
 
         @Override
         public void startPlan(PbcsPlanType plan) {
@@ -94,7 +93,7 @@ public class PlanTypeWalker {
         }
 
         @Override
-        public MemberVisitResult visitMember(PbcsMemberProperties member) {
+        public MemberVisitResult visitMember(PbcsPlanType planType, PbcsMember member) {
             return MemberVisitResult.CONTINUE;
         }
 
@@ -115,7 +114,7 @@ public class PlanTypeWalker {
         }
 
         @Override
-        public MemberVisitResult visitMember(PbcsMemberProperties member) {
+        public MemberVisitResult visitMember(PbcsPlanType planType, PbcsMember member) {
             int spaces = (member.getGeneration() - 1) * SPACES_PER_LEVEL;
             printStream.println(space(spaces) + member.getName());
             return MemberVisitResult.CONTINUE;

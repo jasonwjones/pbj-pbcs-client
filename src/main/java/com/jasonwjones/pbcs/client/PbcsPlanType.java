@@ -189,7 +189,7 @@ public interface PbcsPlanType extends PbcsObject {
 	 * @param queryType the type of query
 	 * @return the list of members that result (or an empty list if there are none)
 	 */
-	List<PbcsMemberProperties> queryMembers(String memberName, PbcsMemberQueryType queryType);
+	List<PbcsMember> queryMembers(String memberName, PbcsMemberQueryType queryType);
 
 	/**
 	 * Perform a search for members matching the criteria specified in the query definition. Not all implementations
@@ -200,7 +200,7 @@ public interface PbcsPlanType extends PbcsObject {
 	 * @param query the query definition
 	 * @return a list of members matching the criteria
 	 */
-	List<PbcsMemberProperties> searchMembers(MemberSearchQuery query);
+	List<PbcsMember> searchMembers(MemberSearchQuery query);
 
 	/**
 	 * Similar to {@link #getMember(String)}, this is provided as a convenience to try and find a member using its name

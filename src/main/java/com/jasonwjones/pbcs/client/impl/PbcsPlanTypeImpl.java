@@ -223,17 +223,17 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 	}
 
 	@Override
-	public List<PbcsMemberProperties> queryMembers(String memberName, PbcsMemberQueryType queryType) {
-		PbcsMemberProperties member = getMemberOrAlias(memberName);
+	public List<PbcsMember> queryMembers(String memberName, PbcsMemberQueryType queryType) {
+		PbcsMember member = getMemberOrAlias(memberName);
 		if (member == null) throw new PbcsNoSuchObjectException(memberName, PbcsObjectType.MEMBER);
 
-		List<PbcsMemberProperties> results = new ArrayList<>();
+		List<PbcsMember> results = new ArrayList<>();
 
 		switch (queryType) {
 			case ICHILDREN:
 				results.add(member);
 			case CHILDREN:
-				for (PbcsMemberProperties child : member.getChildren()) {
+				for (PbcsMember child : member.getChildren()) {
 					results.add(child);
 				}
 				break;
@@ -241,7 +241,7 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 				results.add(member);
 			case DESCENDANTS:
 				// do first iteration ourselves here so that resulting list doesn't include root member
-				for (PbcsMemberProperties child : member.getChildren()) {
+				for (PbcsMember child : member.getChildren()) {
 					processChildren(results, child);
 				}
 				break;
@@ -249,7 +249,7 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 				results.add(member);
 			case ANCESTORS:
 				while (member.getParentName() != null) {
-					PbcsMemberProperties parent = getMember(member.getDimensionName(), member.getParentName());
+					PbcsMember parent = getMember(member.getDimensionName(), member.getParentName());
 					results.add(parent);
 					member = parent;
 				}
@@ -260,7 +260,7 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 				if (queryType.isIncludeOriginalMember()) {
 					results.addAll(parent.getChildren());
 				} else {
-					for (PbcsMemberProperties sibling : parent.getChildren()) {
+					for (PbcsMember sibling : parent.getChildren()) {
 						if (!sibling.getName().equals(memberName)) {
 							results.add(sibling);
 						}
@@ -273,13 +273,13 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 	}
 
 	@Override
-	public List<PbcsMemberProperties> searchMembers(MemberSearchQuery query) {
+	public List<PbcsMember> searchMembers(MemberSearchQuery query) {
 		throw new UnsupportedOperationException();
 	}
 
-	private static void processChildren(List<PbcsMemberProperties> members, PbcsMemberProperties currentMember) {
+	private static void processChildren(List<PbcsMember> members, PbcsMember currentMember) {
 		members.add(currentMember);
-		for (PbcsMemberProperties child : currentMember.getChildren()) {
+		for (PbcsMember child : currentMember.getChildren()) {
 			processChildren(members, child);
 		}
 	}

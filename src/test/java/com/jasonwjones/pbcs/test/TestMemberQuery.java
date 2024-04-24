@@ -2,6 +2,7 @@ package com.jasonwjones.pbcs.test;
 
 import com.jasonwjones.pbcs.PbcsClient;
 import com.jasonwjones.pbcs.PbcsClientFactory;
+import com.jasonwjones.pbcs.client.PbcsMember;
 import com.jasonwjones.pbcs.client.PbcsMemberProperties;
 import com.jasonwjones.pbcs.client.PbcsMemberQueryType;
 import com.jasonwjones.pbcs.client.PbcsPlanType;
@@ -29,7 +30,7 @@ public class TestMemberQuery extends AbstractIntegrationTest {
 				.getApplication("Vision")
 				.getPlanType(planTypeConfiguration);
 
-		List<PbcsMemberProperties> descendants = plan1.queryMembers("YearTotal", PbcsMemberQueryType.IDESCENDANTS);
+		List<PbcsMember> descendants = plan1.queryMembers("YearTotal", PbcsMemberQueryType.IDESCENDANTS);
 		logger.info("Received {} descendants", descendants.size());
 		for (PbcsMemberProperties member : descendants) {
 			logger.info("Mbr: {}", member);
@@ -37,19 +38,18 @@ public class TestMemberQuery extends AbstractIntegrationTest {
 
 		System.out.println("---");
 
-		List<PbcsMemberProperties> children = plan1.queryMembers("YearTotal", PbcsMemberQueryType.ICHILDREN);
+		List<PbcsMember> children = plan1.queryMembers("YearTotal", PbcsMemberQueryType.ICHILDREN);
 		logger.info("Received {} children", descendants.size());
 		for (PbcsMemberProperties member : children) {
 			logger.info("Mbr: {}", member);
 		}
 
 		System.out.println("---");
-		List<PbcsMemberProperties> ancestors = plan1.queryMembers("Jan", PbcsMemberQueryType.IANCESTORS);
+		List<PbcsMember> ancestors = plan1.queryMembers("Jan", PbcsMemberQueryType.IANCESTORS);
 		logger.info("Received {} ancestors", ancestors.size());
 		for (PbcsMemberProperties member : ancestors) {
 			logger.info("Ans: {}", member);
 		}
-
 
 	}
 

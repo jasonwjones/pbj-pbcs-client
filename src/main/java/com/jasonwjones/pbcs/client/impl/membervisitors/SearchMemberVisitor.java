@@ -1,8 +1,8 @@
 package com.jasonwjones.pbcs.client.impl.membervisitors;
 
-import com.jasonwjones.pbcs.client.PbcsMemberProperties;
-
-import java.nio.file.FileVisitResult;
+import com.jasonwjones.pbcs.client.PbcsMember;
+import com.jasonwjones.pbcs.client.PbcsPlanType;
+import com.jasonwjones.pbcs.util.PlanTypeWalker;
 
 public class SearchMemberVisitor extends AbstractMemberVisitor {
 
@@ -13,12 +13,12 @@ public class SearchMemberVisitor extends AbstractMemberVisitor {
     }
 
     @Override
-    public FileVisitResult preVisitMember(PbcsMemberProperties member) {
+    public PlanTypeWalker.MemberVisitResult visitMember(PbcsPlanType planType, PbcsMember member) {
         if (member.getName().equalsIgnoreCase(memberName)) {
             addMember(member);
-            return FileVisitResult.TERMINATE;
+            return PlanTypeWalker.MemberVisitResult.TERMINATE;
         }
-        return FileVisitResult.CONTINUE;
+        return PlanTypeWalker.MemberVisitResult.CONTINUE;
     }
 
 }

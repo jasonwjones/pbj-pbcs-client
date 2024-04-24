@@ -15,4 +15,9 @@ public interface PbcsExplicitDimensionsPlanType extends PbcsPlanType {
      */
     void validateDimensions();
 
+    /**
+     * Walk the outline and cache every member using the member resolver for this plan.
+     */
+    void cache();
+
 }

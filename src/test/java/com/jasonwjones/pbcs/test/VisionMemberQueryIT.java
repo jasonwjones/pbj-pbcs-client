@@ -1,9 +1,6 @@
 package com.jasonwjones.pbcs.test;
 
-import com.jasonwjones.pbcs.client.MemberSearchQuery;
-import com.jasonwjones.pbcs.client.PbcsMemberProperties;
-import com.jasonwjones.pbcs.client.PbcsMemberQueryType;
-import com.jasonwjones.pbcs.client.PbcsObjectType;
+import com.jasonwjones.pbcs.client.*;
 import com.jasonwjones.pbcs.client.exceptions.PbcsNoSuchObjectException;
 import com.jasonwjones.pbcs.client.impl.MemberSearchQueryImpl;
 import org.junit.Test;
@@ -35,7 +32,7 @@ public class VisionMemberQueryIT extends VisionCubeIT {
 
     @Test
     public void searchForChildren() {
-        List<PbcsMemberProperties> children = cube.queryMembers("Q1", PbcsMemberQueryType.CHILDREN);
+        List<PbcsMember> children = cube.queryMembers("Q1", PbcsMemberQueryType.CHILDREN);
         assertThat(children, hasSize(3));
     }
 
@@ -55,7 +52,7 @@ public class VisionMemberQueryIT extends VisionCubeIT {
         query.setDimensionName("Period");
         query.setSearchTerm("Foo");
         query.setType(MemberSearchQuery.Type.SEARCH);
-        List<PbcsMemberProperties> members = cube.searchMembers(query);
+        List<PbcsMember> members = cube.searchMembers(query);
         assertThat(members, empty());
     }
 
@@ -65,7 +62,7 @@ public class VisionMemberQueryIT extends VisionCubeIT {
         query.setDimensionName("Period");
         query.setSearchTerm("Jan");
         query.setType(MemberSearchQuery.Type.SEARCH);
-        List<PbcsMemberProperties> members = cube.searchMembers(query);
+        List<PbcsMember> members = cube.searchMembers(query);
         assertThat(names(members), contains("Jan"));
     }
 
@@ -75,7 +72,7 @@ public class VisionMemberQueryIT extends VisionCubeIT {
         query.setDimensionName("Period");
         query.setSearchTerm("Q*");
         query.setType(MemberSearchQuery.Type.SEARCH_WILD);
-        List<PbcsMemberProperties> members = cube.searchMembers(query);
+        List<PbcsMember> members = cube.searchMembers(query);
         assertThat(names(members), contains("Q-T-D", "Q1", "Q2", "Q3", "Q4"));
     }
 
@@ -86,7 +83,7 @@ public class VisionMemberQueryIT extends VisionCubeIT {
         query.setMemberName("YearTotal");
         query.setSearchTerm("Q*");
         query.setType(MemberSearchQuery.Type.SEARCH_WILD);
-        List<PbcsMemberProperties> members = cube.searchMembers(query);
+        List<PbcsMember> members = cube.searchMembers(query);
         assertThat(names(members), contains("Q1", "Q2", "Q3", "Q4"));
     }
 
@@ -96,7 +93,7 @@ public class VisionMemberQueryIT extends VisionCubeIT {
         query.setDimensionName("Period");
         query.setSearchTerm("J*");
         query.setType(MemberSearchQuery.Type.SEARCH_WILD);
-        List<PbcsMemberProperties> members = cube.searchMembers(query);
+        List<PbcsMember> members = cube.searchMembers(query);
         assertThat(names(members), contains("Jan", "Jun", "Jul"));
     }
 
@@ -106,7 +103,7 @@ public class VisionMemberQueryIT extends VisionCubeIT {
         query.setDimensionName("Product");
         query.setSearchTerm("P_1*0");
         query.setType(MemberSearchQuery.Type.SEARCH_WILD);
-        List<PbcsMemberProperties> members = cube.searchMembers(query);
+        List<PbcsMember> members = cube.searchMembers(query);
         assertThat(names(members), hasSize(7));
     }
 
@@ -116,11 +113,11 @@ public class VisionMemberQueryIT extends VisionCubeIT {
         query.setDimensionName("Product");
         query.setSearchTerm("P_1[2-4]0");
         query.setType(MemberSearchQuery.Type.SEARCH_WILD);
-        List<PbcsMemberProperties> members = cube.searchMembers(query);
+        List<PbcsMember> members = cube.searchMembers(query);
         assertThat(names(members), hasSize(3));
     }
 
-    private static List<String> names(Collection<PbcsMemberProperties> members) {
+    private static List<String> names(Collection<PbcsMember> members) {
         return members.stream().map(PbcsMemberProperties::getName).collect(Collectors.toList());
     }
 
