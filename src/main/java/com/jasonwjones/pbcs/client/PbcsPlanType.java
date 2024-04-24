@@ -1,6 +1,7 @@
 package com.jasonwjones.pbcs.client;
 
 import com.jasonwjones.pbcs.api.v3.SubstitutionVariable;
+import com.jasonwjones.pbcs.client.impl.PbcsPlanTypeImpl;
 import com.jasonwjones.pbcs.client.impl.grid.DataSliceGrid;
 
 import java.util.List;
@@ -218,7 +219,7 @@ public interface PbcsPlanType extends PbcsObject {
 	 * @return the member for the given name or alias, or null if none is found across all the known dimensions
 	 * @since 1.0.10
 	 */
-	PbcsMemberProperties getMemberOrAlias(String memberOrAliasName);
+	PbcsMember getMemberOrAlias(String memberOrAliasName);
 
 	/**
 	 * Gets the substitution variables that are specific to this cube/plan. This will not return the variables that
@@ -255,6 +256,50 @@ public interface PbcsPlanType extends PbcsObject {
 		 * @param dimensionName the dimension of the member
 		 */
 		void setDimension(PbcsPlanType planType, String memberName, String dimensionName);
+
+	}
+
+	/**
+	 * An elaboration of the {@link MemberDimensionCache} that offers more sophistication than just resolving the
+	 * dimension for a given member.
+	 */
+	interface MemberResolver extends MemberDimensionCache {
+
+		/**
+		 * Gets a member from this resolver for the given plan type and a requested member or alias name. It is up to
+		 * the implementing provider to decide if it wants to lowercase or otherwise transform the name. If the member
+		 * is not resolved, the requesting plan will attempt to resolve it and then call {@link #setMember(PbcsPlanType, String, PbcsMember)}
+		 * with the member details.
+		 *
+		 * @param planType the plan type that the member is being requested from. Implementors will likely need/want to
+		 *                 use this information to build a unique caching key that can used in generic cache implementation.
+		 * @param memberOrAliasName the member or alias name being looked up
+		 * @return the member, if found, null otherwise (indicating that the plan/cube will resolve the member itself
+		 */
+		PbcsMember getMember(PbcsPlanType planType, String memberOrAliasName);
+
+		/**
+		 * Called when a plan wants to put a resolved member into the cache.
+		 *
+		 * @param planType the originating plan
+		 * @param resolvedName the name that was used to resolve it (typically the member or alias but could be something slightly different)
+		 * @param member the member to cache
+		 */
+		void setMember(PbcsPlanType planType, String resolvedName, PbcsMember member);
+
+		@Override
+		default String getDimensionName(PbcsPlanType planType, String memberName) {
+			PbcsMember member = getMember(planType, memberName);
+			if (member != null) {
+				return member.getDimensionName();
+			}
+			return null;
+		}
+
+		@Override
+		default void setDimension(PbcsPlanType planType, String memberName, String dimensionName) {
+			// no op
+		}
 
 	}
 

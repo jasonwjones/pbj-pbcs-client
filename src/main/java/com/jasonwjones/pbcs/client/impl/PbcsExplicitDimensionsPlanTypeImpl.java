@@ -42,7 +42,7 @@ public class PbcsExplicitDimensionsPlanTypeImpl extends PbcsPlanTypeImpl impleme
     private final ExecutorService executorService;
 
     PbcsExplicitDimensionsPlanTypeImpl(RestContext context, PbcsApplication application, PbcsApplication.PlanTypeConfiguration configuration) {
-        super(context, application, configuration.getName(), configuration.getMemberDimensionCache());
+        super(context, application, configuration);
 
         List<String> dimensionNames = new ArrayList<>();
 
@@ -115,24 +115,31 @@ public class PbcsExplicitDimensionsPlanTypeImpl extends PbcsPlanTypeImpl impleme
     }
 
     @Override
-    public PbcsMemberProperties getMemberOrAlias(String memberOrAliasName) {
-        PbcsMemberProperties matchingMember = oneOffSearchInDimension(memberOrAliasName);
-        if (matchingMember != null) return matchingMember;
-
-        // you'll technically research a dimension, but that only happens when you have a bad cache
-        List<MemberSearchCallable> searchers = explicitDimensions.stream()
-                .map(dimension -> new MemberSearchCallable(dimension, memberOrAliasName))
-                .collect(Collectors.toList());
-
-        try {
-            PbcsMemberProperties member = executorService.invokeAny(searchers);
-            memberDimensionCache.setDimension(this, memberOrAliasName, member.getDimensionName());
-            logger.debug("Found member {} (via {}) in dimension {}", member.getName(), memberOrAliasName, member.getDimensionName());
+    public PbcsMember getMemberOrAlias(String memberOrAliasName) {
+        PbcsMember member = memberResolver.getMember(this, memberOrAliasName);
+        if (member != null) {
             return member;
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        } catch (ExecutionException e) {
-            logger.warn("Unable to find member {}", memberOrAliasName);
+        } else {
+            logger.warn("Having to resolve {} from source", memberOrAliasName);
+            PbcsMember matchingMember = oneOffSearchInDimension(memberOrAliasName);
+            if (matchingMember != null) return matchingMember;
+
+            // you'll technically research a dimension, but that only happens when you have a bad cache
+            List<MemberSearchCallable> searchers = explicitDimensions.stream()
+                    .map(dimension -> new MemberSearchCallable(dimension, memberOrAliasName))
+                    .collect(Collectors.toList());
+
+            try {
+                member = executorService.invokeAny(searchers);
+                logger.debug("Found member {} (via {}) in dimension {}", member.getName(), memberOrAliasName, member.getDimensionName());
+                memberDimensionCache.setDimension(this, memberOrAliasName, member.getDimensionName());
+                memberResolver.setMember(this, memberOrAliasName, member);
+                return member;
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            } catch (ExecutionException e) {
+                logger.warn("Unable to find member {}", memberOrAliasName);
+            }
         }
         return null;
     }
@@ -143,13 +150,13 @@ public class PbcsExplicitDimensionsPlanTypeImpl extends PbcsPlanTypeImpl impleme
      * @param memberOrAliasName the member or alias name to look for
      * @return the member, if found, null otherwise
      */
-    private PbcsMemberProperties oneOffSearchInDimension(String memberOrAliasName) {
+    private PbcsMember oneOffSearchInDimension(String memberOrAliasName) {
         String possibleDimension = memberDimensionCache.getDimensionName(this, memberOrAliasName);
         if (possibleDimension != null) {
             PbcsDimension dimension = getDimension(possibleDimension);
-            PbcsMemberProperties matchingMember = dimension.getRoot().searchForDescendant(memberOrAliasName);
+            PbcsMember matchingMember = dimension.getRoot().searchForDescendant(memberOrAliasName);
             if (matchingMember == null) {
-                logger.warn("Looking cached dimension {} for {} but couldn't find it, cache is invalid", possibleDimension, memberOrAliasName);
+                logger.warn("Looking in cached dimension {} for {} but couldn't find it, cache is invalid", possibleDimension, memberOrAliasName);
             }
             return matchingMember;
         } else {
@@ -346,7 +353,7 @@ public class PbcsExplicitDimensionsPlanTypeImpl extends PbcsPlanTypeImpl impleme
         }
 
         @Override
-        public PbcsMemberProperties getMember(String memberName) {
+        public PbcsMember getMember(String memberName) {
             return PbcsExplicitDimensionsPlanTypeImpl.this.getMember(name, memberName);
         }
 
@@ -375,7 +382,7 @@ public class PbcsExplicitDimensionsPlanTypeImpl extends PbcsPlanTypeImpl impleme
 
     }
 
-    private static class MemberSearchCallable implements Callable<PbcsMemberProperties> {
+    private static class MemberSearchCallable implements Callable<PbcsMember> {
 
         private final PbcsDimension dimension;
 
@@ -387,11 +394,11 @@ public class PbcsExplicitDimensionsPlanTypeImpl extends PbcsPlanTypeImpl impleme
         }
 
         @Override
-        public PbcsMemberProperties call() throws Exception {
+        public PbcsMember call() throws Exception {
             logger.debug("Searching dimension {} for member/alias {}", dimension.getName(), memberOrAliasName);
-            PbcsMemberProperties rootMember = dimension.getRoot();
+            PbcsMember rootMember = dimension.getRoot();
 
-            PbcsMemberProperties matchingMember = rootMember.searchForDescendant(memberOrAliasName);
+            PbcsMember matchingMember = rootMember.searchForDescendant(memberOrAliasName);
             if (matchingMember != null) {
                 return matchingMember;
             } else {

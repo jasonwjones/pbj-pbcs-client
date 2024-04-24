@@ -135,12 +135,12 @@ public class PbcsMemberImpl implements PbcsMember {
     }
 
     @Override
-    public PbcsMemberProperties searchForDescendant(String memberOrAliasName) {
-        Queue<PbcsMemberProperties> members = new ArrayDeque<>();
+    public PbcsMember searchForDescendant(String memberOrAliasName) {
+        Queue<PbcsMember> members = new ArrayDeque<>();
         members.add(this);
 
         while (!members.isEmpty()) {
-            PbcsMemberProperties current = members.remove();
+            PbcsMember current = members.remove();
             if (memberOrAliasName.equalsIgnoreCase(current.getName()) || memberOrAliasName.equalsIgnoreCase(current.getAlias())) {
                 // this is technically unneeded if the dimension is the same as possibleDimension, but it will be
                 // set here anyway in case the underlying cache mechanism needs a "hit" in order to update a TTL

@@ -468,7 +468,8 @@ public class PbcsApplicationImpl extends AbstractPbcsObject implements PbcsAppli
 		AifApplication application = result.getBody();
 		List<PbcsPlanType> planTypes = new ArrayList<>();
 		for (String plan : application.getAllPlans()) {
-			PbcsPlanTypeImpl planTypeImpl = new PbcsPlanTypeImpl(context, this, plan);
+			PlanTypeConfiguration configuration = new PlanTypeConfigurationImpl.Builder(plan).build();
+			PbcsPlanTypeImpl planTypeImpl = new PbcsPlanTypeImpl(context, this, configuration);
 			planTypes.add(planTypeImpl);
 		}
 		return planTypes;
@@ -488,7 +489,7 @@ public class PbcsApplicationImpl extends AbstractPbcsObject implements PbcsAppli
 		if (configuration.isQueryDimensions() || (configuration.getExplicitDimensions() != null && !configuration.getExplicitDimensions().isEmpty())) {
 			return new PbcsExplicitDimensionsPlanTypeImpl(context, this, configuration);
 		} else {
-			return new PbcsPlanTypeImpl(context, this, configuration.getName(), configuration.getMemberDimensionCache());
+			return new PbcsPlanTypeImpl(context, this, configuration);
 		}
 	}
 

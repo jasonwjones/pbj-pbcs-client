@@ -37,7 +37,7 @@ public interface PbcsMemberProperties extends PbcsObject {
 	 *
 	 * @return the child of this member
 	 */
-	List<? extends PbcsMemberProperties> getChildren();
+	List<PbcsMember> getChildren();
 
 	/**
 	 * Convenience method that checks whether the given member is a leaf node
@@ -150,7 +150,7 @@ public interface PbcsMemberProperties extends PbcsObject {
 	 * @param memberOrAliasName the member name or alias to search for
 	 * @return a member if found, null if not
 	 */
-	PbcsMemberProperties searchForDescendant(String memberOrAliasName);
+	PbcsMember searchForDescendant(String memberOrAliasName);
 
 	/**
 	 * Models the possible data storage types. For a member. There isn't actually an "Other" type, it's just included

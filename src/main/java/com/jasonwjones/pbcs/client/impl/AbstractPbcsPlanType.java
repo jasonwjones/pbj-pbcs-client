@@ -127,7 +127,7 @@ public class AbstractPbcsPlanType implements PbcsPlanType {
     }
 
     @Override
-    public PbcsMemberProperties getMemberOrAlias(String memberOrAliasName) {
+    public PbcsMember getMemberOrAlias(String memberOrAliasName) {
         return planType.getMemberOrAlias(memberOrAliasName);
     }
 

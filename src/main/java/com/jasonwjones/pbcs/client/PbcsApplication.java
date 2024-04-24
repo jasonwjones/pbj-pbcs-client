@@ -146,7 +146,7 @@ public interface PbcsApplication extends PbcsObject {
 	 * @param memberName the member name to look up
 	 * @return the member
 	 */
-	PbcsMemberProperties getMember(String dimensionName, String memberName);
+	PbcsMember getMember(String dimensionName, String memberName);
 
 	/**
 	 * Not currently implemented.
@@ -328,6 +328,13 @@ public interface PbcsApplication extends PbcsObject {
 		 * @return the dimension name cache to use for the plan
 		 */
 		PbcsPlanType.MemberDimensionCache getMemberDimensionCache();
+
+		/**
+		 * Gets the member resolver that has been set for this configuration, if any.
+		 *
+		 * @return the member resolver
+		 */
+		PbcsPlanType.MemberResolver getMemberResolver();
 
 		/**
 		 * The number of threads that will be used in a {@link PbcsPlanType#getMemberOrAlias(String)} search operation.

@@ -8,7 +8,6 @@ import com.jasonwjones.pbcs.client.exceptions.PbcsClientException;
 import com.jasonwjones.pbcs.client.exceptions.PbcsDataImportException;
 import com.jasonwjones.pbcs.client.exceptions.PbcsNoSuchObjectException;
 import com.jasonwjones.pbcs.client.impl.grid.DataSliceGrid;
-import com.jasonwjones.pbcs.client.memberdimensioncache.InMemoryMemberDimensionCache;
 import com.jasonwjones.pbcs.util.GridUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,15 +28,14 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 
 	protected final MemberDimensionCache memberDimensionCache;
 
-	PbcsPlanTypeImpl(RestContext context, PbcsApplication application, String planType) {
-		this(context, application, planType, new InMemoryMemberDimensionCache());
-	}
+	protected final MemberResolver memberResolver;
 
-	PbcsPlanTypeImpl(RestContext context, PbcsApplication application, String planType, MemberDimensionCache memberDimensionCache) {
+	PbcsPlanTypeImpl(RestContext context, PbcsApplication application, PbcsApplication.PlanTypeConfiguration configuration) {
 		super(context);
 		this.application = application;
-		this.planType = planType;
-		this.memberDimensionCache = memberDimensionCache;
+		this.planType = configuration.getName();
+		this.memberDimensionCache = configuration.getMemberDimensionCache();
+		this.memberResolver = configuration.getMemberResolver();
 	}
 
 	@Override
@@ -210,7 +208,7 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 	}
 
 	@Override
-	public PbcsMemberProperties getMember(String dimensionName, String memberName) {
+	public PbcsMember getMember(String dimensionName, String memberName) {
 		return application.getMember(dimensionName, memberName);
 	}
 
@@ -294,7 +292,7 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 	}
 
 	@Override
-	public PbcsMemberProperties getMemberOrAlias(String memberOrAliasName) {
+	public PbcsMember getMemberOrAlias(String memberOrAliasName) {
 		throw new IllegalStateException("Must configure explicit dimensions to search for alias");
 	}
 

@@ -38,7 +38,7 @@ public class PbcsDimensionImpl implements PbcsAppDimension {
 	}
 
 	@Override
-	public PbcsMemberProperties getMember(String memberName) {
+	public PbcsMember getMember(String memberName) {
 		return application.getMember(getName(), memberName);
 	}
 

@@ -23,7 +23,7 @@ public interface PbcsDimension extends PbcsObject {
 	 * @param memberName the member name
 	 * @return a member object
 	 */
-	PbcsMemberProperties getMember(String memberName);
+	PbcsMember getMember(String memberName);
 
 	/**
 	 * Gets the type of dimension. This uses the member type enumeration since the dimension and
@@ -42,7 +42,7 @@ public interface PbcsDimension extends PbcsObject {
 	 *
 	 * @return the root/dimension member
 	 */
-	default PbcsMemberProperties getRoot() {
+	default PbcsMember getRoot() {
 		return getMember(getName());
 	}
 

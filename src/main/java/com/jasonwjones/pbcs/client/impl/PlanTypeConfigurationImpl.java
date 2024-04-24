@@ -24,6 +24,8 @@ public class PlanTypeConfigurationImpl implements PbcsApplication.PlanTypeConfig
 
     private PbcsPlanType.MemberDimensionCache memberDimensionCache = new InMemoryMemberDimensionCache();
 
+    private PbcsPlanType.MemberResolver memberResolver;
+
     private int memberSearchThreads = 1;
 
     @Override
@@ -90,6 +92,15 @@ public class PlanTypeConfigurationImpl implements PbcsApplication.PlanTypeConfig
     }
 
     @Override
+    public PbcsPlanType.MemberResolver getMemberResolver() {
+        return memberResolver;
+    }
+
+    public void setMemberResolver(PbcsPlanType.MemberResolver memberResolver) {
+        this.memberResolver = memberResolver;
+    }
+
+    @Override
     public int getMemberSearchThreads() {
         return memberSearchThreads;
     }
@@ -107,6 +118,7 @@ public class PlanTypeConfigurationImpl implements PbcsApplication.PlanTypeConfig
                 .add("explicitDimensions=" + explicitDimensions)
                 .add("explicitAttributeDimensions=" + explicitAttributeDimensions)
                 .add("memberDimensionCache=" + memberDimensionCache.getClass().getSimpleName())
+                .add("memberResolver=" + memberResolver != null ? memberResolver.getClass().getSimpleName() : "null")
                 .add("memberSearchThreads=" + memberSearchThreads)
                 .toString();
     }
@@ -150,6 +162,11 @@ public class PlanTypeConfigurationImpl implements PbcsApplication.PlanTypeConfig
 
         public Builder searchThreads(int searchThreads) {
             configuration.setMemberSearchThreads(searchThreads);
+            return this;
+        }
+
+        public Builder memberResolver(PbcsPlanType.MemberResolver memberResolver) {
+            configuration.setMemberResolver(memberResolver);
             return this;
         }
 
