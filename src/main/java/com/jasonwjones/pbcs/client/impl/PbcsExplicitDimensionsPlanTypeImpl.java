@@ -314,7 +314,7 @@ public class PbcsExplicitDimensionsPlanTypeImpl extends PbcsPlanTypeImpl impleme
     public void cache() {
         logger.info("Caching outline for {}, dimensions: {}", getName(), getDimensionNames());
         CachingMemberResolverVisitor visitor = new CachingMemberResolverVisitor();
-        PlanTypeWalker.walk(this, visitor);
+        PlanTypeWalker.walkMulti(this, visitor);
         logger.info("Finished walking outline for {}", getName());
     }
 

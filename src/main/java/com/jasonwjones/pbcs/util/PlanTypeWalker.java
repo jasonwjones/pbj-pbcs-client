@@ -3,16 +3,22 @@ package com.jasonwjones.pbcs.util;
 import com.jasonwjones.pbcs.client.PbcsDimension;
 import com.jasonwjones.pbcs.client.PbcsMember;
 import com.jasonwjones.pbcs.client.PbcsPlanType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.PrintStream;
 import java.util.ArrayDeque;
 import java.util.Collections;
 import java.util.Queue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Provides a generic way to walk the outline of a given plan.
  */
 public class PlanTypeWalker {
+
+    private static final Logger logger = LoggerFactory.getLogger(PlanTypeWalker.class);
 
     private PlanTypeWalker() {}
 
@@ -27,6 +33,44 @@ public class PlanTypeWalker {
         visitor.startPlan(planType);
 
         for (PbcsDimension dimension : planType.getDimensions()) {
+            Runnable runnable = new DimensionProcessor(planType, dimension, visitor);
+            runnable.run();
+        }
+
+        visitor.endPlan(planType);
+    }
+
+    public static void walkMulti(PbcsPlanType planType, Visitor visitor) {
+        walkMulti(planType, visitor, Runtime.getRuntime().availableProcessors());
+    }
+
+    public static void walkMulti(PbcsPlanType planType, Visitor visitor, int threads) {
+        logger.info("Walking outline for {} using {} threads", planType, threads);
+        visitor.startPlan(planType);
+        ExecutorService executorService = Executors.newFixedThreadPool(threads);
+        for (PbcsDimension dimension : planType.getDimensions()) {
+            Runnable runnable = new DimensionProcessor(planType, dimension, visitor);
+            executorService.submit(runnable);
+        }
+        visitor.endPlan(planType);
+    }
+
+    public static class DimensionProcessor implements Runnable {
+
+        private final PbcsPlanType planType;
+
+        private final PbcsDimension dimension;
+
+        private final Visitor visitor;
+
+        public DimensionProcessor(PbcsPlanType planType, PbcsDimension dimension, Visitor visitor) {
+            this.planType = planType;
+            this.dimension = dimension;
+            this.visitor = visitor;
+        }
+
+        @Override
+        public void run() {
             if (visitor.startDimension(dimension) == MemberVisitResult.CONTINUE) {
                 Queue<PbcsMember> members = new ArrayDeque<>();
                 members.add(dimension.getRoot());
@@ -37,11 +81,10 @@ public class PlanTypeWalker {
                         members.addAll(current.getChildren());
                     }
                 }
-
                 visitor.endDimension(dimension);
             }
         }
-        visitor.endPlan(planType);
+
     }
 
     /**
