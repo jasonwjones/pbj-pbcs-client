@@ -3,6 +3,7 @@ package com.jasonwjones.pbcs.client.impl;
 import com.jasonwjones.pbcs.client.PbcsApplication;
 import com.jasonwjones.pbcs.client.PbcsPlanType;
 import com.jasonwjones.pbcs.client.memberdimensioncache.InMemoryMemberDimensionCache;
+import com.jasonwjones.pbcs.client.memberdimensioncache.NonCachingMemberDimensionCache;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,7 +25,7 @@ public class PlanTypeConfigurationImpl implements PbcsApplication.PlanTypeConfig
 
     private PbcsPlanType.MemberDimensionCache memberDimensionCache = new InMemoryMemberDimensionCache();
 
-    private PbcsPlanType.MemberResolver memberResolver;
+    private PbcsPlanType.MemberResolver memberResolver = NonCachingMemberDimensionCache.getInstance();
 
     private int memberSearchThreads = 1;
 
