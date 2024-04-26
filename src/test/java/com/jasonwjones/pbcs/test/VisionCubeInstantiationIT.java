@@ -39,6 +39,7 @@ public class VisionCubeInstantiationIT extends AbstractIntegrationTest {
                 .skipCheck()
                 .dimensions(DIMENSIONS)
                 .build();
+
         PbcsPlanType cube = application.getPlanType(configuration);
         assertThat(cube.getDimensions(), hasSize(DIMENSIONS.size()));
     }
@@ -91,6 +92,7 @@ public class VisionCubeInstantiationIT extends AbstractIntegrationTest {
                 .queryDimensions()
                 .validateDimensions()
                 .build();
+
         PbcsPlanType plan = application.getPlanType(configuration);
         assertThat(plan.isExplicitDimensions(), is(true));
         assertThat(plan.getDimension("Scenario").getDimensionType(), is(PbcsMemberType.SCENARIO));
