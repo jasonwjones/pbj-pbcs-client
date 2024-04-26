@@ -149,7 +149,7 @@ public class DataSliceGrid implements PovGrid<DataSliceGrid.Cell> {
 
         CellType getType();
 
-        String getValue();
+        String getValue(); // TODO: should we just use toString???
 
     }
 
