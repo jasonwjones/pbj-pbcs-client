@@ -107,12 +107,12 @@ public class AbstractPbcsPlanType implements PbcsPlanType {
     }
 
     @Override
-    public PbcsMemberProperties getMember(String dimensionName, String memberName) {
+    public PbcsMember getMember(String dimensionName, String memberName) {
         return planType.getMember(dimensionName, memberName);
     }
 
     @Override
-    public PbcsMemberProperties getMember(String memberName) {
+    public PbcsMember getMember(String memberName) {
         return planType.getMember(memberName);
     }
 

@@ -118,7 +118,7 @@ public class VisionMemberQueryIT extends VisionCubeIT {
     }
 
     private static List<String> names(Collection<PbcsMember> members) {
-        return members.stream().map(PbcsMemberProperties::getName).collect(Collectors.toList());
+        return members.stream().map(PbcsMember::getName).collect(Collectors.toList());
     }
 
 }

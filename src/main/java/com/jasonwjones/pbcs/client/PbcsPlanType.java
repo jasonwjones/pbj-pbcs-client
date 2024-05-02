@@ -1,7 +1,6 @@
 package com.jasonwjones.pbcs.client;
 
 import com.jasonwjones.pbcs.api.v3.SubstitutionVariable;
-import com.jasonwjones.pbcs.client.impl.PbcsPlanTypeImpl;
 import com.jasonwjones.pbcs.client.impl.grid.DataSliceGrid;
 
 import java.util.List;
@@ -168,7 +167,7 @@ public interface PbcsPlanType extends PbcsObject {
 	 * @param memberName the member name
 	 * @return member properties for the member if found, null if not
 	 */
-	PbcsMemberProperties getMember(String dimensionName, String memberName);
+	PbcsMember getMember(String dimensionName, String memberName);
 
 	/**
 	 * Provided as a convenience to simply iterate the list of dimensions and try them until the member is
@@ -178,7 +177,7 @@ public interface PbcsPlanType extends PbcsObject {
 	 * @param memberName the member name
 	 * @return member properties if member found, null if not
 	 */
-	PbcsMemberProperties getMember(String memberName);
+	PbcsMember getMember(String memberName);
 
 	/**
 	 * Perform a member query. The notion of querying members doesn't really exist in the PBCS REST API; these querying

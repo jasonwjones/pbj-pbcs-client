@@ -35,14 +35,14 @@ public class Outline {
 			logger.info("Processing dimension {}", dimension.getName());
 			dimensionNames .add(dimension.getName());
 
-			PbcsMemberProperties rootMember = application.getMember(dimension.getName(), dimension.getName());
+			PbcsMember rootMember = application.getMember(dimension.getName(), dimension.getName());
 			logger.debug("{} has {} children", rootMember.getName(), rootMember.getChildren().size());
 
-			Queue<PbcsMemberProperties> members = new ArrayDeque<PbcsMemberProperties>();
+			Queue<PbcsMember> members = new ArrayDeque<PbcsMember>();
 			members.add(rootMember);
 
 			while (!members.isEmpty()) {
-				PbcsMemberProperties current = members.remove();
+				PbcsMember current = members.remove();
 
 				members.addAll(current.getChildren());
 				logger.trace("Processing {}, has {} children, level: {} in dim {}", current.getName(), current.getChildren().size(), current.getLevel(), current.getDimensionName());
@@ -72,14 +72,14 @@ public class Outline {
 		for (PbcsDimension dimension : dimensions) {
 			logger.info("Processing dimension {}", dimension.getName());
 			this.dimensionNames.add(dimension.getName());
-			PbcsMemberProperties rootMember = planType.getApplication().getMember(dimension.getName(), dimension.getName());
+			PbcsMember rootMember = planType.getApplication().getMember(dimension.getName(), dimension.getName());
 			logger.debug("{} has {} children", rootMember.getName(), rootMember.getChildren().size());
 
-			Queue<PbcsMemberProperties> members = new ArrayDeque<PbcsMemberProperties>();
+			Queue<PbcsMember> members = new ArrayDeque<PbcsMember>();
 			members.add(rootMember);
 
 			while (!members.isEmpty()) {
-				PbcsMemberProperties current = members.remove();
+				PbcsMember current = members.remove();
 
 				members.addAll(current.getChildren());
 				logger.trace("Processing {}, has {} children, level: {} in dim {}", current.getName(), current.getChildren().size(), current.getLevel(), current.getDimensionName());
@@ -101,14 +101,14 @@ public class Outline {
 		for (String dimension : dimensionNames) {
 			logger.info("Processing dimension {}", dimension);
 			this.dimensionNames.add(dimension);
-			PbcsMemberProperties rootMember = application.getMember(dimension, dimension);
+			PbcsMember rootMember = application.getMember(dimension, dimension);
 			logger.debug("{} has {} children", rootMember.getName(), rootMember.getChildren().size());
 
-			Queue<PbcsMemberProperties> members = new ArrayDeque<PbcsMemberProperties>();
+			Queue<PbcsMember> members = new ArrayDeque<PbcsMember>();
 			members.add(rootMember);
 
 			while (!members.isEmpty()) {
-				PbcsMemberProperties current = members.remove();
+				PbcsMember current = members.remove();
 
 				members.addAll(current.getChildren());
 				logger.trace("Processing {}, has {} children, level: {} in dim {}", current.getName(), current.getChildren().size(), current.getLevel(), current.getDimensionName());
@@ -158,9 +158,9 @@ public class Outline {
 
 	public class Member {
 
-		private PbcsMemberProperties member;
+		private PbcsMember member;
 
-		public Member(PbcsMemberProperties member) {
+		public Member(PbcsMember member) {
 			this.member = member;
 		}
 

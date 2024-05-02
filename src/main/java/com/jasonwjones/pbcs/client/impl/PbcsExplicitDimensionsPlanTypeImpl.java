@@ -188,7 +188,7 @@ public class PbcsExplicitDimensionsPlanTypeImpl extends PbcsPlanTypeImpl impleme
     }
 
     @Override
-    public PbcsMemberProperties getMember(String memberName) {
+    public PbcsMember getMember(String memberName) {
         // TODO: shortcut when member is a dimension name
         String dimensionName = findMemberDimensionFromCache(memberName);
         if (dimensionName == null) {
