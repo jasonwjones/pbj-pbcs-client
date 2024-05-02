@@ -440,7 +440,7 @@ public class PbcsExplicitDimensionsPlanTypeImpl extends PbcsPlanTypeImpl impleme
         public PlanTypeWalker.MemberVisitResult visitMember(PbcsPlanType planType, PbcsMember member) {
             memberResolver.setMember(planType, member.getName(), member);
             numCached++;
-            if (member.getAlias() != null && member.getAlias().isEmpty() && !member.getName().equals(member.getAlias())) {
+            if (member.getAlias() != null && !member.getAlias().isEmpty() && !member.getName().equals(member.getAlias())) {
                 memberResolver.setMember(planType, member.getAlias(), member);
                 numCached++;
             }
