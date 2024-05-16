@@ -5,7 +5,7 @@ public class PbcsJobLaunchException extends PbcsClientException {
     private final String jobName;
 
     public PbcsJobLaunchException(String jobName, Throwable cause) {
-        super("Exception running job " + jobName, cause);
+        super("Exception running job " + jobName + ": " + cause.getMessage(), cause);
         this.jobName = jobName;
     }
 

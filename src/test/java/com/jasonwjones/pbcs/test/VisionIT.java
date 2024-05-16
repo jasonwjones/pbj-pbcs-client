@@ -7,15 +7,14 @@ import com.jasonwjones.pbcs.client.exceptions.PbcsJobLaunchException;
 import com.jasonwjones.pbcs.client.exceptions.PbcsNoSuchObjectException;
 import com.jasonwjones.pbcs.client.impl.PlanTypeConfigurationImpl;
 import com.jasonwjones.pbcs.utils.PbcsClientUtils;
+import org.hamcrest.CoreMatchers;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -109,6 +108,12 @@ public class VisionIT {
     }
 
     @Test
+    public void whenGetBaseOfDimension() {
+        PbcsMember member = app.getMember("Version", "Version");
+        assertThat(member.getParentName(), is(CoreMatchers.nullValue()));
+    }
+
+    @Test
     @Ignore
     public void whenGetSharedMember() {
         PbcsMemberProperties member = app.getMember("Entity", "Sales Director 1");
@@ -135,6 +140,36 @@ public class VisionIT {
         PbcsNoSuchObjectException exception = assertThrows(PbcsNoSuchObjectException.class, () -> app.getClient().getApplication(invalidApplicationName));
         assertThat(exception.getObjectName(), is(invalidApplicationName));
         assertThat(exception.getObjectType(), is(PbcsObjectType.APPLICATION));
+    }
+
+    @Test
+    public void whenLaunchBusinessRule() throws InterruptedException {
+        Map<String, String> params = new HashMap<>();
+        params.put("RTP_Entity", "420");
+        params.put("RTP_Product", "P_160");
+        PbcsJobStatus status = app.launchBusinessRule("Calc_Payroll_Tax", params);
+        status.waitUntilFinished();
+    }
+
+    @Test
+    public void whenLaunchBusinessRuleMissingRuntimePrompt() throws InterruptedException {
+        Map<String, String> params = new HashMap<>();
+        params.put("RTP_Entity", "420");
+        // we're missing a value for RTP_Product
+        PbcsJobLaunchException exception = assertThrows(PbcsJobLaunchException.class, () -> app.launchBusinessRule("Calc_Payroll_Tax", params));
+        assertThat(exception.getMessage(), is("Exception running job Calc_Payroll_Tax: Value is missing for the runtime prompt: RTP_Product."));
+    }
+
+    // Note: PBCS doesn't seem to care if you provide additional parameters that are unneeded. E.g., if you supply an
+    // RTP value of "RTP_DoesntExist", it's just an extra parameter it doesn't care about
+    @Test
+    public void whenLaunchBusinessRuleWithInvalidPromptValue() throws InterruptedException {
+        final String invalidMember = "420XX";
+        Map<String, String> params = new HashMap<>();
+        params.put("RTP_Entity", invalidMember);
+        params.put("RTP_Product", "P_160");
+        PbcsJobLaunchException exception = assertThrows(PbcsJobLaunchException.class, () -> app.launchBusinessRule("Calc_Payroll_Tax", params));
+        assertThat(exception.getMessage(), is("Exception running job Calc_Payroll_Tax: The member " + invalidMember + " does not exist for the specified cube or you do not have access to it."));
     }
 
     private static void printMember(PbcsMemberProperties member, int level) {

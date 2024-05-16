@@ -78,17 +78,14 @@ public class PbcsApplicationImpl extends AbstractPbcsObject implements PbcsAppli
 
 	@Override
 	public PbcsJobStatus launchBusinessRule(String ruleName, Map<String, String> parameters) {
-		String url = this.context.getBaseUrl() + JOBS_ENDPOINT;
-		MetadataImportPayload payload = new MetadataImportPayload("RULES", ruleName);
-		payload.setParameters(parameters);
 		try {
+			JobLaunchPayload payload = new JobLaunchPayload("RULES", ruleName, parameters);
 			logger.info("Launching {} business rule {} with parameters {}", getName(), ruleName, parameters);
-			ResponseEntity<JobLaunchResponse> output = this.context.getTemplate().postForEntity(url, getRequestEntityWithHeaders(payload),
-					JobLaunchResponse.class, application.getName());
-			logger.info("Launched business rule, job ID is {}", output.getBody().getJobId());
-			return new PbcsJobLaunchResultImpl(this, output.getBody());
+			JobLaunchResponse response = post(JOBS_ENDPOINT, payload, JobLaunchResponse.class, getName());
+			logger.info("Launched business rule, job ID is {}, details: {}", response.getJobId(), response);
+			return new PbcsJobLaunchResultImpl(this, response);
 		} catch (Exception e) {
-			logger.error("Exception launching business rule {}", ruleName);
+			logger.error("Exception launching business rule {}: {}", ruleName, e.getMessage());
 			throw new PbcsJobLaunchException(ruleName, e);
 		}
 	}
