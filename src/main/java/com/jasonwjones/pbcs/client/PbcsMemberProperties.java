@@ -59,9 +59,10 @@ public interface PbcsMemberProperties extends PbcsObject {
 	String getDescription();
 
 	/**
-	 * The name of the parent of this member.
+	 * The name of the parent of this member. If the member is already at the top of the dimension (i.e. it is the
+	 * dimension member such as Version, Entity, etc.) the returned value will be <code>null</code>.
 	 *
-	 * @return the name of this member's parent
+	 * @return the name of this member's parent, null if there is no parent
 	 */
 	String getParentName();
 
@@ -130,7 +131,9 @@ public interface PbcsMemberProperties extends PbcsObject {
 
 	/**
 	 * Gets the calculated level of the member. The level appears to come back in the member info payload, however, it
-	 * always has a value of 0. I believe this is an oversight on Oracle's part.
+	 * always has a value of 0. I believe this is an oversight on Oracle's part. Note: shared members will return the
+	 * level of the shared member, not the prototype member. In other words, shared members will always have a level of
+	 * 0 (since shared members cannot have children).
 	 *
 	 * @return the calculated level of this member
 	 */
@@ -172,6 +175,10 @@ public interface PbcsMemberProperties extends PbcsObject {
 
 		NEVER_SHARE("Never Share"),
 
+		/**
+		 * For examples to test with, the Vision app contains several shared members in the Entity dimension, such as at
+		 * Entity -> Management Rollup -> Manufacturing VP.
+		 */
 		SHARED("Shared"),
 
 		OTHER("Other");
