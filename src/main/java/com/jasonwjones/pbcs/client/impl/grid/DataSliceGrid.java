@@ -3,11 +3,13 @@ package com.jasonwjones.pbcs.client.impl.grid;
 import com.jasonwjones.pbcs.api.v3.dataslices.DataSlice;
 import com.jasonwjones.pbcs.client.PbcsPlanType;
 import com.jasonwjones.pbcs.client.PovGrid;
+import com.jasonwjones.pbcs.client.impl.PovGridImpl;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.function.Function;
 
 public class DataSliceGrid implements PovGrid<DataSliceGrid.Cell> {
 
@@ -27,7 +29,7 @@ public class DataSliceGrid implements PovGrid<DataSliceGrid.Cell> {
 
     private final int leftCols;
 
-    private final Cell BLANK = new BlankCell();
+    private static final Cell BLANK = new BlankCell();
 
     private final ConcurrentMap<Integer, String> axisDimensionLookups = new ConcurrentHashMap<>();
 
@@ -77,6 +79,11 @@ public class DataSliceGrid implements PovGrid<DataSliceGrid.Cell> {
     @Override
     public List<Cell> getPov() {
         return povCells;
+    }
+
+    @Override
+    public <T> PovGrid<T> copyOf(Function<Cell, T> conversion) {
+        return PovGridImpl.copy(this, conversion);
     }
 
     /**

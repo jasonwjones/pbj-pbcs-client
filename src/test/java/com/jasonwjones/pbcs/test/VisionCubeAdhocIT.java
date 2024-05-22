@@ -8,6 +8,7 @@ import com.jasonwjones.pbcs.client.PbcsPlanType;
 import com.jasonwjones.pbcs.client.PovGrid;
 import com.jasonwjones.pbcs.client.exceptions.PbcsDataImportException;
 import com.jasonwjones.pbcs.client.impl.PbcsPlanTypeImpl;
+import com.jasonwjones.pbcs.client.impl.PbcsRetrieveOptionsImpl;
 import com.jasonwjones.pbcs.client.impl.PlanTypeConfigurationImpl;
 import com.jasonwjones.pbcs.client.impl.PovGridImpl;
 import com.jasonwjones.pbcs.client.impl.grid.DataSliceGrid;
@@ -29,6 +30,47 @@ import static com.jasonwjones.pbcs.matchers.DataSliceGridMatcher.hasDimensions;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
+/**
+ * Notes on ad hoc options:
+ *
+ * <pre>
+*  <EssProperties>
+ *       <IndentStyle>3</IndentStyle>
+ *       <MissingTextString>0</MissingTextString>
+ *       <NoAccessString>#NoAccess</NoAccessString>
+ *       <AliasTable>Default</AliasTable>
+ *       <LatestMemberName />
+ *       <DrillLevel>1</DrillLevel>
+ *       <SuppressMissing>false</SuppressMissing>
+ *       <SuppressZeros>false</SuppressZeros>
+ *       <SuppressUnderscores>false</SuppressUnderscores>
+ *       <RepeatMemberNames>false</RepeatMemberNames>
+ *       <UseAliases>true</UseAliases>
+ *       <UseBothForRowDimensions>false</UseBothForRowDimensions>
+ *       <SpecifyLatestMember>false</SpecifyLatestMember>
+ *       <IncludeSelection>true</IncludeSelection>
+ *       <SelectedGroup>false</SelectedGroup>
+ *       <SelectionOnly>false</SelectionOnly>
+ *       <SendLevelZeroOnly>false</SendLevelZeroOnly>
+ *       <SendZerosAsMissing>true</SendZerosAsMissing>
+ *       <SendBlanksAsMissing>true</SendBlanksAsMissing>
+ *       <StrictMode>false</StrictMode>
+ *       <UpdateMode>false</UpdateMode>
+ *       <FreeFormMode>false</FreeFormMode>
+ *       <TemplateRetrieveMode>false</TemplateRetrieveMode>
+ *       <AutoSortRows>false</AutoSortRows>
+ *       <DatalessNavigation>false</DatalessNavigation>
+ *       <HybridAnalysisEnabled>false</HybridAnalysisEnabled>
+ *       <UseSmartLists>false</UseSmartLists>
+ *       <UseSmartLists_ShowDropDownList>false</UseSmartLists_ShowDropDownList>
+ *       <EmptyGridError>false</EmptyGridError>
+ *       <CultureCountryRegion>US</CultureCountryRegion>
+ *       <CultureLanguage>en</CultureLanguage>
+ *       <AncestorOnTop>false</AncestorOnTop>
+ *       <DrillthroughEnabled>false</DrillthroughEnabled>
+ * </EssProperties>
+ * </pre>
+ */
 public class VisionCubeAdhocIT extends AbstractIntegrationTest {
 
     protected PbcsPlanType cube;
@@ -84,6 +126,17 @@ public class VisionCubeAdhocIT extends AbstractIntegrationTest {
         GridPrinter.print(grid);
 
         DataSliceGrid dataSliceGrid = cube.retrieve(pov, actualGrid);
+        DataSliceGridPrinter.print(dataSliceGrid);
+    }
+
+    @Test
+    public void retrieveWithSupportingDetail() throws IOException {
+        PovGrid<String> grid = new TextGridReader().readPovGridFromFile("grids/supporting-detail.txt");
+        PbcsRetrieveOptionsImpl retrieveOptions = new PbcsRetrieveOptionsImpl();
+        retrieveOptions.setExportPlanningData(true);
+        GridPrinter.print(grid);
+
+        DataSliceGrid dataSliceGrid = cube.retrieve(grid, retrieveOptions);
         DataSliceGridPrinter.print(dataSliceGrid);
     }
 

@@ -54,7 +54,6 @@ GET https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/dimensions/
 Authorization: {{creds}}
 Accept: application/json
 
-
 ### Get Member Info (Dimension)
 # object type 34
 
@@ -135,28 +134,71 @@ GET https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/dimensions/
 Authorization: {{creds}}
 Accept: application/json
 
+### Get Member Info - 000
+
+GET https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/dimensions/Entity/members/000
+Authorization: {{creds}}
+Accept: application/json
+
+
 ### Get Job Definitions
 
 GET https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/jobdefinitions
 Authorization: {{creds}}
 Accept: application/json
 
-### Get Job Definitions (Specifc Type)
+### Get Job Definitions (Specific Type)
 # Someone messed up their parameter definitions on this call...
 
 GET https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/jobdefinitions?q={"jobType":"RULES"}
 Authorization: {{creds}}
 Accept: application/json
 
-### Get Job Definitions
+### Execute Job (Calc)
+# seems to absolute require the Content-Type header here, reporting a 415 if not set
 
-GET https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/jobs
+POST https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/jobs
 Authorization: {{creds}}
-Accept: application/json
+Content-Type: application/json
+
+{
+    "jobType":"RULES",
+    "jobName":"calcall",
+    "parameters": {}
+}
+
+### Execute Job (Calc)
+# seems to absolute require the Content-Type header here, reporting a 415 if not set
+
+POST https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/jobs
+Authorization: {{creds}}
+Content-Type: application/json
+
+{
+  "jobType":"RULES",
+  "jobName":"Calc_Payroll_Tax",
+  "parameters": {
+    "RTP_Entity": "420",
+    "RTP_Product": "P_160"
+  }
+}
+
+### Execute Calc with Runtime Prompts (RTP)
+# seems to absolute require the Content-Type header here, reporting a 415 if not set
+
+POST https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/jobs
+Authorization: {{creds}}
+Content-Type: application/json
+
+{
+  "jobType":"RULES",
+  "jobName":"CalcYear",
+  "parameters": {"TestCurrYr": "FY24"}
+}
 
 ### Get Job Status
 
-GET https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/jobs/7
+GET https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/jobs/42
 Authorization: {{creds}}
 Accept: application/json
 
@@ -353,8 +395,6 @@ Content-Type: application/json
     ]
   }
 }
-
-###
 
 ### Export Data Slice (Alternate Arrangement 2x2)
 
@@ -1081,6 +1121,40 @@ Content-Type: application/json
             "Project Type",
             "Project Investment"
           ]
+        ]
+      }
+    ]
+  }
+}
+
+### Export Data Slice - Intersection has Supporting Detail
+# You can use this to verify that the previous request (importdataslice) actually worked.
+
+POST https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/plantypes/{{cube}}/exportdataslice
+Authorization: {{creds}}
+Accept: application/json
+Content-Type: application/json
+
+{
+  "exportPlanningData": true,
+  "gridDefinition": {
+    "suppressMissingBlocks": false,
+    "pov": {
+      "members": [
+        ["Plan"], ["Working"], ["USD"], ["No Product"], ["FY22"], ["000"]
+      ]
+    },
+    "columns": [
+      {
+        "members": [
+          ["Jan", "Feb"]
+        ]
+      }
+    ],
+    "rows": [
+      {
+        "members": [
+          ["7420"]
         ]
       }
     ]

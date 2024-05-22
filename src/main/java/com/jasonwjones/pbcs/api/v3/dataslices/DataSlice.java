@@ -122,37 +122,15 @@ public class DataSlice {
 		this.rows = rows;
 	}
 
-	// TODO: make a general library function
-	public DataSlice withMemberReplacement(String currentMember, String newMember) {
-		List<List<String>> newColumns = new ArrayList<List<String>>();
-		for (List<String> currentColumnList : columns) {
-			List<String> newColumn = new ArrayList<String>();
-			for (String currentColumnListItem : currentColumnList) {
-				if (currentColumnListItem.equals(currentMember)) {
-					newColumn.add(newMember);
-				} else {
-					newColumn.add(currentColumnListItem);
-				}
-			}
-			newColumns.add(newColumn);
-		}
-
-		List<HeaderDataRow> newRows = new ArrayList<HeaderDataRow>();
-		for (HeaderDataRow row : rows) {
-			newRows.add(row.withMemberReplacement(currentMember, newMember));
-		}
-
-		return new DataSlice(this.pov, newColumns, newRows);
-	}
-
 	public static class HeaderDataRow {
 
 		private List<String> headers;
 
 		private List<String> data;
 
-		public HeaderDataRow() {
-		}
+		private List<SupportingDetailWrapper> supportingDetail;
+
+		public HeaderDataRow() {}
 
 		public HeaderDataRow(List<String> headers, List<String> data) {
 			this.headers = headers;
@@ -185,16 +163,81 @@ public class DataSlice {
 			this.data = data;
 		}
 
-		public HeaderDataRow withMemberReplacement(String currentMember, String newMember) {
-			List<String> newHeaders = new ArrayList<String>();
-			for (String header : headers) {
-				if (header.equals(currentMember)) {
-					newHeaders.add(newMember);
-				} else {
-					newHeaders.add(header);
-				}
-			}
-			return new HeaderDataRow(newHeaders, this.data);
+		public List<SupportingDetailWrapper> getSupportingDetail() {
+			return supportingDetail;
+		}
+
+		public void setSupportingDetail(List<SupportingDetailWrapper> supportingDetail) {
+			this.supportingDetail = supportingDetail;
+		}
+
+	}
+
+	public static class SupportingDetailWrapper {
+
+		private List<SupportingDetail> items;
+
+		public List<SupportingDetail> getItems() {
+			return items;
+		}
+
+		public void setItems(List<SupportingDetail> items) {
+			this.items = items;
+		}
+
+	}
+
+	public static class SupportingDetail {
+
+		private String label;
+
+		// appears that these can be ~, +, -, * and /
+		private String operator;
+
+		private String value;
+
+		private int position;
+
+		private int generation;
+
+		public String getLabel() {
+			return label;
+		}
+
+		public void setLabel(String label) {
+			this.label = label;
+		}
+
+		public String getOperator() {
+			return operator;
+		}
+
+		public void setOperator(String operator) {
+			this.operator = operator;
+		}
+
+		public String getValue() {
+			return value;
+		}
+
+		public void setValue(String value) {
+			this.value = value;
+		}
+
+		public int getPosition() {
+			return position;
+		}
+
+		public void setPosition(int position) {
+			this.position = position;
+		}
+
+		public int getGeneration() {
+			return generation;
+		}
+
+		public void setGeneration(int generation) {
+			this.generation = generation;
 		}
 
 	}

@@ -307,7 +307,7 @@ public interface PbcsPlanType extends PbcsObject {
 	 * inherently part of the response to the <code>importDataSlice</code> REST API call, so they are simply passed
 	 * through in this object.
 	 *
-	 * <p>Dev note: the response payload for <code>importdataslice</code> also returns arrays for <code>rejectedCells</code>
+	 * <p>Dev note: the response payload for <code>importDataSlice</code> also returns arrays for <code>rejectedCells</code>
 	 * and <code>rejectedCellsWithDetails</code> but I haven't ever seen those populated with data so they aren't mapped
 	 * here, as I don't know if they are arrays of strings or objects.</p>
 	 */
@@ -403,6 +403,13 @@ public interface PbcsPlanType extends PbcsObject {
 		 * @return true if dimension hints should be provided, false otherwise
 		 */
 		boolean isProvideDimensionHints();
+
+		/**
+		 * Whether to return supporting details with the export request.
+		 *
+		 * @return true if supporting details should be exported along with data, false otherwise
+		 */
+		boolean isExportPlanningData();
 
 	}
 

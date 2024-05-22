@@ -278,7 +278,7 @@ public class PbcsExplicitDimensionsPlanTypeImpl extends PbcsPlanTypeImpl impleme
     }
 
     @Override
-    public DataSliceGrid retrieve(PovGrid<String> grid, RetrieveOptions options) {
+    public DataSliceGrid retrieve(PovGrid<String> grid, RetrieveOptions retrieveOptions) {
         // get the 'fulcrum' point in the grid
         int firstRowWithCell = GridUtils.firstNonNullInColumn(grid, 0);
         int firstColWithCell = GridUtils.firstNonNullInRow(grid, 0);
@@ -304,6 +304,7 @@ public class PbcsExplicitDimensionsPlanTypeImpl extends PbcsPlanTypeImpl impleme
 
         GridDefinition gridDefinition = new GridDefinition(grid.getPov(), top, left);
         ExportDataSlice exportDataSlice = new ExportDataSlice(gridDefinition);
+        exportDataSlice.setExportPlanningData(retrieveOptions.isExportPlanningData());
 
         // todo: catch exception and provide custom with some analysis on potential causes of problem
         DataSlice slice = post("applications/{application}/plantypes/{planType}/exportdataslice", exportDataSlice, DataSlice.class, getApplication().getName(), getName());
