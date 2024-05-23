@@ -2,6 +2,8 @@ package com.jasonwjones.pbcs.client.impl;
 
 import com.jasonwjones.pbcs.api.v3.PbcsMemberPropertiesImpl;
 import com.jasonwjones.pbcs.client.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -9,6 +11,8 @@ import java.util.List;
 import java.util.Queue;
 
 public class PbcsMemberImpl implements PbcsMember {
+
+    private static final Logger logger = LoggerFactory.getLogger(PbcsMemberImpl.class);
 
     private final PbcsApplication application;
 
@@ -147,7 +151,11 @@ public class PbcsMemberImpl implements PbcsMember {
                 // or similar value. Note: this could cause a lot of traffic to your SoR if the cache writes through
                 // You may want to use a putIfAbsent paradigm (instead of a put) to avoid unnecessary writes
                 //memberDimensionCache.setDimension(this, memberOrAliasName, dimension.getName());
-                return current;
+                if (current.getDataStorageType() == DataStorage.SHARED) {
+                    logger.info("Found descendant {} of {} but skipping since it's a share", memberOrAliasName, getName());
+                } else {
+                    return current;
+                }
             }
             members.addAll(current.getChildren());
         }
