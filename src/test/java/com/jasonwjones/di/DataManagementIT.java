@@ -1,6 +1,6 @@
 package com.jasonwjones.di;
 
-import com.jasonwjones.pbcs.utils.PbcsClientUtils;
+import com.jasonwjones.pbcs.util.PbcsClientUtils;
 import org.junit.Test;
 
 import java.util.List;

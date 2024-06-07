@@ -67,7 +67,7 @@ public interface PbcsMemberProperties extends PbcsObject {
 	String getParentName();
 
 	/**
-	 * Data type of the member. Observed values here include "Currency".
+	 * Data type of the member. Observed values here include "Currency", "Enumeration".
 	 *
 	 * @return the member data type
 	 */

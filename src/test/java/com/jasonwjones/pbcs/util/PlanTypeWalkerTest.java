@@ -3,14 +3,11 @@ package com.jasonwjones.pbcs.util;
 import com.jasonwjones.pbcs.client.PbcsApplication;
 import com.jasonwjones.pbcs.client.PbcsPlanType;
 import com.jasonwjones.pbcs.client.impl.PlanTypeConfigurationImpl;
-import com.jasonwjones.pbcs.utils.PbcsClientUtils;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.List;
-
-import static org.junit.Assert.*;
 
 public class PlanTypeWalkerTest {
 

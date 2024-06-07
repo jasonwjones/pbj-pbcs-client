@@ -6,7 +6,7 @@ import com.jasonwjones.pbcs.client.exceptions.PbcsInvalidMemberException;
 import com.jasonwjones.pbcs.client.exceptions.PbcsJobLaunchException;
 import com.jasonwjones.pbcs.client.exceptions.PbcsNoSuchObjectException;
 import com.jasonwjones.pbcs.client.impl.PlanTypeConfigurationImpl;
-import com.jasonwjones.pbcs.utils.PbcsClientUtils;
+import com.jasonwjones.pbcs.util.PbcsClientUtils;
 import org.hamcrest.CoreMatchers;
 import org.junit.Before;
 import org.junit.Ignore;
