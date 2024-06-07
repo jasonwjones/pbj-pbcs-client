@@ -13,6 +13,7 @@ import com.jasonwjones.pbcs.client.impl.membervisitors.AbstractMemberVisitor;
 import com.jasonwjones.pbcs.client.impl.membervisitors.SearchMemberVisitor;
 import com.jasonwjones.pbcs.client.impl.membervisitors.SearchRegexMemberVisitor;
 import com.jasonwjones.pbcs.client.impl.membervisitors.SearchWildMemberVisitor;
+import com.jasonwjones.pbcs.util.GridPrinter;
 import com.jasonwjones.pbcs.util.GridUtils;
 import com.jasonwjones.pbcs.util.PlanTypeWalker;
 import org.slf4j.Logger;
@@ -120,11 +121,11 @@ public class PbcsExplicitDimensionsPlanTypeImpl extends PbcsPlanTypeImpl impleme
         if (member != null) {
             return member;
         } else {
-            logger.warn("Having to resolve {} from source", memberOrAliasName);
+            logger.warn("Resolving {} from source", memberOrAliasName);
             PbcsMember matchingMember = oneOffSearchInDimension(memberOrAliasName);
             if (matchingMember != null) return matchingMember;
 
-            // you'll technically research a dimension, but that only happens when you have a bad cache
+            // you'll technically re-search a dimension, but that only happens when you have a bad cache
             List<MemberSearchCallable> searchers = explicitDimensions.stream()
                     .map(dimension -> new MemberSearchCallable(dimension, memberOrAliasName))
                     .collect(Collectors.toList());
@@ -285,16 +286,20 @@ public class PbcsExplicitDimensionsPlanTypeImpl extends PbcsPlanTypeImpl impleme
         int lastNonNullCol = GridUtils.lastNonNullInRow(grid, 0);
 
         List<DimensionMembers> top = new ArrayList<>();
+        List<String> topDims = retrieveOptions.isProvideDimensionHints() ?
+                resolveDimensions(GridUtils.col(grid, firstColWithCell,  0, firstRowWithCell)) :
+                null;
+
         for (int col = firstColWithCell; col <= lastNonNullCol; col++) {
             List<String> members = GridUtils.col(grid, col, 0, firstRowWithCell);
-            DimensionMembers dimensionMembers = DimensionMembers.ofMemberNames(members);
+            DimensionMembers dimensionMembers = new DimensionMembers(topDims, members);
             top.add(dimensionMembers);
         }
 
         List<DimensionMembers> left = new ArrayList<>();
-
-        // TODO: check value of isProvideDimensionHints
-        List<String> leftDims = resolveDimensions(GridUtils.row(grid, firstRowWithCell, 0, firstColWithCell));
+        List<String> leftDims = retrieveOptions.isProvideDimensionHints() ?
+                resolveDimensions(GridUtils.row(grid, firstRowWithCell, 0, firstColWithCell)) :
+                null;
 
         for (int row = firstRowWithCell; row < grid.getRows(); row++) {
             List<String> members = GridUtils.row(grid, row, 0, firstColWithCell);
@@ -307,8 +312,14 @@ public class PbcsExplicitDimensionsPlanTypeImpl extends PbcsPlanTypeImpl impleme
         exportDataSlice.setExportPlanningData(retrieveOptions.isExportPlanningData());
 
         // todo: catch exception and provide custom with some analysis on potential causes of problem
-        DataSlice slice = post("applications/{application}/plantypes/{planType}/exportdataslice", exportDataSlice, DataSlice.class, getApplication().getName(), getName());
-        return new DataSliceGrid(this, slice);
+        try {
+            DataSlice slice = post("applications/{application}/plantypes/{planType}/exportdataslice", exportDataSlice, DataSlice.class, getApplication().getName(), getName());
+            return new DataSliceGrid(this, slice);
+        } catch (Exception e) {
+            logger.error("Unable to retrieve grid: {}", e.getMessage());
+            GridPrinter.print(grid);
+            throw e;
+        }
     }
 
     @Override

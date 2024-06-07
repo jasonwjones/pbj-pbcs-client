@@ -40,6 +40,17 @@ public class PovGridImpl<E> implements PovGrid<E> {
         return new PovGridImpl<>(pov, grid);
     }
 
+    public static <E, R> PovGrid<R> copy(PovGrid<E> sourceGrid, Function<E, R> conversion) {
+        List<R> pov = sourceGrid.getPov().stream().map(conversion).collect(Collectors.toList());
+        Grid<R> grid = new HashMapGrid<>(sourceGrid.getRows(), sourceGrid.getColumns());
+        for (int row = 0; row < sourceGrid.getRows(); row++) {
+            for (int col = 0; col < sourceGrid.getColumns(); col++) {
+                grid.setCell(row, col, conversion.apply(sourceGrid.getCell(row, col)));
+            }
+        }
+        return new PovGridImpl<>(pov, grid);
+    }
+
     @Override
     public int getRows() {
         // SHOULD THIS BE +1 for the POV (and callers that want the data grid size can get that grid and ask for row count)?

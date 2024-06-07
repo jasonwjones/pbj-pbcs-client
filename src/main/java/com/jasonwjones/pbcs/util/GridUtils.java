@@ -71,6 +71,16 @@ public class GridUtils {
         return col;
     }
 
+    /**
+     * Returns a single row of the grid from between the given column indices
+     *
+     * @param grid the grid
+     * @param rowIndex the row
+     * @param startCol the starting column, inclusive
+     * @param endCol the ending column, exclusive
+     * @return the slice of the grid, as a list
+     * @param <E> the type of grid
+     */
     public static <E> List<E> row(Grid<E> grid, int rowIndex, int startCol, int endCol) {
         List<E> row = new ArrayList<>();
         for (int col = startCol; col < endCol; col++) {
