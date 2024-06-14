@@ -110,7 +110,7 @@ public class PbcsMemberImpl implements PbcsMember {
             return 0;
         } else {
             int minLevel = -1;
-            for (PbcsMemberProperties child : getChildren()) {
+            for (PbcsMember child : getChildren()) {
                 if (minLevel == -1) {
                     minLevel = child.getLevel();
                 } else {

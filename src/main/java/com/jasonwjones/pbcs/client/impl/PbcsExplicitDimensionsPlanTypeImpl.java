@@ -205,8 +205,8 @@ public class PbcsExplicitDimensionsPlanTypeImpl extends PbcsPlanTypeImpl impleme
     private String findMemberDimensionFromExplicit(String memberName) {
         for (PbcsDimension dimension : explicitDimensions) {
             try {
-                PbcsMemberProperties memberProperties = getMember(dimension.getName(), memberName);
-                if (memberProperties != null) {
+                PbcsMember member = getMember(dimension.getName(), memberName);
+                if (member != null) {
                     String dimensionName = dimension.getName();
                     memberDimensionCache.setDimension(this, memberName, dimensionName);
                     return dimensionName;
@@ -332,12 +332,12 @@ public class PbcsExplicitDimensionsPlanTypeImpl extends PbcsPlanTypeImpl impleme
 
     private List<String> resolveDimensions(List<String> members) {
         List<String> dimensions = new ArrayList<>();
-        for (String member : members) {
-            PbcsMemberProperties properties = getMemberOrAlias(member);
-            if (properties == null) {
-                throw new PbcsClientException("Unable to resolve member/dimension for " + member);
+        for (String memberName : members) {
+            PbcsMember member = getMemberOrAlias(memberName);
+            if (member == null) {
+                throw new PbcsClientException("Unable to resolve member/dimension for " + memberName);
             } else {
-                dimensions.add(properties.getDimensionName());
+                dimensions.add(member.getDimensionName());
             }
         }
         return dimensions;

@@ -95,7 +95,7 @@ public class VisionIT {
 
     @Test
     public void whenGetValidMember() {
-        PbcsMemberProperties member = app.getMember("Account", "Cash from Current Operations");
+        PbcsMember member = app.getMember("Account", "Cash from Current Operations");
         assertThat(member.getDimensionName(), is("Account"));
         printMember(member, 0);
     }
@@ -116,7 +116,7 @@ public class VisionIT {
     @Test
     @Ignore
     public void whenGetSharedMember() {
-        PbcsMemberProperties member = app.getMember("Entity", "Sales Director 1");
+        PbcsMember member = app.getMember("Entity", "Sales Director 1");
         // this is returning "Entity" -- need to look into it
         assertThat(member.getType(), is(PbcsMemberType.SHARED));
     }
@@ -172,11 +172,11 @@ public class VisionIT {
         assertThat(exception.getMessage(), is("Exception running job Calc_Payroll_Tax: The member " + invalidMember + " does not exist for the specified cube or you do not have access to it."));
     }
 
-    private static void printMember(PbcsMemberProperties member, int level) {
+    private static void printMember(PbcsMember member, int level) {
         for (int i = 0; i < level; i++) System.out.print("    ");
         System.out.printf("%s (%s) %n", member.getName(), member.getDataStorage());
 
-        for (PbcsMemberProperties child : member.getChildren()) {
+        for (PbcsMember child : member.getChildren()) {
             printMember(child, level + 1);
         }
     }

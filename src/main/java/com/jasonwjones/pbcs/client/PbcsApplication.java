@@ -132,7 +132,7 @@ public interface PbcsApplication extends PbcsObject {
 	 */
 	PbcsJobStatus refreshCube(String cubeRefreshName);
 
-	PbcsMemberProperties addMember(String dimensionName, String memberName, String parentName);
+	PbcsMember addMember(String dimensionName, String memberName, String parentName);
 
 	/**
 	 * Get information about a member. This is considered the canonical way to get a member from the PBCS/EPM Cloud

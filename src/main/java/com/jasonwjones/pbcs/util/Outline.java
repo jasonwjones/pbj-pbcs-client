@@ -132,7 +132,7 @@ public class Outline {
 
 	private int getGeneration(String member) {
 		if (memberDimensions.containsKey(member)) {
-			PbcsMemberProperties memberObject = memberDimensions.get(member).getMember();
+			PbcsMember memberObject = memberDimensions.get(member).getMember();
 			if (memberObject.getParentName() == null) {
 				return 1;
 			} else {
@@ -164,7 +164,7 @@ public class Outline {
 			this.member = member;
 		}
 
-		public PbcsMemberProperties getMember() {
+		public PbcsMember getMember() {
 			return member;
 		}
 
@@ -190,7 +190,7 @@ public class Outline {
 
 		public List<Member> getChildren() {
 			List<Member> children = new ArrayList<Member>();
-			for (PbcsMemberProperties child : member.getChildren()) {
+			for (PbcsMember child : member.getChildren()) {
 				Member member = memberDimensions.get(child.getName());
 				children.add(member);
 			}

@@ -300,7 +300,7 @@ public class PbcsApplicationImpl extends AbstractPbcsObject implements PbcsAppli
 
 	// TODO: currently getting a BAD request 400 possibly because it's not enable dynamic children.
 	@Override
-	public PbcsMemberProperties addMember(String dimensionName, String memberName, String parentName) {
+	public PbcsMember addMember(String dimensionName, String memberName, String parentName) {
 		String url = this.context.getBaseUrl() + "applications/{application}/dimensions/{dimName}/members";
 
 		MemberAdd ma = new MemberAdd(memberName, parentName);

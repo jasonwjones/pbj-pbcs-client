@@ -1,6 +1,6 @@
 package com.jasonwjones.pbcs.test;
 
-import com.jasonwjones.pbcs.client.PbcsMemberProperties;
+import com.jasonwjones.pbcs.client.PbcsMember;
 import com.jasonwjones.pbcs.client.PbcsPlanType;
 import com.jasonwjones.pbcs.client.impl.PlanTypeConfigurationImpl;
 import org.junit.Test;
@@ -21,21 +21,21 @@ public class VisionPlanExplicitMembersIT extends VisionCubeIT {
     @Test
     public void getValidMember() {
         cube = cube();
-        PbcsMemberProperties jan = cube.getMemberOrAlias("Jan");
+        PbcsMember jan = cube.getMemberOrAlias("Jan");
         assertThat(jan.getDimensionName(), is("Period"));
     }
 
     @Test
     public void getValidMemberViaAlias() {
         cube = cube();
-        PbcsMemberProperties jan = cube.getMemberOrAlias("NI");
+        PbcsMember jan = cube.getMemberOrAlias("NI");
         assertThat(jan.getDimensionName(), is("Account"));
     }
 
     @Test
     public void getInvalidMember() {
         cube = cube();
-        PbcsMemberProperties jan = cube.getMemberOrAlias(INVALID_MEMBER);
+        PbcsMember jan = cube.getMemberOrAlias(INVALID_MEMBER);
         assertThat(jan, is(nullValue()));
     }
 

@@ -61,7 +61,7 @@ public class IdcsTest {
         config.setExplicitDimensions(Arrays.asList("Account", "Currency", "Entity", "Period", "Product", "Scenario", "Version", "Year"));
         config.setSkipCheck(true);
 
-        PbcsMemberProperties actual = client
+        PbcsMember actual = client
                 .getApplication("Vision")
                 .getPlanType("Plan1")
                 .getMember("Scenario", "Actual");

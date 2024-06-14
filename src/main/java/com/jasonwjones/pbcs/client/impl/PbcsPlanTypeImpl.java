@@ -262,7 +262,7 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 				break;
 			case ISIBLINGS:
 			case SIBLINGS:
-				PbcsMemberProperties parent = getMember(member.getDimensionName(), member.getParentName());
+				PbcsMember parent = getMember(member.getDimensionName(), member.getParentName());
 				if (queryType.isIncludeOriginalMember()) {
 					results.addAll(parent.getChildren());
 				} else {

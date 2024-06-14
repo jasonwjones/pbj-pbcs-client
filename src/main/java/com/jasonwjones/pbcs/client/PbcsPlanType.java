@@ -182,7 +182,7 @@ public interface PbcsPlanType extends PbcsObject {
 	/**
 	 * Perform a member query. The notion of querying members doesn't really exist in the PBCS REST API; these querying
 	 * capabilities are provided as a bit of a convenience on top of the basic member relation methods that are available
-	 * such as {@link PbcsMemberProperties#getChildren()}.
+	 * such as {@link PbcsMember#getChildren()}.
 	 *
 	 * @param memberName the base member name or alias to perform the query with
 	 * @param queryType the type of query
