@@ -11,6 +11,10 @@ public interface PbcsObject {
      */
     String getName();
 
+    default String getQualifiedName() {
+        return getName();
+    }
+
     /**
      * Returns the type of object this is. This construct is somewhat a blend between "official"
      * EPM objects and "synthetic" objects that are modeled in this library.

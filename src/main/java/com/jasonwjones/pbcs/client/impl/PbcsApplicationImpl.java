@@ -327,7 +327,7 @@ public class PbcsApplicationImpl extends AbstractPbcsObject implements PbcsAppli
 		logger.trace("Fetching member properties for {} from dimension {}", memberName, dimensionName);
 		try {
 			PbcsMemberPropertiesImpl properties = get("applications/{application}/dimensions/{dimName}/members/{member}", PbcsMemberPropertiesImpl.class, getName(), dimensionName, memberName);
-			return new PbcsMemberImpl(this, properties);
+			return new PbcsMemberImpl(this, properties, null); // parent will be dynamically resolved, as needed
 		} catch (PbcsGeneralException e) {
 			// catch a general exception that is intercepted by the error handler, and confirm that it's about no such
 			// member. If so, let's throw a better error that the object doesn't exist. If not, we'll just rethrow it.

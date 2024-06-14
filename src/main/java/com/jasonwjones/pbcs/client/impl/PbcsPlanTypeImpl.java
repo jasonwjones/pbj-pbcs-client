@@ -44,6 +44,11 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 	}
 
 	@Override
+	public String getQualifiedName() {
+		return getApplication().getName() + "." + getName();
+	}
+
+	@Override
 	public PbcsObjectType getObjectType() {
 		return PbcsObjectType.PLAN;
 	}

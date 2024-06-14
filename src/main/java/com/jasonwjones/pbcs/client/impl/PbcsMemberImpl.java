@@ -18,9 +18,12 @@ public class PbcsMemberImpl implements PbcsMember {
 
     private final PbcsMemberPropertiesImpl memberProperties;
 
-    public PbcsMemberImpl(PbcsApplication application, PbcsMemberPropertiesImpl memberProperties) {
+    private final PbcsMember parent;
+
+    public PbcsMemberImpl(PbcsApplication application, PbcsMemberPropertiesImpl memberProperties, PbcsMember parent) {
         this.application = application;
         this.memberProperties = memberProperties;
+        this.parent = parent;
     }
 
     @Override
@@ -37,7 +40,7 @@ public class PbcsMemberImpl implements PbcsMember {
     public List<PbcsMember> getChildren() {
         List<PbcsMember> children = new ArrayList<>();
         for (PbcsMemberPropertiesImpl child : memberProperties.getChildren()) {
-            children.add(new PbcsMemberImpl(application, child));
+            children.add(new PbcsMemberImpl(application, child, this));
         }
         return children;
     }
@@ -50,6 +53,20 @@ public class PbcsMemberImpl implements PbcsMember {
     @Override
     public String getParentName() {
         return memberProperties.getParentName();
+    }
+
+    @Override
+    public PbcsMember getParent() {
+        if (parent != null) {
+            return parent;
+        } else {
+            if (getParentName() != null) {
+                logger.info("Resolving parent of {}", getName());
+                // potentially resolving multiple times if you keep calling this
+                return application.getMember(getDimensionName(), getParentName());
+            }
+        }
+        return null;
     }
 
     @Override
@@ -71,7 +88,6 @@ public class PbcsMemberImpl implements PbcsMember {
     public DataStorage getDataStorageType() {
         return DataStorage.valueOfOrOther(memberProperties.getDataStorage());
     }
-
 
     @Override
     public String getDimensionName() {
