@@ -125,10 +125,17 @@ public class PbcsExplicitDimensionsPlanTypeImpl extends PbcsPlanTypeImpl impleme
             PbcsMember matchingMember = oneOffSearchInDimension(memberOrAliasName);
             if (matchingMember != null) return matchingMember;
 
-            // you'll technically re-search a dimension, but that only happens when you have a bad cache
-            List<MemberSearchCallable> searchers = explicitDimensions.stream()
-                    .map(dimension -> new MemberSearchCallable(dimension, memberOrAliasName))
-                    .collect(Collectors.toList());
+            List<MemberSearchCallable> searchers;
+            if (getDimensionNames().contains(memberOrAliasName)) {
+                // shortcut when the member being queried literally is a dimension
+                PbcsDimension searchDimension = getDimension(memberOrAliasName);
+                searchers = Collections.singletonList(new MemberSearchCallable(searchDimension, memberOrAliasName));
+            } else {
+                // you can technically re-search a dimension, but that only happens when you have a bad cache
+                searchers = explicitDimensions.stream()
+                        .map(dimension -> new MemberSearchCallable(dimension, memberOrAliasName))
+                        .collect(Collectors.toList());
+            }
 
             try {
                 member = executorService.invokeAny(searchers);
@@ -313,11 +320,16 @@ public class PbcsExplicitDimensionsPlanTypeImpl extends PbcsPlanTypeImpl impleme
 
         // todo: catch exception and provide custom with some analysis on potential causes of problem
         try {
+            logger.debug("Exporting data slice from {}", getName());
             DataSlice slice = post("applications/{application}/plantypes/{planType}/exportdataslice", exportDataSlice, DataSlice.class, getApplication().getName(), getName());
+            logger.debug("Data slice export returned from {}", getName());
             return new DataSliceGrid(this, slice);
         } catch (Exception e) {
             logger.error("Unable to retrieve grid: {}", e.getMessage());
-            GridPrinter.print(grid);
+            if (logger.isDebugEnabled()) {
+                logger.debug("Retrieval grid:");
+                GridPrinter.print(grid);
+            }
             throw e;
         }
     }
@@ -414,7 +426,7 @@ public class PbcsExplicitDimensionsPlanTypeImpl extends PbcsPlanTypeImpl impleme
         }
 
         @Override
-        public PbcsMember call() throws Exception {
+        public PbcsMember call() {
             logger.debug("Searching dimension {} for member/alias {}", dimension.getName(), memberOrAliasName);
             PbcsMember rootMember = dimension.getRoot();
 
