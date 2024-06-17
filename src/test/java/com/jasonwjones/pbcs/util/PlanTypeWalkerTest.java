@@ -29,7 +29,10 @@ public class PlanTypeWalkerTest {
 
     @Test
     public void walk() {
-        PlanTypeWalker.walk(plan, new PlanTypeWalker.PrinterVisitor());
+        PlanTypeWalker.Options options = new PlanTypeWalker.Options();
+        options.setThreads(1);
+        options.setDimensionNames(Arrays.asList("Account", "PeriodX"));
+        PlanTypeWalker.walk(plan, new PrinterVisitor(), options);
     }
 
 }
