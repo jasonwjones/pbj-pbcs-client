@@ -44,11 +44,6 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 	}
 
 	@Override
-	public String getQualifiedName() {
-		return getApplication().getName() + "." + getName();
-	}
-
-	@Override
 	public PbcsObjectType getObjectType() {
 		return PbcsObjectType.PLAN;
 	}
@@ -78,6 +73,11 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 	@Override
 	public PbcsApplication getApplication() {
 		return this.application;
+	}
+
+	@Override
+	public PbcsApplication getParent() {
+		return getApplication();
 	}
 
 	@Override

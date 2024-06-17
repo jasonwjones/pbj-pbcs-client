@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
 
-public class PbcsMemberImpl implements PbcsMember {
+public class PbcsMemberImpl extends AbstractPbcsObject implements PbcsMember {
 
     private static final Logger logger = LoggerFactory.getLogger(PbcsMemberImpl.class);
 
@@ -18,9 +18,10 @@ public class PbcsMemberImpl implements PbcsMember {
 
     private final PbcsMemberPropertiesImpl memberProperties;
 
-    private final PbcsMember parent;
+    private final PbcsApplication parent;
 
-    public PbcsMemberImpl(PbcsApplication application, PbcsMemberPropertiesImpl memberProperties, PbcsMember parent) {
+    public PbcsMemberImpl(RestContext context, PbcsApplication application, PbcsMemberPropertiesImpl memberProperties, PbcsApplication parent) {
+        super(context);
         this.application = application;
         this.memberProperties = memberProperties;
         this.parent = parent;
@@ -40,7 +41,7 @@ public class PbcsMemberImpl implements PbcsMember {
     public List<PbcsMember> getChildren() {
         List<PbcsMember> children = new ArrayList<>();
         for (PbcsMemberPropertiesImpl child : memberProperties.getChildren()) {
-            children.add(new PbcsMemberImpl(application, child, this));
+            children.add(new PbcsMemberImpl(context, application, child, application));
         }
         return children;
     }
@@ -56,17 +57,19 @@ public class PbcsMemberImpl implements PbcsMember {
     }
 
     @Override
-    public PbcsMember getParent() {
-        if (parent != null) {
-            return parent;
+    public PbcsApplication getParent() {
+        return application;
+    }
+
+    @Override
+    public PbcsMember getParentMember() {
+        if (getParentName() != null) {
+            logger.info("Resolving parent of {}", getName());
+            // potentially resolving multiple times if you keep calling this
+            return application.getMember(getDimensionName(), getParentName());
         } else {
-            if (getParentName() != null) {
-                logger.info("Resolving parent of {}", getName());
-                // potentially resolving multiple times if you keep calling this
-                return application.getMember(getDimensionName(), getParentName());
-            }
+            return null;
         }
-        return null;
     }
 
     @Override

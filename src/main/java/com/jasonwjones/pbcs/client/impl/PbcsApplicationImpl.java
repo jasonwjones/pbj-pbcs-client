@@ -41,7 +41,7 @@ public class PbcsApplicationImpl extends AbstractPbcsObject implements PbcsAppli
 
 		List<PbcsJobDefinition> pbcsJobDefs = new ArrayList<>();
 		for (JobDefinition jobDefinition : jobDefinitions.getItems()) {
-			PbcsJobDefinition pbcsJobDef = new PbcsJobDefinitionImpl(context, jobDefinition);
+			PbcsJobDefinition pbcsJobDef = new PbcsJobDefinitionImpl(context, this, jobDefinition);
 			pbcsJobDefs.add(pbcsJobDef);
 		}
 		return pbcsJobDefs;
@@ -55,7 +55,7 @@ public class PbcsApplicationImpl extends AbstractPbcsObject implements PbcsAppli
 		JobDefinitionsWrapper jobDefinitions = get("applications/{application}/jobdefinitions?q={jobTypeFragment}", JobDefinitionsWrapper.class, getName(), jobTypeFragment);
 		List<PbcsJobDefinition> pbcsJobDefs = new ArrayList<>();
 		for (JobDefinition jobDefinition : jobDefinitions.getItems()) {
-			PbcsJobDefinition pbcsJobDef = new PbcsJobDefinitionImpl(context, jobDefinition);
+			PbcsJobDefinition pbcsJobDef = new PbcsJobDefinitionImpl(context, this, jobDefinition);
 			pbcsJobDefs.add(pbcsJobDef);
 		}
 		return pbcsJobDefs;
@@ -65,7 +65,7 @@ public class PbcsApplicationImpl extends AbstractPbcsObject implements PbcsAppli
 	public PbcsJobStatus getJobStatus(Integer jobId) {
 		try {
 			JobLaunchResponse jobLaunchResponse = get("applications/{application}/jobs/{jobId}", JobLaunchResponse.class, getName(), jobId);
-			return new PbcsJobLaunchResultImpl(this, jobLaunchResponse);
+			return new PbcsJobLaunchResultImpl(context, this, jobLaunchResponse);
 		} catch (HttpServerErrorException e) {
 			throw new PbcsClientException("Error fetching job with status ID " + jobId + ". Perhaps it doesn't exist?");
 		}
@@ -83,7 +83,7 @@ public class PbcsApplicationImpl extends AbstractPbcsObject implements PbcsAppli
 			logger.info("Launching {} business rule {} with parameters {}", getName(), ruleName, parameters);
 			JobLaunchResponse response = post(JOBS_ENDPOINT, payload, JobLaunchResponse.class, getName());
 			logger.info("Launched business rule, job ID is {}, details: {}", response.getJobId(), response);
-			return new PbcsJobLaunchResultImpl(this, response);
+			return new PbcsJobLaunchResultImpl(context, this, response);
 		} catch (Exception e) {
 			logger.error("Exception launching business rule {}: {}", ruleName, e.getMessage());
 			throw new PbcsJobLaunchException(ruleName, e);
@@ -102,7 +102,7 @@ public class PbcsApplicationImpl extends AbstractPbcsObject implements PbcsAppli
 		payload.setParameters(parameters);
 		HttpEntity<?> requestEntity = getRequestEntityWithHeaders(payload);
 		ResponseEntity<JobLaunchResponse> output = context.getTemplate().postForEntity(url, requestEntity, JobLaunchResponse.class, getName());
-		return new PbcsJobLaunchResultImpl(this, output.getBody());
+		return new PbcsJobLaunchResultImpl(context, this, output.getBody());
 	}
 
 	@Override
@@ -112,7 +112,7 @@ public class PbcsApplicationImpl extends AbstractPbcsObject implements PbcsAppli
 		payload.setParameters(parameters);
 		HttpEntity<?> requestEntity = getRequestEntityWithHeaders(payload);
 		ResponseEntity<JobLaunchResponse> output = context.getTemplate().postForEntity(url, requestEntity, JobLaunchResponse.class, getName());
-		return new PbcsJobLaunchResultImpl(this, output.getBody());
+		return new PbcsJobLaunchResultImpl(context, this, output.getBody());
 	}
 
 	@Override
@@ -123,7 +123,7 @@ public class PbcsApplicationImpl extends AbstractPbcsObject implements PbcsAppli
 		HttpEntity<?> requestEntity = getRequestEntityWithHeaders(payload);
 		ResponseEntity<JobLaunchResponse> output = context.getTemplate()
 														  .postForEntity(url, requestEntity, JobLaunchResponse.class, getName());
-		return new PbcsJobLaunchResultImpl(this, output.getBody());
+		return new PbcsJobLaunchResultImpl(context, this, output.getBody());
 	}
 
 	private HttpEntity<?> getRequestEntityWithHeaders(Payload payload) {
@@ -163,7 +163,7 @@ public class PbcsApplicationImpl extends AbstractPbcsObject implements PbcsAppli
 			payload.setParameters(params);
 		}
 		ResponseEntity<JobLaunchResponse> output = this.context.getTemplate().postForEntity(url, getRequestEntityWithHeaders(payload), JobLaunchResponse.class, getName());
-		return new PbcsJobLaunchResultImpl(this, output.getBody());
+		return new PbcsJobLaunchResultImpl(context, this, output.getBody());
 	}
 
 	@Override
@@ -195,7 +195,7 @@ public class PbcsApplicationImpl extends AbstractPbcsObject implements PbcsAppli
 		ResponseEntity<JobLaunchResponse> output = context.getTemplate()
 															.exchange(body, JobLaunchResponse.class);
 
-		return new PbcsJobLaunchResultImpl(this, output.getBody());
+		return new PbcsJobLaunchResultImpl(context, this, output.getBody());
 	}
 
 	@Override
@@ -205,7 +205,7 @@ public class PbcsApplicationImpl extends AbstractPbcsObject implements PbcsAppli
 		ResponseEntity<JobLaunchResponse> output = this.context.getTemplate().postForEntity(url, payload,
 				JobLaunchResponse.class, getName());
 		logger.info("Export data HTTP code: {}", output.getStatusCode().value());
-		return new PbcsJobLaunchResultImpl(this, output.getBody());
+		return new PbcsJobLaunchResultImpl(context, this, output.getBody());
 	}
 
 	@Override
@@ -220,12 +220,17 @@ public class PbcsApplicationImpl extends AbstractPbcsObject implements PbcsAppli
 		ResponseEntity<JobLaunchResponse> output = this.context.getTemplate().postForEntity(url, getRequestEntityWithHeaders(payload),
 				JobLaunchResponse.class, getName());
 		logger.info("Cube refresh launched");
-		return new PbcsJobLaunchResultImpl(this, output.getBody());
+		return new PbcsJobLaunchResultImpl(context, this, output.getBody());
 	}
 
 	@Override
 	public PbcsPlanningClient getClient() {
 		return client;
+	}
+
+	@Override
+	public PbcsPlanningClient getParent() {
+		return getClient();
 	}
 
 	@Override
@@ -327,7 +332,7 @@ public class PbcsApplicationImpl extends AbstractPbcsObject implements PbcsAppli
 		logger.trace("Fetching member properties for {} from dimension {}", memberName, dimensionName);
 		try {
 			PbcsMemberPropertiesImpl properties = get("applications/{application}/dimensions/{dimName}/members/{member}", PbcsMemberPropertiesImpl.class, getName(), dimensionName, memberName);
-			return new PbcsMemberImpl(this, properties, null); // parent will be dynamically resolved, as needed
+			return new PbcsMemberImpl(context, this, properties, null); // parent will be dynamically resolved, as needed
 		} catch (PbcsGeneralException e) {
 			// catch a general exception that is intercepted by the error handler, and confirm that it's about no such
 			// member. If so, let's throw a better error that the object doesn't exist. If not, we'll just rethrow it.
@@ -428,7 +433,7 @@ public class PbcsApplicationImpl extends AbstractPbcsObject implements PbcsAppli
 						plansForDim.add(plans.get(validIndex));
 					}
 				}
-				PbcsDimensionImpl dim = new PbcsDimensionImpl(plansForDim, this, aifDimension, dimIndex++);
+				PbcsDimensionImpl dim = new PbcsDimensionImpl(context, plansForDim, this, aifDimension, dimIndex++);
 				dimensions.add(dim);
 			}
 		}

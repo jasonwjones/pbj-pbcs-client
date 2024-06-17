@@ -10,7 +10,7 @@ import com.jasonwjones.pbcs.client.exceptions.PbcsClientException;
  * @author jasonwjones
  *
  */
-public interface PbcsPlanningClient {
+public interface PbcsPlanningClient extends PbcsObject {
 
 	/**
 	 * Returns an API object with information about the current endpoint.

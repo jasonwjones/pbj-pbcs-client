@@ -3,10 +3,7 @@ package com.jasonwjones.pbcs.client.impl;
 import com.jasonwjones.pbcs.api.v3.Api;
 import com.jasonwjones.pbcs.api.v3.Application;
 import com.jasonwjones.pbcs.api.v3.Applications;
-import com.jasonwjones.pbcs.client.PbcsApi;
-import com.jasonwjones.pbcs.client.PbcsApplication;
-import com.jasonwjones.pbcs.client.PbcsObjectType;
-import com.jasonwjones.pbcs.client.PbcsPlanningClient;
+import com.jasonwjones.pbcs.client.*;
 import com.jasonwjones.pbcs.client.exceptions.PbcsClientException;
 import com.jasonwjones.pbcs.client.exceptions.PbcsNoSuchObjectException;
 import org.slf4j.Logger;
@@ -97,6 +94,21 @@ public class PbcsPlanningClientImpl extends AbstractPbcsObject implements PbcsPl
 			}
 			throw new PbcsNoSuchObjectException(applicationName, PbcsObjectType.APPLICATION);
 		}
+	}
+
+	@Override
+	public String getName() {
+		return getServer();
+	}
+
+	@Override
+	public PbcsObject getParent() {
+		return null;
+	}
+
+	@Override
+	public PbcsObjectType getObjectType() {
+		return PbcsObjectType.CLIENT;
 	}
 
 }

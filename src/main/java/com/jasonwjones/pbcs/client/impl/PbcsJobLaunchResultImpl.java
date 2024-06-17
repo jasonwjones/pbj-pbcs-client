@@ -1,16 +1,13 @@
 package com.jasonwjones.pbcs.client.impl;
 
 import com.jasonwjones.pbcs.api.v3.JobLaunchResponse;
-import com.jasonwjones.pbcs.client.PbcsApplication;
-import com.jasonwjones.pbcs.client.PbcsJobStatus;
-import com.jasonwjones.pbcs.client.PbcsJobStatusCode;
-import com.jasonwjones.pbcs.client.PbcsObjectType;
+import com.jasonwjones.pbcs.client.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.TimeUnit;
 
-public class PbcsJobLaunchResultImpl implements PbcsJobStatus {
+public class PbcsJobLaunchResultImpl extends AbstractPbcsObject implements PbcsJobStatus {
 
 	private static final Logger logger = LoggerFactory.getLogger(PbcsJobLaunchResultImpl.class);
 
@@ -20,7 +17,8 @@ public class PbcsJobLaunchResultImpl implements PbcsJobStatus {
 
 	private final PbcsJobStatusCode status;
 
-	PbcsJobLaunchResultImpl(PbcsApplication application, JobLaunchResponse jobLaunchResponse) {
+	PbcsJobLaunchResultImpl(RestContext context, PbcsApplication application, JobLaunchResponse jobLaunchResponse) {
+		super(context);
 		this.application = application;
 		this.jobLaunchResponse = jobLaunchResponse;
 		this.status = PbcsJobStatusCode.valueOf(jobLaunchResponse.getStatus());
@@ -93,6 +91,11 @@ public class PbcsJobLaunchResultImpl implements PbcsJobStatus {
 	@Override
 	public String getName() {
 		return jobLaunchResponse.getJobName();
+	}
+
+	@Override
+	public PbcsApplication getParent() {
+		return application;
 	}
 
 	@Override

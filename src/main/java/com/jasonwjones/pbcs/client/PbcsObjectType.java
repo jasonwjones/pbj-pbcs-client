@@ -29,6 +29,8 @@ public enum PbcsObjectType {
     /**
      * Represents a job that can be run, such as a refresh cube operation.
      */
-    JOB
+    JOB,
+
+    CLIENT
 
 }

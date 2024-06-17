@@ -1,18 +1,22 @@
 package com.jasonwjones.pbcs.client.impl;
 
 import com.jasonwjones.pbcs.api.v3.JobDefinition;
+import com.jasonwjones.pbcs.client.PbcsApplication;
 import com.jasonwjones.pbcs.client.PbcsJobDefinition;
 import com.jasonwjones.pbcs.client.PbcsJobType;
 import com.jasonwjones.pbcs.client.PbcsObjectType;
 
 public class PbcsJobDefinitionImpl extends AbstractPbcsObject implements PbcsJobDefinition {
 
+	private final PbcsApplication application;
+
 	private final JobDefinition jobDefinition;
 
 	private final PbcsJobType jobType;
 
-	public PbcsJobDefinitionImpl(RestContext context, JobDefinition jobDefinition) {
+	public PbcsJobDefinitionImpl(RestContext context, PbcsApplication application, JobDefinition jobDefinition) {
 		super(context);
+		this.application = application;
 		this.jobDefinition = jobDefinition;
 		this.jobType = PbcsJobType.parse(jobDefinition.getJobType());
 	}
@@ -40,6 +44,11 @@ public class PbcsJobDefinitionImpl extends AbstractPbcsObject implements PbcsJob
 	@Override
 	public String getPlanTypeName() {
 		return jobDefinition.getPlanTypeName();
+	}
+
+	@Override
+	public PbcsApplication getParent() {
+		return application;
 	}
 
 	@Override

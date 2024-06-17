@@ -1,8 +1,9 @@
 package com.jasonwjones.pbcs.client.impl;
 
+import com.jasonwjones.pbcs.client.PbcsObject;
 import org.springframework.http.ResponseEntity;
 
-public abstract class AbstractPbcsObject {
+public abstract class AbstractPbcsObject implements PbcsObject {
 
     protected final RestContext context;
 

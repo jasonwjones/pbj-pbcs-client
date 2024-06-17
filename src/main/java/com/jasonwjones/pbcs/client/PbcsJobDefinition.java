@@ -31,4 +31,7 @@ public interface PbcsJobDefinition extends PbcsObject {
 	 */
 	String getPlanTypeName();
 
+	@Override
+	PbcsApplication getParent();
+
 }

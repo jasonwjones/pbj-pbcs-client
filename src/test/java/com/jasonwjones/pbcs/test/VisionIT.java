@@ -97,6 +97,7 @@ public class VisionIT {
     public void whenGetValidMember() {
         PbcsMember member = app.getMember("Account", "Cash from Current Operations");
         assertThat(member.getDimensionName(), is("Account"));
+        logger.info("Qualified name: {}", member.getQualifiedName());
         printMember(member, 0);
     }
 

@@ -42,6 +42,8 @@ public interface PbcsPlanType extends PbcsObject {
 	 */
 	PbcsDimension getDimension(String dimensionName);
 
+	// TODO: implement getMember that considers valid plan types
+
 	/**
 	 * Checks if this plan has been configured with explicit dimensions or not. If this method returns true, then it
 	 * should always be safe to case this object to a {@link PbcsExplicitDimensionsPlanType}.

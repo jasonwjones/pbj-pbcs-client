@@ -25,6 +25,9 @@ public interface PbcsApplication extends PbcsObject {
 	 */
 	PbcsPlanningClient getClient();
 
+	@Override
+	PbcsPlanningClient getParent();
+
 	/**
 	 * Whether the application supports decision packages. I really have no idea what
 	 * these are and if they are used.

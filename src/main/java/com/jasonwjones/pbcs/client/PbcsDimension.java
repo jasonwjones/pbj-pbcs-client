@@ -46,4 +46,7 @@ public interface PbcsDimension extends PbcsObject {
 		return getMember(getName());
 	}
 
+	@Override
+	PbcsApplication getParent();
+
 }

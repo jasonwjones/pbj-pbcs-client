@@ -12,11 +12,12 @@ import java.util.Set;
  * Provides a base implementation for implementors to build their own {@link PbcsPlanType} that implements a couple of
  * custom methods (such as to provide more aggressive caching on certain member operations).
  */
-public class AbstractPbcsPlanType implements PbcsPlanType {
+public class AbstractPbcsPlanType extends AbstractPbcsObject implements PbcsPlanType {
 
     protected final PbcsPlanType planType;
 
-    public AbstractPbcsPlanType(PbcsPlanType planType) {
+    public AbstractPbcsPlanType(RestContext context, PbcsPlanType planType) {
+        super(context);
         Objects.requireNonNull(planType);
         this.planType = planType;
     }
@@ -54,6 +55,11 @@ public class AbstractPbcsPlanType implements PbcsPlanType {
     @Override
     public PbcsApplication getApplication() {
         return planType.getApplication();
+    }
+
+    @Override
+    public PbcsApplication getParent() {
+        return getApplication();
     }
 
     @Override

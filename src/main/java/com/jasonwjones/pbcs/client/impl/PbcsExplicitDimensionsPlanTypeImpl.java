@@ -358,7 +358,7 @@ public class PbcsExplicitDimensionsPlanTypeImpl extends PbcsPlanTypeImpl impleme
         return dimensions;
     }
 
-    private class ExplicitDimension implements PbcsDimension {
+    private class ExplicitDimension extends AbstractPbcsObject implements PbcsDimension {
 
         private final String name;
 
@@ -367,6 +367,7 @@ public class PbcsExplicitDimensionsPlanTypeImpl extends PbcsPlanTypeImpl impleme
         private final PbcsMemberType type;
 
         private ExplicitDimension(String name, int number, PbcsMemberType type) {
+            super(PbcsExplicitDimensionsPlanTypeImpl.this.context);
             this.name = name;
             this.number = number;
             this.type = type;
@@ -395,6 +396,11 @@ public class PbcsExplicitDimensionsPlanTypeImpl extends PbcsPlanTypeImpl impleme
         @Override
         public PbcsMemberType getDimensionType() {
             return type;
+        }
+
+        @Override
+        public PbcsApplication getParent() {
+            return getApplication();
         }
 
         @Override

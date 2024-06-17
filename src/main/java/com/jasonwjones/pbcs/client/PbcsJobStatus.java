@@ -96,4 +96,7 @@ public interface PbcsJobStatus extends PbcsObject {
 	 */
 	PbcsJobStatus waitUntilFinished(long checkInterval, TimeUnit unit) throws InterruptedException;
 
+	@Override
+	PbcsApplication getParent();
+
 }

@@ -72,7 +72,18 @@ public interface PbcsMember extends PbcsObject {
      * @return the parent of this member, null if there isn't one (e.g. it's a dimension root)
      * @since 2.0.0
      */
-    PbcsMember getParent();
+    @Override
+    PbcsApplication getParent();
+
+    /**
+     * Gets the parent of this member. For most members this value will already exist, but calling this may cause a
+     * member lookup to happen. If you just need the name of the parent, then using {@link #getParentName()} is
+     * guaranteed to return without making an additional request to the server.
+     *
+     * @return the parent of this member, null if there isn't one (e.g. it's a dimension root)
+     * @since 2.0.0
+     */
+    PbcsMember getParentMember();
 
     /**
      * Data type of the member. Observed values here include "Currency", "Enumeration".
