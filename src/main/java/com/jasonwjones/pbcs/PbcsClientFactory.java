@@ -141,6 +141,7 @@ public class PbcsClientFactory {
 		PbcsServiceConfigurationImpl sc = new PbcsServiceConfigurationImpl();
 		sc.setScheme("https");
 		sc.setPlanningApiVersion("v3");
+		sc.setSkipApiCheck(false);
 		sc.setPlanningRestApiPath("/HyperionPlanning/rest/");
 		sc.setInteropApiVersion("11.1.2.3.600");
 		sc.setInteropRestApiPath("/interop/rest/");

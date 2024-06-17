@@ -87,6 +87,12 @@ public class PbcsServiceConfigurationImpl implements PbcsServiceConfiguration {
 		return aifRestApiPath;
 	}
 
+	/**
+	 * This is going to have a value such as
+	 * <a href="https://example.pbcs.us2.oraclecloud.com/aif/rest/V1/applications/APP_NAME">example</a>.
+	 *
+	 * @param aifRestApiPath the AIF path
+	 */
 	public void setAifRestApiPath(String aifRestApiPath) {
 		this.aifRestApiPath = aifRestApiPath;
 	}
