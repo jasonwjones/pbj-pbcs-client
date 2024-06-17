@@ -1,11 +1,7 @@
 package com.jasonwjones.pbcs.test;
 
-import com.jasonwjones.pbcs.PbcsClient;
 import com.jasonwjones.pbcs.PbcsClientFactory;
-import com.jasonwjones.pbcs.client.PbcsApplication;
-import com.jasonwjones.pbcs.client.PbcsDimension;
-import com.jasonwjones.pbcs.client.PbcsMemberType;
-import com.jasonwjones.pbcs.client.PbcsPlanType;
+import com.jasonwjones.pbcs.client.*;
 import com.jasonwjones.pbcs.client.exceptions.PbcsInvalidDimensionException;
 import com.jasonwjones.pbcs.client.impl.PlanTypeConfigurationImpl;
 import org.junit.Before;
@@ -29,7 +25,7 @@ public class VisionCubeInstantiationIT extends AbstractIntegrationTest {
 
     @Before
     public void setUp() {
-        PbcsClient client = new PbcsClientFactory().createClient(connection);
+        PbcsPlanningClient client = new PbcsClientFactory().createClient(connection);
         application = client.getApplication("Vision");
     }
 

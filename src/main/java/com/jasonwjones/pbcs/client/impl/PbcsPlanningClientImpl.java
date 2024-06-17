@@ -9,6 +9,7 @@ import com.jasonwjones.pbcs.client.exceptions.PbcsNoSuchObjectException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.Assert;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +29,10 @@ public class PbcsPlanningClientImpl extends AbstractPbcsObject implements PbcsPl
 	private static final Logger logger = LoggerFactory.getLogger(PbcsPlanningClientImpl.class);
 
 	private final String server;
+
+	public PbcsPlanningClientImpl(RestContext context, PbcsConnection connection, PbcsServiceConfiguration serviceConfiguration) {
+		this(context, connection.getServer(), serviceConfiguration.isSkipApiCheck());
+	}
 
 	public PbcsPlanningClientImpl(RestContext restContext, String server, boolean skipApiCheck) {
 		super(restContext);
@@ -80,6 +85,7 @@ public class PbcsPlanningClientImpl extends AbstractPbcsObject implements PbcsPl
 	}
 
 	public PbcsApplication getApplication(String applicationName, boolean skipCheck) throws PbcsClientException {
+		Assert.notNull(applicationName, "The application must not be null");
 		if (skipCheck) {
 			// [name=Vision, type=HP, dpEnabled=false]]
 			Application application = new Application();

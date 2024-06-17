@@ -1,10 +1,10 @@
 package com.jasonwjones.pbcs.test;
 
-import com.jasonwjones.pbcs.PbcsClient;
 import com.jasonwjones.pbcs.PbcsClientFactory;
 import com.jasonwjones.pbcs.client.Grid;
 import com.jasonwjones.pbcs.client.PbcsApplication;
 import com.jasonwjones.pbcs.client.PbcsPlanType;
+import com.jasonwjones.pbcs.client.PbcsPlanningClient;
 import com.jasonwjones.pbcs.client.impl.HashMapGrid;
 import com.jasonwjones.pbcs.client.impl.PlanTypeConfigurationImpl;
 
@@ -14,7 +14,7 @@ import java.util.List;
 public class TestSetCells extends AbstractIntegrationTest {
 
 	public static void main(String[] args) {
-		PbcsClient client = new PbcsClientFactory().createClient(connection);
+		PbcsPlanningClient client = new PbcsClientFactory().createClient(connection);
 		PbcsApplication app = client.getApplication("Vision");
 
 		List<String> dims = Arrays.asList("Account", "Currency", "Entity", "Period", "Scenario", "Version", "Years");

@@ -1,16 +1,16 @@
 package com.jasonwjones.pbcs.test;
 
-import com.jasonwjones.pbcs.PbcsClient;
 import com.jasonwjones.pbcs.PbcsClientFactory;
 import com.jasonwjones.pbcs.client.PbcsApplication;
 import com.jasonwjones.pbcs.client.PbcsJobDefinition;
 import com.jasonwjones.pbcs.client.PbcsJobStatus;
+import com.jasonwjones.pbcs.client.PbcsPlanningClient;
 import com.jasonwjones.pbcs.client.exceptions.PbcsClientException;
 
 public class TestImportMetadata extends AbstractIntegrationTest {
 
 	public static void main(String[] args) throws Exception {
-		PbcsClient client = new PbcsClientFactory().createClient(connection);
+		PbcsPlanningClient client = new PbcsClientFactory().createClient(connection);
 
 		PbcsApplication app = client.getApplication("MDP_Demo");
 

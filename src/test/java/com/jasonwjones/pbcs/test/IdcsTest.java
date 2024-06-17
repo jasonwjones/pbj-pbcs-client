@@ -1,8 +1,10 @@
 package com.jasonwjones.pbcs.test;
 
-import com.jasonwjones.pbcs.PbcsClient;
 import com.jasonwjones.pbcs.PbcsClientFactory;
-import com.jasonwjones.pbcs.client.*;
+import com.jasonwjones.pbcs.client.PbcsConnection;
+import com.jasonwjones.pbcs.client.PbcsMember;
+import com.jasonwjones.pbcs.client.PbcsPlanType;
+import com.jasonwjones.pbcs.client.PbcsPlanningClient;
 import com.jasonwjones.pbcs.client.impl.PbcsConnectionToken;
 import com.jasonwjones.pbcs.client.impl.PlanTypeConfigurationImpl;
 import com.jasonwjones.pbcs.client.sso.IDCSDeviceCodeFlow;
@@ -39,7 +41,7 @@ public class IdcsTest {
         System.out.println("Access token: " + token.getAccessToken());
 
         PbcsConnection connection = new PbcsConnectionToken(SERVER, token);
-        PbcsClient client = new PbcsClientFactory().createClient(connection);
+        PbcsPlanningClient client = new PbcsClientFactory().createClient(connection);
 
 //        System.out.println("Apps:");
 //

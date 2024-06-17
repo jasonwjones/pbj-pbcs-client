@@ -1,7 +1,7 @@
 package com.jasonwjones.pbcs.test;
 
-import com.jasonwjones.pbcs.PbcsClient;
 import com.jasonwjones.pbcs.PbcsClientFactory;
+import com.jasonwjones.pbcs.client.PbcsPlanningClient;
 
 public class TestGetApis extends AbstractIntegrationTest {
 
@@ -18,7 +18,7 @@ public class TestGetApis extends AbstractIntegrationTest {
 //		System.setProperty("com.sun.net.ssl.checkRevocation", "false");
 
 		try {
-			PbcsClient client = new PbcsClientFactory().createClient(connection);
+			PbcsPlanningClient client = new PbcsClientFactory().createClient(connection);
 			System.out.println("API: " + client.getApi());
 		} catch (Exception e) {
 			System.out.println("Error connecting to PBCS: " + e.getMessage());

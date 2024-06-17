@@ -1,7 +1,7 @@
 package com.jasonwjones.pbcs.test;
 
-import com.jasonwjones.pbcs.PbcsClient;
 import com.jasonwjones.pbcs.PbcsClientFactory;
+import com.jasonwjones.pbcs.client.PbcsPlanningClient;
 import org.apache.http.HttpHost;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.RequestConfig;
@@ -31,7 +31,7 @@ public class TestGetApisWithProxy extends AbstractIntegrationTest {
 				.build();
 
 		try {
-			PbcsClient client = new PbcsClientFactory(httpClient).createClient(connection);
+			PbcsPlanningClient client = new PbcsClientFactory(httpClient).createClient(connection);
 			System.out.println("API: " + client.getApi());
 			System.out.println("Num apps: " + client.getApplications().size());
 		} catch (Exception e) {

@@ -2,8 +2,7 @@ package com.jasonwjones.pbcs.test;
 
 import com.jasonwjones.pbcs.client.PbcsAppDimension;
 import com.jasonwjones.pbcs.client.PbcsApplication;
-import com.jasonwjones.pbcs.client.PbcsDimension;
-import com.jasonwjones.pbcs.utils.PbcsClientUtils;
+import com.jasonwjones.pbcs.util.PbcsClientUtils;
 import org.junit.Before;
 import org.junit.Test;
 

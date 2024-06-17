@@ -1,15 +1,14 @@
 package com.jasonwjones.pbcs.util;
 
 import com.jasonwjones.di.DataManagementClient;
-import com.jasonwjones.pbcs.PbcsClient;
 import com.jasonwjones.pbcs.PbcsClientFactory;
 import com.jasonwjones.pbcs.client.PbcsApplication;
 import com.jasonwjones.pbcs.client.PbcsConnection;
 import com.jasonwjones.pbcs.client.PbcsPlanType;
+import com.jasonwjones.pbcs.client.PbcsPlanningClient;
 import com.jasonwjones.pbcs.client.impl.PbcsConnectionImpl;
 import com.jasonwjones.pbcs.client.impl.PlanTypeConfigurationImpl;
 
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.Arrays;
 import java.util.List;
@@ -19,7 +18,7 @@ public class PbcsClientUtils {
 
     public static final String PROPS = System.getProperty("user.home") + "/pbcs-client.properties";
 
-    public static PbcsClient client() {
+    public static PbcsPlanningClient client() {
         return new PbcsClientFactory().createClient(connection());
     }
 
@@ -49,7 +48,7 @@ public class PbcsClientUtils {
     }
 
     public static PbcsPlanType planType() {
-        PbcsClient client = client();
+        PbcsPlanningClient client = client();
         Properties properties = connectionProperties();
         PbcsApplication application = client.getApplication(properties.getProperty("appName"));
 

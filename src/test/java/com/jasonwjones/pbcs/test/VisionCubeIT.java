@@ -1,9 +1,9 @@
 package com.jasonwjones.pbcs.test;
 
-import com.jasonwjones.pbcs.PbcsClient;
 import com.jasonwjones.pbcs.PbcsClientFactory;
 import com.jasonwjones.pbcs.client.PbcsApplication;
 import com.jasonwjones.pbcs.client.PbcsPlanType;
+import com.jasonwjones.pbcs.client.PbcsPlanningClient;
 import com.jasonwjones.pbcs.client.exceptions.PbcsDataImportException;
 import com.jasonwjones.pbcs.client.impl.PbcsPlanTypeImpl;
 import com.jasonwjones.pbcs.client.impl.PlanTypeConfigurationImpl;
@@ -35,7 +35,7 @@ public class VisionCubeIT extends AbstractIntegrationTest {
 
     @Before
     public void setUp() {
-        PbcsClient client = new PbcsClientFactory().createClient(connection);
+        PbcsPlanningClient client = new PbcsClientFactory().createClient(connection);
         app = client.getApplication("Vision");
 
         PlanTypeConfigurationImpl configuration = new PlanTypeConfigurationImpl();

@@ -1,21 +1,21 @@
 package com.jasonwjones.pbcs.test;
 
-import java.util.Arrays;
-import java.util.List;
-
-import com.jasonwjones.pbcs.PbcsClient;
 import com.jasonwjones.pbcs.PbcsClientFactory;
 import com.jasonwjones.pbcs.api.v3.dataslices.DataSlice;
 import com.jasonwjones.pbcs.api.v3.dataslices.DimensionMembers;
 import com.jasonwjones.pbcs.api.v3.dataslices.ExportDataSlice;
 import com.jasonwjones.pbcs.api.v3.dataslices.GridDefinition;
 import com.jasonwjones.pbcs.client.PbcsApplication;
+import com.jasonwjones.pbcs.client.PbcsPlanningClient;
 import com.jasonwjones.pbcs.util.SlicePrinter;
+
+import java.util.Arrays;
+import java.util.List;
 
 public class TestExportSlice extends AbstractIntegrationTest {
 
 	public static void main(String[] args) throws Exception {
-		PbcsClient client = new PbcsClientFactory().createClient(connection);
+		PbcsPlanningClient client = new PbcsClientFactory().createClient(connection);
 		PbcsApplication app = client.getApplication(appName);
 
 		//DimensionMembers pov = new DimensionMembers(Arrays.asList("HSP_View", "Year", "Version", "Entity", "Product"), Arrays.asList("BaseData" , "FY15" , "Working", "410", "P_160"));

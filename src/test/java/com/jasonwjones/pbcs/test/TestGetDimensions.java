@@ -1,21 +1,20 @@
 package com.jasonwjones.pbcs.test;
 
-import java.util.List;
-
+import com.jasonwjones.pbcs.PbcsClientFactory;
 import com.jasonwjones.pbcs.client.PbcsAppDimension;
+import com.jasonwjones.pbcs.client.PbcsApplication;
+import com.jasonwjones.pbcs.client.PbcsPlanningClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.jasonwjones.pbcs.PbcsClient;
-import com.jasonwjones.pbcs.PbcsClientFactory;
-import com.jasonwjones.pbcs.client.PbcsApplication;
+import java.util.List;
 
 public class TestGetDimensions extends AbstractIntegrationTest {
 
 	private static final Logger logger = LoggerFactory.getLogger(TestGetDimensions.class);
 
 	public static void main(String[] args) {
-		PbcsClient client = new PbcsClientFactory().createClient(connection);
+		PbcsPlanningClient client = new PbcsClientFactory().createClient(connection);
 
 		List<PbcsApplication> applications = client.getApplications();
 		logger.info("Applications: {}", applications);

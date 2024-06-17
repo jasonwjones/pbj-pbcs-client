@@ -1,23 +1,18 @@
 package com.jasonwjones.pbcs.test;
 
-import com.jasonwjones.pbcs.PbcsClient;
-import com.jasonwjones.pbcs.PbcsClientFactory;
 import com.jasonwjones.pbcs.client.Grid;
 import com.jasonwjones.pbcs.client.PbcsApplication;
 import com.jasonwjones.pbcs.client.PbcsPlanType;
 import com.jasonwjones.pbcs.client.PovGrid;
-import com.jasonwjones.pbcs.client.exceptions.PbcsDataImportException;
-import com.jasonwjones.pbcs.client.impl.PbcsPlanTypeImpl;
 import com.jasonwjones.pbcs.client.impl.PbcsRetrieveOptionsImpl;
 import com.jasonwjones.pbcs.client.impl.PlanTypeConfigurationImpl;
 import com.jasonwjones.pbcs.client.impl.PovGridImpl;
 import com.jasonwjones.pbcs.client.impl.grid.DataSliceGrid;
 import com.jasonwjones.pbcs.client.impl.grid.DataSliceGridPrinter;
-import com.jasonwjones.pbcs.util.GridDefinitionPrinter;
 import com.jasonwjones.pbcs.util.GridPrinter;
 import com.jasonwjones.pbcs.util.GridUtils;
 import com.jasonwjones.pbcs.util.TextGridReader;
-import com.jasonwjones.pbcs.utils.PbcsClientUtils;
+import com.jasonwjones.pbcs.util.PbcsClientUtils;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -132,6 +127,17 @@ public class VisionCubeAdhocIT extends AbstractIntegrationTest {
     @Test
     public void retrieveWithSupportingDetail() throws IOException {
         PovGrid<String> grid = new TextGridReader().readPovGridFromFile("grids/supporting-detail.txt");
+        PbcsRetrieveOptionsImpl retrieveOptions = new PbcsRetrieveOptionsImpl();
+        retrieveOptions.setExportPlanningData(true);
+        GridPrinter.print(grid);
+
+        DataSliceGrid dataSliceGrid = cube.retrieve(grid, retrieveOptions);
+        DataSliceGridPrinter.print(dataSliceGrid);
+    }
+
+    @Test
+    public void retrieveWithSmartList() throws IOException {
+        PovGrid<String> grid = new TextGridReader().readPovGridFromFile("grids/retrieve-smartlist.txt");
         PbcsRetrieveOptionsImpl retrieveOptions = new PbcsRetrieveOptionsImpl();
         retrieveOptions.setExportPlanningData(true);
         GridPrinter.print(grid);

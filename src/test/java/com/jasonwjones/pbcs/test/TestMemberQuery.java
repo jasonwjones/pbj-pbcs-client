@@ -1,10 +1,10 @@
 package com.jasonwjones.pbcs.test;
 
-import com.jasonwjones.pbcs.PbcsClient;
 import com.jasonwjones.pbcs.PbcsClientFactory;
 import com.jasonwjones.pbcs.client.PbcsMember;
 import com.jasonwjones.pbcs.client.PbcsMemberQueryType;
 import com.jasonwjones.pbcs.client.PbcsPlanType;
+import com.jasonwjones.pbcs.client.PbcsPlanningClient;
 import com.jasonwjones.pbcs.client.impl.PlanTypeConfigurationImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,7 +17,7 @@ public class TestMemberQuery extends AbstractIntegrationTest {
 	private static final Logger logger = LoggerFactory.getLogger(TestMemberQuery.class);
 
 	public static void main(String[] args) {
-		PbcsClient client = new PbcsClientFactory().createClient(connection);
+		PbcsPlanningClient client = new PbcsClientFactory().createClient(connection);
 
 		logger.info("Applications: {}", client.getApplications());
 

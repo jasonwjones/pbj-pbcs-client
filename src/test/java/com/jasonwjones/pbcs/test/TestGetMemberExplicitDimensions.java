@@ -1,6 +1,5 @@
 package com.jasonwjones.pbcs.test;
 
-import com.jasonwjones.pbcs.PbcsClient;
 import com.jasonwjones.pbcs.PbcsClientFactory;
 import com.jasonwjones.pbcs.client.*;
 import com.jasonwjones.pbcs.client.impl.PlanTypeConfigurationImpl;
@@ -11,7 +10,7 @@ import java.util.List;
 public class TestGetMemberExplicitDimensions extends AbstractIntegrationTest {
 
 	public static void main(String[] args) {
-		PbcsClient client = new PbcsClientFactory().createClient(connection);
+		PbcsPlanningClient client = new PbcsClientFactory().createClient(connection);
 		PbcsApplication app = client.getApplication("Vision");
 
 		List<String> dims = Arrays.asList("Account", "Currency", "Entity", "Period", "Product", "Scenario", "Version", "Year");

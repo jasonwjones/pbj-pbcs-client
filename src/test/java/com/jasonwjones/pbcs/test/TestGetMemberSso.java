@@ -1,9 +1,9 @@
 package com.jasonwjones.pbcs.test;
 
-import com.jasonwjones.pbcs.PbcsClient;
 import com.jasonwjones.pbcs.PbcsClientFactory;
 import com.jasonwjones.pbcs.client.PbcsConnection;
 import com.jasonwjones.pbcs.client.PbcsMember;
+import com.jasonwjones.pbcs.client.PbcsPlanningClient;
 import com.jasonwjones.pbcs.client.impl.PbcsConnectionImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,7 +14,7 @@ public class TestGetMemberSso extends AbstractIntegrationTest {
 
 	public static void main(String[] args) {
 		PbcsConnection conn = new PbcsConnectionImpl("vecghypdemo-vecghypdemo.pbcs.us2.oraclecloud.com", "vecghypdemo", "jason@appliedolap.com", "Ja$on100");
-		PbcsClient client = new PbcsClientFactory().createClient(conn);
+		PbcsPlanningClient client = new PbcsClientFactory().createClient(conn);
 		//PbcsClient client = new PbcsClientFactory().createClient(connection);
 
 		logger.info("Applications: {}", client.getApplications());

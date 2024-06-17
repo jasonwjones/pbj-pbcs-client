@@ -1,11 +1,12 @@
 package com.jasonwjones.pbcs;
 
 import com.jasonwjones.pbcs.client.PbcsConnection;
+import com.jasonwjones.pbcs.client.PbcsPlanningClient;
 import com.jasonwjones.pbcs.client.impl.PbcsConnectionImpl;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
 
 public class PbcsClientFactoryTest {
 
@@ -19,7 +20,7 @@ public class PbcsClientFactoryTest {
     @Test
     public void createClient() {
         PbcsConnection connection = new PbcsConnectionImpl("server", "", "jason", "password");
-        PbcsClient client = clientFactory.createClient(connection);
+        PbcsPlanningClient client = clientFactory.createClient(connection);
         assertNotNull(client);
     }
 

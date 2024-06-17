@@ -1,14 +1,14 @@
 package com.jasonwjones.pbcs.test;
 
-import com.jasonwjones.pbcs.PbcsClient;
 import com.jasonwjones.pbcs.PbcsClientFactory;
 import com.jasonwjones.pbcs.client.PbcsConnection;
+import com.jasonwjones.pbcs.client.PbcsPlanningClient;
 
 public class TestBadCredentials extends AbstractIntegrationTest {
 
 	public static void main(String[] args) {
 		PbcsConnection facade = new ConnectionFacade(connection);
-		PbcsClient client = new PbcsClientFactory().createClient(facade);
+		PbcsPlanningClient client = new PbcsClientFactory().createClient(facade);
 
 		System.out.println("Apps:");
 		client.getApplications();

@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * Builds a {@link PbcsClient} object to interact with the PBCS/EPM Cloud REST API.
+ * Builds a {@link PbcsPlanningClient} object to interact with the PBCS/EPM Cloud REST API.
  */
 public class PbcsClientFactory {
 
@@ -80,7 +80,7 @@ public class PbcsClientFactory {
 	 * @param connection a connection details object
 	 * @return a new PBCS client instance
 	 */
-	public PbcsClient createClient(PbcsConnection connection) {
+	public PbcsPlanningClient createClient(PbcsConnection connection) {
 		PbcsServiceConfiguration config = createDefaultServiceConfiguration();
 		return createClient(connection, config);
 	}
@@ -100,14 +100,9 @@ public class PbcsClientFactory {
 	 * @param serviceConfiguration the configuration details
 	 * @return a new PBCS client instance
 	 */
-	public PbcsClient createClient(PbcsConnection connection, PbcsServiceConfiguration serviceConfiguration) {
+	public PbcsPlanningClient createClient(PbcsConnection connection, PbcsServiceConfiguration serviceConfiguration) {
 		RestContext restContext = createRestContext(serviceConfiguration, connection);
-		return new PbcsClientImpl(restContext, connection, serviceConfiguration);
-	}
-
-	@Deprecated
-	public PbcsPlanningClient createPlanningClient(PbcsConnection connection) {
-		return new PbcsPlanningClientImpl(createRestContext(createDefaultServiceConfiguration(), connection), connection.getServer(), false);
+		return new PbcsPlanningClientImpl(restContext, connection, serviceConfiguration);
 	}
 
 	/**
@@ -123,7 +118,7 @@ public class PbcsClientFactory {
 	 * @deprecated use {@link #createClient(PbcsConnection)} or {@link #createClient(PbcsConnection, PbcsServiceConfiguration)} instead
 	 */
 	@Deprecated
-	public PbcsClient createClient(String server, String identityDomain, String username, String password) {
+	public PbcsPlanningClient createClient(String server, String identityDomain, String username, String password) {
 		return createClient(new PbcsConnectionImpl(server, identityDomain, username, password));
 	}
 
