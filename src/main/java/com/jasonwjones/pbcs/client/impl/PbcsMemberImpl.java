@@ -18,13 +18,10 @@ public class PbcsMemberImpl extends AbstractPbcsObject implements PbcsMember {
 
     private final PbcsMemberPropertiesImpl memberProperties;
 
-    private final PbcsApplication parent;
-
-    public PbcsMemberImpl(RestContext context, PbcsApplication application, PbcsMemberPropertiesImpl memberProperties, PbcsApplication parent) {
+    public PbcsMemberImpl(RestContext context, PbcsApplication application, PbcsMemberPropertiesImpl memberProperties) {
         super(context);
         this.application = application;
         this.memberProperties = memberProperties;
-        this.parent = parent;
     }
 
     @Override
@@ -38,10 +35,15 @@ public class PbcsMemberImpl extends AbstractPbcsObject implements PbcsMember {
     }
 
     @Override
+    public String getOldName() {
+        return memberProperties.getOldName();
+    }
+
+    @Override
     public List<PbcsMember> getChildren() {
         List<PbcsMember> children = new ArrayList<>();
         for (PbcsMemberPropertiesImpl child : memberProperties.getChildren()) {
-            children.add(new PbcsMemberImpl(context, application, child, application));
+            children.add(new PbcsMemberImpl(context, application, child));
         }
         return children;
     }

@@ -17,7 +17,6 @@ import java.util.List;
  * id: "fd942166-21ae-4b36-b9f8-287164c1940c",
  * path: "/Account/CF/Cash Ending Balance/Total Cash Flow/Net Cash from Operations/Cash from Current Operations/[Cash from Current Operations].[NI]",
  * </pre>
- * TODO: should oldName be a synthetic alias table?
  */
 public interface PbcsMember extends PbcsObject {
 
@@ -29,6 +28,14 @@ public interface PbcsMember extends PbcsObject {
      * @return the member alias
      */
     String getAlias();
+
+    /**
+     * Gets the "old name" for this member. I'm not sure how this is used, but it is a property that gets returned from
+     * the member info endpoint. To date I don't believe I have seen a value different from the actual member name.
+     *
+     * @return the "old name" for this member
+     */
+    String getOldName();
 
     /**
      * Gets the child of this member, as actual member objects. It is not specified for implementing classes if this is
@@ -65,12 +72,9 @@ public interface PbcsMember extends PbcsObject {
     String getParentName();
 
     /**
-     * Gets the parent of this member. For most members this value will already exist, but calling this may cause a
-     * member lookup to happen. If you just need the name of the parent, then using {@link #getParentName()} is
-     * guaranteed to return without making an additional request to the server.
-     *
-     * @return the parent of this member, null if there isn't one (e.g. it's a dimension root)
-     * @since 2.0.0
+     * Gets the parent of this member object, which is currently the containing application. If you want to parent
+     * member, consider using {@link #getParentName()} or {@link #getParentMember()}. This method is named as such
+     * because it is a standard aspect of the {@link PbcsObject} interface.
      */
     @Override
     PbcsApplication getParent();

@@ -17,6 +17,8 @@ public class PbcsMemberPropertiesImpl {
 
 	private String parentName;
 
+	private String oldName;
+
 	private String dataType;
 
 	private Integer objectType;
@@ -66,6 +68,14 @@ public class PbcsMemberPropertiesImpl {
 
 	public void setParentName(String parentName) {
 		this.parentName = parentName;
+	}
+
+	public String getOldName() {
+		return oldName;
+	}
+
+	public void setOldName(String oldName) {
+		this.oldName = oldName;
 	}
 
 	public String getDataType() {
