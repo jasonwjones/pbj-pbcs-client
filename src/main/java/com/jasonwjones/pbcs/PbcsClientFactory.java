@@ -33,7 +33,7 @@ public class PbcsClientFactory {
 	 * constructed will use the system settings, such as <code>https.proxyHost</code> and <code>https.proxyPort</code>.
 	 *
 	 * <p>You can therefore use these settings to globally configure the HTTP client to use a system proxy. Note that if
-	 * you get PKIX exceptions, it may indicate that your Java <code>cacerts</code> file needs to have the certificate
+	 * you get PKIX exceptions, it may indicate that your Java certificates file needs to have the certificate
 	 * of the proxy server installed.
 	 */
 	public PbcsClientFactory() {
@@ -106,23 +106,6 @@ public class PbcsClientFactory {
 	}
 
 	/**
-	 * Convenience method for passing individual connection parameters instead
-	 * of having to construct a {@link PbcsConnection} object. Internally just
-	 * creates a connection object and calls the other createClient() method.
-	 *
-	 * @param server the PBCS server name (just a server, not a scheme, port, or path)
-	 * @param identityDomain the identity domain
-	 * @param username the username
-	 * @param password the password
-	 * @return a PbcsClient constructed with the given parameters
-	 * @deprecated use {@link #createClient(PbcsConnection)} or {@link #createClient(PbcsConnection, PbcsServiceConfiguration)} instead
-	 */
-	@Deprecated
-	public PbcsPlanningClient createClient(String server, String identityDomain, String username, String password) {
-		return createClient(new PbcsConnectionImpl(server, identityDomain, username, password));
-	}
-
-	/**
 	 * Builds and returns a default service configuration, namely with the
 	 * following are true: the scheme is https, the port is 443 (default HTTPS
 	 * port), the API version for Planning is "v3", and the endpoint path for
@@ -145,8 +128,6 @@ public class PbcsClientFactory {
 		sc.setPlanningRestApiPath("/HyperionPlanning/rest/");
 		sc.setInteropApiVersion("11.1.2.3.600");
 		sc.setInteropRestApiPath("/interop/rest/");
-
-		// Might be something like https://example.pbcs.us2.oraclecloud.com/aif/rest/V1/applications/{APPNAME}
 		sc.setAifRestApiPath("/aif/rest/");
 		sc.setAifRestApiVersion("V1");
 		return sc;
