@@ -1,9 +1,5 @@
 package com.jasonwjones.pbcs.client;
 
-import java.util.Deque;
-import java.util.LinkedList;
-import java.util.stream.Collectors;
-
 public interface PbcsObject {
 
     /**
@@ -23,16 +19,7 @@ public interface PbcsObject {
      * @return a qualified name for this object
      */
     default String getQualifiedName() {
-        Deque<PbcsObject> parents = new LinkedList<>();
-        PbcsObject current = this;
-        while (current != null) {
-            parents.addFirst(current);
-            current = current.getParent();
-        }
-
-        return parents.stream()
-                .map(PbcsObject::getName)
-                .collect(Collectors.joining("."));
+        return (getParent() != null ? getParent().getQualifiedName() + "." : "") + getName();
     }
 
     /**

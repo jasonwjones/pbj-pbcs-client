@@ -384,6 +384,16 @@ public class PbcsApplicationImpl extends AbstractPbcsObject implements PbcsAppli
 		return "PbcsApplicationImpl[application=" + application + "]";
 	}
 
+	/**
+	 * Simply return the name to prevent the parent (the client) from being added to the qualified name.
+	 *
+	 * @return qualified name, which is the app itself without resolving up the parent chain
+	 */
+	@Override
+	public String getQualifiedName() {
+		return getName();
+	}
+
 	private static class MemberAdd {
 
 		private String memberName;
