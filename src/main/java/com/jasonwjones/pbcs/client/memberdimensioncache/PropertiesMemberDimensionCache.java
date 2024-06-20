@@ -1,7 +1,10 @@
 package com.jasonwjones.pbcs.client.memberdimensioncache;
 
+import com.jasonwjones.pbcs.client.PbcsMember;
 import com.jasonwjones.pbcs.client.PbcsPlanType;
 import com.jasonwjones.pbcs.client.exceptions.PbcsClientException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -13,12 +16,26 @@ import java.util.Properties;
  * Stores dimension/member lookup information in an XML-based Java properties file. This implementation is mostly geared
  * towards speeding up unit and other tests.
  */
-public class PropertiesMemberDimensionCache implements PbcsPlanType.MemberDimensionCache {
+public class PropertiesMemberDimensionCache implements PbcsPlanType.MemberResolver {
+
+    private static final Logger logger = LoggerFactory.getLogger(PropertiesMemberDimensionCache.class);
 
     private final File file;
 
     public PropertiesMemberDimensionCache(File file) {
         this.file = file;
+    }
+
+    @Override
+    public PbcsMember getMember(PbcsPlanType planType, String memberOrAliasName) {
+        String encodedMemberInfo = read().getProperty(memberOrAliasName);
+        logger.warn("Properties member dimension cache will currently always return null for members");
+        return null;
+    }
+
+    @Override
+    public void setMember(PbcsPlanType planType, String resolvedName, PbcsMember member) {
+        logger.warn("Setting member info in properties dimension cache currently has no effect");
     }
 
     @Override
