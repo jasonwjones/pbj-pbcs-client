@@ -8,7 +8,6 @@ import com.jasonwjones.pbcs.client.exceptions.PbcsClientException;
 import com.jasonwjones.pbcs.client.exceptions.PbcsNoSuchObjectException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.ResponseEntity;
 import org.springframework.util.Assert;
 
 import java.util.ArrayList;
@@ -58,8 +57,8 @@ public class PbcsPlanningClientImpl extends AbstractPbcsObject implements PbcsPl
 	@Override
 	public PbcsApi getApi() {
 		logger.info("Checking API for {}", server);
-		ResponseEntity<Api> checkApi = getForEntity("", Api.class);
-		return new PbcsApiImpl(checkApi.getBody());
+		Api checkApi = get("", Api.class);
+		return new PbcsApiImpl(checkApi);
 	}
 
 	@Override
@@ -69,10 +68,10 @@ public class PbcsPlanningClientImpl extends AbstractPbcsObject implements PbcsPl
 
 	@Override
 	public List<PbcsApplication> getApplications() {
-		ResponseEntity<Applications> result = getForEntity("applications", Applications.class);
+		Applications result = get("applications", Applications.class);
 
 		List<PbcsApplication> pbcsApplications = new ArrayList<>();
-		for (Application application : result.getBody().getItems()) {
+		for (Application application : result.getItems()) {
 			PbcsApplicationImpl appImpl = new PbcsApplicationImpl(context, this, application);
 			pbcsApplications.add(appImpl);
 		}
