@@ -6,6 +6,7 @@ import com.jasonwjones.pbcs.api.v3.dataslices.ExportDataSlice;
 import com.jasonwjones.pbcs.api.v3.dataslices.GridDefinition;
 import com.jasonwjones.pbcs.client.*;
 import com.jasonwjones.pbcs.client.exceptions.PbcsClientException;
+import com.jasonwjones.pbcs.client.exceptions.PbcsDataExportException;
 import com.jasonwjones.pbcs.client.exceptions.PbcsInvalidDimensionException;
 import com.jasonwjones.pbcs.client.exceptions.PbcsNoSuchObjectException;
 import com.jasonwjones.pbcs.client.impl.grid.DataSliceGrid;
@@ -13,7 +14,6 @@ import com.jasonwjones.pbcs.client.impl.membervisitors.AbstractMemberVisitor;
 import com.jasonwjones.pbcs.client.impl.membervisitors.SearchMemberVisitor;
 import com.jasonwjones.pbcs.client.impl.membervisitors.SearchRegexMemberVisitor;
 import com.jasonwjones.pbcs.client.impl.membervisitors.SearchWildMemberVisitor;
-import com.jasonwjones.pbcs.util.GridPrinter;
 import com.jasonwjones.pbcs.util.GridUtils;
 import com.jasonwjones.pbcs.util.PlanTypeWalker;
 import org.slf4j.Logger;
@@ -84,7 +84,7 @@ public class PbcsExplicitDimensionsPlanTypeImpl extends PbcsPlanTypeImpl impleme
             }
         }
 
-        logger.debug("Using {} thread(s) to perform member name/alias search", configuration.getMemberSearchThreads());
+        logger.debug("{} will use {} thread(s) to perform member name/alias search", this, configuration.getMemberSearchThreads());
         executorService = Executors.newFixedThreadPool(configuration.getMemberSearchThreads());
     }
 
@@ -326,11 +326,7 @@ public class PbcsExplicitDimensionsPlanTypeImpl extends PbcsPlanTypeImpl impleme
             return new DataSliceGrid(this, slice);
         } catch (Exception e) {
             logger.error("Unable to retrieve grid: {}", e.getMessage());
-            if (logger.isDebugEnabled()) {
-                logger.debug("Retrieval grid:");
-                GridPrinter.print(grid);
-            }
-            throw e;
+            throw new PbcsDataExportException(grid, e);
         }
     }
 
