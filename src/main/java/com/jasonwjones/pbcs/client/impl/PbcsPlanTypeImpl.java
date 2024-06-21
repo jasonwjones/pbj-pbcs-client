@@ -26,6 +26,8 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 
 	private final String planType;
 
+	private final PbcsApplication.PlanTypeConfiguration configuration;
+
 	protected final MemberDimensionCache memberDimensionCache;
 
 	protected final MemberResolver memberResolver;
@@ -34,6 +36,7 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 		super(context);
 		this.application = application;
 		this.planType = configuration.getName();
+		this.configuration = configuration;
 		this.memberDimensionCache = configuration.getMemberDimensionCache();
 		this.memberResolver = configuration.getMemberResolver();
 	}
@@ -78,6 +81,11 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 	@Override
 	public PbcsApplication getParent() {
 		return getApplication();
+	}
+
+	@Override
+	public PbcsApplication.PlanTypeConfiguration getConfiguration() {
+		return configuration;
 	}
 
 	@Override

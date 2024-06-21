@@ -130,6 +130,7 @@ public interface PbcsPlanType extends PbcsObject {
 	 *
 	 * @return a data slice for a default retrieve from the cube
 	 */
+	// TODO: move this to explicit dimensions plan type
 	DataSliceGrid retrieve();
 
 	/**
@@ -229,6 +230,13 @@ public interface PbcsPlanType extends PbcsObject {
 	 * @return substitution variables specific to this plan
 	 */
 	Set<SubstitutionVariable> getSubstitutionVariables();
+
+	/**
+	 * Gets the configuration that was used to build this cube.
+	 *
+	 * @return this cube's configuration
+	 */
+	PbcsApplication.PlanTypeConfiguration getConfiguration();
 
 	/**
 	 * A member dimension cache is a simple cache that caches the dimension for member names. Due to the way the PBCS
