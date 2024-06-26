@@ -4,8 +4,6 @@ import com.jasonwjones.pbcs.client.PbcsObject;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestClientException;
 
-import java.util.StringJoiner;
-
 public abstract class AbstractPbcsObject implements PbcsObject {
 
     protected final RestContext context;
