@@ -283,7 +283,8 @@ public interface PbcsPlanType extends PbcsObject {
 		 * @param planType the plan type that the member is being requested from. Implementors will likely need/want to
 		 *                 use this information to build a unique caching key that can used in generic cache implementation.
 		 * @param memberOrAliasName the member or alias name being looked up
-		 * @return the member, if found, null otherwise (indicating that the plan/cube will resolve the member itself
+		 * @return the member, if found, null otherwise, indicating that the member is not in the resolver (cache) and
+		 * the plan should attempt to resolve on its own (and then update the cache via {@link #setMember(PbcsPlanType, String, PbcsMember)}).
 		 */
 		PbcsMember getMember(PbcsPlanType planType, String memberOrAliasName);
 
@@ -307,6 +308,10 @@ public interface PbcsPlanType extends PbcsObject {
 
 		@Override
 		default void setDimension(PbcsPlanType planType, String memberName, String dimensionName) {
+			// no op
+		}
+
+		default void addInvalidMember(PbcsPlanType planType, String invalidMemberOrAliasName) {
 			// no op
 		}
 

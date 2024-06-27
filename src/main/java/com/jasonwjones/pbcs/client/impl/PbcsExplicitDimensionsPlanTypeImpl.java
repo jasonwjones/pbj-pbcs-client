@@ -5,10 +5,7 @@ import com.jasonwjones.pbcs.api.v3.dataslices.DimensionMembers;
 import com.jasonwjones.pbcs.api.v3.dataslices.ExportDataSlice;
 import com.jasonwjones.pbcs.api.v3.dataslices.GridDefinition;
 import com.jasonwjones.pbcs.client.*;
-import com.jasonwjones.pbcs.client.exceptions.PbcsClientException;
-import com.jasonwjones.pbcs.client.exceptions.PbcsDataExportException;
-import com.jasonwjones.pbcs.client.exceptions.PbcsInvalidDimensionException;
-import com.jasonwjones.pbcs.client.exceptions.PbcsNoSuchObjectException;
+import com.jasonwjones.pbcs.client.exceptions.*;
 import com.jasonwjones.pbcs.client.impl.grid.DataSliceGrid;
 import com.jasonwjones.pbcs.client.impl.membervisitors.AbstractMemberVisitor;
 import com.jasonwjones.pbcs.client.impl.membervisitors.SearchMemberVisitor;
@@ -117,37 +114,44 @@ public class PbcsExplicitDimensionsPlanTypeImpl extends PbcsPlanTypeImpl impleme
 
     @Override
     public PbcsMember getMemberOrAlias(String memberOrAliasName) {
-        PbcsMember member = memberResolver.getMember(this, memberOrAliasName);
-        if (member != null) {
-            return member;
-        } else {
-            logger.warn("Resolving {} from source", memberOrAliasName);
-            PbcsMember matchingMember = oneOffSearchInDimension(memberOrAliasName);
-            if (matchingMember != null) return matchingMember;
+        Objects.requireNonNull(memberOrAliasName, "Must specify a member or alias name");
 
-            List<MemberSearchCallable> searchers;
-            if (getDimensionNames().contains(memberOrAliasName)) {
-                // shortcut when the member being queried literally is a dimension
-                PbcsDimension searchDimension = getDimension(memberOrAliasName);
-                searchers = Collections.singletonList(new MemberSearchCallable(searchDimension, memberOrAliasName));
-            } else {
-                // you can technically re-search a dimension, but that only happens when you have a bad cache
-                searchers = explicitDimensions.stream()
-                        .map(dimension -> new MemberSearchCallable(dimension, memberOrAliasName))
-                        .collect(Collectors.toList());
-            }
-
-            try {
-                member = executorService.invokeAny(searchers);
-                logger.debug("Found member {} (via {}) in dimension {}", member.getName(), memberOrAliasName, member.getDimensionName());
-                memberDimensionCache.setDimension(this, memberOrAliasName, member.getDimensionName());
-                memberResolver.setMember(this, memberOrAliasName, member);
+        try {
+            PbcsMember member = memberResolver.getMember(this, memberOrAliasName);
+            if (member != null) {
                 return member;
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            } catch (ExecutionException e) {
-                logger.warn("Unable to find member {}", memberOrAliasName);
+            } else {
+                logger.warn("Resolving {} from source", memberOrAliasName);
+                PbcsMember matchingMember = oneOffSearchInDimension(memberOrAliasName);
+                if (matchingMember != null) return matchingMember;
+
+                List<MemberSearchCallable> searchers;
+                if (getDimensionNames().contains(memberOrAliasName)) {
+                    // shortcut when the member being queried literally is a dimension
+                    PbcsDimension searchDimension = getDimension(memberOrAliasName);
+                    searchers = Collections.singletonList(new MemberSearchCallable(searchDimension, memberOrAliasName));
+                } else {
+                    // you can technically re-search a dimension, but that only happens when you have a bad cache
+                    searchers = explicitDimensions.stream()
+                            .map(dimension -> new MemberSearchCallable(dimension, memberOrAliasName))
+                            .collect(Collectors.toList());
+                }
+
+                try {
+                    member = executorService.invokeAny(searchers);
+                    logger.debug("Found member {} (via {}) in dimension {}", member.getName(), memberOrAliasName, member.getDimensionName());
+                    memberDimensionCache.setDimension(this, memberOrAliasName, member.getDimensionName());
+                    memberResolver.setMember(this, memberOrAliasName, member);
+                    return member;
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                } catch (ExecutionException e) {
+                    logger.warn("Unable to find member {}", memberOrAliasName);
+                }
             }
+            memberResolver.addInvalidMember(this, memberOrAliasName);
+        } catch (PbcsKnownInvalidMemberException e) {
+            logger.debug("Encountered known invalid member: {}", e.getObjectName());
         }
         return null;
     }
@@ -320,7 +324,7 @@ public class PbcsExplicitDimensionsPlanTypeImpl extends PbcsPlanTypeImpl impleme
 
         // todo: catch exception and provide custom with some analysis on potential causes of problem
         try {
-            logger.debug("Exporting data slice from {}", getName());
+            logger.debug("Exporting data slice from {}", getQualifiedName());
             DataSlice slice = post("applications/{application}/plantypes/{planType}/exportdataslice", exportDataSlice, DataSlice.class, getApplication().getName(), getName());
             logger.debug("Data slice export returned from {}", getName());
             return new DataSliceGrid(this, slice);
