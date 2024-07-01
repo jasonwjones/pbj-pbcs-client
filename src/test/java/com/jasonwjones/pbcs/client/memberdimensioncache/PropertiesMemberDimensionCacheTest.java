@@ -7,6 +7,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
+import java.io.IOException;
 
 import static org.junit.Assert.*;
 
@@ -29,6 +30,11 @@ public class PropertiesMemberDimensionCacheTest {
     public void setMember() {
         PbcsMember member = application.getMember("Period", "Jan");
         cache.setMember(null, "Jan", member);
+    }
+
+    @Test
+    public void clear() throws IOException {
+        cache.clear();
     }
 
 }

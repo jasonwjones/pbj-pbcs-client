@@ -11,6 +11,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -51,9 +52,9 @@ public class PropertiesMemberDimensionCache implements PbcsPlanType.MemberResolv
         this.file = file;
     }
 
-    public void clear() {
-        boolean deleted = file.delete();
-        logger.info("Clear property file member cache: {}", deleted);
+    public void clear() throws IOException {
+        logger.info("Clearing property file member cache");
+        Files.delete(file.toPath());
     }
 
     @Override
