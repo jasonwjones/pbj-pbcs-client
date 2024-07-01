@@ -8,13 +8,19 @@ import com.jasonwjones.pbcs.client.PbcsPlanType;
 import com.jasonwjones.pbcs.client.PbcsPlanningClient;
 import com.jasonwjones.pbcs.client.impl.PbcsConnectionImpl;
 import com.jasonwjones.pbcs.client.impl.PlanTypeConfigurationImpl;
+import com.jasonwjones.pbcs.client.memberdimensioncache.PropertiesMemberDimensionCache;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.io.FileReader;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
 public class PbcsClientUtils {
+
+    private static final Logger logger = LoggerFactory.getLogger(PbcsClientUtils.class);
 
     public static final String PROPS = System.getProperty("user.home") + "/pbcs-client.properties";
 
@@ -58,6 +64,22 @@ public class PbcsClientUtils {
         List<String> dimensions = Arrays.asList(properties.getProperty("dimensions").split(";"));
         planTypeConfiguration.setExplicitDimensions(dimensions);
 
+        String attributeDimensionDefinition = properties.getProperty("attributeDimensions");
+        if (attributeDimensionDefinition != null) {
+            List<String> attributeDimensions = Arrays.asList(attributeDimensionDefinition.split(";"));
+            planTypeConfiguration.setExplicitAttributeDimensions(attributeDimensions);
+        }
+
+        String memberResolverType = properties.getProperty("memberResolverType");
+        if (memberResolverType != null) {
+            if ("properties".equalsIgnoreCase(memberResolverType)) {
+                File file = new File(properties.getProperty("memberResolverFile", "default-member-resolver.xml"));
+                PropertiesMemberDimensionCache propertiesMemberDimensionCache = new PropertiesMemberDimensionCache(file);
+                planTypeConfiguration.setMemberResolver(propertiesMemberDimensionCache);
+            } else {
+                throw new IllegalArgumentException("Unknown member resolver type: " + memberResolverType);
+            }
+        }
         return application.getPlanType(planTypeConfiguration);
     }
 
