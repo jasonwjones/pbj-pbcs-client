@@ -66,7 +66,7 @@ public class GridDefinition {
 
 	/**
 	 * Columns are modeled... kind of fucking stupidly. Think of it as a single
-	 * array for all of the columns, one element per column. The object in that
+	 * array for all the columns, one element per column. The object in that
 	 * array is one or more strings that extend down the sheet.
 	 *
 	 * @param columns the column definition

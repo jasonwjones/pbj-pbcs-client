@@ -19,6 +19,7 @@ import org.junit.Test;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static com.jasonwjones.pbcs.matchers.DataSliceGridMatcher.hasDimensions;
@@ -103,6 +104,17 @@ public class VisionCubeAdhocIT extends AbstractIntegrationTest {
         GridPrinter.print(grid);
 
         DataSliceGrid dataSliceGrid = cube.retrieve(pov, actualGrid);
+        DataSliceGridPrinter.print(dataSliceGrid);
+    }
+
+    // this is a quick test to ensure that PBCS supports retrieving without a POV (and therefore, a fully-qualified
+    // or fully-stacked grid
+    @Test
+    public void getFullyStacked() throws IOException {
+        Grid<String> grid = new TextGridReader().read("grids/fully-stacked.txt");
+        GridPrinter.print(grid);
+
+        DataSliceGrid dataSliceGrid = cube.retrieve(Collections.emptyList(), grid);
         DataSliceGridPrinter.print(dataSliceGrid);
     }
 

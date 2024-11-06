@@ -147,7 +147,6 @@ public class PbcsMemberImpl extends AbstractPbcsObject implements PbcsMember {
         return getChildren().isEmpty();
     }
 
-
     @Override
     public String toString() {
         String aliasText = getAlias() != null ? " (alias: " + getAlias() + ")" : "";

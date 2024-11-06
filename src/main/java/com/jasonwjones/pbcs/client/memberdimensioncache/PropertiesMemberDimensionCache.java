@@ -99,7 +99,7 @@ public class PropertiesMemberDimensionCache implements PbcsPlanType.MemberResolv
     private void updateProperties(Properties properties) {
         try (FileOutputStream fos = new FileOutputStream(file)) {
             properties.storeToXML(fos, "Member to dimension mapping");
-            logger.info("Wrote {} entries to property file member dimension cache", properties.size());
+            logger.info("Updated property file member dimension cache, now has {} entries", properties.size());
         } catch (IOException e) {
             throw new PbcsClientException("Unable to set dimension for member", e);
         }

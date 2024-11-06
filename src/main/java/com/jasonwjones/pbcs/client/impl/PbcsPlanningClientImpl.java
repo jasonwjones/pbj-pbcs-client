@@ -29,6 +29,8 @@ public class PbcsPlanningClientImpl extends AbstractPbcsObject implements PbcsPl
 
 	private final String server;
 
+	private final PbcsApi api;
+
 	public PbcsPlanningClientImpl(RestContext context, PbcsConnection connection, PbcsServiceConfiguration serviceConfiguration) {
 		this(context, connection.getServer(), serviceConfiguration.isSkipApiCheck());
 	}
@@ -39,7 +41,7 @@ public class PbcsPlanningClientImpl extends AbstractPbcsObject implements PbcsPl
 
 		if (!skipApiCheck) {
 			try {
-				PbcsApi api = getApi();
+				api = getApi();
 				if (!api.isLatest()) {
 					logger.warn("PBCS indicates that the current API ({}) is not the latest available", api.getVersion());
 				} else {
@@ -51,14 +53,19 @@ public class PbcsPlanningClientImpl extends AbstractPbcsObject implements PbcsPl
 			}
 		} else {
 			logger.debug("Skipping initialization API check");
+			api = null;
 		}
 	}
 
 	@Override
 	public PbcsApi getApi() {
-		logger.info("Checking API for {}", server);
-		Api checkApi = get("", Api.class);
-		return new PbcsApiImpl(checkApi);
+		if (api != null) {
+			return api;
+		} else {
+			logger.info("Checking API for {}", server);
+			Api checkApi = get("", Api.class);
+			return new PbcsApiImpl(checkApi);
+		}
 	}
 
 	@Override

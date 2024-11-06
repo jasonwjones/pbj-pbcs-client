@@ -1,3 +1,89 @@
+### Import Data Slice
+
+POST https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/plantypes/Plan1/importdataslice
+Authorization: {{creds}}
+Accept: application/json
+Content-Type: application/json
+
+{
+  "aggregateEssbaseData": false,
+  "cellNotesOption":"Skip",
+  "dateFormat":"DD/MM/YYYY",
+  "strictDateValidation": true,
+  "customParams": {
+    "IncludeRejectedCells":true,
+    "IncludeRejectedCellsWithDetails":true
+  },
+  "dataGrid":{
+    "pov":[
+      "Actual",
+      "FY22",
+      "Final",
+      "USD",
+      "000",
+      "P_000"
+    ],
+    "columns":[
+      [
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr"
+      ]
+    ],
+    "rows":[
+      {
+        "headers":[
+          "4110"
+        ],
+        "data":[
+          "57416449950.65",
+          "0.020",
+          "0.00000000000578",
+          "2"
+        ]
+      }
+    ]
+  }
+}
+
+### Export Data Slice
+# You can use this to verify that the previous request (importdataslice) actually worked.
+
+POST https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/plantypes/{{cube}}/exportdataslice
+Authorization: {{creds}}
+Accept: application/json
+Content-Type: application/json
+
+{
+  "gridDefinition": {
+    "suppressMissingBlocks": false,
+    "pov": {
+      "members": [
+        ["Actual"], ["FY22"], ["Final"], ["USD"], ["000"], ["P_000"]
+      ]
+    },
+    "columns": [
+      {
+        "members": [
+          ["Jan", "Feb", "Mar", "Apr"]
+        ]
+      }
+    ],
+    "rows": [
+      {
+        "members": [
+          ["4110"]
+        ]
+      }
+    ]
+  }
+}
+
+
+
+
+
 ### Get All API Version Info
 #
 # The trailing slash is required
@@ -209,97 +295,12 @@ Content-Type: application/json
   "parameters": {"TestCurrYr": "FY24"}
 }
 
-### TEMP
-
-GET https://{{server}}/HyperionPlanning/rest/v3/applications/Vision/jobs/105
-Authorization: {{creds}}
-Content-Type: application/json
-
-### List Files
-
-GET https://{{server}}/interop/rest/v2/files/list
-Authorization: {{creds}}
-Content-Type: application/json
-
-### Execute Job - Export Valid Intersections
-# seems to absolute require the Content-Type header here, reporting a 415 if not set
-
-POST https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/jobs
-Authorization: {{creds}}
-Content-Type: application/json
-
-{
-  "jobType":"EXPORT_VALID_INTERSECTIONS",
-  "parameters" : {
-    "fileName": "export_valid_intersections.zip"
-  }
-}
-
-### TEST
-
-GET https://{{server}}/interop/rest/
-Accept: application/json
-Authorization: {{creds}}
-
-
-### Download File
-
-GET https://{{server}}/interop/rest/11.1.2.3.600/applicationsnapshots/export_valid_intersections.zip/contents
-Authorization: {{creds}}
-Content-Type: application/octet-stream
-
 ### Get Job Status
 
 GET https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/jobs/42
 Authorization: {{creds}}
 Accept: application/json
 
-### Import Data Slice
-
-POST https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/plantypes/Plan1/importdataslice
-Authorization: {{creds}}
-Accept: application/json
-Content-Type: application/json
-
-{
-  "aggregateEssbaseData": false,
-  "cellNotesOption":"Skip",
-  "dateFormat":"DD/MM/YYYY",
-  "strictDateValidation": true,
-  "customParams": {
-    "IncludeRejectedCells":true,
-    "IncludeRejectedCellsWithDetails":true
-  },
-   "dataGrid":{
-      "pov":[
-         "Actual",
-         "FY22",
-         "Final",
-         "USD",
-         "000",
-         "P_000"
-      ],
-      "columns":[
-         [
-            "Jan",
-            "Feb",
-            "Mar"
-         ]
-      ],
-      "rows":[
-         {
-            "headers":[
-               "4110"
-            ],
-            "data":[
-               "1",
-               "2",
-               "3"
-            ]
-         }
-      ]
-   }
-}
 
 ### Import Data Slice
 
@@ -472,38 +473,6 @@ Content-Type: application/json
   }
 }
 
-### Export Data Slice
-# You can use this to verify that the previous request (importdataslice) actually worked.
-
-POST https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/plantypes/{{cube}}/exportdataslice
-Authorization: {{creds}}
-Accept: application/json
-Content-Type: application/json
-
-{
-  "gridDefinition": {
-    "suppressMissingBlocks": false,
-    "pov": {
-      "members": [
-        ["Actual"], ["FY22"], ["Final"], ["USD"], ["000"], ["P_000"]
-      ]
-    },
-    "columns": [
-      {
-        "members": [
-          ["Jan", "Feb"]
-        ]
-      }
-    ],
-    "rows": [
-      {
-       "members": [
-         ["4110"]
-       ]
-      }
-    ]
-  }
-}
 
 ### Export Data Slice
 
@@ -712,7 +681,7 @@ Content-Type: application/json
   }
 }
 
-### Export Data Slice - Attribute dims in columns (works because of dimension hint)
+### Export Data Slice - Attribute dims in columns (works)
 
 POST https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/plantypes/Plan1/exportdataslice
 Authorization: {{creds}}
