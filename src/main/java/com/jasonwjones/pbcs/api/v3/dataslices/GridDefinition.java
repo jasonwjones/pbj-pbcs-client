@@ -1,5 +1,9 @@
 package com.jasonwjones.pbcs.api.v3.dataslices;
 
+import com.jasonwjones.pbcs.client.PovGrid;
+import com.jasonwjones.pbcs.util.GridUtils;
+
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -27,6 +31,33 @@ public class GridDefinition {
 		this.pov = DimensionMembers.ofMemberNames(pov);
 		this.columns = columns;
 		this.rows = rows;
+	}
+
+	public GridDefinition(PovGrid<String> grid) {
+		this.pov = DimensionMembers.ofMemberNames(grid.getPov());
+		// get the 'fulcrum' point in the grid
+		int firstRowWithCell = GridUtils.firstNonNullInColumn(grid, 0);
+		int firstColWithCell = GridUtils.firstNonNullInRow(grid, 0);
+		int lastNonNullCol = GridUtils.lastNonNullInRow(grid, 0);
+
+		List<DimensionMembers> top = new ArrayList<>();
+		for (int col = firstColWithCell; col <= lastNonNullCol; col++) {
+			List<String> members = GridUtils.col(grid, col, 0, firstRowWithCell);
+			DimensionMembers dimensionMembers = DimensionMembers.ofMemberNames(members);
+			top.add(dimensionMembers);
+		}
+
+		List<DimensionMembers> left = new ArrayList<>();
+		List<List<String>> columns = new ArrayList<>();
+		for (int col = 0; col < firstColWithCell; col++) {
+			List<String> colMembers = GridUtils.col(grid, col, firstRowWithCell, grid.getRows());
+			columns.add(colMembers);
+		}
+		DimensionMembers leftDimMembers = DimensionMembers.of(columns);
+		left.add(leftDimMembers);
+
+		this.columns = top;
+		this.rows = left;
 	}
 
 	public GridDefinition(List<String> pov) {

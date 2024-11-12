@@ -18,14 +18,10 @@ public class PovGridImpl<E> implements PovGrid<E> {
         this.grid = grid;
     }
 
-    public List<E> foo() {
-        return null;
-    }
-
     /**
      * Creates a new grid that's a copy of the given grid
-     * @param conversion
-     * @return
+     * @param conversion conversion function
+     * @return a new grid that is a copy of this one after having applied the given conversion function for each cell
      * @param <T> the result type
      */
     @Override

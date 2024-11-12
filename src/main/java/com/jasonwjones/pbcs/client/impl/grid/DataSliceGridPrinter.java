@@ -1,7 +1,5 @@
 package com.jasonwjones.pbcs.client.impl.grid;
 
-import java.sql.SQLOutput;
-
 public class DataSliceGridPrinter {
 
     public static void print(DataSliceGrid grid) {

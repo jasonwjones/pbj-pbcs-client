@@ -7,7 +7,6 @@ import com.jasonwjones.pbcs.client.impl.PovGridImpl;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.StringJoiner;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.Function;
@@ -30,7 +29,7 @@ public class DataSliceGrid implements PovGrid<DataSliceGrid.Cell> {
 
     private final int leftCols;
 
-    private static final Cell BLANK = new BlankCell();
+    public static final Cell BLANK = new BlankCell();
 
     private final ConcurrentMap<Integer, String> axisDimensionLookups = new ConcurrentHashMap<>();
 

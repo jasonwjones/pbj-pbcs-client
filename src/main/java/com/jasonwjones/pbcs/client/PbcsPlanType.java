@@ -2,8 +2,10 @@ package com.jasonwjones.pbcs.client;
 
 import com.jasonwjones.pbcs.api.v3.SubstitutionVariable;
 import com.jasonwjones.pbcs.client.impl.grid.DataSliceGrid;
+import com.jasonwjones.pbcs.util.DataSliceDiff;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -342,6 +344,14 @@ public interface PbcsPlanType extends PbcsObject {
 		 */
 		int getRejectedCells();
 
+		/**
+		 * Returns the set of changed cells (empty set if none). Enabled by the {@link ImportDataOptions#isReturnChangedCells()}
+		 * option.
+		 *
+		 * @return mapping of changed cells
+		 */
+		Map<Set<String>, DataSliceDiff.ValChange> getChanges();
+
 	}
 
 	/**
@@ -400,6 +410,15 @@ public interface PbcsPlanType extends PbcsObject {
 		 * @return true if exception should be thrown for rejected data, false otherwise
 		 */
 		boolean isThrowExceptionIfAnyRejectedCells();
+
+		/**
+		 * Determines whether the set/update operation should return a list of changed cells (currently calculated by
+		 * performing a retrieve, the update, and then another retrieve to see what changed). Updated cells are carried
+		 * in the {@link PbcsPlanType.ImportDataResult} object.
+		 *
+		 * @return true if updated cells should be returned, false otherwise.
+		 */
+		boolean isReturnChangedCells();
 
 	}
 

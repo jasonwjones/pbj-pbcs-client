@@ -5,10 +5,14 @@ import com.jasonwjones.pbcs.api.v3.SubstitutionVariablesWrapper;
 import com.jasonwjones.pbcs.api.v3.dataslices.*;
 import com.jasonwjones.pbcs.client.*;
 import com.jasonwjones.pbcs.client.exceptions.PbcsClientException;
+import com.jasonwjones.pbcs.client.exceptions.PbcsDataExportException;
 import com.jasonwjones.pbcs.client.exceptions.PbcsDataImportException;
 import com.jasonwjones.pbcs.client.exceptions.PbcsNoSuchObjectException;
 import com.jasonwjones.pbcs.client.impl.grid.DataSliceGrid;
+import com.jasonwjones.pbcs.client.impl.grid.DataSliceGridPrinter;
+import com.jasonwjones.pbcs.util.DataSliceDiff;
 import com.jasonwjones.pbcs.util.GridUtils;
+import com.jasonwjones.pbcs.util.PovGridWalker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
@@ -122,42 +126,18 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 
 	@Override
 	public DataSliceGrid retrieve(List<String> pov, Grid<String> grid) {
-		// get the 'fulcrum' point in the grid
-		int firstRowWithCell = GridUtils.firstNonNullInColumn(grid, 0);
-		int firstColWithCell = GridUtils.firstNonNullInRow(grid, 0);
-		int lastNonNullCol = GridUtils.lastNonNullInRow(grid, 0);
+		PovGrid<String> povGrid = new PovGridImpl<>(pov, grid);
+		DataSlice dataSlice = retrieveToSlice(povGrid);
+		return new DataSliceGrid(this, dataSlice);
+	}
 
-		List<DimensionMembers> top = new ArrayList<>();
-		for (int col = firstColWithCell; col <= lastNonNullCol; col++) {
-			List<String> members = GridUtils.col(grid, col, 0, firstRowWithCell);
-			DimensionMembers dimensionMembers = DimensionMembers.ofMemberNames(members);
-			top.add(dimensionMembers);
-		}
-
-		List<DimensionMembers> left = new ArrayList<>();
-		List<List<String>> columns = new ArrayList<>();
-		for (int col = 0; col < firstColWithCell; col++) {
-			List<String> colMembers = GridUtils.col(grid, col, firstRowWithCell, grid.getRows());
-			columns.add(colMembers);
-		}
-		DimensionMembers leftDimMembers = DimensionMembers.of(columns);
-		left.add(leftDimMembers);
-
-		GridDefinition gridDefinition = new GridDefinition(pov, top, left);
-		ExportDataSlice exportDataSlice = new ExportDataSlice(gridDefinition);
-
+	private DataSlice retrieveToSlice(PovGrid<String> grid) {
 		try {
-			ResponseEntity<DataSlice> slice = this.context.getTemplate().postForEntity(this.context.getBaseUrl() + "applications/{application}/plantypes/{planType}/exportdataslice", exportDataSlice, DataSlice.class, application.getName(), planType);
-			if (slice.getStatusCode().is2xxSuccessful()) {
-				DataSlice dataSlice = slice.getBody();
-				return new DataSliceGrid(this, dataSlice);
-			} else {
-				throw new RuntimeException("Error retrieving data, received code: " + slice.getStatusCode());
-			}
+			GridDefinition gridDefinition = new GridDefinition(grid);
+			ExportDataSlice exportDataSlice = new ExportDataSlice(gridDefinition);
+			return post("applications/{application}/plantypes/{planType}/exportdataslice", exportDataSlice, DataSlice.class, application.getName(), planType);
 		} catch (Exception e) {
-			logger.error("Exception: {}", e.getMessage());
-			e.printStackTrace();
-			throw e;
+			throw new PbcsDataExportException(grid, e);
 		}
 	}
 
@@ -188,10 +168,21 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 		ImportDataSlice importDataSlice = new ImportDataSlice();
 		importDataSlice.setDataGrid(new DataSlice(pov, values));
 		logger.info("Updating {}.{} at POV {} using a {}x{} source grid", application.getName(), planType, pov, values.getRows(), values.getColumns());
-		return importDataSlice(importDataSlice, importDataOptions);
+
+		PovGrid<String> povGrid = new PovGridImpl<>(pov, values);
+		DataSlice beforeSlice = importDataOptions.isReturnChangedCells() ? retrieveToSlice(povGrid) : null;
+		ImportDataResultImpl importDataResult = importDataSlice(importDataSlice, importDataOptions);
+
+		if (importDataOptions.isReturnChangedCells()) {
+			DataSlice afterSlice = retrieveToSlice(povGrid);
+			Map<Set<String>, DataSliceDiff.ValChange> changes = DataSliceDiff.diff(beforeSlice, afterSlice);
+			importDataResult.setChanges(changes);
+		}
+
+		return importDataResult;
 	}
 
-	private ImportDataResult importDataSlice(ImportDataSlice importDataSlice, ImportDataOptions importDataOptions) {
+	private ImportDataResultImpl importDataSlice(ImportDataSlice importDataSlice, ImportDataOptions importDataOptions) {
 
 		importDataSlice.setAggregateEssbaseData(importDataOptions.isAggregateData());
 		importDataSlice.setCellNotesOption(importDataOptions.getCellNotesOption().getApiCode());
@@ -324,6 +315,8 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 
 		private final ImportDataSliceResponse response;
 
+		private Map<Set<String>, DataSliceDiff.ValChange> changes;
+
 		public ImportDataResultImpl(ImportDataSliceResponse response) {
 			this.response = response;
 		}
@@ -334,6 +327,14 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 
 		public int getRejectedCells() {
 			return response.getNumRejectedCells();
+		}
+
+		public Map<Set<String>, DataSliceDiff.ValChange> getChanges() {
+			return changes;
+		}
+
+		public void setChanges(Map<Set<String>, DataSliceDiff.ValChange> changes) {
+			this.changes = changes;
 		}
 
 	}
@@ -357,6 +358,8 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 		private String postDataImportRuleNames;
 
 		private boolean throwExceptionIfAnyRejectedCells;
+
+		private boolean returnChangedCells;
 
 		@Override
 		public boolean isAggregateData() {
@@ -437,6 +440,15 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 
 		public void setThrowExceptionIfAnyRejectedCells(boolean throwExceptionIfAnyRejectedCells) {
 			this.throwExceptionIfAnyRejectedCells = throwExceptionIfAnyRejectedCells;
+		}
+
+		@Override
+		public boolean isReturnChangedCells() {
+			return returnChangedCells;
+		}
+
+		public void setReturnChangedCells(boolean returnChangedCells) {
+			this.returnChangedCells = returnChangedCells;
 		}
 
 	}
