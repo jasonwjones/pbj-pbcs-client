@@ -43,6 +43,8 @@ public class IdcsTest {
         PbcsConnection connection = new PbcsConnectionToken(SERVER, token);
         PbcsPlanningClient client = new PbcsClientFactory().createClient(connection);
 
+        System.out.println("User name from auth token: " + client.getUserName());
+
 //        System.out.println("Apps:");
 //
 //        for (PbcsApplication app : client.getApplications()) {

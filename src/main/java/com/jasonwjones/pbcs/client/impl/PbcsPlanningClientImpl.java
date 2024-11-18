@@ -14,32 +14,25 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Default implementation of PbcsPlanningClient. This class can be thought of as
- * the entry point to the Planning REST API. Most users will likely jump
- * straight from this class to grabbing an instance of {@link PbcsApplication},
- * which is the main interface for modeling operations on a particular
- * application.
+ * Default implementation of PbcsPlanningClient. This class can be thought of as the entry point to the Planning REST
+ * API. Most users will likely jump straight from this class to grabbing an instance of {@link PbcsApplication}, which
+ * is the main interface for modeling operations on a particular application.
  *
  * @author Jason Jones
- *
  */
 public class PbcsPlanningClientImpl extends AbstractPbcsObject implements PbcsPlanningClient {
 
 	private static final Logger logger = LoggerFactory.getLogger(PbcsPlanningClientImpl.class);
 
-	private final String server;
+	private final PbcsConnection connection;
 
 	private final PbcsApi api;
 
 	public PbcsPlanningClientImpl(RestContext context, PbcsConnection connection, PbcsServiceConfiguration serviceConfiguration) {
-		this(context, connection.getServer(), serviceConfiguration.isSkipApiCheck());
-	}
+		super(context);
+		this.connection = connection;
 
-	public PbcsPlanningClientImpl(RestContext restContext, String server, boolean skipApiCheck) {
-		super(restContext);
-		this.server = server;
-
-		if (!skipApiCheck) {
+		if (!serviceConfiguration.isSkipApiCheck()) {
 			try {
 				api = getApi();
 				if (!api.isLatest()) {
@@ -62,7 +55,7 @@ public class PbcsPlanningClientImpl extends AbstractPbcsObject implements PbcsPl
 		if (api != null) {
 			return api;
 		} else {
-			logger.info("Checking API for {}", server);
+			logger.info("Checking API for {}", connection.getServer());
 			Api checkApi = get("", Api.class);
 			return new PbcsApiImpl(checkApi);
 		}
@@ -70,7 +63,12 @@ public class PbcsPlanningClientImpl extends AbstractPbcsObject implements PbcsPl
 
 	@Override
 	public String getServer() {
-		return server;
+		return connection.getServer();
+	}
+
+	@Override
+	public String getUserName() {
+		return connection.getUsername();
 	}
 
 	@Override
