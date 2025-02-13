@@ -60,6 +60,11 @@ public class PbcsMemberImpl extends AbstractPbcsObject implements PbcsMember {
 
     @Override
     public PbcsApplication getParent() {
+        return getApplication();
+    }
+
+    @Override
+    public PbcsApplication getApplication() {
         return application;
     }
 
@@ -154,11 +159,6 @@ public class PbcsMemberImpl extends AbstractPbcsObject implements PbcsMember {
     }
 
     @Override
-    public PbcsApplication getApplication() {
-        return application;
-    }
-
-    @Override
     public PbcsMember searchForDescendant(String memberOrAliasName) {
         Queue<PbcsMember> members = new ArrayDeque<>();
         members.add(this);
@@ -170,7 +170,6 @@ public class PbcsMemberImpl extends AbstractPbcsObject implements PbcsMember {
                 // set here anyway in case the underlying cache mechanism needs a "hit" in order to update a TTL
                 // or similar value. Note: this could cause a lot of traffic to your SoR if the cache writes through
                 // You may want to use a putIfAbsent paradigm (instead of a put) to avoid unnecessary writes
-                //memberDimensionCache.setDimension(this, memberOrAliasName, dimension.getName());
                 if (current.getDataStorageType() == DataStorage.SHARED) {
                     logger.info("Found descendant {} of {} but skipping since it's a share", memberOrAliasName, getName());
                 } else {
