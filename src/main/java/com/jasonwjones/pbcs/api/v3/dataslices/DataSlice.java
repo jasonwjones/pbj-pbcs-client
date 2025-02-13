@@ -6,6 +6,7 @@ import com.jasonwjones.pbcs.util.GridUtils;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.StringJoiner;
 
 /**
  * Models the data slice response from an Export Data Slice operation
@@ -77,6 +78,13 @@ public class DataSlice {
 			rows.add(headerDataRow);
 		}
 
+	}
+
+	@Override
+	public String toString() {
+		return new StringJoiner(", ", "data slice [", "]")
+				.add("rows=" + rows.size())
+				.toString();
 	}
 
 	/**

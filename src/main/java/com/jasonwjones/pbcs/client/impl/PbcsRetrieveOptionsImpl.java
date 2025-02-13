@@ -8,6 +8,8 @@ public class PbcsRetrieveOptionsImpl implements PbcsPlanType.RetrieveOptions {
 
     private boolean exportPlanningData;
 
+    private boolean suppressMissing;
+
     @Override
     public boolean isProvideDimensionHints() {
         return provideDimensionHints;
@@ -24,6 +26,15 @@ public class PbcsRetrieveOptionsImpl implements PbcsPlanType.RetrieveOptions {
 
     public void setExportPlanningData(boolean exportPlanningData) {
         this.exportPlanningData = exportPlanningData;
+    }
+
+    @Override
+    public boolean isSuppressMissingRows() {
+        return suppressMissing;
+    }
+
+    public void setSuppressMissing(boolean suppressMissing) {
+        this.suppressMissing = suppressMissing;
     }
 
 }

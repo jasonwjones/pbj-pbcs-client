@@ -18,8 +18,6 @@ import static org.junit.Assert.assertTrue;
 
 public class VisionDataUpdateIT extends VisionCubeAdhocIT {
 
-    private static final Logger logger = LoggerFactory.getLogger(VisionDataUpdateIT.class);
-
     protected PbcsApplication app;
 
     protected PbcsPlanType plan;
@@ -48,6 +46,11 @@ public class VisionDataUpdateIT extends VisionCubeAdhocIT {
 
         @Override
         public boolean isExportPlanningData() {
+            return false;
+        }
+
+        @Override
+        public boolean isSuppressMissingRows() {
             return false;
         }
 

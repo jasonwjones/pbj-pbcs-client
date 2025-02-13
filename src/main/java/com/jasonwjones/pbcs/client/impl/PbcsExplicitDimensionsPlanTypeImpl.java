@@ -319,14 +319,15 @@ public class PbcsExplicitDimensionsPlanTypeImpl extends PbcsPlanTypeImpl impleme
         }
 
         GridDefinition gridDefinition = new GridDefinition(grid.getPov(), top, left);
+        gridDefinition.setSuppressMissingRows(retrieveOptions.isSuppressMissingRows());
         ExportDataSlice exportDataSlice = new ExportDataSlice(gridDefinition);
         exportDataSlice.setExportPlanningData(retrieveOptions.isExportPlanningData());
 
         // todo: catch exception and provide custom with some analysis on potential causes of problem
         try {
-            logger.debug("Exporting data slice from {}", getQualifiedName());
+            logger.debug("Exporting {} data {}", getQualifiedName(), exportDataSlice);
             DataSlice slice = post("applications/{application}/plantypes/{planType}/exportdataslice", exportDataSlice, DataSlice.class, getApplication().getName(), getName());
-            logger.debug("Data slice export returned from {}", getName());
+            logger.debug("Returned {} data {}", getQualifiedName(), slice);
             return new DataSliceGrid(this, slice);
         } catch (Exception e) {
             logger.error("Unable to retrieve grid: {}", e.getMessage());

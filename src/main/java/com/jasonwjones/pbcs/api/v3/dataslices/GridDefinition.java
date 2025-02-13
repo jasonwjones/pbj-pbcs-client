@@ -6,18 +6,18 @@ import com.jasonwjones.pbcs.util.GridUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.StringJoiner;
 
 /**
- * POJO used to model grid for Export Data Slice operation on PBCS REST API.
- * Should be kept as clean as possible (i.e. avoid temptation to add convenience
- * methods).
- *
- * @author jasonwjones
- *
+ * Main grid definition that is inside an {@link ExportDataSlice} object.
  */
 public class GridDefinition {
 
 	private boolean suppressMissingBlocks = false;
+
+	private boolean suppressMissingRows = false;
+
+	private boolean suppressMissingColumns = false;
 
 	private DimensionMembers pov;
 
@@ -77,6 +77,22 @@ public class GridDefinition {
 		this.suppressMissingBlocks = suppressMissingBlocks;
 	}
 
+	public boolean isSuppressMissingColumns() {
+		return suppressMissingColumns;
+	}
+
+	public void setSuppressMissingColumns(boolean suppressMissingColumns) {
+		this.suppressMissingColumns = suppressMissingColumns;
+	}
+
+	public boolean isSuppressMissingRows() {
+		return suppressMissingRows;
+	}
+
+	public void setSuppressMissingRows(boolean suppressMissingRows) {
+		this.suppressMissingRows = suppressMissingRows;
+	}
+
 	public DimensionMembers getPov() {
 		return pov;
 	}
@@ -112,6 +128,16 @@ public class GridDefinition {
 
 	public void setRows(List<DimensionMembers> rows) {
 		this.rows = rows;
+	}
+
+	@Override
+	public String toString() {
+		return new StringJoiner(", ", GridDefinition.class.getSimpleName() + "[", "]")
+				.add("rows=" + rows.size())
+				.add("suppressMissingBlocks=" + suppressMissingBlocks)
+				.add("suppressMissingColumns=" + suppressMissingColumns)
+				.add("suppressMissingRows=" + suppressMissingRows)
+				.toString();
 	}
 
 }

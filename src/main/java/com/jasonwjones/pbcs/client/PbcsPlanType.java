@@ -445,6 +445,15 @@ public interface PbcsPlanType extends PbcsObject {
 		 */
 		boolean isExportPlanningData();
 
+		/**
+		 * Whether to ask the export call to suppress missing data rows. This can significantly reduce the size of the
+		 * response data, although it have a different shape than the incoming request, making it harder to merge the
+		 * results with the request.
+		 *
+		 * @return true if suppress missing is enabled, false otherwise
+		 */
+		boolean isSuppressMissingRows();
+
 	}
 
 	enum CellNotesOption {
