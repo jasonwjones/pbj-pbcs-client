@@ -325,14 +325,44 @@ public class PbcsExplicitDimensionsPlanTypeImpl extends PbcsPlanTypeImpl impleme
 
         // todo: catch exception and provide custom with some analysis on potential causes of problem
         try {
-            logger.debug("Exporting {} data {}", getQualifiedName(), exportDataSlice);
-            DataSlice slice = post("applications/{application}/plantypes/{planType}/exportdataslice", exportDataSlice, DataSlice.class, getApplication().getName(), getName());
-            logger.debug("Returned {} data {}", getQualifiedName(), slice);
+            DataSlice slice = retrieveMultiple(exportDataSlice, retrieveOptions.getMaxCellsPerRetrieve());
             return new DataSliceGrid(this, slice);
         } catch (Exception e) {
             logger.error("Unable to retrieve grid: {}", e.getMessage());
             throw new PbcsDataExportException(grid, e);
         }
+    }
+
+    private DataSlice retrieveMultiple(ExportDataSlice exportDataSlice, int maxCellsPerRetrieve) {
+        GridDefinition gridDefinition = exportDataSlice.getGridDefinition();
+
+        final int totalRequestedRows = gridDefinition.getRows().size();
+        final int numCellsPerRow = gridDefinition.getColumns().size();
+        final int rowsPerRetrieve = maxCellsPerRetrieve / numCellsPerRow;
+        final int numPages = (int) Math.ceil((double) totalRequestedRows / rowsPerRetrieve);
+
+        logger.debug("Exporting {} data with {} max cells ({} rows) per retrieve, for {} pages", getQualifiedName(), maxCellsPerRetrieve, rowsPerRetrieve, numPages);
+
+        List<DimensionMembers> originalDimensionMembers = gridDefinition.getRows();
+        List<DataSlice> slices = new ArrayList<>();
+
+        for (int page = 0; page < numPages; page++) {
+            int fromIndex = page * rowsPerRetrieve;
+            int toIndex = fromIndex + rowsPerRetrieve;
+            List<DimensionMembers> pageRows = originalDimensionMembers.subList(fromIndex, Math.min(toIndex, originalDimensionMembers.size()));
+            gridDefinition.setRows(pageRows);
+            logger.debug("Exporting {} data {} ({}/{})", getQualifiedName(), exportDataSlice, page + 1, numPages);
+            DataSlice slice = post("applications/{application}/plantypes/{planType}/exportdataslice", exportDataSlice, DataSlice.class, getApplication().getName(), getName());
+            logger.debug("Returned {} data {}", getQualifiedName(), slice);
+            slices.add(slice);
+        }
+
+        DataSlice primarySlice = slices.get(0);
+        for (int sliceIndex = 1; sliceIndex < slices.size(); sliceIndex++) {
+            DataSlice slice = slices.get(sliceIndex);
+            primarySlice.getRows().addAll(slice.getRows());
+        }
+        return primarySlice;
     }
 
     @Override

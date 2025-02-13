@@ -454,6 +454,15 @@ public interface PbcsPlanType extends PbcsObject {
 		 */
 		boolean isSuppressMissingRows();
 
+		/**
+		 * The max number of cells that can be brought back into a single retrieve. As of this writing, EPM cloud
+		 * imposes a 500,000 cell limit on individual retrieves. This library allows to work around this by breaking
+		 * larger retrieves into smaller ones, then stitching them back together.
+		 *
+		 * @return the max numbers of cells that will be allowed per retrieve before breaking them up
+		 */
+		int getMaxCellsPerRetrieve();
+
 	}
 
 	enum CellNotesOption {
