@@ -119,7 +119,7 @@ public class PbcsMemberImpl extends AbstractPbcsObject implements PbcsMember {
                 if (minLevel == -1) {
                     minLevel = child.getLevel();
                 } else {
-                    minLevel = Math.min(minLevel, child.getLevel());
+                    minLevel = Math.max(minLevel, child.getLevel());
                 }
             }
             return minLevel + 1;
