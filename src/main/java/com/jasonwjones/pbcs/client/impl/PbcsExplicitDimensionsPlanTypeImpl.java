@@ -239,7 +239,13 @@ public class PbcsExplicitDimensionsPlanTypeImpl extends PbcsPlanTypeImpl impleme
             }
             searchDimensions.add(query.getDimensionName());
         } else {
-            searchDimensions.addAll(getDimensionNames());
+            if (hasDimension(query.getSearchTerm())) {
+                // shortcut for when you're searching without a wildcard and the search term happens to be one of the
+                // dimensions
+                searchDimensions.add(query.getSearchTerm());
+            } else {
+                searchDimensions.addAll(getDimensionNames());
+            }
         }
 
         AbstractMemberVisitor memberVisitor;
