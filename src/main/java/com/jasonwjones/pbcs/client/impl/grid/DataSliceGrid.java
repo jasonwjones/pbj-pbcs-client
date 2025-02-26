@@ -34,6 +34,11 @@ public class DataSliceGrid implements PovGrid<DataSliceGrid.Cell> {
     private final ConcurrentMap<Integer, String> axisDimensionLookups = new ConcurrentHashMap<>();
 
     public DataSliceGrid(PbcsPlanType planType, DataSlice dataSlice) {
+        this(planType, dataSlice, dataSlice.getRows().get(0).getHeaders().size());
+    }
+
+
+    public DataSliceGrid(PbcsPlanType planType, DataSlice dataSlice, int leftColsHint) {
         this.planType = planType;
         this.dataSlice = dataSlice;
         this.povMemberCount = dataSlice.getPov().size();
@@ -45,9 +50,11 @@ public class DataSliceGrid implements PovGrid<DataSliceGrid.Cell> {
         }
 
         this.rows = rows(dataSlice);
-        this.columns = columns(dataSlice);
         this.topRows = dataSlice.getColumns().size();
-        this.leftCols = dataSlice.getRows().get(0).getHeaders().size();
+        this.leftCols = !dataSlice.getRows().isEmpty()
+                ? dataSlice.getRows().get(0).getHeaders().size()
+                : leftColsHint;
+        this.columns = leftCols + dataSlice.getColumns().get(0).size();
     }
 
     private static int rows(DataSlice dataSlice) {

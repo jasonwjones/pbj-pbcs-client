@@ -332,7 +332,7 @@ public class PbcsExplicitDimensionsPlanTypeImpl extends PbcsPlanTypeImpl impleme
         // todo: catch exception and provide custom with some analysis on potential causes of problem
         try {
             DataSlice slice = retrieveMultiple(exportDataSlice, retrieveOptions.getMaxCellsPerRetrieve());
-            return new DataSliceGrid(this, slice);
+            return new DataSliceGrid(this, slice, leftDims.size());
         } catch (Exception e) {
             logger.error("Unable to retrieve grid: {}", e.getMessage());
             throw new PbcsDataExportException(grid, e);
@@ -359,7 +359,7 @@ public class PbcsExplicitDimensionsPlanTypeImpl extends PbcsPlanTypeImpl impleme
             gridDefinition.setRows(pageRows);
             logger.debug("Exporting {} data {} ({}/{})", getQualifiedName(), exportDataSlice, page + 1, numPages);
             DataSlice slice = post("applications/{application}/plantypes/{planType}/exportdataslice", exportDataSlice, DataSlice.class, getApplication().getName(), getName());
-            logger.debug("Returned {} data {}", getQualifiedName(), slice);
+            logger.debug("Returned {}: {}", getQualifiedName(), slice);
             slices.add(slice);
         }
 
