@@ -2,6 +2,7 @@ package com.jasonwjones.pbcs.api.v3.dataslices;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -52,7 +53,7 @@ public class DimensionMembers {
 	 * }
 	 * </pre>
 	 *
-	 * In testing it seems that the second List can be defined with three
+	 * In testing, it seems that the second List can be defined with three
 	 * elements (three copies of "Actual") and the output will still be correct.
 	 * At this point I can't tell if that's a glitch in the implementation or my
 	 * understanding.
@@ -75,9 +76,9 @@ public class DimensionMembers {
 
 	public DimensionMembers(List<String> dimensions, List<String> members) {
 		this.dimensions = dimensions;
-		this.members = new ArrayList<List<String>>();
+		this.members = new ArrayList<>();
 		for (String member : members) {
-			List<String> newList = new ArrayList<String>();
+			List<String> newList = new ArrayList<>();
 			newList.add(member);
 			this.members.add(newList);
 		}
@@ -136,15 +137,13 @@ public class DimensionMembers {
 	}
 
 	public static List<String> mutableList(String... items) {
-		List<String> list = new ArrayList<String>();
-		for (String item : items) {
-			list.add(item);
-		}
+		List<String> list = new ArrayList<>();
+        Collections.addAll(list, items);
 		return list;
 	}
 
 	public static List<List<String>> wrap(List<String> list) {
-		List<List<String>> lists = new ArrayList<List<String>>();
+		List<List<String>> lists = new ArrayList<>();
 		lists.add(list);
 		return lists;
 	}
