@@ -343,7 +343,7 @@ public class PbcsExplicitDimensionsPlanTypeImpl extends PbcsPlanTypeImpl impleme
         GridDefinition gridDefinition = exportDataSlice.getGridDefinition();
 
         final int totalRequestedRows = gridDefinition.getRows().size();
-        final int numCellsPerRow = gridDefinition.getColumns().size();
+        final int numCellsPerRow = gridDefinition.getRows().get(0).getMembers().size() + gridDefinition.getColumns().size();
         final int rowsPerRetrieve = maxCellsPerRetrieve / numCellsPerRow;
         final int numPages = (int) Math.ceil((double) totalRequestedRows / rowsPerRetrieve);
 
