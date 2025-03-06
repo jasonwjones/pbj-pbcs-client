@@ -210,7 +210,7 @@ public interface PbcsMember extends PbcsObject {
 
         /**
          * For examples to test with, the Vision app contains several shared members in the Entity dimension, such as at
-         * Entity -> Management Rollup -> Manufacturing VP.
+         * Entity/Management Rollup/Manufacturing VP.
          */
         SHARED("Shared"),
 
