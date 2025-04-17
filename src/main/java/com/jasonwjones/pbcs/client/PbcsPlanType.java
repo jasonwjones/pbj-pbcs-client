@@ -455,6 +455,18 @@ public interface PbcsPlanType extends PbcsObject {
 		boolean isSuppressMissingRows();
 
 		/**
+		 * Whether to ask the export call to suppress missing columns (this is a flag on the REST API, if not a "real"
+		 * flag in traditional Essbase/Smart View/ad hoc operations).
+		 *
+		 * <p>Note: even when this is off, it appears that if you don't have access to a member in the column orientation,
+		 * then that column will be suppressed regardless. Either way, you should be prepared for a result grid to have
+		 * a different shape than the request.
+		 *
+		 * @return true if suppress columns is enabled, false otherwise
+		 */
+		boolean isSuppressMissingColumns();
+
+		/**
 		 * The max number of cells that can be brought back into a single retrieve. As of this writing, EPM cloud
 		 * imposes a 500,000 cell limit on individual retrieves. This library allows to work around this by breaking
 		 * larger retrieves into smaller ones, then stitching them back together.

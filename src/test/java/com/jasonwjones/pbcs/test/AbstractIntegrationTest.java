@@ -8,7 +8,9 @@ import com.jasonwjones.pbcs.client.impl.PbcsConnectionImpl;
 
 public abstract class AbstractIntegrationTest {
 
-	private static final String PROPS = System.getProperty("user.home") + "/pbcs-client.properties";
+	public static final String DEFAULT_PROPS_FILE = "pbcs-client.properties";
+
+	private static final String PROPS = System.getProperty("user.home") + "/" + DEFAULT_PROPS_FILE;
 
 	protected static final String server;
 	protected static final String identityDomain;

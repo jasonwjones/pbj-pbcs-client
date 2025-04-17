@@ -19,6 +19,8 @@ public class PbcsRetrieveOptionsImpl implements PbcsPlanType.RetrieveOptions {
 
     private boolean suppressMissingRows;
 
+    private boolean suppressMissingColumns;
+
     private int maxCellsPerRetrieve = DEFAULT_MAX_CELLS_PER_RETRIEVE;
 
     @Override
@@ -46,6 +48,15 @@ public class PbcsRetrieveOptionsImpl implements PbcsPlanType.RetrieveOptions {
 
     public void setSuppressMissing(boolean suppressMissingRows) {
         this.suppressMissingRows = suppressMissingRows;
+    }
+
+    @Override
+    public boolean isSuppressMissingColumns() {
+        return suppressMissingColumns;
+    }
+
+    public void setSuppressMissingColumns(boolean suppressMissingColumns) {
+        this.suppressMissingColumns = suppressMissingColumns;
     }
 
     @Override

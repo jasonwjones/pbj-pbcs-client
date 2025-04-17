@@ -37,7 +37,6 @@ public class DataSliceGrid implements PovGrid<DataSliceGrid.Cell> {
         this(planType, dataSlice, dataSlice.getRows().get(0).getHeaders().size());
     }
 
-
     public DataSliceGrid(PbcsPlanType planType, DataSlice dataSlice, int leftColsHint) {
         this.planType = planType;
         this.dataSlice = dataSlice;

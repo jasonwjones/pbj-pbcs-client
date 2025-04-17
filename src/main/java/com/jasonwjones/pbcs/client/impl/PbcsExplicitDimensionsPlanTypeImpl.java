@@ -326,6 +326,7 @@ public class PbcsExplicitDimensionsPlanTypeImpl extends PbcsPlanTypeImpl impleme
 
         GridDefinition gridDefinition = new GridDefinition(grid.getPov(), top, left);
         gridDefinition.setSuppressMissingRows(retrieveOptions.isSuppressMissingRows());
+        gridDefinition.setSuppressMissingColumns(retrieveOptions.isSuppressMissingColumns());
         ExportDataSlice exportDataSlice = new ExportDataSlice(gridDefinition);
         exportDataSlice.setExportPlanningData(retrieveOptions.isExportPlanningData());
 
