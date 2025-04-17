@@ -34,6 +34,13 @@ public interface MemberSearchQuery {
     String getSearchTerm();
 
     /**
+     * Whether the search should be case-sensitive.
+     *
+     * @return true if it should be, false otherwise
+     */
+    boolean isCaseSensitive();
+
+    /**
      * Different types of searches that can be performed.
      */
     enum Type {

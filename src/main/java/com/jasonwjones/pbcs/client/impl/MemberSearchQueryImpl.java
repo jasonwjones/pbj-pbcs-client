@@ -14,6 +14,8 @@ public class MemberSearchQueryImpl implements MemberSearchQuery {
 
     private String searchTerm;
 
+    private boolean caseSensitive;
+
     @Override
     public Type getType() {
         return type;
@@ -50,12 +52,22 @@ public class MemberSearchQueryImpl implements MemberSearchQuery {
     }
 
     @Override
+    public boolean isCaseSensitive() {
+        return caseSensitive;
+    }
+
+    public void setCaseSensitive(boolean caseSensitive) {
+        this.caseSensitive = caseSensitive;
+    }
+
+    @Override
     public String toString() {
         return new StringJoiner(", ", MemberSearchQueryImpl.class.getSimpleName() + "[", "]")
                 .add("type=" + type)
                 .add("memberName='" + memberName + "'")
                 .add("dimensionName='" + dimensionName + "'")
                 .add("searchTerm='" + searchTerm + "'")
+                .add("caseSensitive=" + caseSensitive)
                 .toString();
     }
 

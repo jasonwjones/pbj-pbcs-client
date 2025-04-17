@@ -11,7 +11,12 @@ public class SearchRegexMemberVisitor extends AbstractMemberVisitor {
     private final Pattern pattern;
 
     public SearchRegexMemberVisitor(String regex) {
-        this.pattern = Pattern.compile(regex);
+        this(regex, false);
+    }
+
+    public SearchRegexMemberVisitor(String regex, boolean caseSensitive) {
+        int flags = !caseSensitive ? Pattern.CASE_INSENSITIVE : 0;
+        this.pattern = Pattern.compile(regex, flags);
     }
 
     @Override

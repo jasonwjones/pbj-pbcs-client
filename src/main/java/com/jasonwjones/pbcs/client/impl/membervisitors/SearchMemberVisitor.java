@@ -8,13 +8,20 @@ public class SearchMemberVisitor extends AbstractMemberVisitor {
 
     private final String memberName;
 
+    private final boolean caseSensitive;
+
     public SearchMemberVisitor(String memberName) {
+        this(memberName, false);
+    }
+
+    public SearchMemberVisitor(String memberName, boolean caseSensitive) {
         this.memberName = memberName;
+        this.caseSensitive = caseSensitive;
     }
 
     @Override
     public PlanTypeWalker.MemberVisitResult visitMember(PbcsPlanType planType, PbcsMember member) {
-        if (member.getName().equalsIgnoreCase(memberName)) {
+        if ((caseSensitive && member.getName().equals(memberName)) || (!caseSensitive && member.getName().equalsIgnoreCase(memberName))) {
             addMember(member);
             return PlanTypeWalker.MemberVisitResult.TERMINATE;
         }
