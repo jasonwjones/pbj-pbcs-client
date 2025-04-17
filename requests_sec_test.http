@@ -1,0 +1,112 @@
+### Get Applications
+
+GET https://{{server}}/HyperionPlanning/rest/v3/applications
+Authorization: {{creds}}
+Accept: application/json
+
+### Export Data Slice
+# You can use this to verify that the previous request (importdataslice) actually worked.
+
+POST https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/plantypes/{{cube}}/exportdataslice
+Authorization: {{creds}}
+Accept: application/json
+Content-Type: application/json
+
+{
+  "exportPlanningData": true,
+  "gridDefinition": {
+    "suppressMissingBlocks": false,
+    "pov": {
+      "members": [
+        ["Jan"], ["FY22"], ["Final"], ["USD"], ["000"], ["P_000"]
+      ]
+    },
+    "columns": [
+      {
+        "members": [
+          ["4110"]
+        ]
+      }
+    ],
+    "rows": [
+      {
+        "members": [
+          ["Actual", "Plan"]
+        ]
+      }
+    ]
+  }
+}
+
+### Export Data Slice - no access to Plan causes no access to anything
+# You can use this to verify that the previous request (importdataslice) actually worked.
+
+POST https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/plantypes/{{cube}}/exportdataslice
+Authorization: {{creds}}
+Accept: application/json
+Content-Type: application/json
+
+{
+  "exportPlanningData": true,
+  "gridDefinition": {
+    "suppressMissingBlocks": false,
+    "pov": {
+      "members": [
+        ["Jan"], ["FY22"], ["Final"], ["USD"], ["000"], ["P_000"]
+      ]
+    },
+    "columns": [
+      {
+        "members": [
+          ["4110"]
+        ]
+      }
+    ],
+    "rows": [
+      {
+        "members": [
+          ["Plan"]
+        ]
+      }
+    ]
+  }
+}
+
+### Export Data Slice - no access to Plan causes no access to anything
+# You can use this to verify that the previous request (importdataslice) actually worked.
+
+POST https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/plantypes/{{cube}}/exportdataslice
+Authorization: {{creds}}
+Accept: application/json
+Content-Type: application/json
+
+{
+  "exportPlanningData": true,
+  "gridDefinition": {
+    "suppressMissingBlocks": false,
+    "pov": {
+      "members": [
+        ["FY22"], ["Final"], ["USD"], ["000"], ["P_000"]
+      ]
+    },
+    "columns": [
+      {
+        "members": [
+          ["4110"], ["Jan"]
+        ]
+      },
+      {
+        "members": [
+          ["4110"], ["Feb"]
+        ]
+      }
+    ],
+    "rows": [
+      {
+        "members": [
+          ["Actual"]
+        ]
+      }
+    ]
+  }
+}
