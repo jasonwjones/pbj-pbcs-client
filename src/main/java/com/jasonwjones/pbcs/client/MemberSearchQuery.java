@@ -41,6 +41,13 @@ public interface MemberSearchQuery {
     boolean isCaseSensitive();
 
     /**
+     * Whether aliases should also be checked for a match
+     *
+     * @return true to search aliases (in addition to member name), false otherwise
+     */
+    boolean isSearchAliases();
+
+    /**
      * Different types of searches that can be performed.
      */
     enum Type {

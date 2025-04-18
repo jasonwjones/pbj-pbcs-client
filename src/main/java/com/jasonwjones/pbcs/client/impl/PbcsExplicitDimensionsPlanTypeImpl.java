@@ -251,13 +251,13 @@ public class PbcsExplicitDimensionsPlanTypeImpl extends PbcsPlanTypeImpl impleme
         AbstractMemberVisitor memberVisitor;
         switch (query.getType()) {
             case REGEX:
-                memberVisitor = new SearchRegexMemberVisitor(query.getSearchTerm());
+                memberVisitor = new SearchRegexMemberVisitor(query);
                 break;
             case SEARCH_WILD:
-                memberVisitor = new SearchWildMemberVisitor(query.getSearchTerm());
+                memberVisitor = new SearchWildMemberVisitor(query);
                 break;
             case SEARCH:
-                memberVisitor = new SearchMemberVisitor(query.getSearchTerm());
+                memberVisitor = new SearchMemberVisitor(query);
                 break;
             default:
                 throw new IllegalArgumentException("Unknown search type: " + query.getType());
