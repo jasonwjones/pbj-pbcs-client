@@ -12,18 +12,19 @@ public class SearchRegexMemberVisitor extends AbstractMemberVisitor {
     protected final Pattern pattern;
 
     public SearchRegexMemberVisitor(MemberSearchQuery query) {
-        this(query.getSearchTerm(), query.isCaseSensitive() ? Pattern.CASE_INSENSITIVE : 0, query.isSearchAliases());
+        this(query, Pattern.compile(query.getSearchTerm(), query.isCaseSensitive() ? Pattern.CASE_INSENSITIVE : 0));
     }
 
-    public SearchRegexMemberVisitor(String pattern, int flags, boolean includeAliases) {
-        super(includeAliases);
-        this.pattern = Pattern.compile(pattern, flags);
+    protected SearchRegexMemberVisitor(MemberSearchQuery query, Pattern pattern) {
+        super(query);
+        this.pattern = pattern;
     }
 
     @Override
     public PlanTypeWalker.MemberVisitResult visitMember(PbcsPlanType planType, PbcsMember member) {
         if (matches(member.getName()) || (isIncludeAliases() && matches(member.getAlias()))) {
             addMember(member);
+            if (isStopWhenFound()) return PlanTypeWalker.MemberVisitResult.TERMINATE;
         }
         return PlanTypeWalker.MemberVisitResult.CONTINUE;
     }

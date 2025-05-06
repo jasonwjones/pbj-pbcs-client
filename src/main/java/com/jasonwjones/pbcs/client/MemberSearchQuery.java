@@ -48,6 +48,14 @@ public interface MemberSearchQuery {
     boolean isSearchAliases();
 
     /**
+     * Whether search should stop after a match is found, or keep searching (such as to find additional matches via
+     * wildcard, or shared members).
+     *
+     * @return true if search should stop when found, false otherwise
+     */
+    boolean isStopWhenFound();
+
+    /**
      * Different types of searches that can be performed.
      */
     enum Type {

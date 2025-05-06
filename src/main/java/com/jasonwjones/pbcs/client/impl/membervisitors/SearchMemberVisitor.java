@@ -11,17 +11,17 @@ public class SearchMemberVisitor extends AbstractMemberVisitor {
 
     private final boolean caseSensitive;
 
-    public SearchMemberVisitor(MemberSearchQuery query) {
-        super(query.isSearchAliases());
-        this.memberName = query.getSearchTerm();
-        this.caseSensitive = query.isCaseSensitive();
+    public SearchMemberVisitor(MemberSearchQuery memberSearchQuery) {
+        super(memberSearchQuery);
+        this.memberName = memberSearchQuery.getSearchTerm();
+        this.caseSensitive = memberSearchQuery.isCaseSensitive();
     }
 
     @Override
     public PlanTypeWalker.MemberVisitResult visitMember(PbcsPlanType planType, PbcsMember member) {
         if (matches(member.getName()) || (isIncludeAliases() && matches(member.getAlias()))) {
             addMember(member);
-            return PlanTypeWalker.MemberVisitResult.TERMINATE;
+            if (isStopWhenFound()) return PlanTypeWalker.MemberVisitResult.TERMINATE;
         }
         return PlanTypeWalker.MemberVisitResult.CONTINUE;
     }

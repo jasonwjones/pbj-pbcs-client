@@ -7,7 +7,8 @@ import java.util.regex.Pattern;
 public class SearchWildMemberVisitor extends SearchRegexMemberVisitor {
 
     public SearchWildMemberVisitor(MemberSearchQuery query) {
-        super(query.getSearchTerm().replace("*", ".*"), !query.isCaseSensitive() ? Pattern.CASE_INSENSITIVE : 0, query.isSearchAliases());
+        super(query, Pattern.compile(query.getSearchTerm().replace("*", ".*"),
+                !query.isCaseSensitive() ? Pattern.CASE_INSENSITIVE : 0));
     }
 
 }

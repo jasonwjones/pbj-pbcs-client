@@ -1,5 +1,6 @@
 package com.jasonwjones.pbcs.client.impl.membervisitors;
 
+import com.jasonwjones.pbcs.client.MemberSearchQuery;
 import com.jasonwjones.pbcs.client.PbcsMember;
 import com.jasonwjones.pbcs.util.PlanTypeWalker;
 
@@ -8,12 +9,12 @@ import java.util.List;
 
 public abstract class AbstractMemberVisitor extends PlanTypeWalker.AbstractVisitor implements PlanTypeWalker.Visitor {
 
-    private final boolean includeAliases;
+    private final MemberSearchQuery memberSearchQuery;
 
     private final List<PbcsMember> matchingMembers = new ArrayList<>();
 
-    protected AbstractMemberVisitor(boolean includeAliases) {
-        this.includeAliases = includeAliases;
+    protected AbstractMemberVisitor(MemberSearchQuery memberSearchQuery) {
+        this.memberSearchQuery = memberSearchQuery;
     }
 
     public List<PbcsMember> getMatchingMembers() {
@@ -25,7 +26,11 @@ public abstract class AbstractMemberVisitor extends PlanTypeWalker.AbstractVisit
     }
 
     protected boolean isIncludeAliases() {
-        return includeAliases;
+        return memberSearchQuery.isSearchAliases();
+    }
+
+    protected boolean isStopWhenFound() {
+        return memberSearchQuery.isStopWhenFound();
     }
 
 }

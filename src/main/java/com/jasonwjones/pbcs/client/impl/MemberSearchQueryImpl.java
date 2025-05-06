@@ -18,6 +18,8 @@ public class MemberSearchQueryImpl implements MemberSearchQuery {
 
     private boolean searchAliases;
 
+    private boolean stopWhenFound;
+
     @Override
     public Type getType() {
         return type;
@@ -72,6 +74,15 @@ public class MemberSearchQueryImpl implements MemberSearchQuery {
     }
 
     @Override
+    public boolean isStopWhenFound() {
+        return stopWhenFound;
+    }
+
+    public void setStopWhenFound(boolean stopWhenFound) {
+        this.stopWhenFound = stopWhenFound;
+    }
+
+    @Override
     public String toString() {
         return new StringJoiner(", ", MemberSearchQueryImpl.class.getSimpleName() + "[", "]")
                 .add("type=" + type)
@@ -80,6 +91,7 @@ public class MemberSearchQueryImpl implements MemberSearchQuery {
                 .add("searchTerm='" + searchTerm + "'")
                 .add("caseSensitive=" + caseSensitive)
                 .add("searchAliases=" + searchAliases)
+                .add("stopWhenFound=" + stopWhenFound)
                 .toString();
     }
 
