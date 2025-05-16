@@ -396,6 +396,25 @@ public class PbcsExplicitDimensionsPlanTypeImpl extends PbcsPlanTypeImpl impleme
         return dimensions;
     }
 
+    @Override
+    public PbcsPov createPov() {
+        List<PbcsMember> members = new ArrayList<>();
+        for (PbcsDimension dim : getRealDimensions()) {
+            members.add(dim.getRoot());
+        }
+        return new PbcsPovImpl(this, members);
+    }
+
+    private List<PbcsDimension> getRealDimensions() {
+        List<PbcsDimension> dimensions = new ArrayList<>();
+        for (PbcsDimension dim : getDimensions()) {
+            if (dim.getDimensionType() != PbcsMemberType.ATTRIBUTE) {
+                dimensions.add(dim);
+            }
+        }
+        return dimensions;
+    }
+
     private class ExplicitDimension extends AbstractPbcsObject implements PbcsDimension {
 
         private final String name;

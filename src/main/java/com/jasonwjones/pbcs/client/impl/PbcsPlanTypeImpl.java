@@ -9,13 +9,13 @@ import com.jasonwjones.pbcs.client.exceptions.PbcsDataExportException;
 import com.jasonwjones.pbcs.client.exceptions.PbcsDataImportException;
 import com.jasonwjones.pbcs.client.exceptions.PbcsNoSuchObjectException;
 import com.jasonwjones.pbcs.client.impl.grid.DataSliceGrid;
-import com.jasonwjones.pbcs.client.impl.grid.DataSliceGridPrinter;
 import com.jasonwjones.pbcs.util.DataSliceDiff;
 import com.jasonwjones.pbcs.util.GridUtils;
-import com.jasonwjones.pbcs.util.PovGridWalker;
+import com.jasonwjones.pbcs.util.NumberUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -166,7 +166,9 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 	@Override
 	public ImportDataResult setCells(List<String> pov, Grid<String> values, ImportDataOptions importDataOptions) {
 		ImportDataSlice importDataSlice = new ImportDataSlice();
-		importDataSlice.setDataGrid(new DataSlice(pov, values));
+		DataSlice dataSlice = createDataSlice(pov, values, importDataOptions);
+		importDataSlice.setDataGrid(dataSlice);
+
 		logger.info("Updating {}.{} at POV {} using a {}x{} source grid", application.getName(), planType, pov, values.getRows(), values.getColumns());
 
 		PovGrid<String> povGrid = new PovGridImpl<>(pov, values);
@@ -180,6 +182,41 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 		}
 
 		return importDataResult;
+	}
+
+	private DataSlice createDataSlice(List<String> pov, Grid<String> grid, ImportDataOptions importDataOptions) {
+		int firstRowWithCell = GridUtils.firstNonNullInColumn(grid, 0);
+		int firstColWithCell = GridUtils.firstNonNullInRow(grid, 0);
+
+		List<List<String>> columns = new ArrayList<>();
+		for (int row = 0; row < firstRowWithCell; row++) {
+			List<String> column = new ArrayList<>();
+			for (int col = firstColWithCell; col < grid.getColumns(); col++) {
+				column.add(grid.getCell(row, col));
+			}
+			columns.add(column);
+		}
+
+		List<DataSlice.HeaderDataRow> rows = new ArrayList<>();
+		for (int row = firstRowWithCell; row < grid.getRows(); row++) {
+			List<String> headers = new ArrayList<>();
+			for (int col = 0; col < firstColWithCell; col++) {
+				headers.add(grid.getCell(row, col));
+			}
+			List<String> data = new ArrayList<>();
+			for (int col = firstColWithCell; col < grid.getColumns(); col++) {
+				String dataCell = grid.getCell(row, col);
+				if (importDataOptions.isTreatZerosAsMissing() && NumberUtil.isNumeric(dataCell) && Double.parseDouble(dataCell) == 0) {
+					dataCell = PbcsPlanType.IMPORT_MISSING;
+				} else if (importDataOptions.isTreatBlankAsMissing() && !StringUtils.hasText(dataCell)) {
+					dataCell = PbcsPlanType.IMPORT_MISSING;
+				}
+				data.add(dataCell);
+			}
+			DataSlice.HeaderDataRow headerDataRow = new DataSlice.HeaderDataRow(headers, data);
+			rows.add(headerDataRow);
+		}
+		return new DataSlice(pov, columns, rows);
 	}
 
 	private ImportDataResultImpl importDataSlice(ImportDataSlice importDataSlice, ImportDataOptions importDataOptions) {
@@ -361,6 +398,10 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 
 		private boolean returnChangedCells;
 
+		private boolean treatZerosAsMissing = false;
+
+		private boolean treatBlankAsMissing = false;
+
 		@Override
 		public boolean isAggregateData() {
 			return aggregateData;
@@ -449,6 +490,24 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 
 		public void setReturnChangedCells(boolean returnChangedCells) {
 			this.returnChangedCells = returnChangedCells;
+		}
+
+		@Override
+		public boolean isTreatBlankAsMissing() {
+			return treatBlankAsMissing;
+		}
+
+		public void setTreatBlankAsMissing(boolean treatBlankAsMissing) {
+			this.treatBlankAsMissing = treatBlankAsMissing;
+		}
+
+		@Override
+		public boolean isTreatZerosAsMissing() {
+			return treatZerosAsMissing;
+		}
+
+		public void setTreatZerosAsMissing(boolean treatZerosAsMissing) {
+			this.treatZerosAsMissing = treatZerosAsMissing;
 		}
 
 	}

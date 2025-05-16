@@ -16,6 +16,18 @@ import java.util.Set;
 public interface PbcsPlanType extends PbcsObject {
 
 	/**
+	 * The text that an imported cell can/should contain when it is to be set to missing/blank, indicating the absence
+	 * of a value.
+	 */
+	String IMPORT_MISSING = "#Missing";
+
+	/**
+	 * Retrieved cells that have a classic <code>#Missing</code> value don't actually return from the export data slice
+	 * as missing, rather, they are blank.
+	 */
+	String EXPORT_MISSING = "";
+
+	/**
 	 * Gets the list of dimensions for this plan/cube. This will be either the explicitly specified dimensions
 	 * for this cube (if defined), otherwise a call is made to the unofficial data management (DM) endpoint
 	 * that provides dimensional information. In the past I've seen issues with permissions where low-level
@@ -419,6 +431,10 @@ public interface PbcsPlanType extends PbcsObject {
 		 * @return true if updated cells should be returned, false otherwise.
 		 */
 		boolean isReturnChangedCells();
+
+		boolean isTreatZerosAsMissing();
+
+		boolean isTreatBlankAsMissing();
 
 	}
 
