@@ -1,0 +1,79 @@
+### Import Data Slice
+
+POST https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/plantypes/Plan1/importdataslice
+Authorization: {{creds}}
+Accept: application/json
+Content-Type: application/json
+
+{
+  "aggregateEssbaseData": false,
+  "cellNotesOption":"Skip",
+  "dateFormat":"DD/MM/YYYY",
+  "strictDateValidation": true,
+  "customParams": {
+    "IncludeRejectedCells":true,
+    "IncludeRejectedCellsWithDetails":true
+  },
+  "dataGrid":{
+    "pov":[
+      "Actual",
+      "FY22",
+      "Final",
+      "USD",
+      "000",
+      "P_000"
+    ],
+    "columns":[
+      [
+        "Jan",
+        "Feb",
+        "Mar"
+      ]
+    ],
+    "rows":[
+      {
+        "headers":[
+          "4110"
+        ],
+        "data":[
+          "2",
+          "#Missing",
+          "3"
+        ]
+      }
+    ]
+  }
+}
+
+### Export Data Slice
+# You can use this to verify that the previous request (importdataslice) actually worked.
+
+POST https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/plantypes/{{cube}}/exportdataslice
+Authorization: {{creds}}
+Accept: application/json
+Content-Type: application/json
+
+{
+  "gridDefinition": {
+    "suppressMissingBlocks": false,
+    "pov": {
+      "members": [
+        ["Actual"], ["FY22"], ["Final"], ["USD"], ["000"], ["P_000"]
+      ]
+    },
+    "columns": [
+      {
+        "members": [
+          ["Jan", "Feb", "Mar"]
+        ]
+      }
+    ],
+    "rows": [
+      {
+        "members": [
+          ["4110"]
+        ]
+      }
+    ]
+  }
+}

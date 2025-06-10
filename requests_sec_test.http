@@ -110,3 +110,43 @@ Content-Type: application/json
     ]
   }
 }
+
+### Get Member Info
+
+GET https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/dimensions/Scenario/members/Scenario
+Authorization: {{creds}}
+Accept: application/json
+
+### Export Data Slice - test expansion when not have member access
+# You can use this to verify that the previous request (importdataslice) actually worked.
+
+POST https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/plantypes/{{cube}}/exportdataslice
+Authorization: {{creds}}
+Accept: application/json
+Content-Type: application/json
+
+{
+  "exportPlanningData": true,
+  "gridDefinition": {
+    "suppressMissingBlocks": false,
+    "pov": {
+      "members": [
+        ["Year"], ["Version"], ["Currency"], ["Entity"], ["Product"], ["Period"]
+      ]
+    },
+    "columns": [
+      {
+        "members": [
+          ["Account"]
+        ]
+      }
+    ],
+    "rows": [
+      {
+        "members": [
+          ["IDescendants(Scenario)"]
+        ]
+      }
+    ]
+  }
+}

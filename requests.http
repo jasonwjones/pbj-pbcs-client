@@ -1387,3 +1387,36 @@ GET https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/journals?q=
 Authorization: {{creds}}
 Accept: application/json
 Content-Type: application/json
+
+
+### Export Test
+
+POST https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/plantypes/{{cube}}/exportdataslice
+Authorization: {{creds}}
+Accept: application/json
+Content-Type: application/json
+
+{
+  "gridDefinition": {
+    "suppressMissingBlocks": false,
+    "pov": {
+      "members": [
+        ["Entity"], ["Period"], ["Product"], ["Scenario"], ["Version"], ["Year"]
+      ]
+    },
+    "columns": [
+      {
+        "members": [
+          ["Account"]
+        ]
+      }
+    ],
+    "rows": [
+      {
+       "members": [
+         ["Currency"]
+       ]
+      }
+    ]
+  }
+}
