@@ -10,6 +10,7 @@ import com.jasonwjones.pbcs.client.exceptions.PbcsDataImportException;
 import com.jasonwjones.pbcs.client.exceptions.PbcsNoSuchObjectException;
 import com.jasonwjones.pbcs.client.impl.grid.DataSliceGrid;
 import com.jasonwjones.pbcs.util.DataSliceDiff;
+import com.jasonwjones.pbcs.util.GridDrawing;
 import com.jasonwjones.pbcs.util.GridUtils;
 import com.jasonwjones.pbcs.util.NumberUtil;
 import org.slf4j.Logger;
@@ -131,7 +132,7 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 		return new DataSliceGrid(this, dataSlice);
 	}
 
-	private DataSlice retrieveToSlice(PovGrid<String> grid) {
+	protected DataSlice retrieveToSlice(PovGrid<String> grid) {
 		try {
 			GridDefinition gridDefinition = new GridDefinition(grid);
 			ExportDataSlice exportDataSlice = new ExportDataSlice(gridDefinition);
@@ -144,6 +145,34 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 	@Override
 	public DataSliceGrid retrieve(PovGrid<String> grid, RetrieveOptions options) {
 		throw new UnsupportedOperationException("Can only retrieve with options on explicit dimension plan");
+	}
+
+	@Override
+	public void export(PbcsPov pov, String top, DimensionMembers rows, ExportCallback exportCallback) {
+		final int gridRows = rows.getMembers().get(0).size() + 1;
+		final int gridColumns = rows.getMembers().size() + 1;
+		Grid<String> grid = new HashMapGrid<>(gridRows, gridColumns);
+		grid.setCell(0, gridColumns - 1, top);
+
+		int colOffset = 0;
+		for (List<String> column : rows.getMembers()) {
+			GridDrawing.drawColumn(grid, 1, colOffset++, column);
+		}
+
+		PovGrid<String> povGrid = new PovGridImpl<>(pov.memberNames(), grid);
+		DataSlice slice = retrieveToSlice(povGrid);
+
+		exportCallback.pov(pov);
+		exportCallback.printHeaders(rows.getDimensions(), slice.getColumns().get(0));
+
+		for (DataSlice.HeaderDataRow row : slice.getRows()) {
+			List<PbcsMember> members = new ArrayList<>();
+			for (String header : row.getHeaders()) {
+				PbcsMember member = getMember(header);
+				members.add(member);
+			}
+			exportCallback.printRow(members, row.getData());
+		}
 	}
 
 	@Override

@@ -204,7 +204,7 @@ public class PbcsExplicitDimensionsPlanTypeImpl extends PbcsPlanTypeImpl impleme
         // TODO: shortcut when member is a dimension name
         String dimensionName = findMemberDimensionFromCache(memberName);
         if (dimensionName == null) {
-            logger.debug("Member dimension cache does not contain entry for {}, will search explicitly dimensions {}", memberName, explicitDimensions);
+            logger.debug("Member dimension cache does not contain entry for {}, will search explicit dimensions {}", memberName, explicitDimensions);
             dimensionName = findMemberDimensionFromExplicit(memberName);
             if (dimensionName == null) {
                 throw new PbcsClientException("Unable to determine dimension for member " + memberName + " after searching explicit dimensions");
@@ -403,6 +403,15 @@ public class PbcsExplicitDimensionsPlanTypeImpl extends PbcsPlanTypeImpl impleme
             members.add(dim.getRoot());
         }
         return new PbcsPovImpl(this, members);
+    }
+
+    @Override
+    public PbcsPov createPov(String... members) {
+        PbcsPov pov = createPov();
+        for (String member : members) {
+            pov = pov.member(member);
+        }
+        return pov;
     }
 
     private List<PbcsDimension> getRealDimensions() {

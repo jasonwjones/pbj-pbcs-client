@@ -1,16 +1,19 @@
 package com.jasonwjones.pbcs.test;
 
 import com.jasonwjones.pbcs.PbcsClientFactory;
-import com.jasonwjones.pbcs.client.PbcsApplication;
-import com.jasonwjones.pbcs.client.PbcsPlanType;
-import com.jasonwjones.pbcs.client.PbcsPlanningClient;
+import com.jasonwjones.pbcs.api.v3.dataslices.DimensionMembers;
+import com.jasonwjones.pbcs.client.*;
 import com.jasonwjones.pbcs.client.exceptions.PbcsDataImportException;
 import com.jasonwjones.pbcs.client.impl.PbcsPlanTypeImpl;
 import com.jasonwjones.pbcs.client.impl.PlanTypeConfigurationImpl;
+import com.jasonwjones.pbcs.client.impl.export.MarkdownExportCallback;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -20,7 +23,7 @@ public class VisionCubeIT extends AbstractIntegrationTest {
 
     protected PbcsApplication app;
 
-    protected PbcsPlanType cube;
+    protected PbcsExplicitDimensionsPlanType cube;
 
     public static final List<String> DIMENSIONS = Arrays.asList("Account", "Currency", "Entity", "Period", "Product", "Scenario", "Version", "Year");
 
@@ -42,7 +45,7 @@ public class VisionCubeIT extends AbstractIntegrationTest {
         configuration.setName("Plan1");
         configuration.setSkipCheck(true);
         configuration.setExplicitDimensions(DIMENSIONS);
-        cube = app.getPlanType(configuration);
+        cube = (PbcsExplicitDimensionsPlanType) app.getPlanType(configuration);
     }
 
     /**
@@ -59,6 +62,26 @@ public class VisionCubeIT extends AbstractIntegrationTest {
     public void setCell() {
         PbcsPlanType.ImportDataResult result = cube.setCell(LEVEL0_TEST_CELL, CELL_TEST_VALUE);
         assertThat(CELL_TEST_VALUE, is(cube.getCell(LEVEL0_TEST_CELL)));
+        assertThat(1, is(result.getAcceptedCells()));
+    }
+
+    @Test
+    public void whenSetCellMissing() {
+        cube.setCell(LEVEL0_TEST_CELL, CELL_TEST_VALUE);
+        assertThat(CELL_TEST_VALUE, is(cube.getCell(LEVEL0_TEST_CELL)));
+
+        PbcsPlanType.ImportDataResult result = cube.setCell(LEVEL0_TEST_CELL, PbcsPlanType.IMPORT_MISSING);
+        assertThat(cube.getCell(LEVEL0_TEST_CELL), is(PbcsPlanType.EXPORT_MISSING));
+        assertThat(1, is(result.getAcceptedCells()));
+    }
+
+    @Test
+    public void whenSetCellBlank() {
+        cube.setCell(LEVEL0_TEST_CELL, CELL_TEST_VALUE);
+        assertThat(CELL_TEST_VALUE, is(cube.getCell(LEVEL0_TEST_CELL)));
+
+        PbcsPlanType.ImportDataResult result = cube.setCell(LEVEL0_TEST_CELL, PbcsPlanType.EXPORT_MISSING);
+        assertThat(cube.getCell(LEVEL0_TEST_CELL), is(PbcsPlanType.EXPORT_MISSING));
         assertThat(1, is(result.getAcceptedCells()));
     }
 
@@ -86,6 +109,63 @@ public class VisionCubeIT extends AbstractIntegrationTest {
 
         // expecting that setting missing did not blank the cell since dry run is on
         assertThat(cube.getCell(LEVEL0_TEST_CELL), is(CELL_TEST_VALUE));
+    }
+
+    @Test
+    public void whenExport() {
+        PbcsPov pov = cube.createPov()
+                .without("Period")
+                .without("Account");
+
+        DimensionMembers dm = DimensionMembers.of("4110");
+        dm.setDimensions(Collections.singletonList("Account"));
+        show(pov, "Lvl0Descendants(YearTotal)", dm);
+    }
+
+    @Test
+    public void whenExportMultipleMembers() {
+        PbcsPov pov = cube.createPov("Actual", "FY22", "Working", "USD", "TD", "P_TP")
+                .without("Period")
+                .without("Account");
+
+        //DimensionMembers dm = DimensionMembers.ofSingleDimension("NI", "GP", "4001", "OpEx");
+        DimensionMembers dm = DimensionMembers.ofSingleDimension("Children(4001)");
+        dm.setDimensions(Collections.singletonList("Account"));
+        show(pov, "Lvl0Descendants(YearTotal)", dm);
+    }
+
+    @Test
+    public void whenExportMultipleEntities() {
+        PbcsPov pov = cube.createPov("Actual", "FY22", "Working", "USD", "P_TP", "NI")
+                .without("Period")
+                .without("Entity");
+
+        DimensionMembers dm = DimensionMembers.ofSingleDimension("Children(TD)");
+        dm.setDimensions(Collections.singletonList("Account"));
+        show(pov, "Lvl0Descendants(YearTotal)", dm);
+    }
+
+    @Test
+    public void whenExportMultipleProducts() {
+        PbcsPov pov = cube.createPov("Actual", "FY22", "Working", "USD", "Total Entity", "4001")
+                .without("Period")
+                .without("Product");
+
+        DimensionMembers dm = DimensionMembers.ofSingleDimension("Descendants(Product)");
+        dm.setDimensions(Collections.singletonList("Product"));
+        show(pov, "Lvl0Descendants(YearTotal)", dm);
+    }
+
+    private void show(PbcsPov pov, String header, DimensionMembers dm) {
+        try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+            //PbcsPlanType.ExportCallback exportCallback = new PrintStreamExportCallback(baos);
+            PbcsPlanType.ExportCallback exportCallback = new MarkdownExportCallback(baos);
+            cube.export(pov, header, dm, exportCallback);
+            System.out.println("====");
+            baos.writeTo(System.out);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }

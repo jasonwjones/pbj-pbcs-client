@@ -1,6 +1,7 @@
 package com.jasonwjones.pbcs.client;
 
 import com.jasonwjones.pbcs.api.v3.SubstitutionVariable;
+import com.jasonwjones.pbcs.api.v3.dataslices.DimensionMembers;
 import com.jasonwjones.pbcs.client.impl.grid.DataSliceGrid;
 import com.jasonwjones.pbcs.util.DataSliceDiff;
 
@@ -10,7 +11,7 @@ import java.util.Set;
 
 /**
  * Represents a particular plan type (cube) contained as part of a {@link PbcsApplication}. The PBCS REST API doesn't
- * necessarily make a strong distinction between the application and the plan type, but it is modeled explicitly in this
+ * necessarily make a strong distinction between the application and the plan type. However, it is modeled explicitly in this
  * API as it keeps a lot of semantics cleaner, particularly with respect to which dimensions are in which cube.
  */
 public interface PbcsPlanType extends PbcsObject {
@@ -30,7 +31,7 @@ public interface PbcsPlanType extends PbcsObject {
 	/**
 	 * Gets the list of dimensions for this plan/cube. This will be either the explicitly specified dimensions
 	 * for this cube (if defined), otherwise a call is made to the unofficial data management (DM) endpoint
-	 * that provides dimensional information. In the past I've seen issues with permissions where low-level
+	 * that provides dimensional information. In the past, I've seen issues with permissions where low-level
 	 * users couldn't access this endpoint, so be careful how you architect your solutions with this.
 	 *
 	 * <p>Additionally, in the past I've also seen issues where the cube may have not been synced properly
@@ -75,10 +76,10 @@ public interface PbcsPlanType extends PbcsObject {
 
 	/**
 	 * Gets a single data cell from the top of the house across all dimensions. This isn't generally going to
-	 * yield any particularly useful information, but rather, is meant as a quick and easy way to hit the cube
-	 * with the configured dimensions and make sure they're all represent and that you can in fact perform
+	 * yield any particularly useful information. However, rather, it is meant as a quick and easy way to hit the cube
+	 * with the configured dimensions and make sure they're all represented and that you can in fact perform
 	 *
-	 * @return the cell value for a top of the house retrieve, may be the empty string if no value present
+	 * @return the cell value for a "top of the house" retrieve, may be the empty string if no value present
 	 */
 	String getCell();
 
@@ -130,16 +131,16 @@ public interface PbcsPlanType extends PbcsObject {
 	 * Retrieves a single cell of data at the given POV.
 	 *
 	 * @param dataPoint the data point
-	 * @return the value of the cell, may be an empty string
+	 * @return the value of the cell; may be an empty string
 	 * @see #setCell(List, String) for setting a single cell value
 	 */
 	String getCell(List<String> dataPoint);
 
 	/**
 	 * Perform a "default" retrieve against this plan/cube. This only works when the dimensions have been specified
-	 * using explicit dimensions (e.g. using {@link PbcsApplication#getPlanType(PbcsApplication.PlanTypeConfiguration)})
+	 * using explicit dimensions (e.g., using {@link PbcsApplication#getPlanType(PbcsApplication.PlanTypeConfiguration)})
 	 * where the configuration has a list of dimensions provided. Internally, the retrieve is performed using the standard
-	 * "export data slice" REST endpoint; the dimensions list is needed in order to fill out a grid with one cell
+	 * "export data slice" REST endpoint; the dimension list is needed to fill out a grid with one cell
 	 * using a member from each dimension. This method is essentially offered for convenience and "smoke testing".
 	 *
 	 * @return a data slice for a default retrieve from the cube
@@ -176,9 +177,20 @@ public interface PbcsPlanType extends PbcsObject {
 	DataSliceGrid retrieve(PovGrid<String> grid, RetrieveOptions options);
 
 	/**
+	 * An alternate strategy for exporting data that is geared towards generating a flat list suitable for CSV output,
+	 * ostensibly meant for generating tables of data that can be used for AI analysis.
+	 *
+	 * @param pov the POV to export
+	 * @param top a Planning-style 'top' axis specifier, such as <code>Lvl0Descendants(YearTotal)</code>
+	 * @param rows the rows, such as a list of accounts or entities
+	 * @param exportCallback the callback to print headers and data to
+	 */
+	void export(PbcsPov pov, String top, DimensionMembers rows, ExportCallback exportCallback);
+
+	/**
 	 * This is the canonical call to get member information from the corresponding PBCS endpoint for doing
 	 * so. This particular endpoint has the dimension name in its URL, which ostensibly means that the
-	 * dimension name must be known ahead of time in order to query a member.
+	 * dimension name must be known ahead of time to query a member.
 	 *
 	 * @param dimensionName the dimension name
 	 * @param memberName the member name
@@ -246,7 +258,7 @@ public interface PbcsPlanType extends PbcsObject {
 	Set<SubstitutionVariable> getSubstitutionVariables();
 
 	/**
-	 * Gets the configuration that was used to build this cube.
+	 * Gets the configuration used to build this cube.
 	 *
 	 * @return this cube's configuration
 	 */
@@ -254,10 +266,10 @@ public interface PbcsPlanType extends PbcsObject {
 
 	/**
 	 * A member dimension cache is a simple cache that caches the dimension for member names. Due to the way the PBCS
-	 * REST API is structured, the dimension for a given member name must be known in order to get member details because
-	 * the dimension name is in the REST URL. However, in order to provide some friendliness in the PBJ API, you can
+	 * REST API is structured, the dimension for a given member name must be known to get member details because
+	 * the dimension name is in the REST URL. However, to provide some friendliness in the PBJ API, you can
 	 * request a member using only its name using {@link #getMember(String)}. Under the hood, a brute-force search will
-	 * be conducted using the explicitly-specified dimensions. A member dimension cache can be used to cache results in
+	 * be conducted using the explicitly specified dimensions. A member dimension cache can be used to cache results in
 	 * memory, in a properties file, or some other implementation can be provided for performance or other reasons.
 	 */
 	interface MemberDimensionCache {
@@ -265,7 +277,7 @@ public interface PbcsPlanType extends PbcsObject {
 		/**
 		 * Gets the name of the dimension that the given member is associated with.
 		 *
-		 * @param planType the plan type being used (implementations may need to use for cache key)
+		 * @param planType the plan type being used (implementations may need to use for a cache key)
 		 * @param memberName the member name to get the dimension of
 		 * @return the name of that member's dimension, null if none is found
 		 */
@@ -295,7 +307,7 @@ public interface PbcsPlanType extends PbcsObject {
 		 * with the member details.
 		 *
 		 * @param planType the plan type that the member is being requested from. Implementors will likely need/want to
-		 *                 use this information to build a unique caching key that can used in generic cache implementation.
+		 *                 use this information to build a unique caching key that can be used in generic cache implementation.
 		 * @param memberOrAliasName the member or alias name being looked up
 		 * @return the member, if found, null otherwise, indicating that the member is not in the resolver (cache) and
 		 * the plan should attempt to resolve on its own (and then update the cache via {@link #setMember(PbcsPlanType, String, PbcsMember)}).
@@ -368,7 +380,7 @@ public interface PbcsPlanType extends PbcsObject {
 
 	/**
 	 * Represents all the options that can be used on the <code>importDataSlice</code> REST endpoint. Most of these
-	 * options map 1:1 to options in the request payload, however, some are purely niceties in this library, such as
+	 * options map 1:1 to options in the request payload; however, some are purely niceties in this library, such as
 	 * the ability to throw an exception on any rejected data in the request.
 	 */
 	interface ImportDataOptions {
@@ -388,21 +400,21 @@ public interface PbcsPlanType extends PbcsObject {
 		boolean isStrictDateValidation();
 
 		/**
-		 * Don't actually import the data
+		 * Don't import the data
 		 *
 		 * @return true if it's a dry run, false otherwise
 		 */
 		boolean isDryRun();
 
 		/**
-		 * True if rejected cells should be included in response
+		 * Returns whether rejected cells should be included in response.
 		 *
-		 * @return if rejected cells should be included in response
+		 * @return true, if rejected cells should be included in response
 		 */
 		boolean isIncludeRejectedCells();
 
 		/**
-		 * True if rejected cells should have additional details
+		 * True, if rejected cells should have additional details.
 		 *
 		 * @return true if response should include the additional details, false otherwise
 		 */
@@ -411,7 +423,7 @@ public interface PbcsPlanType extends PbcsObject {
 		/**
 		 * Per the docs, this will normally be null but may be used by planners in Data Management.
 		 *
-		 * @return the post data import rule names
+		 * @return the posted data import rule names
 		 */
 		String getPostDataImportRuleNames();
 
@@ -448,7 +460,7 @@ public interface PbcsPlanType extends PbcsObject {
 		 * dimension definitions to the 'left' axis. Although the REST API documentation states that defining dimensions
 		 * improves performance, it doesn't seem to make a big difference. The main reason for this being an option now
 		 * is that without dimension hints, retrieves with an attribute dimension in the left/rows orientation will
-		 * return invalid results (e.g. the attribute dimension axis will be lost).
+		 * return invalid results (e.g., the attribute dimension axis will be lost).
 		 *
 		 * @return true if dimension hints should be provided, false otherwise
 		 */
@@ -463,7 +475,7 @@ public interface PbcsPlanType extends PbcsObject {
 
 		/**
 		 * Whether to ask the export call to suppress missing data rows. This can significantly reduce the size of the
-		 * response data, although it have a different shape than the incoming request, making it harder to merge the
+		 * response data, although it has a different shape than the incoming request, making it harder to merge the
 		 * results with the request.
 		 *
 		 * @return true if suppress missing is enabled, false otherwise
@@ -478,7 +490,7 @@ public interface PbcsPlanType extends PbcsObject {
 		 * then that column will be suppressed regardless. Either way, you should be prepared for a result grid to have
 		 * a different shape than the request.
 		 *
-		 * @return true if suppress columns is enabled, false otherwise
+		 * @return true if column suppression is enabled, false otherwise
 		 */
 		boolean isSuppressMissingColumns();
 
@@ -490,6 +502,38 @@ public interface PbcsPlanType extends PbcsObject {
 		 * @return the max numbers of cells that will be allowed per retrieve before breaking them up
 		 */
 		int getMaxCellsPerRetrieve();
+
+	}
+
+	/**
+	 * A callback that can be used with the {@link #export(PbcsPov, String, DimensionMembers, ExportCallback)} method
+	 * for exporting a flat set of data from a cube.
+	 */
+	interface ExportCallback {
+
+		/**
+		 * Called when the POV is processed (called once, first).
+		 *
+		 * @param pov the POV of the export
+		 */
+		void pov(PbcsPov pov);
+
+		/**
+		 * Called once, after the POV, and for all the headers of the export.
+		 *
+		 * @param memberHeaders the headers for the 'left' columns (this is normally white space in a
+		 *                      grid retrieve)
+		 * @param headers the column headers
+		 */
+		void printHeaders(List<String> memberHeaders, List<String> headers);
+
+		/**
+		 * Called once for each row of data in the export.
+		 *
+		 * @param headers the member headers for the row
+		 * @param data the data for the row
+		 */
+		void printRow(List<PbcsMember> headers, List<String> data);
 
 	}
 

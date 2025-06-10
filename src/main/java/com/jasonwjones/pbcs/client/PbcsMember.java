@@ -31,7 +31,7 @@ public interface PbcsMember extends PbcsObject {
 
     /**
      * Gets the "old name" for this member. I'm not sure how this is used, but it is a property that gets returned from
-     * the member info endpoint. To date I don't believe I have seen a value different from the actual member name.
+     * the member info endpoint. I don't believe I have seen a value different from the actual member name.
      *
      * @return the "old name" for this member
      */
@@ -64,7 +64,7 @@ public interface PbcsMember extends PbcsObject {
     String getDescription();
 
     /**
-     * The name of the parent of this member. If the member is already at the top of the dimension (i.e. it is the
+     * The name of this member's parent. If the member is already at the top of the dimension (i.e., it is the
      * dimension member such as Version, Entity, etc.) the returned value will be <code>null</code>.
      *
      * @return the name of this member's parent, null if there is no parent
@@ -80,11 +80,11 @@ public interface PbcsMember extends PbcsObject {
     PbcsApplication getParent();
 
     /**
-     * Gets the parent of this member. For most members this value will already exist, but calling this may cause a
+     * Gets the parent of this member. For most members, this value will already exist, but calling this may cause a
      * member lookup to happen. If you just need the name of the parent, then using {@link #getParentName()} is
      * guaranteed to return without making an additional request to the server.
      *
-     * @return the parent of this member, null if there isn't one (e.g. it's a dimension root)
+     * @return the parent of this member, null if there isn't one (e.g., it's a dimension root)
      * @since 2.0.0
      */
     PbcsMember getParentMember();
@@ -107,7 +107,7 @@ public interface PbcsMember extends PbcsObject {
     /**
      * Gets the member type, corresponding to the known planning member types, such as Scenario or Account. If the type
      * is not known (to the enum) then {@link PbcsMemberType#UNKNOWN} will be returned. If you need to parse some
-     * specific [but unknown] member type that's not represented in the enum, then use the {@link #getObjectNumericType()}
+     * specific [but unknown] member type not represented in the enum, then use the {@link #getObjectNumericType()}
      * method.
      *
      * @return the member type (if known)
@@ -116,7 +116,7 @@ public interface PbcsMember extends PbcsObject {
 
     /**
      * Returns the data storage type of the member, such as "Store Data". This method will always return the literal value
-     * that is returned from the REST API, such as "Store Data" or "Never Share". If possible you should use the
+     * from the REST API, such as "Store Data" or "Never Share". If possible you should use the
      * newer method {@link #getDataStorageType()} that returns an actual enum.
      *
      * @return the data storage type of the member
@@ -141,7 +141,7 @@ public interface PbcsMember extends PbcsObject {
     /**
      * The "two pass" value of the member.
      *
-     * @return true if this is a two pass member, false otherwise
+     * @return true if this is a two-pass member, false otherwise
      */
     boolean isTwoPass();
 
@@ -153,7 +153,7 @@ public interface PbcsMember extends PbcsObject {
     List<String> getUsedIn();
 
     /**
-     * Gets the calculated level of the member. The level appears to come back in the member info payload, however, it
+     * Gets the calculated level of the member. The level appears to come back in the member info payload; however, it
      * always has a value of 0. I believe this is an oversight on Oracle's part. Note: shared members will return the
      * level of the shared member, not the prototype member. In other words, shared members will always have a level of
      * 0 (since shared members cannot have children).
@@ -189,7 +189,7 @@ public interface PbcsMember extends PbcsObject {
     PbcsApplication getApplication();
 
     /**
-     * Models the possible data storage types. For a member. There isn't actually an "Other" type, it's just included
+     * Models the possible data storage types. For a member. There isn't an "Other" type, it's just included
      * in case it's not possible to map the actual type for some reason. If for some reason in the future callers have
      * an issue with getting the actual type, you can rely on the normal {@link #getDataStorage()} method to simply
      * return the actual string value that was returned from the REST API.

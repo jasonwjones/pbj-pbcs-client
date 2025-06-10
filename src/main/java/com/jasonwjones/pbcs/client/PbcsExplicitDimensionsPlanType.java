@@ -20,4 +20,19 @@ public interface PbcsExplicitDimensionsPlanType extends PbcsPlanType {
      */
     void cache();
 
+    /**
+     * Creates a default POV for this plan/cube, e.g., a POV based on the root member of each dimension.
+     *
+     * @return a POV at the highest level of this cube
+     */
+    PbcsPov createPov();
+
+    /**
+     * Creates a POV based on defaults except for member names provided in the list.
+     *
+     * @param members the members to customize the POV with
+     * @return a fully qualified POV based on defaults and the provided members
+     */
+    PbcsPov createPov(String... members);
+
 }

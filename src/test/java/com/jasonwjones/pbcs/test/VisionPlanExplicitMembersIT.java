@@ -1,5 +1,6 @@
 package com.jasonwjones.pbcs.test;
 
+import com.jasonwjones.pbcs.client.PbcsExplicitDimensionsPlanType;
 import com.jasonwjones.pbcs.client.PbcsMember;
 import com.jasonwjones.pbcs.client.PbcsPlanType;
 import com.jasonwjones.pbcs.client.impl.PlanTypeConfigurationImpl;
@@ -39,13 +40,13 @@ public class VisionPlanExplicitMembersIT extends VisionCubeIT {
         assertThat(jan, is(nullValue()));
     }
 
-    private PbcsPlanType cube() {
+    private PbcsExplicitDimensionsPlanType cube() {
         PlanTypeConfigurationImpl configuration = new PlanTypeConfigurationImpl();
         configuration.setName("Plan1");
         configuration.setSkipCheck(true);
         configuration.setExplicitDimensions(DIMENSIONS);
         configuration.setMemberSearchThreads(8);
-        return app.getPlanType(configuration);
+        return (PbcsExplicitDimensionsPlanType) app.getPlanType(configuration);
     }
 
 }

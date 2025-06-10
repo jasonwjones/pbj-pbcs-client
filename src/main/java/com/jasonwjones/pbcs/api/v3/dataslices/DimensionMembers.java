@@ -7,8 +7,8 @@ import java.util.List;
 
 /**
  * Models a single instance of the cartesian inputs for a part of an OLAP axis.
- * For example, if the "left" axis of a given report has the dimensions Time and
- * Years, and it was desired to have Jan and Feb for FY18 and Mar for FY19, then
+ * For example, if the "left" axis of a given report has dimensions Time and
+ * Years, and it was desired to have Jan and Feb for FY18, and Mar for FY19, then
  * two DimensionMembers would be used, with the following configuration:
  *
  * <pre>
@@ -28,8 +28,8 @@ public class DimensionMembers {
 	 * specified in the POV, but they can be blank for row/column
 	 * specifications. Therefore, this needs to be set when it's used in the
 	 * POV, but can be left null (not an empty collection) in one of the other
-	 * orientations. Do note however that Oracle recommends specifying the
-	 * dimension names for performance reasons.F
+	 * orientations. Do note, however, that Oracle recommends specifying the
+	 * dimension names for performance reasons.
 	 */
 	private List<String> dimensions;
 
@@ -55,23 +55,13 @@ public class DimensionMembers {
 	 *
 	 * In testing, it seems that the second List can be defined with three
 	 * elements (three copies of "Actual") and the output will still be correct.
-	 * At this point I can't tell if that's a glitch in the implementation or my
+	 * At this point, I can't tell if that's a glitch in the implementation or my
 	 * understanding.
 	 *
 	 */
 	private List<List<String>> members;
 
 	private DimensionMembers() {
-	}
-
-	/**
-	 * Convenience invocation, assumes that each provided member is also the
-	 * dimension name.
-	 *
-	 * @param members the dimension names
-	 */
-	public DimensionMembers(List<String> members) {
-		this(members, members);
 	}
 
 	public DimensionMembers(List<String> dimensions, List<String> members) {
