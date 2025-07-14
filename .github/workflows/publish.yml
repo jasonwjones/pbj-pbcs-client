@@ -1,0 +1,39 @@
+name: Release and Publish To Maven Central
+
+on:
+  workflow_dispatch:
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4.2.2
+      - uses: actions/setup-java@v4.7.1
+        with:
+          java-version: 8
+          java-package: jdk
+          check-latest: false
+          cache: 'maven'
+          cache-dependency-path: 'pom.xml'
+          gpg-private-key: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }}
+          gpg-passphrase: MAVEN_GPG_PASSPHRASE # this represents the env variable name that contains the passphrase
+      - name: Build
+        run: mvn -B deploy -Dmaven.test.skip=true
+        with:
+          MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }} # this is where the above-mentioned env variable is actually set
+      - uses: richardsimko/update-tag@v1.0.11
+        with:
+          tag_name: ${{ github.ref_name }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Create Release
+        uses: ncipollo/release-action@v1.14.0
+        with:
+          allowUpdates: true
+          removeArtifacts: true
+          tag: ${{ github.ref_name }}
+          prerelease: true
+          generateReleaseNotes: true
+          commit: ${{ github.ref_name }}
+          artifacts: >
+            **/target/pbj-pbcs-client-*.jar
