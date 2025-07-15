@@ -21,6 +21,12 @@ jobs:
         run: mvn -B deploy -Dmaven.test.skip=true
         with:
           MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }} # this is where the above-mentioned env variable is actually set
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v4.0.0
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: /home/runner/work/pbj-pbcs-client/pbj-pbcs-client/target/site/apidocs
+          destination_dir: ./
       - uses: richardsimko/update-tag@v1.0.11
         with:
           tag_name: ${{ github.ref_name }}
