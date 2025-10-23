@@ -12,9 +12,13 @@ import org.springframework.web.client.RestTemplate;
 public class RestTemplateWithUrlEncodedExtensions extends RestTemplate {
 
     public <T> ResponseEntity<T> postForEntityWithUrlEncodedParams(String url, Class<T> responseType, String... params) throws RestClientException {
-        if (params.length % 2 != 0) throw new IllegalArgumentException("Must provide even number of parameters");
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+        return postForEntityWithUrlEncodedParams(url, headers, responseType, params);
+    }
+
+    public <T> ResponseEntity<T> postForEntityWithUrlEncodedParams(String url, HttpHeaders headers, Class<T> responseType, String... params) throws RestClientException {
+        if (params.length % 2 != 0) throw new IllegalArgumentException("Must provide even number of parameters");
 
         MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
         for (int i = 0; i < params.length; i += 2) {
