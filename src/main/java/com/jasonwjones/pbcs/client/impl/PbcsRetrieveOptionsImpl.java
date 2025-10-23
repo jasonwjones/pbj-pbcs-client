@@ -2,6 +2,8 @@ package com.jasonwjones.pbcs.client.impl;
 
 import com.jasonwjones.pbcs.client.PbcsPlanType;
 
+import java.util.StringJoiner;
+
 public class PbcsRetrieveOptionsImpl implements PbcsPlanType.RetrieveOptions {
 
     /**
@@ -66,6 +68,17 @@ public class PbcsRetrieveOptionsImpl implements PbcsPlanType.RetrieveOptions {
 
     public void setMaxCellsPerRetrieve(int maxCellsPerRetrieve) {
         this.maxCellsPerRetrieve = maxCellsPerRetrieve;
+    }
+
+    @Override
+    public String toString() {
+        return new StringJoiner(", ", PbcsRetrieveOptionsImpl.class.getSimpleName() + "[", "]")
+                .add("exportPlanningData=" + exportPlanningData)
+                .add("maxCellsPerRetrieve=" + maxCellsPerRetrieve)
+                .add("provideDimensionHints=" + provideDimensionHints)
+                .add("suppressMissingColumns=" + suppressMissingColumns)
+                .add("suppressMissingRows=" + suppressMissingRows)
+                .toString();
     }
 
 }
