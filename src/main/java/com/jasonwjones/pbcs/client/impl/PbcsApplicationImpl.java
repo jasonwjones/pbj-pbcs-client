@@ -9,7 +9,6 @@ import com.jasonwjones.pbcs.api.v3.dataslices.DataSlice;
 import com.jasonwjones.pbcs.api.v3.dataslices.ExportDataSlice;
 import com.jasonwjones.pbcs.client.*;
 import com.jasonwjones.pbcs.client.exceptions.*;
-import com.jasonwjones.pbcs.interop.impl.SimpleFilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
@@ -109,12 +108,10 @@ public class PbcsApplicationImpl extends AbstractPbcsObject implements PbcsAppli
 
 	@Override
 	public PbcsJobStatus refreshCube(String cubeRefreshName) {
-		String url = this.context.getBaseUrl() + JOBS_ENDPOINT;
+        logger.info("Launching cube refresh on {}", cubeRefreshName);
 		MetadataImportPayload payload = new MetadataImportPayload("CUBE_REFRESH", cubeRefreshName);
-		ResponseEntity<JobLaunchResponse> output = this.context.getTemplate().postForEntity(url, getRequestEntityWithHeaders(payload),
-				JobLaunchResponse.class, getName());
-		logger.info("Cube refresh launched");
-		return new PbcsJobLaunchResultImpl(context, this, output.getBody());
+        JobLaunchResponse jobLaunchResponse = post(JOBS_ENDPOINT, payload, JobLaunchResponse.class, getName());
+		return new PbcsJobLaunchResultImpl(context, this, jobLaunchResponse);
 	}
 
 	@Override
