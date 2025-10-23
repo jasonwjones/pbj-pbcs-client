@@ -158,9 +158,8 @@ public class PbcsApplicationImpl extends AbstractPbcsObject implements PbcsAppli
 	@Override
 	public Set<SubstitutionVariable> getSubstitutionVariables() {
 		logger.info("Getting substitution variables for {}", application.getName());
-		String url = this.context.getBaseUrl() + "applications/{application}/substitutionvariables";
-		ResponseEntity<SubstitutionVariablesWrapper> response = this.context.getTemplate().getForEntity(url, SubstitutionVariablesWrapper.class, getName());
-		return new HashSet<>(response.getBody().getItems());
+        SubstitutionVariablesWrapper wrapper = get("applications/{application}/substitutionvariables", SubstitutionVariablesWrapper.class, getName());
+		return new HashSet<>(wrapper.getItems());
 	}
 
 	@Override

@@ -1,25 +1,32 @@
 package com.jasonwjones.pbcs.test;
 
 import com.jasonwjones.pbcs.PbcsClientFactory;
+import com.jasonwjones.pbcs.api.v3.SubstitutionVariable;
 import com.jasonwjones.pbcs.api.v3.dataslices.DimensionMembers;
 import com.jasonwjones.pbcs.client.*;
 import com.jasonwjones.pbcs.client.exceptions.PbcsDataImportException;
+import com.jasonwjones.pbcs.client.impl.PbcsApplicationImpl;
 import com.jasonwjones.pbcs.client.impl.PbcsPlanTypeImpl;
 import com.jasonwjones.pbcs.client.impl.PlanTypeConfigurationImpl;
 import com.jasonwjones.pbcs.client.impl.export.MarkdownExportCallback;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 public class VisionCubeIT extends AbstractIntegrationTest {
+
+    private static final Logger logger = LoggerFactory.getLogger(VisionCubeIT.class);
 
     protected PbcsApplication app;
 
@@ -154,6 +161,25 @@ public class VisionCubeIT extends AbstractIntegrationTest {
         DimensionMembers dm = DimensionMembers.ofSingleDimension("Descendants(Product)");
         dm.setDimensions(Collections.singletonList("Product"));
         show(pov, "Lvl0Descendants(YearTotal)", dm);
+    }
+
+    @Test
+    public void whenGetSubstitutionVariables() {
+        Set<SubstitutionVariable> vars = app.getSubstitutionVariables();
+        System.out.println("Count of variables: " + vars.size());
+        for (SubstitutionVariable var : vars) {
+            logger.info("Variable: {}", var);
+        }
+    }
+
+    @Test
+    public void whenGetPlanVariables() {
+        for (PbcsPlanType planType : app.getPlanTypes()) {
+            logger.info("Sub vars in {}", planType);
+            for (SubstitutionVariable variable : planType.getSubstitutionVariables()) {
+                logger.info(" Var: {}", variable);
+            }
+        }
     }
 
     private void show(PbcsPov pov, String header, DimensionMembers dm) {
