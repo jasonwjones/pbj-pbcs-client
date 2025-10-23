@@ -10,6 +10,7 @@ import com.jasonwjones.pbcs.client.impl.PbcsPlanTypeImpl;
 import com.jasonwjones.pbcs.client.impl.PlanTypeConfigurationImpl;
 import com.jasonwjones.pbcs.client.impl.export.MarkdownExportCallback;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -180,6 +181,12 @@ public class VisionCubeIT extends AbstractIntegrationTest {
                 logger.info(" Var: {}", variable);
             }
         }
+    }
+
+    @Ignore // re-add when real testing happens
+    @Test
+    public void whenExportMetadata() {
+        app.exportMetadata("ExportProduct", "test.zip");
     }
 
     private void show(PbcsPov pov, String header, DimensionMembers dm) {

@@ -247,7 +247,6 @@ public class PbcsApplicationImpl extends AbstractPbcsObject implements PbcsAppli
 	@Override
 	public void exportMetadata(String jobName, String exportFileName) {
 		logger.info("Launching export metadata job: {}", jobName);
-		String url = this.context.getBaseUrl() + JOBS_ENDPOINT;
 		JobLaunchPayload payload = new JobLaunchPayload("EXPORT_METADATA", jobName);
 
 		Map<String, String> params = new HashMap<>();
@@ -259,8 +258,8 @@ public class PbcsApplicationImpl extends AbstractPbcsObject implements PbcsAppli
 		// ResponseEntity<JobLaunchResponse> output =
 		// this.context.getTemplate().postForEntity(url, payload,
 		// JobLaunchResponse.class, appMap);
-		ResponseEntity<String> output = this.context.getTemplate().postForEntity(url, payload, String.class, getName());
-		System.out.println("export resp: " + output.getBody());
+        String output = post(JOBS_ENDPOINT, payload, String.class, getName());
+		System.out.println("export resp: " + output);
 	}
 
 	@Override
