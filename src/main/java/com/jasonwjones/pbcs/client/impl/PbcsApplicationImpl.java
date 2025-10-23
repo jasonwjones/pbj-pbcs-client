@@ -90,42 +90,6 @@ public class PbcsApplicationImpl extends AbstractPbcsObject implements PbcsAppli
 		}
 	}
 
-	@Override
-	public PbcsJobStatus launchRuleSet(String ruleSetName) {
-		return launchRuleSet(ruleSetName, Collections.emptyMap());
-	}
-
-	@Override
-	public PbcsJobStatus launchRuleSet(String ruleSetName, Map<String, String> parameters) {
-		String url = context.getBaseUrl() + JOBS_ENDPOINT;
-		JobLaunchPayload payload = new JobLaunchPayload("RULESET", ruleSetName);
-		payload.setParameters(parameters);
-		HttpEntity<?> requestEntity = getRequestEntityWithHeaders(payload);
-		ResponseEntity<JobLaunchResponse> output = context.getTemplate().postForEntity(url, requestEntity, JobLaunchResponse.class, getName());
-		return new PbcsJobLaunchResultImpl(context, this, output.getBody());
-	}
-
-	@Override
-	public PbcsJobStatus launchDataRule(String dataRuleName, Map<String, String> parameters) {
-		String url = context.getAifUrl("/jobs");
-		JobLaunchPayload payload = new JobLaunchPayload("DATARULE", dataRuleName);
-		payload.setParameters(parameters);
-		HttpEntity<?> requestEntity = getRequestEntityWithHeaders(payload);
-		ResponseEntity<JobLaunchResponse> output = context.getTemplate().postForEntity(url, requestEntity, JobLaunchResponse.class, getName());
-		return new PbcsJobLaunchResultImpl(context, this, output.getBody());
-	}
-
-	@Override
-	public PbcsJobStatus launchIntegration(String integrationName, Map<String, String> parameters) {
-		String url = context.getAifUrl("/jobs");
-		JobLaunchPayload payload = new JobLaunchPayload("INTEGRATION", integrationName);
-		payload.setParameters(parameters);
-		HttpEntity<?> requestEntity = getRequestEntityWithHeaders(payload);
-		ResponseEntity<JobLaunchResponse> output = context.getTemplate()
-														  .postForEntity(url, requestEntity, JobLaunchResponse.class, getName());
-		return new PbcsJobLaunchResultImpl(context, this, output.getBody());
-	}
-
 	private HttpEntity<?> getRequestEntityWithHeaders(Payload payload) {
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_JSON);
@@ -136,76 +100,6 @@ public class PbcsApplicationImpl extends AbstractPbcsObject implements PbcsAppli
 		} catch (JsonProcessingException e) {
 			throw new RuntimeException("Cannot map object to json", e);
 		}
-	}
-
-	@Override
-	public PbcsJobStatus importMetadata(String metadataImportName) {
-		return importMetadata(metadataImportName, null);
-	}
-
-	@Override
-	public PbcsJobStatus importMetadata(String metadataImportName, String dataFile) {
-		logger.info("Launching metadata import data job: {}", metadataImportName);
-		String url = this.context.getBaseUrl() + JOBS_ENDPOINT;
-		MetadataImportPayload payload = new MetadataImportPayload("IMPORT_METADATA", metadataImportName);
-
-		// "parameters" var is optional if not specifying. If it's specified,
-		// then it should
-		// be a zip file
-		if (dataFile != null) {
-			Map<String, String> params = new HashMap<>();
-			if (SimpleFilenameUtils.getExtension(dataFile) != null && SimpleFilenameUtils.getExtension(dataFile).equalsIgnoreCase("zip")) {
-				params.put("importZipFileName", dataFile);
-			}
-			else {
-				params.put("importFileName", dataFile);
-			}
-			payload.setParameters(params);
-		}
-		ResponseEntity<JobLaunchResponse> output = this.context.getTemplate().postForEntity(url, getRequestEntityWithHeaders(payload), JobLaunchResponse.class, getName());
-		return new PbcsJobLaunchResultImpl(context, this, output.getBody());
-	}
-
-	@Override
-	public PbcsJobStatus launchDataImport(String dataImportName) {
-		return this.launchDataImport(dataImportName, Optional.empty());
-	}
-	@Override
-	public PbcsJobStatus launchDataImport(String dataImportName, Optional<String> importFileName) {
-		logger.info("Launching import data job: {}", dataImportName);
-		String url = this.context.getBaseUrl() + JOBS_ENDPOINT;
-		JobLaunchPayload payload = new JobLaunchPayload("IMPORT_DATA", dataImportName);
-		if (importFileName.isPresent()){
-			if (SimpleFilenameUtils.getExtension(importFileName.get()) != null && SimpleFilenameUtils.getExtension(importFileName.get()).equals("zip")){
-				payload.setParameters(Collections.singletonMap("importZipFileName", importFileName.get()));
-			}
-			else {
-				payload.setParameters(Collections.singletonMap("importFileName", importFileName.get()));
-			}
-		}
-		// can add 'importFileName' to parameters on payload object if we want
-		// (the name of a CSV, ZIP, or TXT file). In case of ZIP, the ZIP can
-		// contain 1+ CSV files
-		// such as data1-3, data2-3, data3-3.csv, etc.
-		RequestEntity<JobLaunchPayload> body = RequestEntity.post(context.getTemplate()
-																		 .getUriTemplateHandler()
-																		 .expand(url, getName()))
-															.contentType(MediaType.APPLICATION_JSON)
-															.body(payload);
-		ResponseEntity<JobLaunchResponse> output = context.getTemplate()
-															.exchange(body, JobLaunchResponse.class);
-
-		return new PbcsJobLaunchResultImpl(context, this, output.getBody());
-	}
-
-	@Override
-	public PbcsJobStatus exportData(String exportName) {
-		String url = this.context.getBaseUrl() + JOBS_ENDPOINT;
-		JobLaunchPayload payload = new JobLaunchPayload("EXPORT_DATA", exportName);
-		ResponseEntity<JobLaunchResponse> output = this.context.getTemplate().postForEntity(url, payload,
-				JobLaunchResponse.class, getName());
-		logger.info("Export data HTTP code: {}", output.getStatusCode().value());
-		return new PbcsJobLaunchResultImpl(context, this, output.getBody());
 	}
 
 	@Override

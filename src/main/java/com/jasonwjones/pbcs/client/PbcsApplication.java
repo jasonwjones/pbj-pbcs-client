@@ -3,7 +3,6 @@ package com.jasonwjones.pbcs.client;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 
 import com.jasonwjones.pbcs.api.v3.SubstitutionVariable;
@@ -74,50 +73,6 @@ public interface PbcsApplication extends PbcsObject {
 	PbcsJobStatus getJobStatus(Integer jobId);
 
 	/**
-	 * Launches a business rule on the application, providing no additional
-	 * parameters
-	 *
-	 * @param ruleName the name of the business rule exactly as it appears in
-	 *            the application
-	 * @return a job launch result
-	 */
-	PbcsJobStatus launchBusinessRule(String ruleName);
-
-	/**
-	 * Launches a business rule on the application, providing additional
-	 * parameters
-	 *
-	 * @param ruleName the name of the business rule exactly as it appears in
-	 *            the application
-	 * @param parameters the parameters to pass along
-	 * @return a job launch result
-	 */
-	PbcsJobStatus launchBusinessRule(String ruleName, Map<String, String> parameters);
-
-	PbcsJobStatus launchRuleSet(String ruleSetName, Map<String, String> parameters);
-	PbcsJobStatus launchRuleSet(String ruleSetName);
-
-	PbcsJobStatus launchDataImport(String dataImportName, Optional<String> dataFile);
-	PbcsJobStatus launchDataImport(String dataImportName);
-
-	PbcsJobStatus importMetadata(String metadataImportName, String dataFile);
-
-	PbcsJobStatus launchDataRule(String dataRuleName, Map<String, String> parameters);
-
-	/**
-	 * The INTEGRATION job type is an enhanced version of DATARULE job type (see Running Data Rules). It is recommended that you use the INTEGRATION job type for future integration jobs
-	 *
-	 * @param integrationName - name of the integration
-	 * @param parameters      - parameters for integration
-	 * @return job result
-	 */
-	PbcsJobStatus launchIntegration(String integrationName, Map<String, String> parameters);
-
-	PbcsJobStatus importMetadata(String metadataImportName);
-
-	PbcsJobStatus exportData(String exportName);
-
-	/**
 	 * Despite the name, this seems to be a call to refresh the entire application. The documentation makes mention of
 	 * 'the' planning cube, but I think in practice this is really the whole application.
 	 *
@@ -134,6 +89,27 @@ public interface PbcsApplication extends PbcsObject {
 	 * @return a job launch result
 	 */
 	PbcsJobStatus refreshCube(String cubeRefreshName);
+
+    /**
+     * Launches a business rule on the application, providing no additional
+     * parameters
+     *
+     * @param ruleName the name of the business rule exactly as it appears in
+     *            the application
+     * @return a job launch result
+     */
+    PbcsJobStatus launchBusinessRule(String ruleName);
+
+    /**
+     * Launches a business rule on the application, providing additional
+     * parameters
+     *
+     * @param ruleName the name of the business rule exactly as it appears in
+     *            the application
+     * @param parameters the parameters to pass along
+     * @return a job launch result
+     */
+    PbcsJobStatus launchBusinessRule(String ruleName, Map<String, String> parameters);
 
 	PbcsMember addMember(String dimensionName, String memberName, String parentName);
 
