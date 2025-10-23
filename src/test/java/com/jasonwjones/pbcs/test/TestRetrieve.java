@@ -24,7 +24,7 @@ public class TestRetrieve extends AbstractIntegrationTest {
 
 		PbcsPlanType cube = app.getPlanType(configuration);
 
-		DataSliceGrid grid = cube.retrieve(Arrays.asList("Actual", "Final", "Test1a", "FY21", "Account1", "USD", "IDescendants(Period)"));
+		DataSliceGrid grid = cube.retrieve(Arrays.asList("Actual", "Final", "P_000", "FY21", "4110", "USD", "000", "IDescendants(Period)"));
 		//IDescendants(
 		grid.print();
 	}
