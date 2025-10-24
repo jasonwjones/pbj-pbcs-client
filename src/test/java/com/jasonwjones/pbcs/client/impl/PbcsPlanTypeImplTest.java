@@ -26,4 +26,5 @@ public class PbcsPlanTypeImplTest extends VisionCubeIT {
         List<String> badPov = Arrays.asList("XActual", "Final", "P_000", "FY21", "4110", "USD", "000", "IDescendants(Period)");
         assertThrows(PbcsGeneralException.class, () -> cube.retrieve(badPov));
     }
+
 }

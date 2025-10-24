@@ -5,7 +5,11 @@ import com.jasonwjones.di.DataManagementClient;
 import com.jasonwjones.di.DataManagementJob;
 import com.jasonwjones.di.api.v1.JobDefinition;
 import com.jasonwjones.di.api.v1.JobDefinitionsWrapper;
+import com.jasonwjones.pbcs.aif.AifApplication;
+import com.jasonwjones.pbcs.aif.AifDimension;
 import com.jasonwjones.pbcs.api.v3.Api;
+import com.jasonwjones.pbcs.client.PbcsApi;
+import com.jasonwjones.pbcs.client.impl.PbcsApiImpl;
 import com.jasonwjones.pbcs.client.impl.RestContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,9 +32,10 @@ public class DataManagementClientImpl implements DataManagementClient {
     }
 
     @Override
-    public void getVersions() {
+    public PbcsApi getVersion() {
         Api api = template.get("", Api.class);
-        logger.info("Data management API version: {}", api.getVersion());
+        logger.info("Data management API version: {}", api);
+        return new PbcsApiImpl(api);
     }
 
     @Override
@@ -41,6 +46,12 @@ public class DataManagementClientImpl implements DataManagementClient {
             jobs.add(new DataManagementJobImpl(jobDefinition));
         }
         return jobs;
+    }
+
+    @Override
+    public List<AifDimension> getDimensions(String applicationName) {
+        AifApplication application = template.get("/applications/{application}", AifApplication.class, applicationName);
+        return application.getItems();
     }
 
 }

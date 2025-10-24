@@ -1,7 +1,5 @@
 package com.jasonwjones.pbcs.client.impl;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jasonwjones.pbcs.aif.AifApplication;
 import com.jasonwjones.pbcs.aif.AifDimension;
 import com.jasonwjones.pbcs.api.v3.*;
@@ -11,7 +9,7 @@ import com.jasonwjones.pbcs.client.*;
 import com.jasonwjones.pbcs.client.exceptions.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.*;
+import org.springframework.http.ResponseEntity;
 import org.springframework.util.Assert;
 import org.springframework.web.client.HttpServerErrorException;
 
@@ -86,18 +84,6 @@ public class PbcsApplicationImpl extends AbstractPbcsObject implements PbcsAppli
 		} catch (Exception e) {
 			logger.error("Exception launching business rule {}: {}", ruleName, e.getMessage());
 			throw new PbcsJobLaunchException(ruleName, e);
-		}
-	}
-
-	private HttpEntity<?> getRequestEntityWithHeaders(Payload payload) {
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_JSON);
-		try {
-			return new HttpEntity<>(new ObjectMapper().writer()
-															.withDefaultPrettyPrinter()
-															.writeValueAsString(payload), headers);
-		} catch (JsonProcessingException e) {
-			throw new RuntimeException("Cannot map object to json", e);
 		}
 	}
 
@@ -196,22 +182,16 @@ public class PbcsApplicationImpl extends AbstractPbcsObject implements PbcsAppli
 	// TODO: currently getting a BAD request 400 possibly because it's not enable dynamic children.
 	@Override
 	public PbcsMember addMember(String dimensionName, String memberName, String parentName) {
-		String url = this.context.getBaseUrl() + "applications/{application}/dimensions/{dimName}/members";
-
-		MemberAdd ma = new MemberAdd(memberName, parentName);
-
-		this.context.getTemplate().setErrorHandler(new MyResponseErrorHandler());
-		ResponseEntity<String> resp = this.context.getTemplate().postForEntity(url, ma, String.class,
-				application.getName(), dimensionName);
+		//MemberAdd ma = new MemberAdd(memberName, parentName);
+        throw new UnsupportedOperationException("Needs to be refactored");
+        //post("applications/{application}/dimensions/{dimName}/members")
 
 		// ResponseEntity<PbcsMemberPropertiesImpl> memberResponse =
-		// this.context.getTemplate().getForEntity(url,
 		// PbcsMemberPropertiesImpl.class, application.getName(), dimensionName,
 		// memberName);
 		// return memberResponse.getBody();
 
 		// TODO Auto-generated method stub
-		return null;
 	}
 
 	@Override
@@ -255,9 +235,7 @@ public class PbcsApplicationImpl extends AbstractPbcsObject implements PbcsAppli
 		// (the name of a CSV, ZIP, or TXT file). In case of ZIP, the ZIP can
 		// contain 1+ CSV files
 		// such as data1-3, data2-3, data3-3.csv, etc.
-		// ResponseEntity<JobLaunchResponse> output =
-		// this.context.getTemplate().postForEntity(url, payload,
-		// JobLaunchResponse.class, appMap);
+        // actually returning a job launch response?
         String output = post(JOBS_ENDPOINT, payload, String.class, getName());
 		System.out.println("export resp: " + output);
 	}

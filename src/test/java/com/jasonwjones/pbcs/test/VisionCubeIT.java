@@ -5,7 +5,6 @@ import com.jasonwjones.pbcs.api.v3.SubstitutionVariable;
 import com.jasonwjones.pbcs.api.v3.dataslices.DimensionMembers;
 import com.jasonwjones.pbcs.client.*;
 import com.jasonwjones.pbcs.client.exceptions.PbcsDataImportException;
-import com.jasonwjones.pbcs.client.impl.PbcsApplicationImpl;
 import com.jasonwjones.pbcs.client.impl.PbcsPlanTypeImpl;
 import com.jasonwjones.pbcs.client.impl.PlanTypeConfigurationImpl;
 import com.jasonwjones.pbcs.client.impl.export.MarkdownExportCallback;
@@ -24,6 +23,7 @@ import java.util.Set;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasSize;
 
 public class VisionCubeIT extends AbstractIntegrationTest {
 
@@ -187,6 +187,15 @@ public class VisionCubeIT extends AbstractIntegrationTest {
     @Test
     public void whenExportMetadata() {
         app.exportMetadata("ExportProduct", "test.zip");
+    }
+
+    @Test
+    public void whenGetDimensions() {
+        logger.info("Dims in application: {}", app.getName());
+        for (PbcsAppDimension dimension : app.getDimensions()) {
+            logger.info("Dimension: {}, valid in: {}", dimension.getName(), dimension.getValidPlans());
+        }
+        assertThat(app.getDimensions(), hasSize(8));
     }
 
     private void show(PbcsPov pov, String header, DimensionMembers dm) {

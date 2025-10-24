@@ -89,7 +89,6 @@ public class PbcsClientFactory {
 		PbcsServiceConfiguration serviceConfiguration = createDefaultServiceConfiguration();
 		RestContext restContext = createRestContext(serviceConfiguration, connection);
 		return new DataManagementClientImpl(restContext);
-
 	}
 
 	/**
