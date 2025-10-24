@@ -6,12 +6,6 @@
 	<version>2.0.0</version>
 	<name>PBJ - The PBCS REST API Java Client</name>
 
-	<parent>
-		<groupId>org.springframework.boot</groupId>
-		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.7.18</version>
-	</parent>
-
 	<url>https://github.com/jasonwjones/pbj-pbcs-client</url>
 	<description>PBJ is a Java client for working with the REST API exposed by Oracle's Planning and Budgeting Cloud Service (PBCS).</description>
 	<inceptionYear>2015</inceptionYear>
@@ -42,18 +36,28 @@
 		</developer>
 	</developers>
 
+    <properties>
+        <maven.compiler.target>1.8</maven.compiler.target>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <github.global.server>github</github.global.server>
+    </properties>
+
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-web</artifactId>
+            <version>5.3.31</version>
 		</dependency>
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-databind</artifactId>
+            <version>2.13.5</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>
 			<artifactId>httpclient</artifactId>
+            <version>4.5.14</version>
 		</dependency>
 		<dependency>
 			<groupId>commons-io</groupId>
@@ -66,16 +70,19 @@
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
+            <version>1.7.36</version>
 		</dependency>
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
 			<artifactId>logback-classic</artifactId>
+            <version>1.2.12</version>
 			<scope>provided</scope>
 		</dependency>
 		<!-- Spring/RestTemplate need this -->
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>jcl-over-slf4j</artifactId>
+            <version>1.7.36</version>
 		</dependency>
 
 		<!-- Testing -->
@@ -93,12 +100,6 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
-
-	<properties>
-		<github.global.server>github</github.global.server>
-		<maven.compiler.target>1.8</maven.compiler.target>
-		<maven.compiler.source>1.8</maven.compiler.source>
-	</properties>
 
 	<reporting>
 		<plugins>
@@ -126,6 +127,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.10.3</version>
 				<executions>
 					<execution>
 						<id>attach-javadocs</id>
