@@ -2,12 +2,12 @@ package com.jasonwjones.pbcs.test;
 
 import com.jasonwjones.pbcs.PbcsClientFactory;
 import com.jasonwjones.pbcs.client.PbcsPlanningClient;
-import org.apache.http.HttpHost;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.conn.ssl.TrustAllStrategy;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.ssl.SSLContextBuilder;
+import org.apache.hc.client5.http.classic.HttpClient;
+import org.apache.hc.client5.http.config.RequestConfig;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.client5.http.ssl.TrustAllStrategy;
+import org.apache.hc.core5.http.HttpHost;
+import org.apache.hc.core5.ssl.SSLContextBuilder;
 
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
@@ -26,7 +26,8 @@ public class TestGetApisWithProxy extends AbstractIntegrationTest {
 
 		HttpClient httpClient = HttpClients.custom()
 				.setDefaultRequestConfig(requestConfig)
-				.setSSLContext(new SSLContextBuilder().loadTrustMaterial(null, TrustAllStrategy.INSTANCE).build())
+                // TODO: rework; no longer exists in httpclient5
+				//.setSSLContext(new SSLContextBuilder().loadTrustMaterial(null, TrustAllStrategy.INSTANCE).build())
 				//.setSSLHostnameVerifier(NoopHostnameVerifier.INSTANCE)
 				.build();
 

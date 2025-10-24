@@ -8,7 +8,6 @@ import com.jasonwjones.pbcs.client.exceptions.PbcsInvalidCredentialsException;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.web.client.ResponseErrorHandler;
 
@@ -57,13 +56,8 @@ public class MyResponseErrorHandler implements ResponseErrorHandler {
 
 	@Override
 	public boolean hasError(ClientHttpResponse response) throws IOException {
-		return isError(response.getStatusCode());
-	}
-
-	private static boolean isError(HttpStatus status) {
-		HttpStatus.Series series = status.series();
-		return (HttpStatus.Series.CLIENT_ERROR.equals(series)
-				|| HttpStatus.Series.SERVER_ERROR.equals(series));
+        return response.getStatusCode().is4xxClientError() ||
+                response.getStatusCode().is5xxServerError();
 	}
 
 }
