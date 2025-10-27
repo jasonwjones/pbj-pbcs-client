@@ -8,10 +8,12 @@ import com.jasonwjones.pbcs.client.exceptions.PbcsInvalidCredentialsException;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.web.client.ResponseErrorHandler;
 
 import java.io.IOException;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 
 public class MyResponseErrorHandler implements ResponseErrorHandler {
@@ -27,7 +29,7 @@ public class MyResponseErrorHandler implements ResponseErrorHandler {
 			.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
 	@Override
-	public void handleError(ClientHttpResponse response) throws IOException {
+	public void handleError(URI url, HttpMethod method, ClientHttpResponse response) throws IOException {
 		// pull the response body and pass separately since the first read of the stream off of
 		// ClientHttpResponse would eat it and make subsequent attempts fail
 		String responseBody = IOUtils.toString(response.getBody(), StandardCharsets.UTF_8);
