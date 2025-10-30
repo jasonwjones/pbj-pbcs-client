@@ -7,6 +7,7 @@ import com.jasonwjones.pbcs.client.PbcsPlanningClient;
 import com.jasonwjones.pbcs.client.PbcsServiceConfiguration;
 import com.jasonwjones.pbcs.client.impl.*;
 import com.jasonwjones.pbcs.client.impl.interceptors.BasicCredentialsInterceptor;
+import com.jasonwjones.pbcs.client.impl.interceptors.LoggingInterceptor;
 import com.jasonwjones.pbcs.client.impl.interceptors.RefreshableTokenInterceptor;
 import org.apache.hc.client5.http.classic.HttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
@@ -149,6 +150,9 @@ public class PbcsClientFactory {
 		restTemplate.setErrorHandler(new MyResponseErrorHandler());
 
 		List<ClientHttpRequestInterceptor> interceptors = new ArrayList<>();
+
+        LoggingInterceptor loggingInterceptor = new LoggingInterceptor();
+        interceptors.add(loggingInterceptor);
 
 		if (connection.isToken()) {
 			RefreshableTokenInterceptor refreshableTokenInterceptor = new RefreshableTokenInterceptor(connection);
