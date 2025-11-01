@@ -199,6 +199,12 @@ public class VisionCubeIT {
         assertThat(app.getDimensions(), hasSize(8));
     }
 
+    @Test
+    public void whenGetJobs() {
+        List<PbcsJobDefinition> jobDefinitions = app.getJobDefinitions();
+        jobDefinitions.forEach(jd -> logger.info("Job: {}", jd));
+    }
+
     private void show(PbcsPov pov, String header, DimensionMembers dm) {
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
             //PbcsPlanType.ExportCallback exportCallback = new PrintStreamExportCallback(baos);

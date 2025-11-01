@@ -11,6 +11,8 @@ public enum PbcsJobType {
 
 	RULES("Rules"),
 
+    CLEAR_CUBE("Clear Cube"),
+
 	OTHER("Other");
 
 	private final String description;

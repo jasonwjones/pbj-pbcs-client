@@ -53,7 +53,7 @@ public class PbcsJobDefinitionImpl extends AbstractPbcsObject implements PbcsJob
 
 	@Override
 	public String toString() {
-		return String.format("PbcsJobDefinitionImpl [name=%s, type=%s]", getName(), jobType);
+		return String.format("PbcsJobDefinitionImpl [name=%s, type=%s, originalJobType=%s]", getName(), jobType, getOriginalJobType());
 	}
 
 }
