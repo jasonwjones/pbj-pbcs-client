@@ -1,5 +1,6 @@
 package com.jasonwjones.pbcs.client;
 
+// likely needs to be expanded with other items from: https://docs.oracle.com/en/cloud/saas/enterprise-performance-management-common/prest/get_job_definitions.html
 public enum PbcsJobType {
 
 	CUBE_REFRESH("Cube Refresh"),

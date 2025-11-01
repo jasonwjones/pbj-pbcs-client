@@ -49,6 +49,14 @@ public interface PbcsPlanType extends PbcsObject {
 	 */
 	List<PbcsJobDefinition> getJobs();
 
+    /**
+     * Gets the list of jobs specific to this plan that match the given job type for this plan.
+     *
+     * @param jobType the job type to filter
+     * @return list of jobs for this plan of the given type, empty list if none
+     */
+    List<PbcsJobDefinition> getJobs(PbcsJobType jobType);
+
 	/**
 	 * Gets a dimension with the given name.
 	 *

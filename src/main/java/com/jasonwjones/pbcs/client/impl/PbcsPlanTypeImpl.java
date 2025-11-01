@@ -68,7 +68,14 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 				.collect(Collectors.toList());
 	}
 
-	@Override
+    @Override
+    public List<PbcsJobDefinition> getJobs(PbcsJobType jobType) {
+        return getJobs().stream()
+                .filter(job -> job.getJobType().equals(jobType))
+                .collect(Collectors.toList());
+    }
+
+    @Override
 	public PbcsDimension getDimension(String dimensionName) {
 		throw new IllegalArgumentException("Cannot get dimension in non-explicit dimension plan type");
 	}
