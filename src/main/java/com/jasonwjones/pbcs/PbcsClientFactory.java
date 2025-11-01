@@ -9,12 +9,7 @@ import com.jasonwjones.pbcs.client.impl.*;
 import com.jasonwjones.pbcs.client.impl.interceptors.BasicCredentialsInterceptor;
 import com.jasonwjones.pbcs.client.impl.interceptors.LoggingInterceptor;
 import com.jasonwjones.pbcs.client.impl.interceptors.RefreshableTokenInterceptor;
-import org.apache.hc.client5.http.classic.HttpClient;
-import org.apache.hc.client5.http.impl.classic.HttpClients;
-import org.springframework.http.client.BufferingClientHttpRequestFactory;
-import org.springframework.http.client.ClientHttpRequestFactory;
-import org.springframework.http.client.ClientHttpRequestInterceptor;
-import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.http.client.*;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
@@ -30,7 +25,7 @@ public class PbcsClientFactory {
 
 	/**
 	 * Builds a PBCS client factory with a default HTTP Client. For more control over the client (such as to use a
-	 * proxy, see {@link PbcsClientFactory#PbcsClientFactory(HttpClient)}). By default, the HTTP client that is
+	 * proxy, see {@link PbcsClientFactory#PbcsClientFactory(ClientHttpRequestFactory)}). By default, the HTTP client that is
 	 * constructed will use the system settings, such as <code>https.proxyHost</code> and <code>https.proxyPort</code>.
 	 *
 	 * <p>You can therefore use these settings to globally configure the HTTP client to use a system proxy. Note that if
@@ -38,7 +33,7 @@ public class PbcsClientFactory {
 	 * of the proxy server installed.
 	 */
 	public PbcsClientFactory() {
-		this(HttpClients.createSystem());
+		this(new JdkClientHttpRequestFactory());
 	}
 
 	/**
@@ -64,11 +59,10 @@ public class PbcsClientFactory {
  	 * 		PbcsClient client = new PbcsClientFactory(httpClient).createClient(connection);
 	 * }</pre>
 	 *
-	 * @param httpClient the HTTP client to use
+	 * @param httpRequestFactory the request factory to use
 	 */
-	public PbcsClientFactory(HttpClient httpClient) {
-		HttpComponentsClientHttpRequestFactory componentsClientHttpRequestFactory = new HttpComponentsClientHttpRequestFactory(httpClient);
-		this.clientHttpRequestFactory = new BufferingClientHttpRequestFactory(componentsClientHttpRequestFactory);
+	public PbcsClientFactory(ClientHttpRequestFactory httpRequestFactory) {
+        this.clientHttpRequestFactory = new BufferingClientHttpRequestFactory(httpRequestFactory);
 	}
 
 	/**

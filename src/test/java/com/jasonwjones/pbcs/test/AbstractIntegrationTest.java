@@ -6,6 +6,7 @@ import java.util.Properties;
 import com.jasonwjones.pbcs.client.PbcsConnection;
 import com.jasonwjones.pbcs.client.impl.PbcsConnectionImpl;
 
+@Deprecated
 public abstract class AbstractIntegrationTest {
 
 	public static final String DEFAULT_PROPS_FILE = "pbcs-client.properties";

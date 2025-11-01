@@ -8,6 +8,7 @@ import com.jasonwjones.pbcs.client.exceptions.PbcsDataImportException;
 import com.jasonwjones.pbcs.client.impl.PbcsPlanTypeImpl;
 import com.jasonwjones.pbcs.client.impl.PlanTypeConfigurationImpl;
 import com.jasonwjones.pbcs.client.impl.export.MarkdownExportCallback;
+import com.jasonwjones.pbcs.util.ConnectionUtils;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -25,7 +26,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 
-public class VisionCubeIT extends AbstractIntegrationTest {
+public class VisionCubeIT {
 
     private static final Logger logger = LoggerFactory.getLogger(VisionCubeIT.class);
 
@@ -46,7 +47,7 @@ public class VisionCubeIT extends AbstractIntegrationTest {
 
     @Before
     public void setUp() {
-        PbcsPlanningClient client = new PbcsClientFactory().createClient(connection);
+        PbcsPlanningClient client = new PbcsClientFactory().createClient(ConnectionUtils.defaultConnection());
         app = client.getApplication("Vision");
 
         PlanTypeConfigurationImpl configuration = new PlanTypeConfigurationImpl();

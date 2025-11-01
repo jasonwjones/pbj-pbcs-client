@@ -2,42 +2,59 @@ package com.jasonwjones.pbcs.test;
 
 import com.jasonwjones.pbcs.PbcsClientFactory;
 import com.jasonwjones.pbcs.client.PbcsPlanningClient;
-import org.apache.hc.client5.http.classic.HttpClient;
-import org.apache.hc.client5.http.config.RequestConfig;
-import org.apache.hc.client5.http.impl.classic.HttpClients;
-import org.apache.hc.client5.http.ssl.TrustAllStrategy;
-import org.apache.hc.core5.http.HttpHost;
-import org.apache.hc.core5.ssl.SSLContextBuilder;
+import org.springframework.http.client.JdkClientHttpRequestFactory;
 
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
+import java.net.InetSocketAddress;
+import java.net.ProxySelector;
+import java.net.http.HttpClient;
 import java.security.KeyManagementException;
-import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+
 
 public class TestGetApisWithProxy extends AbstractIntegrationTest {
 
-	public static void main(String[] args) throws NoSuchAlgorithmException, KeyManagementException, KeyStoreException {
+	public static void main(String[] args) throws NoSuchAlgorithmException, KeyManagementException {
 
-		// default mitm proxy
-		HttpHost proxy = new HttpHost("localhost", 8080);
+        // //https://stackoverflow.com/questions/52988677/allow-insecure-https-connection-for-java-jdk-11-httpclient
+        SSLContext sslContext = SSLContext.getInstance("TLS");
+        sslContext.init(null, trustAllCerts, new SecureRandom());
 
-		RequestConfig requestConfig = RequestConfig.custom()
-				.setProxy(proxy)
-				.build();
+        HttpClient httpClient = HttpClient.newBuilder()
+                // default mitm proxy
+                .proxy(ProxySelector.of(new InetSocketAddress("localhost", 8080)))
+                .sslContext(sslContext)
+                .build();
 
-		HttpClient httpClient = HttpClients.custom()
-				.setDefaultRequestConfig(requestConfig)
-                // TODO: rework; no longer exists in httpclient5
-				//.setSSLContext(new SSLContextBuilder().loadTrustMaterial(null, TrustAllStrategy.INSTANCE).build())
-				//.setSSLHostnameVerifier(NoopHostnameVerifier.INSTANCE)
-				.build();
+        JdkClientHttpRequestFactory requestFactory = new JdkClientHttpRequestFactory(httpClient);
 
 		try {
-			PbcsPlanningClient client = new PbcsClientFactory(httpClient).createClient(connection);
+			PbcsPlanningClient client = new PbcsClientFactory(requestFactory).createClient(connection);
 			System.out.println("API: " + client.getApi());
 			System.out.println("Num apps: " + client.getApplications().size());
 		} catch (Exception e) {
 			System.out.println("Error connecting to PBCS: " + e.getMessage());
 		}
 	}
+
+    private static final TrustManager[] trustAllCerts = new TrustManager[] {
+
+            new X509TrustManager() {
+
+                public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+                    return null;
+                }
+                public void checkClientTrusted(java.security.cert.X509Certificate[] certs, String authType) {
+                    // do nothing
+                }
+                public void checkServerTrusted(java.security.cert.X509Certificate[] certs, String authType) {
+                    // do nothing
+                }
+
+            }
+    };
 
 }
