@@ -43,7 +43,7 @@ public class MyResponseErrorHandler implements ResponseErrorHandler {
 
 		switch (response.getStatusCode().value()) {
 			case 404:
-				throw new PbcsClientException("Couldn't find endpoint");
+				throw new PbcsClientException("Endpoint not found: " + url.getPath());
 			case 503:
 				throw new PbcsClientException("Service currently unavailable; likely in maintenance mode");
 			case 401:
