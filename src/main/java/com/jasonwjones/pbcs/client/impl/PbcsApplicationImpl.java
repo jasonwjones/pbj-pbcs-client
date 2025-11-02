@@ -163,7 +163,7 @@ public class PbcsApplicationImpl extends AbstractPbcsObject implements PbcsAppli
 	public void updateSubstitutionVariables(Collection<SubstitutionVariable> variables) {
 		SubstitutionVariableUpdateWrapper subs = new SubstitutionVariableUpdateWrapper();
 		subs.setItems(new ArrayList<>(variables));
-		post("applications/{application}/substitutionariables", subs, String.class, getName());
+		post("applications/{application}/substitutionvariables", subs, String.class, getName());
 	}
 
 	@Override
