@@ -1,6 +1,10 @@
 package com.jasonwjones.pbcs.client;
 
+import org.springframework.util.StringUtils;
+
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * The member response from the PBCS REST API contains some properties that have been added over the years are not
@@ -36,6 +40,20 @@ public interface PbcsMember extends PbcsObject {
      * @return the "old name" for this member
      */
     String getOldName();
+
+    /**
+     * Convenience method that returns all unique names/aliases for this member. At a minimum, this should always be a
+     * collection with at least one item in it.
+     *
+     * @return the set of names that this member has
+     */
+    default Set<String> getNames() {
+        Set<String> names = new LinkedHashSet<>();
+        names.add(getName());
+        if (StringUtils.hasText(getAlias())) names.add(getAlias());
+        if (StringUtils.hasText(getOldName())) names.add(getOldName());
+        return names;
+    }
 
     /**
      * Gets the child of this member, as actual member objects. It is not specified for implementing classes if this is
