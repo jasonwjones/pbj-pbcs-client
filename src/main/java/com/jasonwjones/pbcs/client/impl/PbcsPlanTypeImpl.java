@@ -64,7 +64,7 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 	@Override
 	public List<PbcsJobDefinition> getJobs() {
 		return application.getJobDefinitions().stream()
-				.filter(job -> job.getPlanTypeName().equals(planType))
+				.filter(job -> planType.equals(job.getPlanTypeName()))
 				.collect(Collectors.toList());
 	}
 
