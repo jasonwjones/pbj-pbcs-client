@@ -1,16 +1,15 @@
 package com.jasonwjones.pbcs.client;
 
 /**
- * Types are in HSP_OBJECT_TYPE or can be helpfully found at
- * <a href="http://www.hyperionepm.com/archives/102">...</a>
+ * Types are in <code>HSP_OBJECT_TYPE</code>. One such decoder can be found at <a href="https://www.epmmarshall.com/the-planning-repository-hsp_object-and-hsp_object_type/">Brian's page</a>.
  *
  * @author Jason Jones
  */
 public enum PbcsMemberType {
 
 	/**
-	 * Unknown isn't a real row in the table -- just include it in case there's
-	 * an object type we don't have a mapping for
+	 * Unknown isn't a real row in the table, we just include it in case there's an object type for which we don't have
+     * a mapping.
 	 */
 	UNKNOWN(0, "Unknown"), // not a real row in table, just give
 
@@ -38,7 +37,7 @@ public enum PbcsMemberType {
 
 	/**
 	 * No specific dimension type. For example, the Product dimension would fall into this category.
-	 * The full legacy text description (i.e. from <code>HSP_OBJECT</code> text is <code>User Defined Dimension Member</code>
+	 * The full legacy text description (i.e., from <code>HSP_OBJECT</code> text is <code>User Defined Dimension Member</code>)
 	 * but for slight consistency it has been trimmed here.
 	 */
 	USER_DEFINED(50, "User Defined");
@@ -74,7 +73,7 @@ public enum PbcsMemberType {
 	}
 
 	/**
-	 * Parses an object type Id into a enum member. If the type cannot be determined, then this
+	 * Parses an object type ID into an enum member. If the type cannot be determined, then this
 	 * method will return {@link #UNKNOWN}, which isn't a real type, but is included so that some
 	 * heretofore unknown type name won't throw an exception.
 	 *
