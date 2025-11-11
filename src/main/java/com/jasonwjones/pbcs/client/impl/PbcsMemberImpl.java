@@ -181,4 +181,20 @@ public class PbcsMemberImpl extends AbstractPbcsObject implements PbcsMember {
         return null;
     }
 
+    @Override
+    public int getMaxGeneration() {
+        Queue<PbcsMember> members = new ArrayDeque<>();
+        members.add(this);
+        int maxGeneration = getGeneration();
+
+        while (!members.isEmpty()) {
+            PbcsMember current = members.remove();
+            if (current.getGeneration() > maxGeneration) {
+                maxGeneration = current.getGeneration();
+            }
+            members.addAll(current.getChildren());
+        }
+        return maxGeneration;
+    }
+
 }

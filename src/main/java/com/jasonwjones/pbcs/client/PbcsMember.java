@@ -189,6 +189,14 @@ public interface PbcsMember extends PbcsObject {
     int getGeneration();
 
     /**
+     * Gets the maximum generation of this member or any members below it. This is essentially used to find the depth of
+     * a dimension.
+     *
+     * @return the maximum number of generations at or below the given member
+     */
+    int getMaxGeneration();
+
+    /**
      * Recursively search this member and all members below it looking for a member with the given name or alias.
      *
      * @param memberOrAliasName the member name or alias to search for

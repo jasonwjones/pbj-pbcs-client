@@ -134,6 +134,11 @@ public abstract class AbstractDelegatingMember implements PbcsMember {
     }
 
     @Override
+    public int getMaxGeneration() {
+        return member().getMaxGeneration();
+    }
+
+    @Override
     public PbcsApplication getApplication() {
         return member().getApplication();
     }
