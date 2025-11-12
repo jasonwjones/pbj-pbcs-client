@@ -1,19 +1,13 @@
-package com.jasonwjones.pbcs.test;
+package com.jasonwjones.pbcs.client.impl;
 
 import com.jasonwjones.pbcs.client.Grid;
-import com.jasonwjones.pbcs.client.PbcsApplication;
 import com.jasonwjones.pbcs.client.PbcsPlanType;
 import com.jasonwjones.pbcs.client.PovGrid;
-import com.jasonwjones.pbcs.client.impl.PbcsRetrieveOptionsImpl;
-import com.jasonwjones.pbcs.client.impl.PlanTypeConfigurationImpl;
-import com.jasonwjones.pbcs.client.impl.PovGridImpl;
 import com.jasonwjones.pbcs.client.impl.grid.DataSliceGrid;
 import com.jasonwjones.pbcs.client.impl.grid.DataSliceGridPrinter;
 import com.jasonwjones.pbcs.util.GridPrinter;
 import com.jasonwjones.pbcs.util.GridUtils;
 import com.jasonwjones.pbcs.util.TextGridReader;
-import com.jasonwjones.pbcs.util.PbcsClientUtils;
-import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -67,15 +61,11 @@ import static org.hamcrest.MatcherAssert.assertThat;
  * </EssProperties>
  * </pre>
  */
-public class VisionCubeAdhocIT extends AbstractIntegrationTest {
+public class PbcsPlanTypeAdhocIT extends AbstractVisionCubeIT {
 
     protected PbcsPlanType cube;
 
     public static final List<String> BASE_DIMENSIONS = Arrays.asList("Account", "Currency", "Entity", "Period", "Product", "Scenario", "Version", "Year");
-
-    public static final List<String> DIMENSIONS = Arrays.asList("Account", "Currency", "Entity", "Period", "Product", "Scenario", "Version", "Year", "Market Size");
-
-    public static final List<String> LEVEL0_TEST_CELL = Arrays.asList("Actual", "FY21", "Final", "USD", "000", "P_000", "Jan", "4110");
 
     /**
      * Nearly identical to the LEVEL0 test cell, except we have an upper-level account (7001)
@@ -83,17 +73,6 @@ public class VisionCubeAdhocIT extends AbstractIntegrationTest {
     public static final List<String> UPPER_LEVEL_TEST_CELL = Arrays.asList("Actual", "FY21", "Final", "USD", "000", "P_000", "Jan", "7001");
 
     public static final String CELL_TEST_VALUE = "2";
-
-    @Before
-    public void setUp() {
-        PbcsApplication app = PbcsClientUtils.vision();
-
-        PlanTypeConfigurationImpl configuration = new PlanTypeConfigurationImpl();
-        configuration.setName("Plan1");
-        configuration.setSkipCheck(true);
-        configuration.setExplicitDimensions(DIMENSIONS);
-        cube = app.getPlanType(configuration);
-    }
 
     @Test
     public void getCell() throws IOException {

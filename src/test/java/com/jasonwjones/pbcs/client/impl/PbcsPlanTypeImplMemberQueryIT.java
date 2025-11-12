@@ -1,20 +1,21 @@
-package com.jasonwjones.pbcs.test;
+package com.jasonwjones.pbcs.client.impl;
 
-import com.jasonwjones.pbcs.client.*;
+import com.jasonwjones.pbcs.client.MemberSearchQuery;
+import com.jasonwjones.pbcs.client.PbcsMember;
+import com.jasonwjones.pbcs.client.PbcsMemberQueryType;
+import com.jasonwjones.pbcs.client.PbcsObjectType;
 import com.jasonwjones.pbcs.client.exceptions.PbcsNoSuchObjectException;
-import com.jasonwjones.pbcs.client.impl.MemberSearchQueryImpl;
 import org.junit.Test;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThrows;
 
-public class VisionMemberQueryIT extends VisionCubeIT {
+public class PbcsPlanTypeImplMemberQueryIT extends AbstractVisionCubeIT {
 
     private static final String INVALID_MEMBER = "XXX_Q1";
 
@@ -117,8 +118,17 @@ public class VisionMemberQueryIT extends VisionCubeIT {
         assertThat(names(members), hasSize(3));
     }
 
+    @Test
+    public void whenGetMemberWithAlias() {
+        PbcsMember mgmtRollup = cube.getMemberOrAlias("Management Rollup");
+        PbcsMember hardware = cube.getMemberOrAlias("4110: Hardware");
+
+        System.out.println("Dim: " + mgmtRollup + " dim: " + mgmtRollup.getDimensionName());
+        System.out.println("Dim: " + hardware + " dim: " + hardware.getDimensionName());
+    }
+
     private static List<String> names(Collection<PbcsMember> members) {
-        return members.stream().map(PbcsMember::getName).collect(Collectors.toList());
+        return members.stream().map(PbcsMember::getName).toList();
     }
 
 }

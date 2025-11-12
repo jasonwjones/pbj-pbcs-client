@@ -1,21 +1,18 @@
-package com.jasonwjones.pbcs.test;
+package com.jasonwjones.pbcs.client.impl;
 
+import com.jasonwjones.pbcs.api.v3.UserPreferences;
 import com.jasonwjones.pbcs.client.*;
 import com.jasonwjones.pbcs.client.exceptions.PbcsInvalidDimensionException;
 import com.jasonwjones.pbcs.client.exceptions.PbcsInvalidMemberException;
 import com.jasonwjones.pbcs.client.exceptions.PbcsJobLaunchException;
 import com.jasonwjones.pbcs.client.exceptions.PbcsNoSuchObjectException;
-import com.jasonwjones.pbcs.client.impl.PlanTypeConfigurationImpl;
-import com.jasonwjones.pbcs.util.PbcsClientUtils;
 import org.hamcrest.CoreMatchers;
-import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -23,23 +20,14 @@ import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
-public class VisionIT {
+public class PbcsApplicationImplTest extends AbstractVisionIT {
 
-    private static final Logger logger = LoggerFactory.getLogger(VisionIT.class);
+    private static final Logger logger = LoggerFactory.getLogger(PbcsApplicationImplTest.class);
 
     @SuppressWarnings("SpellCheckingInspection")
     private static final String CALC_ALL = "calcall";
 
-    public static final List<String> DIMENSIONS = Arrays.asList("Account", "Currency", "Entity", "Period", "Product", "Scenario", "Version", "Year");
-
     public static final List<String> INVALID_DIMENSIONS = Arrays.asList("Invalid1", "Invalid2");
-
-    protected PbcsApplication app;
-
-    @Before
-    public void setUp() {
-        app = PbcsClientUtils.vision();
-    }
 
     @Test
     public void whenInvalidDimensionsRequestedThenThrowException() {
@@ -83,7 +71,7 @@ public class VisionIT {
         List<PbcsJobDefinition> rules = app.getJobDefinitions(PbcsJobType.RULES);
         List<String> jobNames = rules.stream()
                 .map(PbcsJobDefinition::getName)
-                .collect(Collectors.toList());
+                .toList();
         assertThat(jobNames, hasItem(CALC_ALL));
     }
 
@@ -103,7 +91,7 @@ public class VisionIT {
 
     @Test
     public void whenGetInvalidMember() {
-        final String invalidMember = "4110X";
+        final String invalidMember = "__bad_member_4110X";
         PbcsInvalidMemberException exception = assertThrows(PbcsInvalidMemberException.class, () -> app.getMember("Account", invalidMember));
         assertThat(exception.getObjectName(), is(invalidMember));
     }
@@ -115,11 +103,11 @@ public class VisionIT {
     }
 
     @Test
-    @Ignore
     public void whenGetSharedMember() {
         PbcsMember member = app.getMember("Entity", "Sales Director 1");
-        // this is returning "Entity" -- need to look into it
-        assertThat(member.getType(), is(PbcsMemberType.SHARED));
+        assertThat(member.getType(), is(PbcsMemberType.ENTITY));
+        // has a single child, 240, that is shared
+        assertThat(member.getChildren().get(0).getType(), is(PbcsMemberType.SHARED));
     }
 
     @Test
@@ -138,7 +126,8 @@ public class VisionIT {
     @Test
     public void whenNoSuchApplicationThenThrowException() {
         final String invalidApplicationName = "InvalidApp";
-        PbcsNoSuchObjectException exception = assertThrows(PbcsNoSuchObjectException.class, () -> app.getClient().getApplication(invalidApplicationName));
+        PbcsPlanningClient client = app.getClient();
+        PbcsNoSuchObjectException exception = assertThrows(PbcsNoSuchObjectException.class, () -> client.getApplication(invalidApplicationName));
         assertThat(exception.getObjectName(), is(invalidApplicationName));
         assertThat(exception.getObjectType(), is(PbcsObjectType.APPLICATION));
     }
@@ -149,11 +138,12 @@ public class VisionIT {
         params.put("RTP_Entity", "420");
         params.put("RTP_Product", "P_160");
         PbcsJobStatus status = app.launchBusinessRule("Calc_Payroll_Tax", params);
-        status.waitUntilFinished();
+        PbcsJobStatus finalStatus = status.waitUntilFinished();
+        assertThat(finalStatus.getJobStatusType(), is(PbcsJobStatusCode.SUCCESS));
     }
 
     @Test
-    public void whenLaunchBusinessRuleMissingRuntimePrompt() throws InterruptedException {
+    public void whenLaunchBusinessRuleMissingRuntimePrompt() {
         Map<String, String> params = new HashMap<>();
         params.put("RTP_Entity", "420");
         // we're missing a value for RTP_Product
@@ -164,13 +154,27 @@ public class VisionIT {
     // Note: PBCS doesn't seem to care if you provide additional parameters that are unneeded. E.g., if you supply an
     // RTP value of "RTP_DoesntExist", it's just an extra parameter it doesn't care about
     @Test
-    public void whenLaunchBusinessRuleWithInvalidPromptValue() throws InterruptedException {
+    public void whenLaunchBusinessRuleWithInvalidPromptValue() {
         final String invalidMember = "420XX";
         Map<String, String> params = new HashMap<>();
         params.put("RTP_Entity", invalidMember);
         params.put("RTP_Product", "P_160");
         PbcsJobLaunchException exception = assertThrows(PbcsJobLaunchException.class, () -> app.launchBusinessRule("Calc_Payroll_Tax", params));
         assertThat(exception.getMessage(), is("Exception running job Calc_Payroll_Tax: The member " + invalidMember + " does not exist for the specified cube or you do not have access to it."));
+    }
+
+    @Test
+    public void getUserPreferences() {
+        UserPreferences prefs = (((PbcsApplicationImpl) app).getUserPreferences());
+        System.out.println(prefs);
+    }
+
+    @Ignore
+    @Test
+    public void whenAddMember() {
+        PbcsMember member = app.addMember("Entity", "North America", "Enterprise Global");
+        assertThat(member.getName(), is("North America"));
+        printMember(member, 0);
     }
 
     private static void printMember(PbcsMember member, int level) {

@@ -1,19 +1,18 @@
-package com.jasonwjones.pbcs.test;
+package com.jasonwjones.pbcs.client.impl;
 
 import com.jasonwjones.pbcs.PbcsClientFactory;
 import com.jasonwjones.pbcs.client.PbcsConnection;
 import com.jasonwjones.pbcs.client.PbcsMember;
 import com.jasonwjones.pbcs.client.PbcsPlanType;
 import com.jasonwjones.pbcs.client.PbcsPlanningClient;
-import com.jasonwjones.pbcs.client.impl.PbcsConnectionToken;
-import com.jasonwjones.pbcs.client.impl.PlanTypeConfigurationImpl;
 import com.jasonwjones.pbcs.client.sso.IDCSDeviceCodeFlow;
 import com.jasonwjones.pbcs.client.sso.RefreshableToken;
+import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.Scanner;
 
-public class IdcsTest {
+public class PbcsPlanTypeImplIdcsIT {
 
     public static final String SERVER = "appliedolapepm-test-appliedolapepm.epm.us-phoenix-1.ocs.oraclecloud.com";
 
@@ -23,8 +22,8 @@ public class IdcsTest {
 
     public static final String SCOPE = "urn:opc:serviceInstanceID=687065603urn:opc:resource:consumer::all offline_access";
 
-    // IF DEBUG IS ENABLED, THE R/R INTERCEPTOR IS SWALLOING THE RESPONSE!!!
-    public static void main(String[] args) {
+    @Test
+    public void whenUseIdcs() {
         IDCSDeviceCodeFlow flow = new IDCSDeviceCodeFlow(CLIENT_ID, TENANT);
 
         RefreshableToken token = null;
@@ -77,28 +76,6 @@ public class IdcsTest {
 
         String cell = plan.getCell(Arrays.asList("4110", "USD", "000", "Jan", "P_000", "Actual", "Final", "FY22"));
         System.out.println("Cell: " + cell);
-        //String topOfTheHouse = plan.getCell();
-
-        //System.out.println("Cell: " + topOfTheHouse);
-
-
-
-        //config.set
-
-        //client.getApplication("Vision").getP
-
-//        System.out.println("Apps2:");
-//
-//        for (PbcsApplication app : client.getApplications()) {
-//            System.out.println(" - " + app.getName());
-//        }
-//
-//        System.out.println("Apps3:");
-//
-//        for (PbcsApplication app : client.getApplications()) {
-//            System.out.println(" - " + app.getName());
-//        }
-
     }
 
 }

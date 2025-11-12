@@ -1,4 +1,4 @@
-package com.jasonwjones.pbcs.test;
+package com.jasonwjones.pbcs.client.impl;
 
 import com.jasonwjones.pbcs.PbcsClientFactory;
 import com.jasonwjones.pbcs.api.v3.SubstitutionVariable;
@@ -6,7 +6,6 @@ import com.jasonwjones.pbcs.client.PbcsApplication;
 import com.jasonwjones.pbcs.client.PbcsPlanType;
 import com.jasonwjones.pbcs.client.PbcsPlanningClient;
 import com.jasonwjones.pbcs.util.ConnectionUtils;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -15,25 +14,17 @@ import java.util.Set;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
-public class VisionSubstitutionVariableIT {
+public class PbcsPlanTypeSubVarIT extends AbstractVisionIT {
 
     private static final String TEST_NAME = "_Test";
 
     private static final String TEST_VALUE = "test_value";
-
-    private PbcsApplication app;
 
     @BeforeClass
     public static void beforeClass() {
         PbcsPlanningClient client = new PbcsClientFactory().createClient(ConnectionUtils.defaultConnection());
         PbcsApplication app = client.getApplication("Vision");
         app.updateSubstitutionVariable(TEST_NAME, TEST_VALUE);
-    }
-
-    @Before
-    public void setUp() throws Exception {
-        PbcsPlanningClient client = new PbcsClientFactory().createClient(ConnectionUtils.defaultConnection());
-        app = client.getApplication("Vision");
     }
 
     @Test
