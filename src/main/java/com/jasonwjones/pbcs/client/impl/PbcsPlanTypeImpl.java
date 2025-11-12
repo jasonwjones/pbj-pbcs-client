@@ -420,7 +420,7 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 
 		private boolean includeRejectedCells = true;
 
-		private boolean includeRejectedCellsWithDetails = false;
+		private boolean includeRejectedCellsWithDetails = true;
 
 		private String postDataImportRuleNames;
 
