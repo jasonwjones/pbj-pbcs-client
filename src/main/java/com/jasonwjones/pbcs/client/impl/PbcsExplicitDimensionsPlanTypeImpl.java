@@ -21,7 +21,6 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.stream.Collectors;
 
 /**
  * A plan type implementation where the known dimensions are explicitly defined. Defining the list of explicit dimensions
@@ -71,6 +70,13 @@ public class PbcsExplicitDimensionsPlanTypeImpl extends PbcsPlanTypeImpl impleme
             this.explicitDimensions.add(new ExplicitDimension(dimName, dimNumber++, type));
         }
 
+        processAttributeDimensions(application, configuration, dimNumber);
+
+        logger.debug("{} will use {} thread(s) to perform member name/alias search", this, configuration.getMemberSearchThreads());
+        executorService = Executors.newFixedThreadPool(configuration.getMemberSearchThreads());
+    }
+
+    private void processAttributeDimensions(PbcsApplication application, PbcsApplication.PlanTypeConfiguration configuration, int dimNumber) {
         // add in explicit attribute dimensions, if any
         if (configuration.getExplicitAttributeDimensions() != null) {
             for (String attribDimName : configuration.getExplicitAttributeDimensions()) {
@@ -80,9 +86,6 @@ public class PbcsExplicitDimensionsPlanTypeImpl extends PbcsPlanTypeImpl impleme
                 this.explicitDimensions.add(new ExplicitDimension(attribDimName, dimNumber++, type));
             }
         }
-
-        logger.debug("{} will use {} thread(s) to perform member name/alias search", this, configuration.getMemberSearchThreads());
-        executorService = Executors.newFixedThreadPool(configuration.getMemberSearchThreads());
     }
 
     @Override
@@ -134,7 +137,7 @@ public class PbcsExplicitDimensionsPlanTypeImpl extends PbcsPlanTypeImpl impleme
                     // you can technically re-search a dimension, but that only happens when you have a bad cache
                     searchers = explicitDimensions.stream()
                             .map(dimension -> new MemberSearchCallable(dimension, memberOrAliasName))
-                            .collect(Collectors.toList());
+                            .toList();
                 }
 
                 try {
@@ -179,7 +182,7 @@ public class PbcsExplicitDimensionsPlanTypeImpl extends PbcsPlanTypeImpl impleme
     protected List<String> getDimensionNames() {
         return explicitDimensions.stream()
                 .map(PbcsDimension::getName)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public boolean hasDimension(String dimensionName) {
@@ -248,20 +251,11 @@ public class PbcsExplicitDimensionsPlanTypeImpl extends PbcsPlanTypeImpl impleme
             }
         }
 
-        AbstractMemberVisitor memberVisitor;
-        switch (query.getType()) {
-            case REGEX:
-                memberVisitor = new SearchRegexMemberVisitor(query);
-                break;
-            case SEARCH_WILD:
-                memberVisitor = new SearchWildMemberVisitor(query);
-                break;
-            case SEARCH:
-                memberVisitor = new SearchMemberVisitor(query);
-                break;
-            default:
-                throw new IllegalArgumentException("Unknown search type: " + query.getType());
-        }
+        AbstractMemberVisitor memberVisitor = switch (query.getType()) {
+            case REGEX -> new SearchRegexMemberVisitor(query);
+            case SEARCH_WILD -> new SearchWildMemberVisitor(query);
+            case SEARCH -> new SearchMemberVisitor(query);
+        };
 
         logger.info("Searching {}.{} in dimension(s) {} using search query {}", getApplication().getName(), getName(), searchDimensions, query);
         for (String searchDimension : searchDimensions) {
@@ -335,7 +329,6 @@ public class PbcsExplicitDimensionsPlanTypeImpl extends PbcsPlanTypeImpl impleme
             DataSlice slice = retrieveMultiple(exportDataSlice, retrieveOptions.getMaxCellsPerRetrieve());
             return new DataSliceGrid(this, slice, leftDims.size());
         } catch (Exception e) {
-            logger.error("Unable to retrieve grid: {}", e.getMessage());
             throw new PbcsDataExportException(grid, e);
         }
     }
@@ -509,7 +502,7 @@ public class PbcsExplicitDimensionsPlanTypeImpl extends PbcsPlanTypeImpl impleme
             if (matchingMember != null) {
                 return matchingMember;
             } else {
-                throw new RuntimeException("Couldn't find " + memberOrAliasName + " in dimension " + dimension.getName());
+                throw new PbcsInvalidMemberException("Unable to find member or alias " + memberOrAliasName + " in dimension " + dimension.getName());
             }
         }
 
