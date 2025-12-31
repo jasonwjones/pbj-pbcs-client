@@ -56,6 +56,13 @@ public interface MemberSearchQuery {
     boolean isStopWhenFound();
 
     /**
+     * Whether to exclude shared members from the results or not.
+     *
+     * @return true if shared members should be excluded, false otherwise
+     */
+    boolean isExcludeShares();
+
+    /**
      * Different types of searches that can be performed.
      */
     enum Type {

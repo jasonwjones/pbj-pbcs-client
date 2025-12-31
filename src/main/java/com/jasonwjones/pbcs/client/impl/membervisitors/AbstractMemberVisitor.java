@@ -22,7 +22,8 @@ public abstract class AbstractMemberVisitor extends PlanTypeWalker.AbstractVisit
     }
 
     protected void addMember(PbcsMember member) {
-        matchingMembers.add(member);
+        boolean excludeShare = memberSearchQuery.isExcludeShares() && member.getDataStorageType() == PbcsMember.DataStorage.SHARED;
+        if (!excludeShare) matchingMembers.add(member);
     }
 
     protected boolean isIncludeAliases() {

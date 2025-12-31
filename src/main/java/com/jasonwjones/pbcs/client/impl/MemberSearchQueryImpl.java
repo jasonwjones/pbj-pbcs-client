@@ -20,6 +20,8 @@ public class MemberSearchQueryImpl implements MemberSearchQuery {
 
     private boolean stopWhenFound;
 
+    private boolean excludeShares;
+
     @Override
     public Type getType() {
         return type;
@@ -83,6 +85,15 @@ public class MemberSearchQueryImpl implements MemberSearchQuery {
     }
 
     @Override
+    public boolean isExcludeShares() {
+        return excludeShares;
+    }
+
+    public void setExcludeShares(boolean excludeShares) {
+        this.excludeShares = excludeShares;
+    }
+
+    @Override
     public String toString() {
         return new StringJoiner(", ", MemberSearchQueryImpl.class.getSimpleName() + "[", "]")
                 .add("type=" + type)
@@ -92,6 +103,7 @@ public class MemberSearchQueryImpl implements MemberSearchQuery {
                 .add("caseSensitive=" + caseSensitive)
                 .add("searchAliases=" + searchAliases)
                 .add("stopWhenFound=" + stopWhenFound)
+                .add("excludeShares=" + excludeShares)
                 .toString();
     }
 
