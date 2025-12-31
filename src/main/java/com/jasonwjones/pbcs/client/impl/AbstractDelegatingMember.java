@@ -5,6 +5,9 @@ import com.jasonwjones.pbcs.client.*;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * Base class to make subclassing easier.
+ */
 public abstract class AbstractDelegatingMember implements PbcsMember {
 
     private final PbcsPlanType planType;
