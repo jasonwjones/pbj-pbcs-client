@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.jasonwjones.pbcs</groupId>
 	<artifactId>pbj-pbcs-client</artifactId>
-	<version>3.0.0-SNAPSHOT</version>
+	<version>3.0.0</version>
 	<name>PBJ - The PBCS REST API Java Client</name>
 
 	<url>https://github.com/jasonwjones/pbj-pbcs-client</url>
