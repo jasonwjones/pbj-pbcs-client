@@ -34,8 +34,10 @@ public abstract class Payload {
 		if (parameters == null) {
 			this.parameters = new HashMap<>();
 		} else {
-			this.parameters = parameters;
+            // ensure that we have a mutable map
+			this.parameters = new HashMap<>(parameters);
 		}
+        // for some reason, the jobType and jobName are being repeated in the parameters
 		this.parameters.put("jobType", jobType);
 		this.parameters.put("jobName", jobName);
 	}
