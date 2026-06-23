@@ -6,4 +6,8 @@ public class PbcsGeneralException extends PbcsClientException {
 		super(errorResponse == null ? "No message" : errorResponse.getDetails() != null ? errorResponse.getDetails() : errorResponse.getMessage());
 	}
 
+	public PbcsGeneralException(String message) {
+		super(message);
+	}
+
 }

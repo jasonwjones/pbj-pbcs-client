@@ -20,6 +20,8 @@ public class MyResponseErrorHandler implements ResponseErrorHandler {
 
 	private static final Logger logger = LoggerFactory.getLogger(MyResponseErrorHandler.class);
 
+	private static final int MAX_RESPONSE_BODY_SNIPPET_LENGTH = 1000;
+
 	public static final String X_EPM_ACTION_HEADER = "X-EPM_ACTION";
 
 	public static final String ACTION_EXPORT_DATA_SLICE = "Export Data Slice";
@@ -33,15 +35,17 @@ public class MyResponseErrorHandler implements ResponseErrorHandler {
 		// pull the response body and pass separately since the first read of the stream off of
 		// ClientHttpResponse would eat it and make subsequent attempts fail
 		String responseBody = IOUtils.toString(response.getBody(), StandardCharsets.UTF_8);
+		int statusCode = response.getStatusCode().value();
+		String statusText = response.getStatusText();
 
 		PbcsClientException.PbcsErrorResponse errorResponse = null;
 		try {
-			 errorResponse = mapper.readValue(responseBody, PbcsClientException.PbcsErrorResponse.class);
+			errorResponse = mapper.readValue(responseBody, PbcsClientException.PbcsErrorResponse.class);
 		} catch (IOException e) {
-			logger.warn("Unable to process error response: {}", e.getMessage());
+			logger.debug("Unable to process error response as JSON; preserving raw HTTP response details");
 		}
 
-		switch (response.getStatusCode().value()) {
+		switch (statusCode) {
 			case 404:
 				throw new PbcsClientException("Endpoint not found: " + url.getPath());
 			case 503:
@@ -51,15 +55,30 @@ public class MyResponseErrorHandler implements ResponseErrorHandler {
 				// show: Bearer error="invalid_token", error_description="Token Expired"
 				throw new PbcsInvalidCredentialsException("Unable to login to PBCS due to invalid credentials");
 			case 400: // Bad Request
-			default:
-				throw new PbcsGeneralException(errorResponse);
+			default: {
+				if (errorResponse != null) {
+					throw new PbcsGeneralException(errorResponse);
+				}
+
+				String responseBodySnippet = responseBody.replaceAll("\\s+", " ").trim();
+				if (responseBodySnippet.length() > MAX_RESPONSE_BODY_SNIPPET_LENGTH) {
+					responseBodySnippet = responseBodySnippet.substring(0, MAX_RESPONSE_BODY_SNIPPET_LENGTH) + "...";
+				}
+
+				String message = "HTTP " + statusCode + " " + statusText
+						+ " from " + method + " " + url;
+				if (!responseBodySnippet.isEmpty()) {
+					message += ": " + responseBodySnippet;
+				}
+				throw new PbcsGeneralException(message);
+			}
 		}
 	}
 
 	@Override
 	public boolean hasError(ClientHttpResponse response) throws IOException {
-        return response.getStatusCode().is4xxClientError() ||
-                response.getStatusCode().is5xxServerError();
+		return response.getStatusCode().is4xxClientError() ||
+				response.getStatusCode().is5xxServerError();
 	}
 
 }
