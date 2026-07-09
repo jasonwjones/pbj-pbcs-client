@@ -10,36 +10,38 @@ import com.jasonwjones.pbcs.api.v3.AbstractHypermediaResponse;
 public class AifApplication extends AbstractHypermediaResponse<AifDimension> {
 
 	private String applicationName;
-	
+
 	private String plan1Name;
 
 	private String plan2Name;
-	
+
 	private String plan3Name;
-	
+
 	private String plan4Name;
 
 	private String plan5Name;
-	
+
 	private String plan6Name;
-	
+
 	private Integer validForPlan1;
-	
+
 	private Integer validForPlan2;
-	
+
 	private Integer validForPlan3;
-	
+
 	private Integer validForPlan4;
-	
+
 	private Integer validForPlan5;
-	
+
 	private Integer validForPlan6;
-	
+
+	private List<AifAppProperty> appProperties;
+
 	@JsonProperty("appDimensions")
 	public List<AifDimension> getItems() {
 		return super.getItems();
 	}
-	
+
 	public void setItems(List<AifDimension> items) {
 		super.setItems(items);
 	}
@@ -147,7 +149,15 @@ public class AifApplication extends AbstractHypermediaResponse<AifDimension> {
 	public void setValidForPlan6(Integer validForPlan6) {
 		this.validForPlan6 = validForPlan6;
 	}
-	
+
+	public List<AifAppProperty> getAppProperties() {
+		return appProperties;
+	}
+
+	public void setAppProperties(List<AifAppProperty> appProperties) {
+		this.appProperties = appProperties;
+	}
+
 	public List<String> getAllPlans() {
 		List<String> plans = new ArrayList<String>();
 		if (plan1Name != null) plans.add(plan1Name);
@@ -158,5 +168,5 @@ public class AifApplication extends AbstractHypermediaResponse<AifDimension> {
 		if (plan6Name != null) plans.add(plan6Name);
 		return plans;
 	}
-	
+
 }

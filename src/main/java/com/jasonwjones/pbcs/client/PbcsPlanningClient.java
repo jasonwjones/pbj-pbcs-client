@@ -10,7 +10,7 @@ import com.jasonwjones.pbcs.client.exceptions.PbcsClientException;
  * @author jasonwjones
  *
  */
-public interface PbcsPlanningClient {
+public interface PbcsPlanningClient extends PbcsObject {
 
 	/**
 	 * Returns an API object with information about the current endpoint.
@@ -25,6 +25,14 @@ public interface PbcsPlanningClient {
 	 * @return the server connection name
 	 */
 	String getServer();
+
+	/**
+	 * The username used to connect to the REST API. Will be the signed on username if using native authentication,
+	 * otherwise will be the subject (JWT <code>sub</code> attribute) from the authentication token.
+	 *
+	 * @return the username for this connection
+	 */
+	String getUserName();
 
 	/**
 	 * Returns a list of applications visible to the user connected with the

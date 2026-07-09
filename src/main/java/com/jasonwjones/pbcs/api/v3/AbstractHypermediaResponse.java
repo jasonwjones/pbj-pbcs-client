@@ -7,6 +7,7 @@ import java.util.List;
  * are a JSON map with a "links" item and additional items specific to that call
  *
  * @author jasonwjones
+ * @param <E> type param
  *
  */
 public abstract class AbstractHypermediaResponse<E> {

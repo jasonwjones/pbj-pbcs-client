@@ -1,5 +1,7 @@
 package com.jasonwjones.pbcs.api.v3.dataslices;
 
+import java.util.StringJoiner;
+
 public class ExportDataSlice {
 
 	private boolean exportPlanningData = false;
@@ -9,7 +11,7 @@ public class ExportDataSlice {
 	public ExportDataSlice(GridDefinition gridDefinition) {
 		this.gridDefinition = gridDefinition;
 	}
-	
+
 	public boolean isExportPlanningData() {
 		return exportPlanningData;
 	}
@@ -17,7 +19,7 @@ public class ExportDataSlice {
 	/**
 	 * Sets the value for <code>exportPlanningData</code>. When set to true,
 	 * supporting details and cell notes will be exported. The default is false.
-	 * 
+	 *
 	 * @param exportPlanningData true to turn on export planning data, false
 	 *            otherwise
 	 */
@@ -31,6 +33,14 @@ public class ExportDataSlice {
 
 	public void setGridDefinition(GridDefinition gridDefinition) {
 		this.gridDefinition = gridDefinition;
+	}
+
+	@Override
+	public String toString() {
+		return new StringJoiner(", ", ExportDataSlice.class.getSimpleName() + "[", "]")
+				.add("exportPlanningData=" + exportPlanningData)
+				.add("gridDefinition=" + gridDefinition)
+				.toString();
 	}
 
 }

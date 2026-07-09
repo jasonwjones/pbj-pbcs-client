@@ -7,14 +7,7 @@ package com.jasonwjones.pbcs.client;
  * @author jasonwjones
  *
  */
-public interface PbcsDimension {
-
-	/**
-	 * The name of the dimension.
-	 *
-	 * @return the name of the dimension.
-	 */
-	String getName();
+public interface PbcsDimension extends PbcsObject {
 
 	/**
 	 * Gets the explicit number of the dimension. This is not a PBCS construct; it is an arbitrary value assigned by
@@ -30,7 +23,17 @@ public interface PbcsDimension {
 	 * @param memberName the member name
 	 * @return a member object
 	 */
-	PbcsMemberProperties getMember(String memberName);
+	PbcsMember getMember(String memberName);
+
+	/**
+	 * Gets the type of dimension. This uses the member type enumeration since the dimension and
+	 * member types are basically the same. If the dimension types are not specifically resolved
+	 * then you may only get {@link PbcsMemberType#UNKNOWN} or {@link PbcsMemberType#ATTRIBUTE} for the dimension, as
+	 * the case may be.
+	 *
+	 * @return the dimension type
+	 */
+	PbcsMemberType getDimensionType();
 
 	/**
 	 * Gets the root member of the dimension, which is assumed to be a member with the same name as the dimension itself.
@@ -39,8 +42,11 @@ public interface PbcsDimension {
 	 *
 	 * @return the root/dimension member
 	 */
-	default PbcsMemberProperties getRoot() {
+	default PbcsMember getRoot() {
 		return getMember(getName());
 	}
+
+	@Override
+	PbcsApplication getParent();
 
 }

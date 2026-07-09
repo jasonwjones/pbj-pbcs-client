@@ -1,41 +1,19 @@
 package com.jasonwjones.pbcs.client.impl;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.TreeSet;
-
+import com.jasonwjones.pbcs.aif.AifApplication;
+import com.jasonwjones.pbcs.aif.AifDimension;
 import com.jasonwjones.pbcs.api.v3.*;
+import com.jasonwjones.pbcs.api.v3.dataslices.DataSlice;
+import com.jasonwjones.pbcs.api.v3.dataslices.ExportDataSlice;
 import com.jasonwjones.pbcs.client.*;
-import com.jasonwjones.pbcs.client.exceptions.PbcsGeneralException;
+import com.jasonwjones.pbcs.client.exceptions.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.Assert;
 import org.springframework.web.client.HttpServerErrorException;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jasonwjones.pbcs.aif.AifApplication;
-import com.jasonwjones.pbcs.aif.AifDimension;
-import com.jasonwjones.pbcs.api.v3.dataslices.DataSlice;
-import com.jasonwjones.pbcs.api.v3.dataslices.ExportDataSlice;
-import com.jasonwjones.pbcs.client.exceptions.PbcsClientException;
-import com.jasonwjones.pbcs.client.exceptions.PbcsNoSuchObjectException;
-import com.jasonwjones.pbcs.client.exceptions.PbcsNoSuchVariableException;
-import com.jasonwjones.pbcs.client.impl.models.PbcsMemberPropertiesImpl;
-import com.jasonwjones.pbcs.interop.impl.SimpleFilenameUtils;
+import java.util.*;
 
 public class PbcsApplicationImpl extends AbstractPbcsObject implements PbcsApplication {
 
@@ -55,12 +33,12 @@ public class PbcsApplicationImpl extends AbstractPbcsObject implements PbcsAppli
 
 	@Override
 	public List<PbcsJobDefinition> getJobDefinitions() {
-		logger.info("Getting job definitions for {}", application.getName());
+		logger.info("Getting job definitions for {}", getName());
 		JobDefinitionsWrapper jobDefinitions = get("applications/{application}/jobdefinitions", JobDefinitionsWrapper.class, getName());
 
 		List<PbcsJobDefinition> pbcsJobDefs = new ArrayList<>();
 		for (JobDefinition jobDefinition : jobDefinitions.getItems()) {
-			PbcsJobDefinition pbcsJobDef = new PbcsJobDefinitionImpl(context, jobDefinition);
+			PbcsJobDefinition pbcsJobDef = new PbcsJobDefinitionImpl(context, this, jobDefinition);
 			pbcsJobDefs.add(pbcsJobDef);
 		}
 		return pbcsJobDefs;
@@ -68,176 +46,68 @@ public class PbcsApplicationImpl extends AbstractPbcsObject implements PbcsAppli
 
 	@Override
 	public List<PbcsJobDefinition> getJobDefinitions(PbcsJobType jobType) {
-		List<PbcsJobDefinition> filteredJobDefinitions = new ArrayList<>();
-		for (PbcsJobDefinition currentDef : getJobDefinitions()) {
-			if (currentDef.getJobType().equals(jobType.name())) {
-				filteredJobDefinitions.add(currentDef);
-			}
+		// someone messed up how the payload for this call should look like, but we craft this fake 'variable' to stick
+		// on to the query string and make it work
+		String jobTypeFragment = "{'jobType':'" + jobType.name() + "'}";
+		JobDefinitionsWrapper jobDefinitions = get("applications/{application}/jobdefinitions?q={jobTypeFragment}", JobDefinitionsWrapper.class, getName(), jobTypeFragment);
+		List<PbcsJobDefinition> pbcsJobDefs = new ArrayList<>();
+		for (JobDefinition jobDefinition : jobDefinitions.getItems()) {
+			PbcsJobDefinition pbcsJobDef = new PbcsJobDefinitionImpl(context, this, jobDefinition);
+			pbcsJobDefs.add(pbcsJobDef);
 		}
-		return filteredJobDefinitions;
+		return pbcsJobDefs;
 	}
 
 	@Override
 	public PbcsJobStatus getJobStatus(Integer jobId) {
 		try {
 			JobLaunchResponse jobLaunchResponse = get("applications/{application}/jobs/{jobId}", JobLaunchResponse.class, getName(), jobId);
-			return new PbcsJobStatusImpl(jobLaunchResponse);
+			return new PbcsJobLaunchResultImpl(context, this, jobLaunchResponse);
 		} catch (HttpServerErrorException e) {
 			throw new PbcsClientException("Error fetching job with status ID " + jobId + ". Perhaps it doesn't exist?");
 		}
 	}
 
 	@Override
-	public PbcsJobLaunchResult launchBusinessRule(String ruleName) {
+	public PbcsJobStatus launchBusinessRule(String ruleName) {
 		return launchBusinessRule(ruleName, new HashMap<>());
 	}
 
 	@Override
-	public PbcsJobLaunchResult launchBusinessRule(String ruleName, Map<String, String> parameters) {
-		String url = this.context.getBaseUrl() + JOBS_ENDPOINT;
-		MetadataImportPayload payload = new MetadataImportPayload("RULES", ruleName);
-		payload.setParameters(parameters);
-		ResponseEntity<JobLaunchResponse> output = this.context.getTemplate().postForEntity(url, getRequestEntityWithHeaders(payload),
-				JobLaunchResponse.class, application.getName());
-		return new PbcsJobLaunchResultImpl(output.getBody());
-	}
-
-	@Override
-	public PbcsJobLaunchResult launchRuleSet(String ruleSetName) {
-		return launchRuleSet(ruleSetName, Collections.emptyMap());
-	}
-
-	@Override
-	public PbcsJobLaunchResult launchRuleSet(String ruleSetName, Map<String, String> parameters) {
-		String url = context.getBaseUrl() + JOBS_ENDPOINT;
-		JobLaunchPayload payload = new JobLaunchPayload("RULESET", ruleSetName);
-		payload.setParameters(parameters);
-		HttpEntity<?> requestEntity = getRequestEntityWithHeaders(payload);
-		ResponseEntity<JobLaunchResponse> output = context.getTemplate().postForEntity(url, requestEntity, JobLaunchResponse.class, getName());
-		return new PbcsJobLaunchResultImpl(output.getBody());
-	}
-
-	@Override
-	public PbcsJobLaunchResult launchDataRule(String dataRuleName, Map<String, String> parameters) {
-		String url = context.getAifUrl("/jobs");
-		JobLaunchPayload payload = new JobLaunchPayload("DATARULE", dataRuleName);
-		payload.setParameters(parameters);
-		HttpEntity<?> requestEntity = getRequestEntityWithHeaders(payload);
-		ResponseEntity<JobLaunchResponse> output = context.getTemplate().postForEntity(url, requestEntity, JobLaunchResponse.class, getName());
-		return new PbcsJobLaunchResultImpl(output.getBody());
-	}
-
-	@Override
-	public PbcsJobLaunchResult launchIntegration(String integrationName, Map<String, String> parameters) {
-		String url = context.getAifUrl("/jobs");
-		JobLaunchPayload payload = new JobLaunchPayload("INTEGRATION", integrationName);
-		payload.setParameters(parameters);
-		HttpEntity<?> requestEntity = getRequestEntityWithHeaders(payload);
-		ResponseEntity<JobLaunchResponse> output = context.getTemplate()
-														  .postForEntity(url, requestEntity, JobLaunchResponse.class, getName());
-		return new PbcsJobLaunchResultImpl(output.getBody());
-	}
-
-	private HttpEntity<?> getRequestEntityWithHeaders(Payload payload) {
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_JSON);
+	public PbcsJobStatus launchBusinessRule(String ruleName, Map<String, String> parameters) {
 		try {
-			return new HttpEntity<>(new ObjectMapper().writer()
-															.withDefaultPrettyPrinter()
-															.writeValueAsString(payload), headers);
-		} catch (JsonProcessingException e) {
-			throw new RuntimeException("Cannot map object to json", e);
+			JobLaunchPayload payload = new JobLaunchPayload("RULES", ruleName, parameters);
+			logger.info("Launching {} business rule {} with parameters {}", getName(), ruleName, parameters);
+			JobLaunchResponse response = post(JOBS_ENDPOINT, payload, JobLaunchResponse.class, getName());
+			logger.info("Launched business rule, job ID is {}, details: {}", response.getJobId(), response);
+			return new PbcsJobLaunchResultImpl(context, this, response);
+		} catch (Exception e) {
+			logger.error("Exception launching business rule {}: {}", ruleName, e.getMessage());
+			throw new PbcsJobLaunchException(ruleName, e);
 		}
 	}
 
 	@Override
-	public PbcsJobLaunchResult importMetadata(String metadataImportName) {
-		return importMetadata(metadataImportName, null);
-	}
-
-	@Override
-	public PbcsJobLaunchResult importMetadata(String metadataImportName, String dataFile) {
-		logger.info("Launching metadata import data job: {}", metadataImportName);
-		String url = this.context.getBaseUrl() + JOBS_ENDPOINT;
-		MetadataImportPayload payload = new MetadataImportPayload("IMPORT_METADATA", metadataImportName);
-
-		// "parameters" var is optional if not specifying. If it's specified,
-		// then it should
-		// be a zip file
-		if (dataFile != null) {
-			Map<String, String> params = new HashMap<>();
-			if (SimpleFilenameUtils.getExtension(dataFile) != null && SimpleFilenameUtils.getExtension(dataFile).equalsIgnoreCase("zip")) {
-				params.put("importZipFileName", dataFile);
-			}
-			else {
-				params.put("importFileName", dataFile);
-			}
-			payload.setParameters(params);
-		}
-		ResponseEntity<JobLaunchResponse> output = this.context.getTemplate().postForEntity(url, getRequestEntityWithHeaders(payload), JobLaunchResponse.class, getName());
-		return new PbcsJobLaunchResultImpl(output.getBody());
-	}
-
-	@Override
-	public PbcsJobLaunchResult launchDataImport(String dataImportName) {
-		return this.launchDataImport(dataImportName, Optional.empty());
-	}
-	@Override
-	public PbcsJobLaunchResult launchDataImport(String dataImportName, Optional<String> importFileName) {
-		logger.info("Launching import data job: {}", dataImportName);
-		String url = this.context.getBaseUrl() + JOBS_ENDPOINT;
-		JobLaunchPayload payload = new JobLaunchPayload("IMPORT_DATA", dataImportName);
-		if (importFileName.isPresent()){
-			if (SimpleFilenameUtils.getExtension(importFileName.get()) != null && SimpleFilenameUtils.getExtension(importFileName.get()).equals("zip")){
-				payload.setParameters(Collections.singletonMap("importZipFileName", importFileName.get()));
-			}
-			else {
-				payload.setParameters(Collections.singletonMap("importFileName", importFileName.get()));
-			}
-		}
-		// can add 'importFileName' to parameters on payload object if we want
-		// (the name of a CSV, ZIP, or TXT file). In case of ZIP, the ZIP can
-		// contain 1+ CSV files
-		// such as data1-3, data2-3, data3-3.csv, etc.
-		RequestEntity<JobLaunchPayload> body = RequestEntity.post(context.getTemplate()
-																		 .getUriTemplateHandler()
-																		 .expand(url, getName()))
-															.contentType(MediaType.APPLICATION_JSON)
-															.body(payload);
-		ResponseEntity<JobLaunchResponse> output = context.getTemplate()
-															.exchange(body, JobLaunchResponse.class);
-
-		return new PbcsJobLaunchResultImpl(output.getBody());
-	}
-
-	@Override
-	public PbcsJobLaunchResult exportData(String exportName) {
-		String url = this.context.getBaseUrl() + JOBS_ENDPOINT;
-		JobLaunchPayload payload = new JobLaunchPayload("EXPORT_DATA", exportName);
-		ResponseEntity<JobLaunchResponse> output = this.context.getTemplate().postForEntity(url, payload,
-				JobLaunchResponse.class, getName());
-		logger.info("Export data HTTP code: {}", output.getStatusCode().value());
-		return new PbcsJobLaunchResultImpl(output.getBody());
-	}
-
-	@Override
-	public PbcsJobLaunchResult refreshCube() {
+	public PbcsJobStatus refreshCube() {
 		return refreshCube("CubeRefresh");
 	}
 
 	@Override
-	public PbcsJobLaunchResult refreshCube(String cubeRefreshName) {
-		String url = this.context.getBaseUrl() + JOBS_ENDPOINT;
+	public PbcsJobStatus refreshCube(String cubeRefreshName) {
+        logger.info("Launching cube refresh on {}", cubeRefreshName);
 		MetadataImportPayload payload = new MetadataImportPayload("CUBE_REFRESH", cubeRefreshName);
-		ResponseEntity<JobLaunchResponse> output = this.context.getTemplate().postForEntity(url, getRequestEntityWithHeaders(payload),
-				JobLaunchResponse.class, getName());
-		logger.info("Cube refresh launched");
-		return new PbcsJobLaunchResultImpl(output.getBody());
+        JobLaunchResponse jobLaunchResponse = post(JOBS_ENDPOINT, payload, JobLaunchResponse.class, getName());
+		return new PbcsJobLaunchResultImpl(context, this, jobLaunchResponse);
 	}
 
 	@Override
 	public PbcsPlanningClient getClient() {
 		return client;
+	}
+
+	@Override
+	public PbcsPlanningClient getParent() {
+		return getClient();
 	}
 
 	@Override
@@ -248,6 +118,11 @@ public class PbcsApplicationImpl extends AbstractPbcsObject implements PbcsAppli
 	@Override
 	public String getName() {
 		return application.getName();
+	}
+
+	@Override
+	public PbcsObjectType getObjectType() {
+		return PbcsObjectType.APPLICATION;
 	}
 
 	@Override
@@ -269,9 +144,8 @@ public class PbcsApplicationImpl extends AbstractPbcsObject implements PbcsAppli
 	@Override
 	public Set<SubstitutionVariable> getSubstitutionVariables() {
 		logger.info("Getting substitution variables for {}", application.getName());
-		String url = this.context.getBaseUrl() + "applications/{application}/substitutionvariables";
-		ResponseEntity<SubstitutionVariablesWrapper> response = this.context.getTemplate().getForEntity(url, SubstitutionVariablesWrapper.class, getName());
-		return new HashSet<>(response.getBody().getItems());
+        SubstitutionVariablesWrapper wrapper = get("applications/{application}/substitutionvariables", SubstitutionVariablesWrapper.class, getName());
+		return new HashSet<>(wrapper.getItems());
 	}
 
 	@Override
@@ -289,7 +163,7 @@ public class PbcsApplicationImpl extends AbstractPbcsObject implements PbcsAppli
 	public void updateSubstitutionVariables(Collection<SubstitutionVariable> variables) {
 		SubstitutionVariableUpdateWrapper subs = new SubstitutionVariableUpdateWrapper();
 		subs.setItems(new ArrayList<>(variables));
-		post("applications/{application}/substitutionariables", subs, String.class, getName());
+		post("applications/{application}/substitutionvariables", subs, String.class, getName());
 	}
 
 	@Override
@@ -307,34 +181,28 @@ public class PbcsApplicationImpl extends AbstractPbcsObject implements PbcsAppli
 
 	// TODO: currently getting a BAD request 400 possibly because it's not enable dynamic children.
 	@Override
-	public PbcsMemberProperties addMember(String dimensionName, String memberName, String parentName) {
-		String url = this.context.getBaseUrl() + "applications/{application}/dimensions/{dimName}/members";
-
-		MemberAdd ma = new MemberAdd(memberName, parentName);
-
-		this.context.getTemplate().setErrorHandler(new MyResponseErrorHandler());
-		ResponseEntity<String> resp = this.context.getTemplate().postForEntity(url, ma, String.class,
-				application.getName(), dimensionName);
+	public PbcsMember addMember(String dimensionName, String memberName, String parentName) {
+		//MemberAdd ma = new MemberAdd(memberName, parentName);
+        throw new UnsupportedOperationException("Needs to be refactored");
+        //post("applications/{application}/dimensions/{dimName}/members")
 
 		// ResponseEntity<PbcsMemberPropertiesImpl> memberResponse =
-		// this.context.getTemplate().getForEntity(url,
 		// PbcsMemberPropertiesImpl.class, application.getName(), dimensionName,
 		// memberName);
 		// return memberResponse.getBody();
 
 		// TODO Auto-generated method stub
-		return null;
 	}
 
 	@Override
-	public PbcsMemberProperties getMember(String dimensionName, String memberName) {
+	public PbcsMember getMember(String dimensionName, String memberName) {
 		Assert.hasText(dimensionName, "Must specify a dimension name");
 		Assert.hasText(memberName, "Must specify a member name");
 
-		logger.debug("Fetching member properties for {} from dimension {}", memberName, dimensionName);
-		String url = this.context.getBaseUrl() + "applications/{application}/dimensions/{dimName}/members/{member}";
+		logger.trace("Fetching member properties for {} from dimension {}", memberName, dimensionName);
 		try {
-			return get("applications/{application}/dimensions/{dimName}/members/{member}", PbcsMemberPropertiesImpl.class, getName(), dimensionName, memberName);
+			PbcsMemberPropertiesImpl properties = get("applications/{application}/dimensions/{dimName}/members/{member}", PbcsMemberPropertiesImpl.class, getName(), dimensionName, memberName);
+			return new PbcsMemberImpl(context, this, properties);
 		} catch (PbcsGeneralException e) {
 			// catch a general exception that is intercepted by the error handler, and confirm that it's about no such
 			// member. If so, let's throw a better error that the object doesn't exist. If not, we'll just rethrow it.
@@ -343,7 +211,9 @@ public class PbcsApplicationImpl extends AbstractPbcsObject implements PbcsAppli
 			// wrapping the exception no matter what, as we could end up with a NoSuchObjectFound exception occluding
 			// something more fundamental going on
 			if (e.getMessage() != null && e.getMessage().toLowerCase().startsWith("the member")) {
-				throw new PbcsNoSuchObjectException(memberName, PbcsObjectType.MEMBER);
+				throw new PbcsInvalidMemberException(memberName);
+			} else if (e.getMessage() != null && e.getMessage().toLowerCase().startsWith("the dimension")) {
+				throw new PbcsInvalidDimensionException(memberName);
 			} else {
 				throw e;
 			}
@@ -357,7 +227,6 @@ public class PbcsApplicationImpl extends AbstractPbcsObject implements PbcsAppli
 	@Override
 	public void exportMetadata(String jobName, String exportFileName) {
 		logger.info("Launching export metadata job: {}", jobName);
-		String url = this.context.getBaseUrl() + JOBS_ENDPOINT;
 		JobLaunchPayload payload = new JobLaunchPayload("EXPORT_METADATA", jobName);
 
 		Map<String, String> params = new HashMap<>();
@@ -366,11 +235,9 @@ public class PbcsApplicationImpl extends AbstractPbcsObject implements PbcsAppli
 		// (the name of a CSV, ZIP, or TXT file). In case of ZIP, the ZIP can
 		// contain 1+ CSV files
 		// such as data1-3, data2-3, data3-3.csv, etc.
-		// ResponseEntity<JobLaunchResponse> output =
-		// this.context.getTemplate().postForEntity(url, payload,
-		// JobLaunchResponse.class, appMap);
-		ResponseEntity<String> output = this.context.getTemplate().postForEntity(url, payload, String.class, getName());
-		System.out.println("export resp: " + output.getBody());
+        // actually returning a job launch response?
+        String output = post(JOBS_ENDPOINT, payload, String.class, getName());
+		System.out.println("export resp: " + output);
 	}
 
 	@Override
@@ -382,6 +249,16 @@ public class PbcsApplicationImpl extends AbstractPbcsObject implements PbcsAppli
 	@Override
 	public String toString() {
 		return "PbcsApplicationImpl[application=" + application + "]";
+	}
+
+	/**
+	 * Simply return the name to prevent the parent (the client) from being added to the qualified name.
+	 *
+	 * @return qualified name, which is the app itself without resolving up the parent chain
+	 */
+	@Override
+	public String getQualifiedName() {
+		return getName();
 	}
 
 	private static class MemberAdd {
@@ -422,17 +299,20 @@ public class PbcsApplicationImpl extends AbstractPbcsObject implements PbcsAppli
 		List<String> plans = Arrays.asList(application.getPlan1Name(), application.getPlan2Name(), application.getPlan3Name(), application.getPlan4Name(), application.getPlan5Name(), application.getPlan6Name());
 
 		List<PbcsAppDimension> dimensions = new ArrayList<>();
-		int dimIndex = 0;
-		for (AifDimension aifDimension : result.getBody().getItems()) {
-			List<Integer> validForPlans = Arrays.asList(aifDimension.getValidForPlan1(), aifDimension.getValidForPlan2(), aifDimension.getValidForPlan3(), aifDimension.getValidForPlan4(), aifDimension.getValidForPlan5(), aifDimension.getValidForPlan6());
-			Set<String> plansForDim = new TreeSet<>();
-			for (int validIndex = 0; validIndex < 6; validIndex++) {
-				if (validForPlans.get(validIndex) == 1) {
-					plansForDim.add(plans.get(validIndex));
+
+		if (result.getBody() != null) { // this can apparently be null
+			int dimIndex = 0;
+			for (AifDimension aifDimension : result.getBody().getItems()) {
+				List<Integer> validForPlans = Arrays.asList(aifDimension.getValidForPlan1(), aifDimension.getValidForPlan2(), aifDimension.getValidForPlan3(), aifDimension.getValidForPlan4(), aifDimension.getValidForPlan5(), aifDimension.getValidForPlan6());
+				Set<String> plansForDim = new TreeSet<>();
+				for (int validIndex = 0; validIndex < 6; validIndex++) {
+					if (validForPlans.get(validIndex) == 1) {
+						plansForDim.add(plans.get(validIndex));
+					}
 				}
+				PbcsDimensionImpl dim = new PbcsDimensionImpl(context, plansForDim, this, aifDimension, dimIndex++);
+				dimensions.add(dim);
 			}
-			PbcsDimensionImpl dim = new PbcsDimensionImpl(plansForDim, this, aifDimension, dimIndex++);
-			dimensions.add(dim);
 		}
 		return dimensions;
 	}
@@ -444,12 +324,21 @@ public class PbcsApplicationImpl extends AbstractPbcsObject implements PbcsAppli
 				return dimension;
 			}
 		}
-		throw new PbcsNoSuchObjectException(dimensionName, PbcsObjectType.DIMENSION);
+		throw new PbcsInvalidDimensionException(dimensionName);
 	}
 
 	@Override
 	public List<PbcsDimension> getDimensions(String planType) {
-		throw new UnsupportedOperationException();
+		List<PbcsDimension> planDimensions = new ArrayList<>();
+		for (PbcsAppDimension dimension : getDimensions()) {
+			if (dimension.isValidForPlan(planType)) {
+				planDimensions.add(dimension);
+			}
+		}
+		if (planDimensions.isEmpty()) {
+			throw new IllegalArgumentException("No dimensions found for " + planType + ", wrong plan name?");
+		}
+		return planDimensions;
 	}
 
 	@Override
@@ -458,7 +347,8 @@ public class PbcsApplicationImpl extends AbstractPbcsObject implements PbcsAppli
 		AifApplication application = result.getBody();
 		List<PbcsPlanType> planTypes = new ArrayList<>();
 		for (String plan : application.getAllPlans()) {
-			PbcsPlanTypeImpl planTypeImpl = new PbcsPlanTypeImpl(context, this, plan);
+			PlanTypeConfiguration configuration = new PlanTypeConfigurationImpl.Builder(plan).build();
+			PbcsPlanTypeImpl planTypeImpl = new PbcsPlanTypeImpl(context, this, configuration);
 			planTypes.add(planTypeImpl);
 		}
 		return planTypes;
@@ -469,28 +359,16 @@ public class PbcsApplicationImpl extends AbstractPbcsObject implements PbcsAppli
 		return validatePlanType(planTypeName);
 	}
 
-	public PbcsPlanType getPlanType(String planTypeName, boolean skipCheck) {
-		return getPlanType(planTypeName, skipCheck, Collections.emptyList());
-	}
-
-	@Deprecated
-	public PbcsPlanType getPlanType(String planTypeName, boolean skipCheck, List<String> dimensions) {
-		PlanTypeConfigurationImpl configuration = new PlanTypeConfigurationImpl();
-		configuration.setName(planTypeName);
-		configuration.setSkipCheck(skipCheck);
-		configuration.setExplicitDimensions(dimensions);
-		return getPlanType(configuration);
-	}
-
 	@Override
 	public PbcsPlanType getPlanType(PlanTypeConfiguration configuration) {
 		if (!configuration.isSkipCheck()) {
 			validatePlanType(configuration.getName());
 		}
-		if (configuration.getExplicitDimensions() != null && !configuration.getExplicitDimensions().isEmpty()) {
-			return new PbcsExplicitDimensionsPlanTypeImpl(context, this, configuration.getName(), configuration.getExplicitDimensions(), configuration.getMemberDimensionCache());
+
+		if (configuration.isQueryDimensions() || (configuration.getExplicitDimensions() != null && !configuration.getExplicitDimensions().isEmpty())) {
+			return new PbcsExplicitDimensionsPlanTypeImpl(context, this, configuration);
 		} else {
-			return new PbcsPlanTypeImpl(context, this, configuration.getName(), configuration.getMemberDimensionCache());
+			return new PbcsPlanTypeImpl(context, this, configuration);
 		}
 	}
 

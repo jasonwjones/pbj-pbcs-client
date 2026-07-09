@@ -95,7 +95,7 @@ public class ImportDataSlice {
         @JsonProperty("IncludeRejectedCells")
         private boolean includeRejectedCells;
 
-        @JsonProperty("includeRejectedCellsWithDetails")
+        @JsonProperty("IncludeRejectedCellsWithDetails")
         private boolean includeRejectedCellsWithDetails;
 
         public CustomParams() {}

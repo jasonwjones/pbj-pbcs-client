@@ -20,8 +20,14 @@ public class JobLaunchPayload extends Payload {
 		super(jobType, jobName);
 	}
 
-	@JsonValue
-	public Map<String, String> getParameters() {
-		return super.getParameters();
+	public JobLaunchPayload(String jobType, String jobName, Map<String, String> parameters) {
+		this(jobType, jobName);
+		setParameters(parameters);
 	}
+
+//	@JsonValue
+//	public Map<String, String> getParameters() {
+//		return super.getParameters();
+//	}
+
 }

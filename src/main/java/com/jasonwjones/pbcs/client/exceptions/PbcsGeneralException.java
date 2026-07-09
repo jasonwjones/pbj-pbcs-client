@@ -2,16 +2,12 @@ package com.jasonwjones.pbcs.client.exceptions;
 
 public class PbcsGeneralException extends PbcsClientException {
 
-	private final PbcsErrorResponse errorResponse;
-
 	public PbcsGeneralException(PbcsErrorResponse errorResponse) {
-		super(errorResponse.getDetails());
-		this.errorResponse = errorResponse;
+		super(errorResponse == null ? "No message" : errorResponse.getDetails() != null ? errorResponse.getDetails() : errorResponse.getMessage());
 	}
 
-	@Override
-	public String getMessage() {
-		return errorResponse.getMessage();
+	public PbcsGeneralException(String message) {
+		super(message);
 	}
 
 }

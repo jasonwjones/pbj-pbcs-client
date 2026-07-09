@@ -5,14 +5,18 @@ import com.jasonwjones.pbcs.api.v3.SubstitutionVariablesWrapper;
 import com.jasonwjones.pbcs.api.v3.dataslices.*;
 import com.jasonwjones.pbcs.client.*;
 import com.jasonwjones.pbcs.client.exceptions.PbcsClientException;
+import com.jasonwjones.pbcs.client.exceptions.PbcsDataExportException;
 import com.jasonwjones.pbcs.client.exceptions.PbcsDataImportException;
 import com.jasonwjones.pbcs.client.exceptions.PbcsNoSuchObjectException;
 import com.jasonwjones.pbcs.client.impl.grid.DataSliceGrid;
-import com.jasonwjones.pbcs.client.memberdimensioncache.InMemoryMemberDimensionCache;
+import com.jasonwjones.pbcs.util.DataSliceDiff;
+import com.jasonwjones.pbcs.util.GridDrawing;
 import com.jasonwjones.pbcs.util.GridUtils;
+import com.jasonwjones.pbcs.util.NumberUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -27,22 +31,29 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 
 	private final String planType;
 
+	private final PbcsApplication.PlanTypeConfiguration configuration;
+
 	protected final MemberDimensionCache memberDimensionCache;
 
-	PbcsPlanTypeImpl(RestContext context, PbcsApplication application, String planType) {
-		this(context, application, planType, new InMemoryMemberDimensionCache());
-	}
+	protected final MemberResolver memberResolver;
 
-	PbcsPlanTypeImpl(RestContext context, PbcsApplication application, String planType, MemberDimensionCache memberDimensionCache) {
+	PbcsPlanTypeImpl(RestContext context, PbcsApplication application, PbcsApplication.PlanTypeConfiguration configuration) {
 		super(context);
 		this.application = application;
-		this.planType = planType;
-		this.memberDimensionCache = memberDimensionCache;
+		this.planType = configuration.getName();
+		this.configuration = configuration;
+		this.memberDimensionCache = configuration.getMemberDimensionCache();
+		this.memberResolver = configuration.getMemberResolver();
 	}
 
 	@Override
 	public String getName() {
 		return this.planType;
+	}
+
+	@Override
+	public PbcsObjectType getObjectType() {
+		return PbcsObjectType.PLAN;
 	}
 
 	@Override
@@ -53,11 +64,18 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 	@Override
 	public List<PbcsJobDefinition> getJobs() {
 		return application.getJobDefinitions().stream()
-				.filter(job -> job.getPlanTypeName().equals(planType))
+				.filter(job -> planType.equals(job.getPlanTypeName()))
 				.collect(Collectors.toList());
 	}
 
-	@Override
+    @Override
+    public List<PbcsJobDefinition> getJobs(PbcsJobType jobType) {
+        return getJobs().stream()
+                .filter(job -> job.getJobType().equals(jobType))
+                .collect(Collectors.toList());
+    }
+
+    @Override
 	public PbcsDimension getDimension(String dimensionName) {
 		throw new IllegalArgumentException("Cannot get dimension in non-explicit dimension plan type");
 	}
@@ -70,6 +88,16 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 	@Override
 	public PbcsApplication getApplication() {
 		return this.application;
+	}
+
+	@Override
+	public PbcsApplication getParent() {
+		return getApplication();
+	}
+
+	@Override
+	public PbcsApplication.PlanTypeConfiguration getConfiguration() {
+		return configuration;
 	}
 
 	@Override
@@ -92,54 +120,59 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 
 	@Override
 	public DataSliceGrid retrieve(List<String> dataPoint) {
-		String url = this.context.getBaseUrl() + "applications/{application}/plantypes/{planType}/exportdataslice";
 		GridDefinition gridDefinition = new GridDefinition(dataPoint);
 		ExportDataSlice exportDataSlice = new ExportDataSlice(gridDefinition);
-		ResponseEntity<DataSlice> slice = this.context.getTemplate().postForEntity(url, exportDataSlice, DataSlice.class, application.getName(), planType);
-		if (slice.getStatusCode().is2xxSuccessful()) {
-			DataSlice dataSlice = slice.getBody();
-			return new DataSliceGrid(this, dataSlice);
-		} else {
-			throw new RuntimeException("Error retrieving data, received code: " + slice.getStatusCode());
-		}
+        DataSlice dataSlice = post("applications/{application}/plantypes/{planType}/exportdataslice", exportDataSlice, DataSlice.class, application.getName(), planType);
+        return new DataSliceGrid(this, dataSlice);
 	}
 
 	@Override
 	public DataSliceGrid retrieve(List<String> pov, Grid<String> grid) {
-		// get the 'fulcrum' point in the grid
-		int firstRowWithCell = GridUtils.firstNonNullInColumn(grid, 0);
-		int firstColWithCell = GridUtils.firstNonNullInRow(grid, 0);
-		int lastNonNullCol = GridUtils.lastNonNullInRow(grid, 0);
+		PovGrid<String> povGrid = new PovGridImpl<>(pov, grid);
+		DataSlice dataSlice = retrieveToSlice(povGrid);
+		return new DataSliceGrid(this, dataSlice);
+	}
 
-		List<DimensionMembers> top = new ArrayList<>();
-		for (int col = firstColWithCell; col <= lastNonNullCol; col++) {
-			List<String> members = GridUtils.col(grid, col, 0, firstRowWithCell);
-			DimensionMembers dimensionMembers = DimensionMembers.ofMemberNames(members);
-			top.add(dimensionMembers);
-		}
-
-		List<DimensionMembers> left = new ArrayList<>();
-		for (int row = firstRowWithCell; row < grid.getRows(); row++) {
-			List<String> members = GridUtils.row(grid, row, 0, firstColWithCell);
-			DimensionMembers dimensionMembers = DimensionMembers.ofMemberNames(members);
-			left.add(dimensionMembers);
-		}
-
-		GridDefinition gridDefinition = new GridDefinition(pov, top, left);
-		ExportDataSlice exportDataSlice = new ExportDataSlice(gridDefinition);
-
+	protected DataSlice retrieveToSlice(PovGrid<String> grid) {
 		try {
-			ResponseEntity<DataSlice> slice = this.context.getTemplate().postForEntity(this.context.getBaseUrl() + "applications/{application}/plantypes/{planType}/exportdataslice", exportDataSlice, DataSlice.class, application.getName(), planType);
-			if (slice.getStatusCode().is2xxSuccessful()) {
-				DataSlice dataSlice = slice.getBody();
-				return new DataSliceGrid(this, dataSlice);
-			} else {
-				throw new RuntimeException("Error retrieving data, received code: " + slice.getStatusCode());
-			}
+			GridDefinition gridDefinition = new GridDefinition(grid);
+			ExportDataSlice exportDataSlice = new ExportDataSlice(gridDefinition);
+			return post("applications/{application}/plantypes/{planType}/exportdataslice", exportDataSlice, DataSlice.class, application.getName(), planType);
 		} catch (Exception e) {
-			logger.error("Exception: {}", e.getMessage());
-			e.printStackTrace();
-			throw e;
+			throw new PbcsDataExportException(grid, e);
+		}
+	}
+
+	@Override
+	public DataSliceGrid retrieve(PovGrid<String> grid, RetrieveOptions options) {
+		throw new UnsupportedOperationException("Can only retrieve with options on explicit dimension plan");
+	}
+
+	@Override
+	public void export(PbcsPov pov, String top, DimensionMembers rows, ExportCallback exportCallback) {
+		final int gridRows = rows.getMembers().get(0).size() + 1;
+		final int gridColumns = rows.getMembers().size() + 1;
+		Grid<String> grid = new HashMapGrid<>(gridRows, gridColumns);
+		grid.setCell(0, gridColumns - 1, top);
+
+		int colOffset = 0;
+		for (List<String> column : rows.getMembers()) {
+			GridDrawing.drawColumn(grid, 1, colOffset++, column);
+		}
+
+		PovGrid<String> povGrid = new PovGridImpl<>(pov.memberNames(), grid);
+		DataSlice slice = retrieveToSlice(povGrid);
+
+		exportCallback.pov(pov);
+		exportCallback.printHeaders(rows.getDimensions(), slice.getColumns().get(0));
+
+		for (DataSlice.HeaderDataRow row : slice.getRows()) {
+			List<PbcsMember> members = new ArrayList<>();
+			for (String header : row.getHeaders()) {
+				PbcsMember member = getMember(header);
+				members.add(member);
+			}
+			exportCallback.printRow(members, row.getData());
 		}
 	}
 
@@ -163,12 +196,60 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 	@Override
 	public ImportDataResult setCells(List<String> pov, Grid<String> values, ImportDataOptions importDataOptions) {
 		ImportDataSlice importDataSlice = new ImportDataSlice();
-		importDataSlice.setDataGrid(new DataSlice(pov, values));
+		DataSlice dataSlice = createDataSlice(pov, values, importDataOptions);
+		importDataSlice.setDataGrid(dataSlice);
+
 		logger.info("Updating {}.{} at POV {} using a {}x{} source grid", application.getName(), planType, pov, values.getRows(), values.getColumns());
-		return importDataSlice(importDataSlice, importDataOptions);
+
+		PovGrid<String> povGrid = new PovGridImpl<>(pov, values);
+		DataSlice beforeSlice = importDataOptions.isReturnChangedCells() ? retrieveToSlice(povGrid) : null;
+		ImportDataResultImpl importDataResult = importDataSlice(importDataSlice, importDataOptions);
+
+		if (importDataOptions.isReturnChangedCells()) {
+			DataSlice afterSlice = retrieveToSlice(povGrid);
+			Map<Set<String>, DataSliceDiff.ValChange> changes = DataSliceDiff.diff(beforeSlice, afterSlice);
+			importDataResult.setChanges(changes);
+		}
+
+		return importDataResult;
 	}
 
-	private ImportDataResult importDataSlice(ImportDataSlice importDataSlice, ImportDataOptions importDataOptions) {
+	private DataSlice createDataSlice(List<String> pov, Grid<String> grid, ImportDataOptions importDataOptions) {
+		int firstRowWithCell = GridUtils.firstNonNullInColumn(grid, 0);
+		int firstColWithCell = GridUtils.firstNonNullInRow(grid, 0);
+
+		List<List<String>> columns = new ArrayList<>();
+		for (int row = 0; row < firstRowWithCell; row++) {
+			List<String> column = new ArrayList<>();
+			for (int col = firstColWithCell; col < grid.getColumns(); col++) {
+				column.add(grid.getCell(row, col));
+			}
+			columns.add(column);
+		}
+
+		List<DataSlice.HeaderDataRow> rows = new ArrayList<>();
+		for (int row = firstRowWithCell; row < grid.getRows(); row++) {
+			List<String> headers = new ArrayList<>();
+			for (int col = 0; col < firstColWithCell; col++) {
+				headers.add(grid.getCell(row, col));
+			}
+			List<String> data = new ArrayList<>();
+			for (int col = firstColWithCell; col < grid.getColumns(); col++) {
+				String dataCell = grid.getCell(row, col);
+				if (importDataOptions.isTreatZerosAsMissing() && NumberUtil.isNumeric(dataCell) && Double.parseDouble(dataCell) == 0) {
+					dataCell = PbcsPlanType.IMPORT_MISSING;
+				} else if (importDataOptions.isTreatBlankAsMissing() && !StringUtils.hasText(dataCell)) {
+					dataCell = PbcsPlanType.IMPORT_MISSING;
+				}
+				data.add(dataCell);
+			}
+			DataSlice.HeaderDataRow headerDataRow = new DataSlice.HeaderDataRow(headers, data);
+			rows.add(headerDataRow);
+		}
+		return new DataSlice(pov, columns, rows);
+	}
+
+	private ImportDataResultImpl importDataSlice(ImportDataSlice importDataSlice, ImportDataOptions importDataOptions) {
 
 		importDataSlice.setAggregateEssbaseData(importDataOptions.isAggregateData());
 		importDataSlice.setCellNotesOption(importDataOptions.getCellNotesOption().getApiCode());
@@ -198,12 +279,13 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 	}
 
 	@Override
-	public PbcsMemberProperties getMember(String dimensionName, String memberName) {
+	public PbcsMember getMember(String dimensionName, String memberName) {
 		return application.getMember(dimensionName, memberName);
 	}
 
+	// TODO: refactor to go through member resolver or similar codepath to getMemberOrAlias
 	@Override
-	public PbcsMemberProperties getMember(String memberName) {
+	public PbcsMember getMember(String memberName) {
 		String dimensionName = findMemberDimensionFromCache(memberName);
 		if (dimensionName != null) {
 			return getMember(dimensionName, memberName);
@@ -213,17 +295,17 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 	}
 
 	@Override
-	public List<PbcsMemberProperties> queryMembers(String memberName, PbcsMemberQueryType queryType) {
-		PbcsMemberProperties member = getMemberOrAlias(memberName);
+	public List<PbcsMember> queryMembers(String memberName, PbcsMemberQueryType queryType) {
+		PbcsMember member = getMemberOrAlias(memberName);
 		if (member == null) throw new PbcsNoSuchObjectException(memberName, PbcsObjectType.MEMBER);
 
-		List<PbcsMemberProperties> results = new ArrayList<>();
+		List<PbcsMember> results = new ArrayList<>();
 
 		switch (queryType) {
 			case ICHILDREN:
 				results.add(member);
 			case CHILDREN:
-				for (PbcsMemberProperties child : member.getChildren()) {
+				for (PbcsMember child : member.getChildren()) {
 					results.add(child);
 				}
 				break;
@@ -231,7 +313,7 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 				results.add(member);
 			case DESCENDANTS:
 				// do first iteration ourselves here so that resulting list doesn't include root member
-				for (PbcsMemberProperties child : member.getChildren()) {
+				for (PbcsMember child : member.getChildren()) {
 					processChildren(results, child);
 				}
 				break;
@@ -239,18 +321,18 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 				results.add(member);
 			case ANCESTORS:
 				while (member.getParentName() != null) {
-					PbcsMemberProperties parent = getMember(member.getDimensionName(), member.getParentName());
+					PbcsMember parent = getMember(member.getDimensionName(), member.getParentName());
 					results.add(parent);
 					member = parent;
 				}
 				break;
 			case ISIBLINGS:
 			case SIBLINGS:
-				PbcsMemberProperties parent = getMember(member.getDimensionName(), member.getParentName());
+				PbcsMember parent = getMember(member.getDimensionName(), member.getParentName());
 				if (queryType.isIncludeOriginalMember()) {
 					results.addAll(parent.getChildren());
 				} else {
-					for (PbcsMemberProperties sibling : parent.getChildren()) {
+					for (PbcsMember sibling : parent.getChildren()) {
 						if (!sibling.getName().equals(memberName)) {
 							results.add(sibling);
 						}
@@ -263,13 +345,13 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 	}
 
 	@Override
-	public List<PbcsMemberProperties> searchMembers(MemberSearchQuery query) {
+	public List<PbcsMember> searchMembers(MemberSearchQuery query) {
 		throw new UnsupportedOperationException();
 	}
 
-	private static void processChildren(List<PbcsMemberProperties> members, PbcsMemberProperties currentMember) {
+	private static void processChildren(List<PbcsMember> members, PbcsMember currentMember) {
 		members.add(currentMember);
-		for (PbcsMemberProperties child : currentMember.getChildren()) {
+		for (PbcsMember child : currentMember.getChildren()) {
 			processChildren(members, child);
 		}
 	}
@@ -282,7 +364,7 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 	}
 
 	@Override
-	public PbcsMemberProperties getMemberOrAlias(String memberOrAliasName) {
+	public PbcsMember getMemberOrAlias(String memberOrAliasName) {
 		throw new IllegalStateException("Must configure explicit dimensions to search for alias");
 	}
 
@@ -300,6 +382,8 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 
 		private final ImportDataSliceResponse response;
 
+		private Map<Set<String>, DataSliceDiff.ValChange> changes;
+
 		public ImportDataResultImpl(ImportDataSliceResponse response) {
 			this.response = response;
 		}
@@ -310,6 +394,14 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 
 		public int getRejectedCells() {
 			return response.getNumRejectedCells();
+		}
+
+		public Map<Set<String>, DataSliceDiff.ValChange> getChanges() {
+			return changes;
+		}
+
+		public void setChanges(Map<Set<String>, DataSliceDiff.ValChange> changes) {
+			this.changes = changes;
 		}
 
 	}
@@ -328,11 +420,17 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 
 		private boolean includeRejectedCells = true;
 
-		private boolean includeRejectedCellsWithDetails = false;
+		private boolean includeRejectedCellsWithDetails = true;
 
 		private String postDataImportRuleNames;
 
 		private boolean throwExceptionIfAnyRejectedCells;
+
+		private boolean returnChangedCells;
+
+		private boolean treatZerosAsMissing = false;
+
+		private boolean treatBlankAsMissing = false;
 
 		@Override
 		public boolean isAggregateData() {
@@ -413,6 +511,33 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 
 		public void setThrowExceptionIfAnyRejectedCells(boolean throwExceptionIfAnyRejectedCells) {
 			this.throwExceptionIfAnyRejectedCells = throwExceptionIfAnyRejectedCells;
+		}
+
+		@Override
+		public boolean isReturnChangedCells() {
+			return returnChangedCells;
+		}
+
+		public void setReturnChangedCells(boolean returnChangedCells) {
+			this.returnChangedCells = returnChangedCells;
+		}
+
+		@Override
+		public boolean isTreatBlankAsMissing() {
+			return treatBlankAsMissing;
+		}
+
+		public void setTreatBlankAsMissing(boolean treatBlankAsMissing) {
+			this.treatBlankAsMissing = treatBlankAsMissing;
+		}
+
+		@Override
+		public boolean isTreatZerosAsMissing() {
+			return treatZerosAsMissing;
+		}
+
+		public void setTreatZerosAsMissing(boolean treatZerosAsMissing) {
+			this.treatZerosAsMissing = treatZerosAsMissing;
 		}
 
 	}

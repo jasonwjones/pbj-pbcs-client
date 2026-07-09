@@ -49,11 +49,20 @@ public class HashMapGrid<E> implements Grid<E> {
 
 	@Override
 	public E getCell(int row, int column) {
+		checkBounds(row, column);
 		return data.get(offset(row, column));
 	}
 
+	@Override
 	public void setCell(int row, int column, E value) {
+		checkBounds(row, column);
 		data.put(offset(row, column), value);
+	}
+
+	private void checkBounds(int row, int column) {
+		if (row < 0 || column < 0 || row >= rows || column >= columns) {
+			throw new IndexOutOfBoundsException("Row or column out of bounds: (" + row + ", " + column + ")");
+		}
 	}
 
 	private Integer offset(int row, int column) {

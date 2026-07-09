@@ -1,25 +1,44 @@
 package com.jasonwjones.pbcs.client.impl;
 
 import com.jasonwjones.pbcs.api.v3.JobDefinition;
+import com.jasonwjones.pbcs.client.PbcsApplication;
 import com.jasonwjones.pbcs.client.PbcsJobDefinition;
+import com.jasonwjones.pbcs.client.PbcsJobType;
+import com.jasonwjones.pbcs.client.PbcsObjectType;
 
 public class PbcsJobDefinitionImpl extends AbstractPbcsObject implements PbcsJobDefinition {
 
+	private final PbcsApplication application;
+
 	private final JobDefinition jobDefinition;
 
-	public PbcsJobDefinitionImpl(RestContext context, JobDefinition jobDefinition) {
+	private final PbcsJobType jobType;
+
+	public PbcsJobDefinitionImpl(RestContext context, PbcsApplication application, JobDefinition jobDefinition) {
 		super(context);
+		this.application = application;
 		this.jobDefinition = jobDefinition;
+		this.jobType = PbcsJobType.parse(jobDefinition.getJobType());
 	}
 
 	@Override
-	public String getJobType() {
+	public PbcsJobType getJobType() {
+		return jobType;
+	}
+
+	@Override
+	public String getOriginalJobType() {
 		return jobDefinition.getJobType();
 	}
 
 	@Override
-	public String getJobName() {
+	public String getName() {
 		return jobDefinition.getJobName();
+	}
+
+	@Override
+	public PbcsObjectType getObjectType() {
+		return PbcsObjectType.JOB;
 	}
 
 	@Override
@@ -28,8 +47,13 @@ public class PbcsJobDefinitionImpl extends AbstractPbcsObject implements PbcsJob
 	}
 
 	@Override
+	public PbcsApplication getParent() {
+		return application;
+	}
+
+	@Override
 	public String toString() {
-		return String.format("PbcsJobDefinitionImpl [name=%s, type=%s]", getJobName(), getJobType());
+		return String.format("PbcsJobDefinitionImpl [name=%s, type=%s, originalJobType=%s]", getName(), jobType, getOriginalJobType());
 	}
 
 }

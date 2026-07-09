@@ -3,42 +3,38 @@ package com.jasonwjones.pbcs.client.impl;
 import com.jasonwjones.pbcs.api.v3.Api;
 import com.jasonwjones.pbcs.api.v3.Application;
 import com.jasonwjones.pbcs.api.v3.Applications;
-import com.jasonwjones.pbcs.client.PbcsApi;
-import com.jasonwjones.pbcs.client.PbcsApplication;
-import com.jasonwjones.pbcs.client.PbcsObjectType;
-import com.jasonwjones.pbcs.client.PbcsPlanningClient;
+import com.jasonwjones.pbcs.client.*;
 import com.jasonwjones.pbcs.client.exceptions.PbcsClientException;
 import com.jasonwjones.pbcs.client.exceptions.PbcsNoSuchObjectException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.ResponseEntity;
+import org.springframework.util.Assert;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Default implementation of PbcsPlanningClient. This class can be thought of as
- * the entry point to the Planning REST API. Most users will likely jump
- * straight from this class to grabbing an instance of {@link PbcsApplication},
- * which is the main interface for modeling operations on a particular
- * application.
+ * Default implementation of PbcsPlanningClient. This class can be thought of as the entry point to the Planning REST
+ * API. Most users will likely jump straight from this class to grabbing an instance of {@link PbcsApplication}, which
+ * is the main interface for modeling operations on a particular application.
  *
  * @author Jason Jones
- *
  */
 public class PbcsPlanningClientImpl extends AbstractPbcsObject implements PbcsPlanningClient {
 
 	private static final Logger logger = LoggerFactory.getLogger(PbcsPlanningClientImpl.class);
 
-	private final String server;
+	private final PbcsConnection connection;
 
-	public PbcsPlanningClientImpl(RestContext restContext, String server, boolean skipApiCheck) {
-		super(restContext);
-		this.server = server;
+	private final PbcsApi api;
 
-		if (!skipApiCheck) {
+	public PbcsPlanningClientImpl(RestContext context, PbcsConnection connection, PbcsServiceConfiguration serviceConfiguration) {
+		super(context);
+		this.connection = connection;
+
+		if (!serviceConfiguration.isSkipApiCheck()) {
 			try {
-				PbcsApi api = getApi();
+				api = getApi();
 				if (!api.isLatest()) {
 					logger.warn("PBCS indicates that the current API ({}) is not the latest available", api.getVersion());
 				} else {
@@ -50,27 +46,37 @@ public class PbcsPlanningClientImpl extends AbstractPbcsObject implements PbcsPl
 			}
 		} else {
 			logger.debug("Skipping initialization API check");
+			api = null;
 		}
 	}
 
 	@Override
 	public PbcsApi getApi() {
-		logger.info("Checking API for {}", server);
-		ResponseEntity<Api> checkApi = getForEntity("", Api.class);
-		return new PbcsApiImpl(checkApi.getBody());
+		if (api != null) {
+			return api;
+		} else {
+			logger.info("Checking API for {}", connection.getServer());
+			Api checkApi = get("", Api.class);
+			return new PbcsApiImpl(checkApi);
+		}
 	}
 
 	@Override
 	public String getServer() {
-		return server;
+		return connection.getServer();
+	}
+
+	@Override
+	public String getUserName() {
+		return connection.getUsername();
 	}
 
 	@Override
 	public List<PbcsApplication> getApplications() {
-		ResponseEntity<Applications> result = getForEntity("applications", Applications.class);
+		Applications result = get("applications", Applications.class);
 
 		List<PbcsApplication> pbcsApplications = new ArrayList<>();
-		for (Application application : result.getBody().getItems()) {
+		for (Application application : result.getItems()) {
 			PbcsApplicationImpl appImpl = new PbcsApplicationImpl(context, this, application);
 			pbcsApplications.add(appImpl);
 		}
@@ -83,6 +89,7 @@ public class PbcsPlanningClientImpl extends AbstractPbcsObject implements PbcsPl
 	}
 
 	public PbcsApplication getApplication(String applicationName, boolean skipCheck) throws PbcsClientException {
+		Assert.notNull(applicationName, "The application must not be null");
 		if (skipCheck) {
 			// [name=Vision, type=HP, dpEnabled=false]]
 			Application application = new Application();
@@ -97,6 +104,21 @@ public class PbcsPlanningClientImpl extends AbstractPbcsObject implements PbcsPl
 			}
 			throw new PbcsNoSuchObjectException(applicationName, PbcsObjectType.APPLICATION);
 		}
+	}
+
+	@Override
+	public String getName() {
+		return getServer();
+	}
+
+	@Override
+	public PbcsObject getParent() {
+		return null;
+	}
+
+	@Override
+	public PbcsObjectType getObjectType() {
+		return PbcsObjectType.CLIENT;
 	}
 
 }

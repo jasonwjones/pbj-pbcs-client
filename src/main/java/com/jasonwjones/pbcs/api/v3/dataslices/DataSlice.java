@@ -1,11 +1,8 @@
 package com.jasonwjones.pbcs.api.v3.dataslices;
 
-import com.jasonwjones.pbcs.client.Grid;
-import com.jasonwjones.pbcs.util.GridUtils;
-
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.StringJoiner;
 
 /**
  * Models the data slice response from an Export Data Slice operation
@@ -24,8 +21,7 @@ public class DataSlice {
 	 */
 	private List<HeaderDataRow> rows;
 
-	public DataSlice() {
-	}
+	public DataSlice() {}
 
 	/**
 	 * Each element of the columns parameter represents an axis, e.g., if there are three dimensions
@@ -42,41 +38,11 @@ public class DataSlice {
 		this.rows = rows;
 	}
 
-	/**
-	 * Convenience constructor to build using a POV and a grid.
-	 *
-	 * @param pov the POV
-	 * @param grid the grid
-	 */
-	// TODO: generalize to a PovGrid object or some other slightly more abstract type
-	public DataSlice(List<String> pov, Grid<String> grid) {
-		this.pov = pov;
-		int firstRowWithCell = GridUtils.firstNonNullInColumn(grid, 0);
-		int firstColWithCell = GridUtils.firstNonNullInRow(grid, 0);
-
-		this.columns = new ArrayList<>();
-		for (int row = 0; row < firstRowWithCell; row++) {
-			List<String> column = new ArrayList<>();
-			for (int col = firstColWithCell; col < grid.getColumns(); col++) {
-				column.add(grid.getCell(row, col));
-			}
-			columns.add(column);
-		}
-
-		this.rows = new ArrayList<>();
-		for (int row = firstRowWithCell; row < grid.getRows(); row++) {
-			List<String> headers = new ArrayList<>();
-			for (int col = 0; col < firstColWithCell; col++) {
-				headers.add(grid.getCell(row, col));
-			}
-			List<String> data = new ArrayList<>();
-			for (int col = firstColWithCell; col < grid.getColumns(); col++) {
-				data.add(grid.getCell(row, col));
-			}
-			HeaderDataRow headerDataRow = new HeaderDataRow(headers, data);
-			rows.add(headerDataRow);
-		}
-
+	@Override
+	public String toString() {
+		return new StringJoiner(", ", "data slice [", "]")
+				.add("rows=" + rows.size())
+				.toString();
 	}
 
 	/**
@@ -122,37 +88,15 @@ public class DataSlice {
 		this.rows = rows;
 	}
 
-	// TODO: make a general library function
-	public DataSlice withMemberReplacement(String currentMember, String newMember) {
-		List<List<String>> newColumns = new ArrayList<List<String>>();
-		for (List<String> currentColumnList : columns) {
-			List<String> newColumn = new ArrayList<String>();
-			for (String currentColumnListItem : currentColumnList) {
-				if (currentColumnListItem.equals(currentMember)) {
-					newColumn.add(newMember);
-				} else {
-					newColumn.add(currentColumnListItem);
-				}
-			}
-			newColumns.add(newColumn);
-		}
-
-		List<HeaderDataRow> newRows = new ArrayList<HeaderDataRow>();
-		for (HeaderDataRow row : rows) {
-			newRows.add(row.withMemberReplacement(currentMember, newMember));
-		}
-
-		return new DataSlice(this.pov, newColumns, newRows);
-	}
-
 	public static class HeaderDataRow {
 
 		private List<String> headers;
 
 		private List<String> data;
 
-		public HeaderDataRow() {
-		}
+		private List<SupportingDetailWrapper> supportingDetail;
+
+		public HeaderDataRow() {}
 
 		public HeaderDataRow(List<String> headers, List<String> data) {
 			this.headers = headers;
@@ -185,16 +129,81 @@ public class DataSlice {
 			this.data = data;
 		}
 
-		public HeaderDataRow withMemberReplacement(String currentMember, String newMember) {
-			List<String> newHeaders = new ArrayList<String>();
-			for (String header : headers) {
-				if (header.equals(currentMember)) {
-					newHeaders.add(newMember);
-				} else {
-					newHeaders.add(header);
-				}
-			}
-			return new HeaderDataRow(newHeaders, this.data);
+		public List<SupportingDetailWrapper> getSupportingDetail() {
+			return supportingDetail;
+		}
+
+		public void setSupportingDetail(List<SupportingDetailWrapper> supportingDetail) {
+			this.supportingDetail = supportingDetail;
+		}
+
+	}
+
+	public static class SupportingDetailWrapper {
+
+		private List<SupportingDetail> items;
+
+		public List<SupportingDetail> getItems() {
+			return items;
+		}
+
+		public void setItems(List<SupportingDetail> items) {
+			this.items = items;
+		}
+
+	}
+
+	public static class SupportingDetail {
+
+		private String label;
+
+		// appears that these can be ~, +, -, * and /
+		private String operator;
+
+		private String value;
+
+		private int position;
+
+		private int generation;
+
+		public String getLabel() {
+			return label;
+		}
+
+		public void setLabel(String label) {
+			this.label = label;
+		}
+
+		public String getOperator() {
+			return operator;
+		}
+
+		public void setOperator(String operator) {
+			this.operator = operator;
+		}
+
+		public String getValue() {
+			return value;
+		}
+
+		public void setValue(String value) {
+			this.value = value;
+		}
+
+		public int getPosition() {
+			return position;
+		}
+
+		public void setPosition(int position) {
+			this.position = position;
+		}
+
+		public int getGeneration() {
+			return generation;
+		}
+
+		public void setGeneration(int generation) {
+			this.generation = generation;
 		}
 
 	}

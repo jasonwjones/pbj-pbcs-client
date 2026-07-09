@@ -3,11 +3,13 @@ package com.jasonwjones.pbcs.client.impl.grid;
 import com.jasonwjones.pbcs.api.v3.dataslices.DataSlice;
 import com.jasonwjones.pbcs.client.PbcsPlanType;
 import com.jasonwjones.pbcs.client.PovGrid;
+import com.jasonwjones.pbcs.client.impl.PovGridImpl;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.function.Function;
 
 public class DataSliceGrid implements PovGrid<DataSliceGrid.Cell> {
 
@@ -27,11 +29,15 @@ public class DataSliceGrid implements PovGrid<DataSliceGrid.Cell> {
 
     private final int leftCols;
 
-    private final Cell BLANK = new BlankCell();
+    public static final Cell BLANK = new BlankCell();
 
     private final ConcurrentMap<Integer, String> axisDimensionLookups = new ConcurrentHashMap<>();
 
     public DataSliceGrid(PbcsPlanType planType, DataSlice dataSlice) {
+        this(planType, dataSlice, dataSlice.getRows().get(0).getHeaders().size());
+    }
+
+    public DataSliceGrid(PbcsPlanType planType, DataSlice dataSlice, int leftColsHint) {
         this.planType = planType;
         this.dataSlice = dataSlice;
         this.povMemberCount = dataSlice.getPov().size();
@@ -43,9 +49,11 @@ public class DataSliceGrid implements PovGrid<DataSliceGrid.Cell> {
         }
 
         this.rows = rows(dataSlice);
-        this.columns = columns(dataSlice);
         this.topRows = dataSlice.getColumns().size();
-        this.leftCols = dataSlice.getRows().get(0).getHeaders().size();
+        this.leftCols = !dataSlice.getRows().isEmpty()
+                ? dataSlice.getRows().get(0).getHeaders().size()
+                : leftColsHint;
+        this.columns = leftCols + dataSlice.getColumns().get(0).size();
     }
 
     private static int rows(DataSlice dataSlice) {
@@ -77,6 +85,11 @@ public class DataSliceGrid implements PovGrid<DataSliceGrid.Cell> {
     @Override
     public List<Cell> getPov() {
         return povCells;
+    }
+
+    @Override
+    public <T> PovGrid<T> copyOf(Function<Cell, T> conversion) {
+        return PovGridImpl.copy(this, conversion);
     }
 
     /**
@@ -149,7 +162,7 @@ public class DataSliceGrid implements PovGrid<DataSliceGrid.Cell> {
 
         CellType getType();
 
-        String getValue();
+        String getValue(); // TODO: should we just use toString???
 
     }
 
@@ -180,6 +193,11 @@ public class DataSliceGrid implements PovGrid<DataSliceGrid.Cell> {
         @Override
         public String getValue() {
             return value;
+        }
+
+        @Override
+        public String toString() {
+            return getValue();
         }
 
     }
@@ -232,6 +250,11 @@ public class DataSliceGrid implements PovGrid<DataSliceGrid.Cell> {
         @Override
         public String getValue() {
             return null;
+        }
+
+        @Override
+        public String toString() {
+            return getValue();
         }
 
     }

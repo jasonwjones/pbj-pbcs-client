@@ -3,7 +3,6 @@ package com.jasonwjones.pbcs.client;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 
 import com.jasonwjones.pbcs.api.v3.SubstitutionVariable;
@@ -16,7 +15,7 @@ import com.jasonwjones.pbcs.api.v3.dataslices.ExportDataSlice;
  * @author jasonwjones
  *
  */
-public interface PbcsApplication {
+public interface PbcsApplication extends PbcsObject {
 
 	/**
 	 * Gets the client used to connect to this application.
@@ -25,19 +24,16 @@ public interface PbcsApplication {
 	 */
 	PbcsPlanningClient getClient();
 
+	@Override
+	PbcsPlanningClient getParent();
+
 	/**
-	 * Whether the application supports decision packages
+	 * Whether the application supports decision packages. I really have no idea what
+	 * these are and if they are used.
 	 *
 	 * @return true if DPs are supported, false otherwise
 	 */
 	boolean isDpEnabled();
-
-	/**
-	 * Get the name of the application
-	 *
-	 * @return the name of the application
-	 */
-	String getName();
 
 	/**
 	 * Gets the product type. Possible values: HFM, HP.
@@ -77,50 +73,12 @@ public interface PbcsApplication {
 	PbcsJobStatus getJobStatus(Integer jobId);
 
 	/**
-	 * Launches a business rule on the application, providing no additional
-	 * parameters
+	 * Despite the name, this seems to be a call to refresh the entire application. The documentation makes mention of
+	 * 'the' planning cube, but I think in practice this is really the whole application.
 	 *
-	 * @param ruleName the name of the business rule exactly as it appears in
-	 *            the application
-	 * @return a job launch result
+	 * @return a job for tracking the refresh operation
 	 */
-	PbcsJobLaunchResult launchBusinessRule(String ruleName);
-
-	/**
-	 * Launches a business rule on the application, providing additional
-	 * parameters
-	 *
-	 * @param ruleName the name of the business rule exactly as it appears in
-	 *            the application
-	 * @param parameters the parameters to pass along
-	 * @return a job launch result
-	 */
-	PbcsJobLaunchResult launchBusinessRule(String ruleName, Map<String, String> parameters);
-
-	PbcsJobLaunchResult launchRuleSet(String ruleSetName, Map<String, String> parameters);
-	PbcsJobLaunchResult launchRuleSet(String ruleSetName);
-
-	PbcsJobLaunchResult launchDataImport(String dataImportName, Optional<String> dataFile);
-	PbcsJobLaunchResult launchDataImport(String dataImportName);
-
-	PbcsJobLaunchResult importMetadata(String metadataImportName, String dataFile);
-
-	PbcsJobLaunchResult launchDataRule(String dataRuleName, Map<String, String> parameters);
-
-	/**
-	 * The INTEGRATION job type is an enhanced version of DATARULE job type (see Running Data Rules). It is recommended that you use the INTEGRATION job type for future integration jobs
-	 *
-	 * @param integrationName - name of the integration
-	 * @param parameters      - parameters for integration
-	 * @return job result
-	 */
-	PbcsJobLaunchResult launchIntegration(String integrationName, Map<String, String> parameters);
-
-	PbcsJobLaunchResult importMetadata(String metadataImportName);
-
-	PbcsJobLaunchResult exportData(String exportName);
-
-	PbcsJobLaunchResult refreshCube();
+	PbcsJobStatus refreshCube();
 
 	/**
 	 * Refreshes the cube with the refresh name. If the refresh name listed in
@@ -130,11 +88,44 @@ public interface PbcsApplication {
 	 * @param cubeRefreshName the CUBE_REFRESH name
 	 * @return a job launch result
 	 */
-	PbcsJobLaunchResult refreshCube(String cubeRefreshName);
+	PbcsJobStatus refreshCube(String cubeRefreshName);
 
-	PbcsMemberProperties addMember(String dimensionName, String memberName, String parentName);
+    /**
+     * Launches a business rule on the application, providing no additional
+     * parameters
+     *
+     * @param ruleName the name of the business rule exactly as it appears in
+     *            the application
+     * @return a job launch result
+     */
+    PbcsJobStatus launchBusinessRule(String ruleName);
 
-	PbcsMemberProperties getMember(String dimensionName, String memberName);
+    /**
+     * Launches a business rule on the application, providing additional
+     * parameters
+     *
+     * @param ruleName the name of the business rule exactly as it appears in
+     *            the application
+     * @param parameters the parameters to pass along
+     * @return a job launch result
+     */
+    PbcsJobStatus launchBusinessRule(String ruleName, Map<String, String> parameters);
+
+	PbcsMember addMember(String dimensionName, String memberName, String parentName);
+
+	/**
+	 * Get information about a member. This is considered the canonical way to get a member from the PBCS/EPM Cloud
+	 * member info API since it can make a straight call to the proper end point. The REST API endpoint has the dimension
+	 * name in it, which necessitates knowing the dimension name ahead of time (unfortunately).
+	 *
+	 * <p>You will almost always be better served using methods on the {@link PbcsPlanType}, such as the equivalent method
+	 * {@link PbcsPlanType#getMember(String, String)}.</p>
+	 *
+	 * @param dimensionName the name of the dimension that the member is in
+	 * @param memberName the member name to look up
+	 * @return the member
+	 */
+	PbcsMember getMember(String dimensionName, String memberName);
 
 	/**
 	 * Not currently implemented.
@@ -192,7 +183,6 @@ public interface PbcsApplication {
 	 *
 	 * @return the dimensions for the application
 	 */
-
 	List<PbcsAppDimension> getDimensions();
 
 	/**
@@ -210,46 +200,25 @@ public interface PbcsApplication {
 	 * @param planType the plan name
 	 * @return the list of dimensions
 	 */
-	@Deprecated
 	List<PbcsDimension> getDimensions(String planType);
 
 	/**
 	 * Get the list of cubes/plans in this application. The endpoint for this REST call doesn't seem to exist for FCCS
-	 * apps.
+	 * apps (need to confirm this, there may have been some sort of testing issue).
 	 *
 	 * @return the list of plans for this application
 	 */
 	List<PbcsPlanType> getPlanTypes();
 
 	/**
-	 * Gets the plan with the given name.
+	 * Gets the plan with the given name. This method is easy to use, but callers are strongly encourage to use the
+	 * full {@link #getPlanType(PlanTypeConfiguration)} method, which provides much more control over how the cube
+	 * is instantiated and validated.
 	 *
 	 * @param planTypeName the plan name
 	 * @return the plan/cube
 	 */
 	PbcsPlanType getPlanType(String planTypeName);
-
-	/**
-	 * Gets the plan with the given name.
-	 *
-	 * @param planTypeName the plan name
-	 * @param skipCheck true if the plan name should be validated
-	 * @return the plan
-	 * @deprecated use the {@link #getPlanType(PlanTypeConfiguration)} method
-	 */
-	PbcsPlanType getPlanType(String planTypeName, boolean skipCheck);
-
-	/**
-	 * Gets the plan using the given name, skip check value, and explicit dimensions
-	 *
-	 * @param planTypeName the name of the plan
-	 * @param skipCheck true if the plan name should be verified or not
-	 * @param dimensions explicit dimension list to initialize with
-	 * @return the plan type
-	 * @deprecated use the {@link #getPlanType(PlanTypeConfiguration)} method
-	 */
-	@Deprecated
-	PbcsPlanType getPlanType(String planTypeName, boolean skipCheck, List<String> dimensions);
 
 	/**
 	 * Gets the plan/cube using the given configuration. This method mostly exists so that we don't have to keep
@@ -264,6 +233,12 @@ public interface PbcsApplication {
 	 * The number of overloads of {@link #getPlanType(String)} started to proliferate, so there is now a generic
 	 * configuration object where the plan definition is specified and then passed to the {@link #getPlanType(PlanTypeConfiguration)}
 	 * method.
+	 *
+	 * <p>As can be noticed in the extensive number of options, there is a fair bit of "ceremony"
+	 * in constructing a {@link PbcsPlanType} object. Some of the objects may carry relatively
+	 * significant performance penalties (e.g. validating all dimensions). It is recommended that
+	 * in environments that may be instantiating plan objects repeatedly (e.g. in a data gateway
+	 * servlet), some form of connection pooling will be used.
 	 */
 	interface PlanTypeConfiguration {
 
@@ -275,6 +250,18 @@ public interface PbcsApplication {
 		String getName();
 
 		/**
+		 * If true, an explicit dimension plan type will be created and the AIF endpoint will be queried to get the list
+		 * of dimensions to populate. This option is off by default. "Regular" users may not have permissions to query
+		 * the endpoint, so this method will generally only work for users with Service Administrator privileges and
+		 * above. If set to true, the value of {@link #getExplicitDimensions()} will be ignored. Note that attribute
+		 * dimensions are not returned from this [undocumented] REST endpoint, so if you need attribute dimensions then
+		 * you should still populate them through {@link #getExplicitAttributeDimensions()}.
+		 *
+		 * @return the value for query dimensions
+		 */
+		boolean isQueryDimensions();
+
+		/**
 		 * Determines if a check (a REST call) should be performed to validate that the given plan name is actually valid
 		 * or if we should just assume that it is. You'll get a slightly faster response when creating a {@link PbcsPlanType}
 		 * because you'll skip a REST call.
@@ -282,6 +269,15 @@ public interface PbcsApplication {
 		 * @return true if the validity check should be skipped, false otherwise.
 		 */
 		boolean isSkipCheck();
+
+		/**
+		 * If explicit dimensions are defined, then each one will be validated by issuing a "get member" call using the
+		 * dimension name as the dimension and root member. This does not ensure that a list of dimensions is complete,
+		 * just that all the defined dimensions are valid.
+		 *
+		 * @return true to perform dimension validation
+		 */
+		boolean isValidateDimensions();
 
 		/**
 		 * The list of explicit dimensions that are being set for the plan. It's not required to set dimensions to use
@@ -293,6 +289,17 @@ public interface PbcsApplication {
 		List<String> getExplicitDimensions();
 
 		/**
+		 * You can specify a list of dimensions that are explicitly attribute dimensions, and as
+		 * such their {@link PbcsDimension#getDimensionType()} will return {@link PbcsMemberType#ATTRIBUTE}.
+		 * Being able to differentiate attribute dimensions is useful for certain grid parsing operations
+		 * that may need to know which dimension axes are optional. Not all attribute dimensions have
+		 * to be specified.
+		 *
+		 * @return the list of dimension names that are attribute dimensions
+		 */
+		List<String> getExplicitAttributeDimensions();
+
+		/**
 		 * Gets the member dimension cache that will be used for the plan type. The default implementation is generally
 		 * just a simple {@link com.jasonwjones.pbcs.client.memberdimensioncache.InMemoryMemberDimensionCache} but for
 		 * performance or other reasons, the caller may want to specify their own resolver
@@ -300,6 +307,20 @@ public interface PbcsApplication {
 		 * @return the dimension name cache to use for the plan
 		 */
 		PbcsPlanType.MemberDimensionCache getMemberDimensionCache();
+
+		/**
+		 * Gets the member resolver that has been set for this configuration, if any.
+		 *
+		 * @return the member resolver
+		 */
+		PbcsPlanType.MemberResolver getMemberResolver();
+
+		/**
+		 * The number of threads that will be used in a {@link PbcsPlanType#getMemberOrAlias(String)} search operation.
+		 *
+		 * @return the threads for a fixed thread pool executor
+		 */
+		int getMemberSearchThreads();
 
 	}
 

@@ -1,19 +1,23 @@
 package com.jasonwjones.pbcs.api.v3.dataslices;
 
+import com.jasonwjones.pbcs.client.PovGrid;
+import com.jasonwjones.pbcs.util.GridUtils;
+
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.StringJoiner;
 
 /**
- * POJO used to model grid for Export Data Slice operation on PBCS REST API.
- * Should be kept as clean as possible (i.e. avoid temptation to add convenience
- * methods).
- *
- * @author jasonwjones
- *
+ * Main grid definition that is inside an {@link ExportDataSlice} object.
  */
 public class GridDefinition {
 
 	private boolean suppressMissingBlocks = false;
+
+	private boolean suppressMissingRows = false;
+
+	private boolean suppressMissingColumns = false;
 
 	private DimensionMembers pov;
 
@@ -23,26 +27,37 @@ public class GridDefinition {
 
 	public GridDefinition() {}
 
-//	public GridDefinition(List<String> pov, List<List<String>> columns, List<List<String>> rows) {
-//		this.pov = new DimensionMembers(pov);
-//		this.columns = Arrays.asList(DimensionMembers.of(columns));
-//		this.rows = Arrays.asList(DimensionMembers.of(rows));
-//	}
-
 	public GridDefinition(List<String> pov, List<DimensionMembers> columns, List<DimensionMembers> rows) {
 		this.pov = DimensionMembers.ofMemberNames(pov);
 		this.columns = columns;
 		this.rows = rows;
 	}
 
-	// TODO: consolidate
-	public GridDefinition(String... pov) {
-		if (pov.length < 3) throw new IllegalArgumentException("Must provide at least three members");
-		int lastElement = pov.length - 1;
-		int secondToLastElement = lastElement - 1;
-		this.pov = DimensionMembers.of(Arrays.copyOfRange(pov, 0, secondToLastElement));
-		this.columns = Arrays.asList(DimensionMembers.of(pov[secondToLastElement]));
-		this.rows = Arrays.asList(DimensionMembers.of(pov[lastElement]));
+	public GridDefinition(PovGrid<String> grid) {
+		this.pov = DimensionMembers.ofMemberNames(grid.getPov());
+		// get the 'fulcrum' point in the grid
+		int firstRowWithCell = GridUtils.firstNonNullInColumn(grid, 0);
+		int firstColWithCell = GridUtils.firstNonNullInRow(grid, 0);
+		int lastNonNullCol = GridUtils.lastNonNullInRow(grid, 0);
+
+		List<DimensionMembers> top = new ArrayList<>();
+		for (int col = firstColWithCell; col <= lastNonNullCol; col++) {
+			List<String> members = GridUtils.col(grid, col, 0, firstRowWithCell);
+			DimensionMembers dimensionMembers = DimensionMembers.ofMemberNames(members);
+			top.add(dimensionMembers);
+		}
+
+		List<DimensionMembers> left = new ArrayList<>();
+		List<List<String>> columns = new ArrayList<>();
+		for (int col = 0; col < firstColWithCell; col++) {
+			List<String> colMembers = GridUtils.col(grid, col, firstRowWithCell, grid.getRows());
+			columns.add(colMembers);
+		}
+		DimensionMembers leftDimMembers = DimensionMembers.of(columns);
+		left.add(leftDimMembers);
+
+		this.columns = top;
+		this.rows = left;
 	}
 
 	public GridDefinition(List<String> pov) {
@@ -60,6 +75,22 @@ public class GridDefinition {
 
 	public void setSuppressMissingBlocks(boolean suppressMissingBlocks) {
 		this.suppressMissingBlocks = suppressMissingBlocks;
+	}
+
+	public boolean isSuppressMissingColumns() {
+		return suppressMissingColumns;
+	}
+
+	public void setSuppressMissingColumns(boolean suppressMissingColumns) {
+		this.suppressMissingColumns = suppressMissingColumns;
+	}
+
+	public boolean isSuppressMissingRows() {
+		return suppressMissingRows;
+	}
+
+	public void setSuppressMissingRows(boolean suppressMissingRows) {
+		this.suppressMissingRows = suppressMissingRows;
 	}
 
 	public DimensionMembers getPov() {
@@ -82,7 +113,7 @@ public class GridDefinition {
 
 	/**
 	 * Columns are modeled... kind of fucking stupidly. Think of it as a single
-	 * array for all of the columns, one element per column. The object in that
+	 * array for all the columns, one element per column. The object in that
 	 * array is one or more strings that extend down the sheet.
 	 *
 	 * @param columns the column definition
@@ -97,6 +128,16 @@ public class GridDefinition {
 
 	public void setRows(List<DimensionMembers> rows) {
 		this.rows = rows;
+	}
+
+	@Override
+	public String toString() {
+		return new StringJoiner(", ", GridDefinition.class.getSimpleName() + "[", "]")
+				.add("rows=" + rows.size())
+				.add("suppressMissingBlocks=" + suppressMissingBlocks)
+				.add("suppressMissingColumns=" + suppressMissingColumns)
+				.add("suppressMissingRows=" + suppressMissingRows)
+				.toString();
 	}
 
 }

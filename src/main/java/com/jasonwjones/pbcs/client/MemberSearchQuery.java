@@ -34,6 +34,35 @@ public interface MemberSearchQuery {
     String getSearchTerm();
 
     /**
+     * Whether the search should be case-sensitive.
+     *
+     * @return true if it should be, false otherwise
+     */
+    boolean isCaseSensitive();
+
+    /**
+     * Whether aliases should also be checked for a match
+     *
+     * @return true to search aliases (in addition to member name), false otherwise
+     */
+    boolean isSearchAliases();
+
+    /**
+     * Whether search should stop after a match is found, or keep searching (such as to find additional matches via
+     * wildcard, or shared members).
+     *
+     * @return true if search should stop when found, false otherwise
+     */
+    boolean isStopWhenFound();
+
+    /**
+     * Whether to exclude shared members from the results or not.
+     *
+     * @return true if shared members should be excluded, false otherwise
+     */
+    boolean isExcludeShares();
+
+    /**
      * Different types of searches that can be performed.
      */
     enum Type {

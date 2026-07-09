@@ -1,0 +1,8 @@
+### Get All API Version Info
+#
+# I just get a 501 (not implemented) error, possibly because of our environment type
+# lacking this module or not being setup
+
+GET https://{{server}}/epm/rest/
+Authorization: {{creds}}
+Accept: application/json

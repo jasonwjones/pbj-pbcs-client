@@ -8,9 +8,10 @@ package com.jasonwjones.pbcs.client;
  */
 public interface PbcsConnection {
 
+
 	/**
 	 * Returns the server name, which does not contain the scheme or anything
-	 * after the TLD suffix, such as <code>our-company-pbcs-server.pbcs.us2.oraclecloud.com</code>.
+	 * after the TLD suffix, such as <code>our-company-pbcs-server.pbcs.us2.oracle-cloud.com</code>.
 	 *
 	 * @return the PBCS server name
 	 */

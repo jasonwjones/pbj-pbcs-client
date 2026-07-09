@@ -1,24 +1,14 @@
 package com.jasonwjones.pbcs.client.impl.membervisitors;
 
-import com.jasonwjones.pbcs.client.PbcsMemberProperties;
+import com.jasonwjones.pbcs.client.MemberSearchQuery;
 
-import java.nio.file.FileVisitResult;
 import java.util.regex.Pattern;
 
-public class SearchWildMemberVisitor extends AbstractMemberVisitor {
+public class SearchWildMemberVisitor extends SearchRegexMemberVisitor {
 
-    private final Pattern pattern;
-
-    public SearchWildMemberVisitor(String regex) {
-        this.pattern = Pattern.compile(regex.replace("*", ".*"));
-    }
-
-    @Override
-    public FileVisitResult preVisitMember(PbcsMemberProperties member) {
-        if (pattern.matcher(member.getName()).matches()) {
-            addMember(member);
-        }
-        return FileVisitResult.CONTINUE;
+    public SearchWildMemberVisitor(MemberSearchQuery query) {
+        super(query, Pattern.compile(query.getSearchTerm().replace("*", ".*"),
+                !query.isCaseSensitive() ? Pattern.CASE_INSENSITIVE : 0));
     }
 
 }

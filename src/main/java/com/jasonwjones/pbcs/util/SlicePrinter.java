@@ -6,8 +6,8 @@ import com.jasonwjones.pbcs.api.v3.dataslices.DataSlice;
 import com.jasonwjones.pbcs.api.v3.dataslices.DataSlice.HeaderDataRow;
 
 /**
- * A simple utilty class for printing a {@link DataSlice} class.
- * 
+ * A simple utility class for printing a {@link DataSlice} class.
+ *
  * @author jasonwjones
  *
  */
@@ -33,14 +33,14 @@ public class SlicePrinter {
 			printRow(row.getData(), 0, true);
 		}
 	}
-	
+
 	public void print(DataSlice dataSlice, Delegate delegate) {
 		int column = 1;
-		
+
 		for (String povElement : dataSlice.getPov()) {
 			delegate.print(0, column++, povElement, false);
 		}
-		
+
 		int row = 1;
 		int leftColumnWidth = getCountOfLeftDimensions(dataSlice);
 
@@ -51,7 +51,7 @@ public class SlicePrinter {
 			}
 			row++;
 		}
-		
+
 		for (HeaderDataRow headerDataRow : dataSlice.getRows()) {
 			column = 0;
 			for (String leftElement : headerDataRow.getHeaders()) {
@@ -67,10 +67,10 @@ public class SlicePrinter {
 	public int getCountOfLeftDimensions(DataSlice slice) {
 		return slice.getRows().get(0).getHeaders().size();
 	}
-	
+
 	/**
 	 * Prints a data row.
-	 * 
+	 *
 	 * @param items the items to be printed
 	 * @param spaces the number of empty slots to the left of the items in this
 	 *            row (the 'null' OLAP quadrant).
@@ -95,11 +95,11 @@ public class SlicePrinter {
 		}
 		return text;
 	}
-	
+
 	public static interface Delegate {
-		
+
 		public void print(int row, int column, String value, boolean data);
-		
+
 	}
-	
+
 }

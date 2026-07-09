@@ -5,7 +5,7 @@ import java.util.Set;
 import com.jasonwjones.pbcs.aif.AifDimension;
 import com.jasonwjones.pbcs.client.*;
 
-public class PbcsDimensionImpl implements PbcsAppDimension {
+public class PbcsDimensionImpl extends AbstractPbcsObject implements PbcsAppDimension {
 
 	private final Set<String> plans;
 
@@ -15,7 +15,8 @@ public class PbcsDimensionImpl implements PbcsAppDimension {
 
 	private final int number;
 
-	PbcsDimensionImpl(Set<String> plans, PbcsApplication application, AifDimension dimension, int number) {
+	PbcsDimensionImpl(RestContext context, Set<String> plans, PbcsApplication application, AifDimension dimension, int number) {
+		super(context);
 		this.plans = plans;
 		this.application = application;
 		this.dimension = dimension;
@@ -28,14 +29,29 @@ public class PbcsDimensionImpl implements PbcsAppDimension {
 	}
 
 	@Override
+	public PbcsObjectType getObjectType() {
+		return PbcsObjectType.DIMENSION;
+	}
+
+	@Override
 	public int getNumber() {
 		return number;
 	}
 
+	@Override
+	public PbcsMember getMember(String memberName) {
+		return application.getMember(getName(), memberName);
+	}
 
 	@Override
-	public PbcsMemberProperties getMember(String memberName) {
-		return application.getMember(getName(), memberName);
+	public PbcsMemberType getDimensionType() {
+		// TODO: since this is built with the AIF response info already, we can actually provide a real type here
+		return PbcsMemberType.UNKNOWN;
+	}
+
+	@Override
+	public PbcsApplication getParent() {
+		return application;
 	}
 
 	@Override

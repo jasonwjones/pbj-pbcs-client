@@ -2,12 +2,13 @@ package com.jasonwjones.pbcs.api.v3.dataslices;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
  * Models a single instance of the cartesian inputs for a part of an OLAP axis.
- * For example, if the "left" axis of a given report has the dimensions Time and
- * Years, and it was desired to have Jan and Feb for FY18 and Mar for FY19, then
+ * For example, if the "left" axis of a given report has dimensions Time and
+ * Years, and it was desired to have Jan and Feb for FY18, and Mar for FY19, then
  * two DimensionMembers would be used, with the following configuration:
  *
  * <pre>
@@ -27,8 +28,8 @@ public class DimensionMembers {
 	 * specified in the POV, but they can be blank for row/column
 	 * specifications. Therefore, this needs to be set when it's used in the
 	 * POV, but can be left null (not an empty collection) in one of the other
-	 * orientations. Do note however that Oracle recommends specifying the
-	 * dimension names for performance reasons.F
+	 * orientations. Do note, however, that Oracle recommends specifying the
+	 * dimension names for performance reasons.
 	 */
 	private List<String> dimensions;
 
@@ -52,9 +53,9 @@ public class DimensionMembers {
 	 * }
 	 * </pre>
 	 *
-	 * In testing it seems that the second List can be defined with three
+	 * In testing, it seems that the second List can be defined with three
 	 * elements (three copies of "Actual") and the output will still be correct.
-	 * At this point I can't tell if that's a glitch in the implementation or my
+	 * At this point, I can't tell if that's a glitch in the implementation or my
 	 * understanding.
 	 *
 	 */
@@ -63,21 +64,11 @@ public class DimensionMembers {
 	private DimensionMembers() {
 	}
 
-	/**
-	 * Convenience invocation, assumes that each provided member is also the
-	 * dimension name.
-	 *
-	 * @param members the dimension names
-	 */
-	public DimensionMembers(List<String> members) {
-		this(members, members);
-	}
-
 	public DimensionMembers(List<String> dimensions, List<String> members) {
 		this.dimensions = dimensions;
-		this.members = new ArrayList<List<String>>();
+		this.members = new ArrayList<>();
 		for (String member : members) {
-			List<String> newList = new ArrayList<String>();
+			List<String> newList = new ArrayList<>();
 			newList.add(member);
 			this.members.add(newList);
 		}
@@ -135,30 +126,20 @@ public class DimensionMembers {
 		this.members.get(0).addAll(addMembers);
 	}
 
-	public DimensionMembers withMemberReplacement(String oldMember, String newDefinition) {
-		for (List<String> memberList : members) {
-			for (int index = 0; index < memberList.size(); index++) {
-				if (memberList.get(index).equals(oldMember)) {
-					System.out.println("Replacing " + oldMember + " with " + newDefinition);
-					memberList.set(index, newDefinition);
-				}
-			}
-		}
-		return null;
-	}
-
 	public static List<String> mutableList(String... items) {
-		List<String> list = new ArrayList<String>();
-		for (String item : items) {
-			list.add(item);
-		}
+		List<String> list = new ArrayList<>();
+        Collections.addAll(list, items);
 		return list;
 	}
 
 	public static List<List<String>> wrap(List<String> list) {
-		List<List<String>> lists = new ArrayList<List<String>>();
+		List<List<String>> lists = new ArrayList<>();
 		lists.add(list);
 		return lists;
+	}
+
+	public List<String> getDimensions() {
+		return dimensions;
 	}
 
 }

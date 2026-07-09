@@ -5,6 +5,7 @@ import com.jasonwjones.pbcs.client.impl.HashMapGrid;
 
 import java.util.*;
 import java.util.function.BiFunction;
+import java.util.function.Predicate;
 
 public class GridUtils {
 
@@ -12,6 +13,17 @@ public class GridUtils {
 
     public static <E> List<E> row(Grid<E> grid, int rowIndex) {
         return row(grid, rowIndex, 0);
+    }
+
+    public static <E> Grid<E> subgrid(Grid<E> grid, int startRow) {
+        Grid<E> subGrid = new HashMapGrid<>(grid.getRows() - startRow, grid.getColumns());
+        for (int row = startRow; row < grid.getRows(); row++) {
+            for (int col = 0; col < grid.getColumns(); col++) {
+                E value = grid.getCell(row, col);
+                subGrid.setCell(row - startRow, col, value);
+            }
+        }
+        return subGrid;
     }
 
     public static <E> List<E> row(Grid<E> grid, int rowIndex, int startCol) {
@@ -60,6 +72,16 @@ public class GridUtils {
         return col;
     }
 
+    /**
+     * Returns a single row of the grid from between the given column indices
+     *
+     * @param grid the grid
+     * @param rowIndex the row
+     * @param startCol the starting column, inclusive
+     * @param endCol the ending column, exclusive
+     * @return the slice of the grid, as a list
+     * @param <E> the type of grid
+     */
     public static <E> List<E> row(Grid<E> grid, int rowIndex, int startCol, int endCol) {
         List<E> row = new ArrayList<>();
         for (int col = startCol; col < endCol; col++) {
@@ -89,6 +111,20 @@ public class GridUtils {
     public static int firstNonNullInColumn(Grid<?> grid, int column) {
         for (int row = 0; row < grid.getRows(); row++) {
             if (grid.getCell(row, column) != null) return row;
+        }
+        return -1;
+    }
+
+    public static <E> int firstInColumn(Grid<E> grid, int column, Predicate<E> predicate) {
+        for (int row = 0; row < grid.getRows(); row++) {
+            if (predicate.test(grid.getCell(row, column))) return row;
+        }
+        return -1;
+    }
+
+    public static <E> int firstInRow(Grid<E> grid, int row, Predicate<E> predicate) {
+        for (int col = 0; col < grid.getColumns(); col++) {
+            if (predicate.test(grid.getCell(row, col))) return col;
         }
         return -1;
     }

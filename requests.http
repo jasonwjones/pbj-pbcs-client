@@ -1,3 +1,10 @@
+### Get All API Version Info
+#
+# The trailing slash is required
+GET https://{{server}}/HyperionPlanning/rest/
+Authorization: {{creds}}
+Accept: application/json
+
 ### Get API Version Info
 
 # You're supposed to be able to hit https://{{server}}/HyperionPlanning/rest (no v3 suffix) but that seems to force
@@ -19,22 +26,92 @@ GET https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}
 Authorization: {{creds}}
 Accept: application/json
 
-### Get Plans (AIF)
-
-GET https://{{server}}/aif/rest/V1/applications/{{app}}
-Authorization: {{creds}}
-Accept: application/json
-Content-Type: application/json
-
 ### Get Member Info
 
 GET https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/dimensions/Period/members/YearTotal
 Authorization: {{creds}}
 Accept: application/json
 
+### Get Member Info
+
+GET https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/dimensions/Year/members/Year
+Authorization: {{creds}}
+Accept: application/json
+
+### Get Member Info -- child has share
+
+GET https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/dimensions/Entity/members/Sales Director 1
+Authorization: {{creds}}
+Accept: application/json
+
+### Get Member Info -- child has share
+# Shows that even when we query for a member with a share, the query comes back with info about the prototype member
+# Note that the prototype member will have an actual object type (in this case, 33 for Entity member), as opposed to 45
+# for being shared
+# Doesn't seem possible to query on 'uniqueName' value such as [Sales Director 1].[240]
+
+GET https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/dimensions/Entity/members/240
+Authorization: {{creds}}
+Accept: application/json
+
+### Get Member Info (Dimension)
+# object type 34
+
+GET https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/dimensions/Period/members/Jan
+Authorization: {{creds}}
+Accept: application/json
+
+### Get Product Dimension
+# object type 34
+
+GET https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/dimensions/Product/members/Product
+Authorization: {{creds}}
+Accept: application/json
+
+### Get Member Info (Scenario)
+# object type 34
+
+GET https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/dimensions/Scenario/members/Scenario
+Authorization: {{creds}}
+Accept: application/json
+
+### Get Member Info
+
+GET https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/dimensions/Entity/members/Sales
+Authorization: {{creds}}
+Accept: application/json
+
+### Get Member Info - Attribute Dimension Member
+
+GET https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/dimensions/Market Size/members/Small
+Authorization: {{creds}}
+Accept: application/json
+
+### Get Member Info - Attribute Dimension Member
+
+GET https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/dimensions/Source/members/GAAP Reporting
+Authorization: {{creds}}
+Accept: application/json
+
+### Get Member Info - Attribute Dimension (Root)
+#
+# Object type 30
+
+GET https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/dimensions/Market Size/members/Market Size
+Authorization: {{creds}}
+Accept: application/json
+
+### Get Member Info - Attribute Dimension (Root)
+#
+# Object type 30
+
+GET https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/dimensions/Currency/members/Currency
+Authorization: {{creds}}
+Accept: application/json
+
 ### Get Member Info - 4110
 
-GET https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/dimensions/Account/members/Jan
+GET https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/dimensions/Period/members/Jan
 Authorization: {{creds}}
 Accept: application/json
 
@@ -51,6 +128,13 @@ GET https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/dimensions/
 Authorization: {{creds}}
 Accept: application/json
 
+### Get Member Info - Smart List
+# Shows an exmaple of querying on dimension root. The parentName is omitted/null
+
+GET https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/dimensions/Account/members/4170_Test
+Authorization: {{creds}}
+Accept: application/json
+
 ### Get Member Info - Accrued Liabilities Total
 
 GET https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/dimensions/Account/members/Accrued%20Liabilities%20Total
@@ -63,15 +147,110 @@ GET https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/dimensions/
 Authorization: {{creds}}
 Accept: application/json
 
+### Get Member Info - 000
+
+GET https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/dimensions/Entity/members/000
+Authorization: {{creds}}
+Accept: application/json
+
+
 ### Get Job Definitions
 
 GET https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/jobdefinitions
 Authorization: {{creds}}
 Accept: application/json
 
-### Get Job Definitions
+### Get Job Definitions (Specific Type)
+# Someone messed up their parameter definitions on this call...
 
-GET https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/jobs
+GET https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/jobdefinitions?q={"jobType":"RULES"}
+Authorization: {{creds}}
+Accept: application/json
+
+### Execute Job (Calc)
+# seems to absolute require the Content-Type header here, reporting a 415 if not set
+
+POST https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/jobs
+Authorization: {{creds}}
+Content-Type: application/json
+
+{
+    "jobType":"RULES",
+    "jobName":"calcall",
+    "parameters": {}
+}
+
+### Execute Job (Calc)
+# seems to absolute require the Content-Type header here, reporting a 415 if not set
+
+POST https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/jobs
+Authorization: {{creds}}
+Content-Type: application/json
+
+{
+  "jobType":"RULES",
+  "jobName":"Calc_Payroll_Tax",
+  "parameters": {
+    "RTP_Entity": "420",
+    "RTP_Product": "P_160"
+  }
+}
+
+### Execute Calc with Runtime Prompts (RTP)
+# seems to absolute require the Content-Type header here, reporting a 415 if not set
+
+POST https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/jobs
+Authorization: {{creds}}
+Content-Type: application/json
+
+{
+  "jobType":"RULES",
+  "jobName":"CalcYear",
+  "parameters": {"TestCurrYr": "FY24"}
+}
+
+### TEMP
+
+GET https://{{server}}/HyperionPlanning/rest/v3/applications/Vision/jobs/105
+Authorization: {{creds}}
+Content-Type: application/json
+
+### List Files
+
+GET https://{{server}}/interop/rest/v2/files/list
+Authorization: {{creds}}
+Content-Type: application/json
+
+### Execute Job - Export Valid Intersections
+# seems to absolute require the Content-Type header here, reporting a 415 if not set
+
+POST https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/jobs
+Authorization: {{creds}}
+Content-Type: application/json
+
+{
+  "jobType":"EXPORT_VALID_INTERSECTIONS",
+  "parameters" : {
+    "fileName": "export_valid_intersections.zip"
+  }
+}
+
+### TEST
+
+GET https://{{server}}/interop/rest/
+Accept: application/json
+Authorization: {{creds}}
+
+
+### Download File
+
+GET https://{{server}}/interop/rest/11.1.2.3.600/applicationsnapshots/export_valid_intersections.zip/contents
+Authorization: {{creds}}
+Content-Type: application/octet-stream
+
+### Get Job Status
+
+GET https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/jobs/42
 Authorization: {{creds}}
 Accept: application/json
 
@@ -169,6 +348,129 @@ Content-Type: application/json
   }
 }
 
+### Import Data Slice to Smart List
+
+POST https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/plantypes/Plan1/importdataslice
+Authorization: {{creds}}
+Accept: application/json
+Content-Type: application/json
+
+{
+  "aggregateEssbaseData": false,
+  "cellNotesOption":"Skip",
+  "dateFormat":"DD/MM/YYYY",
+  "strictDateValidation": true,
+  "customParams": {
+    "IncludeRejectedCells":true,
+    "IncludeRejectedCellsWithDetails":true
+  },
+  "dataGrid":{
+    "pov":[
+      "Plan",
+      "Working",
+      "USD",
+      "No Product",
+      "FY22",
+      "000"
+    ],
+    "columns":[
+      [
+        "Jan"
+      ]
+    ],
+    "rows":[
+      {
+        "headers":[
+          "4170_Test"
+        ],
+        "data":[
+          "Active"
+        ]
+      }
+    ]
+  }
+}
+
+
+### Import Data Slice to Regular Member
+
+POST https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/plantypes/Plan1/importdataslice
+Authorization: {{creds}}
+Accept: application/json
+Content-Type: application/json
+
+{
+  "aggregateEssbaseData": false,
+  "cellNotesOption":"Skip",
+  "dateFormat":"DD/MM/YYYY",
+  "strictDateValidation": true,
+  "customParams": {
+    "IncludeRejectedCells":true,
+    "IncludeRejectedCellsWithDetails":true
+  },
+  "dataGrid":{
+    "pov":[
+      "Plan",
+      "Working",
+      "USD",
+      "No Product",
+      "FY22",
+      "000"
+    ],
+    "columns":[
+      [
+        "Jan"
+      ]
+    ],
+    "rows":[
+      {
+        "headers":[
+          "4170"
+        ],
+        "data":[
+          "2"
+        ]
+      }
+    ]
+  }
+}
+
+### Export Data Slice - Smart List
+# You can use this to verify that the previous request (importdataslice) actually worked.
+
+POST https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/plantypes/{{cube}}/exportdataslice
+Authorization: {{creds}}
+Accept: application/json
+Content-Type: application/json
+
+{
+  "exportPlanningData": true,
+  "gridDefinition": {
+    "suppressMissingBlocks": false,
+    "pov": {
+      "members": [
+        ["Plan"], ["Working"], ["USD"], ["No Product"], ["FY22"], ["000"]
+      ]
+    },
+    "columns": [
+      {
+        "members": [
+          ["Jan", "Feb"]
+        ]
+      }
+    ],
+    "rows": [
+      {
+        "dimensions" : [
+          "Account"
+        ],
+        "members": [
+          ["4170_Test"]
+        ]
+      }
+    ]
+  }
+}
 
 ### Export Data Slice
 # You can use this to verify that the previous request (importdataslice) actually worked.
@@ -268,8 +570,6 @@ Content-Type: application/json
     ]
   }
 }
-
-###
 
 ### Export Data Slice (Alternate Arrangement 2x2)
 
@@ -405,12 +705,431 @@ Content-Type: application/json
     "rows": [
       {
         "members": [
-          ["IDescendants(Years)"]
+          ["FY22"]
         ]
       }
     ]
   }
 }
+
+### Export Data Slice - Attribute dims in columns (works because of dimension hint)
+
+POST https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/plantypes/Plan1/exportdataslice
+Authorization: {{creds}}
+Accept: application/json
+Content-Type: application/json
+
+{
+  "exportPlanningData": false,
+  "gridDefinition": {
+    "columns": [
+      {
+        "dimensions": ["Market Size"],
+        "members": [
+          [
+            "Market Size" ,"Small", "Medium", "Large"
+          ]
+        ]
+      }
+    ],
+    "pov": {
+      "members": [
+        ["Working"], ["4110"], ["USD"], ["Product"], ["Actual"], ["FY22"], ["Jan"]
+      ]
+    },
+    "rows": [
+      {
+        "members": [
+          [
+            "Sales"
+          ]
+        ]
+      }
+    ],
+    "suppressMissingBlocks": false
+  }
+}
+
+### Export Data Slice - Attribute dims in POV (works)
+
+POST https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/plantypes/Plan1/exportdataslice
+Authorization: {{creds}}
+Accept: application/json
+Content-Type: application/json
+
+{
+  "exportPlanningData": false,
+  "gridDefinition": {
+    "columns": [
+      {
+        "members": [
+          [
+            "Jan"
+          ]
+        ]
+      }
+    ],
+    "pov": {
+      "members": [
+        ["Working"], ["4110"], ["USD"], ["Product"], ["Actual"], ["FY22"], ["Medium"]
+      ]
+    },
+    "rows": [
+      {
+        "members": [
+          [
+            "Sales"
+          ]
+        ]
+      }
+    ],
+    "suppressMissingBlocks": false
+  }
+}
+
+### Export Data Slice - Attribute dims in rows
+# Shows that in order to have an attribute dim in the row orientation, you MUST provide the dimension hints
+# Also shows that when you have duplicate row definitions in the same rows object, they get collapsed
+
+POST https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/plantypes/Plan1/exportdataslice
+Authorization: {{creds}}
+Accept: application/json
+Content-Type: application/json
+
+{
+  "exportPlanningData": false,
+  "gridDefinition": {
+    "suppressMissingBlocks": false,
+    "pov": {
+      "members": [
+        ["Working"], ["4110"], ["USD"], ["Product"], ["Actual"]
+      ]
+    },
+    "columns": [
+      {
+        "members": [
+          [
+            "Jan"
+          ]
+        ]
+      }
+    ],
+    "rows": [
+      {
+        "dimensions" : ["Entity", "Year", "Market Size"],
+        "members": [
+          ["403", "403"], ["FY22", "FY22"], ["Medium", "Medium"]
+        ]
+      }
+    ]
+  }
+}
+
+### Export Data Slice - Attribute dims in rows
+# Shows that in order to have an attribute dim in the row orientation, you MUST provide the dimension hints
+# Also shows collapsing rows but also that providing two identical groups definitely results in two rows even after
+# collapsing
+
+POST https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/plantypes/Plan1/exportdataslice
+Authorization: {{creds}}
+Accept: application/json
+Content-Type: application/json
+
+{
+  "exportPlanningData": false,
+  "gridDefinition": {
+    "suppressMissingBlocks": false,
+    "pov": {
+      "members": [
+        ["Working"], ["4110"], ["USD"], ["Product"], ["Actual"]
+      ]
+    },
+    "columns": [
+      {
+        "members": [
+          [
+            "Jan"
+          ]
+        ]
+      }
+    ],
+    "rows": [
+      {
+        "dimensions" : ["Entity", "Year", "Market Size"],
+        "members": [
+          ["403", "403"], ["FY22", "FY22"], ["Medium", "Medium"]
+        ]
+      }
+      ,
+      {
+        "dimensions" : ["Entity", "Year", "Market Size"],
+        "members": [
+          ["403", "403"], ["FY22", "FY22"], ["Medium", "Small"]
+        ]
+      }
+
+    ]
+  }
+}
+
+### Export Data Slice - Attribute dims in rows multi rows
+# Shows that in order to have an attribute dim in the row orientation, you MUST provide the dimension hints
+
+POST https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/plantypes/Plan1/exportdataslice
+Authorization: {{creds}}
+Accept: application/json
+Content-Type: application/json
+
+{
+  "exportPlanningData": false,
+  "gridDefinition": {
+    "suppressMissingBlocks": false,
+    "pov": {
+      "members": [
+        ["Working"], ["4110"], ["USD"], ["Product"], ["Actual"]
+      ]
+    },
+    "columns": [
+      {
+        "members": [
+          [
+            "Jan"
+          ]
+        ]
+      }
+    ],
+    "rows": [
+      {
+        "dimensions" : ["Entity", "Year", "Market Size"],
+        "members": [
+          ["403"], ["FY22"], ["Medium"]
+        ]
+      },
+      {
+        "dimensions" : ["Entity", "Year", "Market Size"],
+        "members": [
+          ["403"], ["FY22"], ["Medium"]
+        ]
+      }
+
+    ]
+  }
+}
+
+### Export Data Slice - Multi Row
+
+POST https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/plantypes/Plan1/exportdataslice
+Authorization: {{creds}}
+Accept: application/json
+Content-Type: application/json
+
+{
+  "gridDefinition": {
+    "suppressMissingBlocks": false,
+    "pov": {
+      "members": [
+        ["4110"], ["USD"], ["Actual"], ["Working"], ["Product"]
+      ]
+    },
+    "columns": [
+      {
+        "members": [
+          ["FY22", "FY22"]
+        ]
+      }
+    ],
+    "rows": [
+      {
+        "members": [
+          ["Sales", "Sales", "Sales"], ["Jan", "Feb", "Mar"]
+        ]
+      }
+    ]
+  }
+}
+
+### Export Data Slice - Bad
+
+POST https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/plantypes/Plan1/exportdataslice
+Authorization: {{creds}}
+Accept: application/json
+Content-Type: application/json
+
+{
+  "gridDefinition": {
+    "suppressMissingBlocks": false,
+    "suppressMissingRows": false,
+    "suppressMissingColumns": false,
+    "pov": {
+      "members": [
+        ["4110"], ["USD"], ["Actual"], ["Working"], ["Product"], ["Jan"]
+      ]
+    },
+    "columns": [
+      {
+        "members": [
+          ["FY22", "FY23"]
+        ]
+      }
+    ],
+    "rows": [
+      {
+        "members": [
+          ["403", "403"]
+        ]
+      }
+    ]
+  }
+}
+
+### Export Data Slice - Attribute Dims
+
+POST https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/plantypes/Plan1/exportdataslice
+Authorization: {{creds}}
+Accept: application/json
+Content-Type: application/json
+
+{
+  "exportPlanningData": false,
+  "gridDefinition": {
+    "suppressMissingBlocks": false,
+    "pov": {
+      "members": [
+        [
+          "Actual"
+        ],
+        [
+          "Working"
+        ],
+        [
+          "USD"
+        ],
+        [
+          "Product"
+        ],
+        [
+          "Jan"
+        ],
+        [
+          "4110"
+        ]
+      ]
+    },
+    "columns": [
+      {
+        "members": [
+          [
+            "FY22"
+          ]
+        ]
+      },
+      {
+        "members": [
+          [
+            "FY22"
+          ]
+        ]
+      },
+      {
+        "members": [
+          [
+            "FY22"
+          ]
+        ]
+      },
+      {
+        "members": [
+          [
+            "FY22"
+          ]
+        ]
+      }
+    ],
+    "rows": [
+      {
+        "members": [
+          [
+            "403"
+          ],
+          [
+            "Market Size"
+          ]
+        ]
+      },
+      {
+        "members": [
+          [
+            "403"
+          ],
+          [
+            "Small"
+          ]
+        ]
+      },
+      {
+        "members": [
+          [
+            "403"
+          ],
+          [
+            "Medium"
+          ]
+        ]
+      },
+      {
+        "members": [
+          [
+            "403"
+          ],
+          [
+            "Large"
+          ]
+        ]
+      },
+      {
+        "members": [
+          [
+            "Total Entity"
+          ],
+          [
+            "Market Size"
+          ]
+        ]
+      },
+      {
+        "members": [
+          [
+            "Total Entity"
+          ],
+          [
+            "Small"
+          ]
+        ]
+      },
+      {
+        "members": [
+          [
+            "Total Entity"
+          ],
+          [
+            "Medium"
+          ]
+        ]
+      },
+      {
+        "members": [
+          [
+            "Total Entity"
+          ],
+          [
+            "Large"
+          ]
+        ]
+      }
+    ]
+  }
+}
+
 
 ### Export Data Slice (Single Cell2)
 
@@ -420,19 +1139,6 @@ Accept: application/json
 Content-Type: application/json
 
 {"exportPlanningData":false,"gridDefinition":{"suppressMissingBlocks":false,"pov":{"members":[["Account","Currency","Entity","Period","Scenario"]]},"columns":[{"members":[["Version"]]}],"rows":[{"members":[["Years"]]}]}}
-
-### DM
-
-GET https://{{server}}/aif/rest/V1
-Authorization: {{creds}}
-Accept: application/json
-
-
-### Data Management (unofficial API)
-
-GET https://{{server}}/aif/rest/V1/applications/{{app}}
-Authorization: {{creds}}
-Accept: application/json
 
 ### Export Data Slice 2
 
@@ -596,6 +1302,40 @@ Content-Type: application/json
   }
 }
 
+### Export Data Slice - Intersection has Supporting Detail
+# You can use this to verify that the previous request (importdataslice) actually worked.
+
+POST https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/plantypes/{{cube}}/exportdataslice
+Authorization: {{creds}}
+Accept: application/json
+Content-Type: application/json
+
+{
+  "exportPlanningData": true,
+  "gridDefinition": {
+    "suppressMissingBlocks": false,
+    "pov": {
+      "members": [
+        ["Plan"], ["Working"], ["USD"], ["No Product"], ["FY22"], ["000"]
+      ]
+    },
+    "columns": [
+      {
+        "members": [
+          ["Jan", "Feb"]
+        ]
+      }
+    ],
+    "rows": [
+      {
+        "members": [
+          ["7420"]
+        ]
+      }
+    ]
+  }
+}
+
 ### Get Applications using Bearer Token
 
 GET https://{{server}}/HyperionPlanning/rest/v3/applications
@@ -606,10 +1346,15 @@ Accept: application/json
 #
 # This is documented in the REST API but doesn't seem to work. It also seems to have a slightly different URL. I think
 # it's an oversight in the documentation of some kind. The documented URL contains "epm" such as:
-# GET /HyperionPlanning/rest/epm/{api_version}/applications/{application}/connections/{connectionRef}
 
+GET https://{{server}}/HyperionPlanning/rest/epm/{api_version}/applications/{application}/connections/{connectionRef}
+Authorization: {{creds}}
+Accept: application/json
+Content-Type: application/json
 
-POST https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/connections
+### View Connections -- Works -- V1??
+
+GET https://{{server}}/HyperionPlanning/rest/epm/v1/applications/{{app}}/connections
 Authorization: {{creds}}
 Accept: application/json
 Content-Type: application/json
@@ -642,3 +1387,36 @@ GET https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/journals?q=
 Authorization: {{creds}}
 Accept: application/json
 Content-Type: application/json
+
+
+### Export Test
+
+POST https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/plantypes/{{cube}}/exportdataslice
+Authorization: {{creds}}
+Accept: application/json
+Content-Type: application/json
+
+{
+  "gridDefinition": {
+    "suppressMissingBlocks": false,
+    "pov": {
+      "members": [
+        ["Entity"], ["Period"], ["Product"], ["Scenario"], ["Version"], ["Year"]
+      ]
+    },
+    "columns": [
+      {
+        "members": [
+          ["Account"]
+        ]
+      }
+    ],
+    "rows": [
+      {
+       "members": [
+         ["Currency"]
+       ]
+      }
+    ]
+  }
+}

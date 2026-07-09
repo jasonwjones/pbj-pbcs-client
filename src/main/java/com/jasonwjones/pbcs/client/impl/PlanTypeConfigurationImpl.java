@@ -3,7 +3,9 @@ package com.jasonwjones.pbcs.client.impl;
 import com.jasonwjones.pbcs.client.PbcsApplication;
 import com.jasonwjones.pbcs.client.PbcsPlanType;
 import com.jasonwjones.pbcs.client.memberdimensioncache.InMemoryMemberDimensionCache;
+import com.jasonwjones.pbcs.client.memberdimensioncache.NonCachingMemberDimensionCache;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.StringJoiner;
 
@@ -13,9 +15,19 @@ public class PlanTypeConfigurationImpl implements PbcsApplication.PlanTypeConfig
 
     private boolean skipCheck;
 
+    private boolean queryDimensions;
+
+    private boolean validateDimensions;
+
     private List<String> explicitDimensions;
 
+    private List<String> explicitAttributeDimensions;
+
     private PbcsPlanType.MemberDimensionCache memberDimensionCache = new InMemoryMemberDimensionCache();
+
+    private PbcsPlanType.MemberResolver memberResolver = NonCachingMemberDimensionCache.getInstance();
+
+    private int memberSearchThreads = 1;
 
     @Override
     public String getName() {
@@ -25,6 +37,24 @@ public class PlanTypeConfigurationImpl implements PbcsApplication.PlanTypeConfig
     @Override
     public boolean isSkipCheck() {
         return skipCheck;
+    }
+
+    @Override
+    public boolean isQueryDimensions() {
+        return queryDimensions;
+    }
+
+    public void setQueryDimensions(boolean queryDimensions) {
+        this.queryDimensions = queryDimensions;
+    }
+
+    public void setValidateDimensions(boolean validateDimensions) {
+        this.validateDimensions = validateDimensions;
+    }
+
+    @Override
+    public boolean isValidateDimensions() {
+        return validateDimensions;
     }
 
     @Override
@@ -49,8 +79,35 @@ public class PlanTypeConfigurationImpl implements PbcsApplication.PlanTypeConfig
         this.explicitDimensions = explicitDimensions;
     }
 
+    @Override
+    public List<String> getExplicitAttributeDimensions() {
+        return explicitAttributeDimensions;
+    }
+
+    public void setExplicitAttributeDimensions(List<String> explicitAttributeDimensions) {
+        this.explicitAttributeDimensions = explicitAttributeDimensions;
+    }
+
     public void setMemberDimensionCache(PbcsPlanType.MemberDimensionCache memberDimensionCache) {
         this.memberDimensionCache = memberDimensionCache;
+    }
+
+    @Override
+    public PbcsPlanType.MemberResolver getMemberResolver() {
+        return memberResolver;
+    }
+
+    public void setMemberResolver(PbcsPlanType.MemberResolver memberResolver) {
+        this.memberResolver = memberResolver;
+    }
+
+    @Override
+    public int getMemberSearchThreads() {
+        return memberSearchThreads;
+    }
+
+    public void setMemberSearchThreads(int memberSearchThreads) {
+        this.memberSearchThreads = memberSearchThreads;
     }
 
     @Override
@@ -58,9 +115,66 @@ public class PlanTypeConfigurationImpl implements PbcsApplication.PlanTypeConfig
         return new StringJoiner(", ", PlanTypeConfigurationImpl.class.getSimpleName() + "[", "]")
                 .add("name='" + name + "'")
                 .add("skipCheck=" + skipCheck)
+                .add("validateDimensions=" + validateDimensions)
                 .add("explicitDimensions=" + explicitDimensions)
+                .add("explicitAttributeDimensions=" + explicitAttributeDimensions)
                 .add("memberDimensionCache=" + memberDimensionCache.getClass().getSimpleName())
+                .add("memberResolver=" + memberResolver != null ? memberResolver.getClass().getSimpleName() : "null")
+                .add("memberSearchThreads=" + memberSearchThreads)
                 .toString();
+    }
+
+    public static class Builder {
+
+        private final PlanTypeConfigurationImpl configuration;
+
+        public Builder(String name) {
+            configuration = new PlanTypeConfigurationImpl();
+            configuration.setName(name);
+        }
+
+        public Builder skipCheck() {
+            configuration.setSkipCheck(true);
+            return this;
+        }
+
+        public Builder queryDimensions() {
+            configuration.setQueryDimensions(true);
+            return this;
+        }
+
+        public Builder dimension(String dimension) {
+            if (configuration.getExplicitDimensions() == null) configuration.setExplicitDimensions(new ArrayList<>());
+            configuration.getExplicitDimensions().add(dimension);
+            return this;
+        }
+
+        public Builder dimensions(List<String> dimensions) {
+            for (String dimension : dimensions) {
+                dimension(dimension);
+            }
+            return this;
+        }
+
+        public Builder validateDimensions() {
+            configuration.setValidateDimensions(true);
+            return this;
+        }
+
+        public Builder searchThreads(int searchThreads) {
+            configuration.setMemberSearchThreads(searchThreads);
+            return this;
+        }
+
+        public Builder memberResolver(PbcsPlanType.MemberResolver memberResolver) {
+            configuration.setMemberResolver(memberResolver);
+            return this;
+        }
+
+        public PbcsApplication.PlanTypeConfiguration build() {
+            return configuration;
+        }
+
     }
 
 }
