@@ -23,7 +23,7 @@ import java.security.SecureRandom;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThrows;
 
-public class PbcsClientFactoryTest {
+public class PbcsClientFactoryIT {
 
     private PbcsClientFactory clientFactory;
 

@@ -9,7 +9,7 @@ import org.junit.Test;
 import java.util.Arrays;
 import java.util.List;
 
-public class PlanTypeWalkerTest {
+public class PlanTypeWalkerIT {
 
     private PbcsPlanType plan;
 

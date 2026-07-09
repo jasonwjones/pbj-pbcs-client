@@ -27,9 +27,9 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertThrows;
 
-public class PbcsPlanTypeImplTest extends AbstractVisionCubeIT {
+public class PbcsPlanTypeImplIT extends AbstractVisionCubeIT {
 
-    private static final Logger logger = LoggerFactory.getLogger(PbcsPlanTypeImplTest.class);
+    private static final Logger logger = LoggerFactory.getLogger(PbcsPlanTypeImplIT.class);
 
     @Test
     public void whenRetrieveNormal() {

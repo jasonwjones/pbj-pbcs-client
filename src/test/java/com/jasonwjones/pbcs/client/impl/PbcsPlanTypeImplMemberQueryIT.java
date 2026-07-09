@@ -127,6 +127,29 @@ public class PbcsPlanTypeImplMemberQueryIT extends AbstractVisionCubeIT {
         System.out.println("Dim: " + hardware + " dim: " + hardware.getDimensionName());
     }
 
+    @Test
+    public void whenSearchHasShareButNotExclude() {
+        MemberSearchQueryImpl query = new MemberSearchQueryImpl();
+        query.setDimensionName("Entity");
+        query.setType(MemberSearchQuery.Type.SEARCH_WILD);
+        query.setSearchAliases(true);
+        query.setSearchTerm("*Facilities*");
+        List<PbcsMember> results = cube.searchMembers(query);
+        assertThat(results, hasSize(4));
+    }
+
+    @Test
+    public void whenSearchHasShareAndShouldExclude() {
+        MemberSearchQueryImpl query = new MemberSearchQueryImpl();
+        query.setDimensionName("Entity");
+        query.setType(MemberSearchQuery.Type.SEARCH_WILD);
+        query.setSearchAliases(true);
+        query.setSearchTerm("*Facilities*");
+        query.setExcludeShares(true);
+        List<PbcsMember> results = cube.searchMembers(query);
+        assertThat(results, hasSize(2));
+    }
+
     private static List<String> names(Collection<PbcsMember> members) {
         return members.stream().map(PbcsMember::getName).toList();
     }

@@ -20,9 +20,9 @@ import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
-public class PbcsApplicationImplTest extends AbstractVisionIT {
+public class PbcsApplicationImplIT extends AbstractVisionIT {
 
-    private static final Logger logger = LoggerFactory.getLogger(PbcsApplicationImplTest.class);
+    private static final Logger logger = LoggerFactory.getLogger(PbcsApplicationImplIT.class);
 
     @SuppressWarnings("SpellCheckingInspection")
     private static final String CALC_ALL = "calcall";
