@@ -322,6 +322,17 @@ public interface PbcsApplication extends PbcsObject {
 		 */
 		int getMemberSearchThreads();
 
+		/**
+		 * Controls whether aliases are omitted when {@link PbcsExplicitDimensionsPlanType#cache()} pre-populates the
+		 * configured member resolver. This can prevent ambiguous entries when an outline, such as an FCCS Currency
+		 * dimension, contains duplicate aliases. Member names are always cached.
+		 *
+		 * @return true to omit aliases from bulk member caching
+		 */
+		default boolean isIgnoreAliases() {
+			return false;
+		}
+
 	}
 
 }

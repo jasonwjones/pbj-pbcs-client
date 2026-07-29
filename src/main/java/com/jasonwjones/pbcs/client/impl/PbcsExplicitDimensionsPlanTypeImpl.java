@@ -530,15 +530,21 @@ public class PbcsExplicitDimensionsPlanTypeImpl extends PbcsPlanTypeImpl impleme
 
         @Override
         public PlanTypeWalker.MemberVisitResult visitMember(PbcsPlanType planType, PbcsMember member) {
-            memberResolver.setMember(planType, member.getName(), member);
-            numCached++;
-            if (member.getAlias() != null && !member.getAlias().isEmpty() && !member.getName().equals(member.getAlias())) {
-                memberResolver.setMember(planType, member.getAlias(), member);
-                numCached++;
-            }
+            numCached += cacheMember(memberResolver, planType, member, getConfiguration().isIgnoreAliases());
             return PlanTypeWalker.MemberVisitResult.CONTINUE;
         }
 
+    }
+
+    static int cacheMember(PbcsPlanType.MemberResolver memberResolver, PbcsPlanType planType, PbcsMember member, boolean ignoreAliases) {
+        memberResolver.setMember(planType, member.getName(), member);
+
+        String alias = member.getAlias();
+        if (!ignoreAliases && alias != null && !alias.isEmpty() && !member.getName().equals(alias)) {
+            memberResolver.setMember(planType, alias, member);
+            return 2;
+        }
+        return 1;
     }
 
 }

@@ -29,6 +29,8 @@ public class PlanTypeConfigurationImpl implements PbcsApplication.PlanTypeConfig
 
     private int memberSearchThreads = 1;
 
+    private boolean ignoreAliases;
+
     @Override
     public String getName() {
         return name;
@@ -111,6 +113,15 @@ public class PlanTypeConfigurationImpl implements PbcsApplication.PlanTypeConfig
     }
 
     @Override
+    public boolean isIgnoreAliases() {
+        return ignoreAliases;
+    }
+
+    public void setIgnoreAliases(boolean ignoreAliases) {
+        this.ignoreAliases = ignoreAliases;
+    }
+
+    @Override
     public String toString() {
         return new StringJoiner(", ", PlanTypeConfigurationImpl.class.getSimpleName() + "[", "]")
                 .add("name='" + name + "'")
@@ -119,8 +130,9 @@ public class PlanTypeConfigurationImpl implements PbcsApplication.PlanTypeConfig
                 .add("explicitDimensions=" + explicitDimensions)
                 .add("explicitAttributeDimensions=" + explicitAttributeDimensions)
                 .add("memberDimensionCache=" + memberDimensionCache.getClass().getSimpleName())
-                .add("memberResolver=" + memberResolver != null ? memberResolver.getClass().getSimpleName() : "null")
+                .add("memberResolver=" + (memberResolver != null ? memberResolver.getClass().getSimpleName() : "null"))
                 .add("memberSearchThreads=" + memberSearchThreads)
+                .add("ignoreAliases=" + ignoreAliases)
                 .toString();
     }
 
@@ -168,6 +180,11 @@ public class PlanTypeConfigurationImpl implements PbcsApplication.PlanTypeConfig
 
         public Builder memberResolver(PbcsPlanType.MemberResolver memberResolver) {
             configuration.setMemberResolver(memberResolver);
+            return this;
+        }
+
+        public Builder ignoreAliases() {
+            configuration.setIgnoreAliases(true);
             return this;
         }
 
