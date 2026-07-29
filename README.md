@@ -157,10 +157,39 @@ environments. Specifying `appName` is optional, but it is used in a few examples
 
 ### Release Process
 
-Pushing a tag that exactly matches `v` followed by the non-SNAPSHOT Maven project
-version runs the release workflow. For example, version `3.0.0` must be tagged
-`v3.0.0`. The workflow runs the unit test suite before publishing, deploys the
-generated Javadoc, and creates the GitHub release.
+Releases are prepared with the Maven Release Plugin and published by GitHub
+Actions. Before starting, check out the branch to release, pull the latest
+changes, and ensure the Git working tree is clean.
+
+For an interactive release:
+
+```
+mvn release:clean release:prepare
+```
+
+The plugin verifies the project, changes the POM from the development version
+to the release version, commits and tags that release, changes the branch to the
+next `-SNAPSHOT` version, commits it, and pushes the commits and tag. Tags use
+the format `v<project.version>`.
+
+For example, the following command releases `3.0.0` and starts development on
+`3.0.1-SNAPSHOT` without prompting:
+
+```
+mvn -B release:clean release:prepare \
+  -DreleaseVersion=3.0.0 \
+  -DdevelopmentVersion=3.0.1-SNAPSHOT \
+  -Dtag=v3.0.0
+```
+
+The pushed release tag starts `.github/workflows/publish.yml`. That workflow
+checks that the tag matches the non-SNAPSHOT POM version, runs the unit tests,
+publishes to Maven Central, deploys the generated Javadoc, and creates the
+GitHub release.
+
+Do not run `mvn release:perform`: deployment is owned by the tag-triggered
+GitHub Actions workflow, and running `release:perform` would attempt a second
+deployment.
 
 The following GitHub Actions secrets are required:
 
@@ -170,7 +199,21 @@ The following GitHub Actions secrets are required:
 - `OSSRH_TOKEN`: Maven Central Portal user-token password
 
 The `OSSRH_*` names are retained for compatibility, but their values must be a
-current Central Portal user-token pair.
+current Central Portal user-token pair. `MAVEN_GPG_PASSPHRASE` must match the
+exported private key.
+
+The signing key currently available in the local GPG keyring has fingerprint
+`BDBDB8A29B1564A1C40F7C5E5DB9AED4EF3C5FAA`. Create or replace the repository
+secret without writing the private key into this checkout:
+
+```
+gpg --armor --export-secret-keys BDBDB8A29B1564A1C40F7C5E5DB9AED4EF3C5FAA \
+  | gh secret set MAVEN_GPG_PRIVATE_KEY
+```
+
+GitHub does not allow existing secret values to be retrieved. To rotate the
+signing key, generate and publish a new GPG key first, then replace both
+`MAVEN_GPG_PRIVATE_KEY` and `MAVEN_GPG_PASSPHRASE`.
 
 
 ### Packaging an Uber JAR
