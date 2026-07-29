@@ -78,14 +78,14 @@ you will need to gather up the proper dependencies and add those to your project
 To get started, first clone the the PBJ repository to your local machine:
 
 ```
-git clone https://github.com/jasonwjones/pbcs-client
+git clone https://github.com/jasonwjones/pbj-pbcs-client
 ```
 
 Then `cd` into the folder and run a Maven install using the included Maven
 Wrapper:
 
 ```
-./mvnw install
+./mvnw install -Dgpg.skip=true
 ```
 
 The wrapper downloads the project's pinned Maven version on first use, then
