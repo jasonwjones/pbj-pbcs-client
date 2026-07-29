@@ -27,7 +27,7 @@ jobs:
           gpg-passphrase: MAVEN_GPG_PASSPHRASE
       - name: Validate release tag
         run: |
-          project_version="$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)"
+          project_version="$(./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout)"
           if [[ "$project_version" == *-SNAPSHOT ]]; then
             echo "::error::Cannot publish SNAPSHOT version $project_version as a release."
             exit 1
@@ -37,7 +37,7 @@ jobs:
             exit 1
           fi
       - name: Test and publish to Maven Central
-        run: mvn -B --no-transfer-progress deploy
+        run: ./mvnw -B --no-transfer-progress deploy
         env:
           MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
           OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}

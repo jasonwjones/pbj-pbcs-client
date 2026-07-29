@@ -20,4 +20,4 @@ jobs:
           cache: maven
           cache-dependency-path: pom.xml
       - name: Verify
-        run: mvn -B --no-transfer-progress verify -Dgpg.skip=true
+        run: ./mvnw -B --no-transfer-progress verify -Dgpg.skip=true

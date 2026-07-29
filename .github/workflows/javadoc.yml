@@ -19,7 +19,7 @@ jobs:
           cache: maven
           cache-dependency-path: pom.xml
       - name: Generate Javadoc
-        run: mvn -B --no-transfer-progress javadoc:javadoc
+        run: ./mvnw -B --no-transfer-progress javadoc:javadoc
       - name: Deploy Javadoc
         uses: peaceiris/actions-gh-pages@v4.0.0
         with:

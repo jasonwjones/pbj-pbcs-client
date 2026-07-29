@@ -81,14 +81,16 @@ To get started, first clone the the PBJ repository to your local machine:
 git clone https://github.com/jasonwjones/pbcs-client
 ```
 
-Then `cd` into the folder and run a Maven install:
+Then `cd` into the folder and run a Maven install using the included Maven
+Wrapper:
 
 ```
-mvn install
+./mvnw install
 ```
 
-This will build the project and install it to your local machine. You can then include it 
-as just any other dependency in your own project. 
+The wrapper downloads the project's pinned Maven version on first use, then
+builds the project and installs it to your local repository. On Windows, use
+`mvnw.cmd` instead of `./mvnw`.
 
 
 ### Notes on Samples in Test Folder
@@ -96,7 +98,7 @@ as just any other dependency in your own project.
 Routine tests are isolated from live EPM Cloud environments:
 
 ```
-mvn test
+./mvnw test
 ```
 
 Surefire runs only `*Test` classes. Tests named `*IT` are opt-in and are selected
@@ -104,10 +106,10 @@ by a JUnit category:
 
 ```
 # Reads from the configured environment, but does not intentionally change it
-mvn verify -Pintegration-read-only -Dgpg.skip=true
+./mvnw verify -Pintegration-read-only -Dgpg.skip=true
 
 # May change data, metadata, jobs, variables, or other live state
-mvn verify -Pintegration-destructive -DallowDestructiveEpmTests=true -Dgpg.skip=true
+./mvnw verify -Pintegration-destructive -DallowDestructiveEpmTests=true -Dgpg.skip=true
 ```
 
 The destructive profile fails during Maven's validation phase unless the
@@ -153,7 +155,7 @@ changes, and ensure the Git working tree is clean.
 For an interactive release:
 
 ```
-mvn release:clean release:prepare
+./mvnw release:clean release:prepare
 ```
 
 The plugin verifies the project, changes the POM from the development version
@@ -165,7 +167,7 @@ For example, the following command releases `3.0.0` and starts development on
 `3.0.1-SNAPSHOT` without prompting:
 
 ```
-mvn -B release:clean release:prepare \
+./mvnw -B release:clean release:prepare \
   -DreleaseVersion=3.0.0 \
   -DdevelopmentVersion=3.0.1-SNAPSHOT \
   -Dtag=v3.0.0
@@ -176,7 +178,7 @@ checks that the tag matches the non-SNAPSHOT POM version, runs the unit tests,
 publishes to Maven Central, deploys the generated Javadoc, and creates the
 GitHub release.
 
-Do not run `mvn release:perform`: deployment is owned by the tag-triggered
+Do not run `./mvnw release:perform`: deployment is owned by the tag-triggered
 GitHub Actions workflow, and running `release:perform` would attempt a second
 deployment.
 
