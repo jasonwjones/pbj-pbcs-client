@@ -6,15 +6,15 @@ These instructions apply to the entire repository.
 
 - This is a Java client library built with Maven.
 - Use Java 17. Keep `maven.compiler.release` and CI Java versions aligned at 17 unless a compatibility change is explicitly requested.
-- Prefer the Maven wrapper if one is added in the future; until then, use the system `mvn`.
+- Use the included Maven Wrapper (`./mvnw`, or `mvnw.cmd` on Windows) so local, CI, and release builds use the pinned Maven version.
 - Do not add frameworks, build plugins, or dependencies unless they provide clear value for the requested work.
 
 ## Standard Maven Commands
 
-- Run local unit/component tests: `mvn test`
-- Run the normal CI-equivalent build: `mvn verify -Dgpg.skip=true`
-- Generate Javadoc: `mvn javadoc:javadoc`
-- Build without signing local artifacts: `mvn package -Dgpg.skip=true`
+- Run local unit/component tests: `./mvnw test`
+- Run the normal CI-equivalent build: `./mvnw verify -Dgpg.skip=true`
+- Generate Javadoc: `./mvnw javadoc:javadoc`
+- Build without signing local artifacts: `./mvnw package -Dgpg.skip=true`
 - Follow the release process documented in `README.md`. Do not run `release:perform`; tag-triggered GitHub Actions owns deployment.
 
 The normal build must not contact a live EPM Cloud environment.
@@ -30,9 +30,9 @@ The normal build must not contact a live EPM Cloud environment.
 - Do not activate either integration profile unless the user explicitly authorizes live-server testing for the current task.
 - Never run destructive integration tests without both explicit user authorization and the required `-DallowDestructiveEpmTests=true` acknowledgement.
 - Read-only live tests use:
-  `mvn verify -Pintegration-read-only -Dgpg.skip=true`
+  `./mvnw verify -Pintegration-read-only -Dgpg.skip=true`
 - Destructive live tests use:
-  `mvn verify -Pintegration-destructive -DallowDestructiveEpmTests=true -Dgpg.skip=true`
+  `./mvnw verify -Pintegration-destructive -DallowDestructiveEpmTests=true -Dgpg.skip=true`
 - Live credentials normally come from `~/pbcs-client.properties`; an alternate file may be selected with `-Dpbcs.test.credentials=/path/to/file`.
 - Missing credentials should produce an explicit skip or failure before any client operation. Do not silently fall back to placeholder values.
 - Prefer unit tests with fixtures, stubs, or local serialization checks over adding live integration coverage.
@@ -51,7 +51,7 @@ The normal build must not contact a live EPM Cloud environment.
 - Public API classes, interfaces, enums, constructors, and methods should have complete, valid, useful Javadoc.
 - Document parameters, return values, thrown exceptions, important nullability expectations, side effects, and live-service behavior where applicable.
 - Javadoc should explain API contracts rather than restating names or implementation details.
-- Keep links and inline code valid, and run `mvn javadoc:javadoc` when changing public API documentation.
+- Keep links and inline code valid, and run `./mvnw javadoc:javadoc` when changing public API documentation.
 - Do not introduce new Javadoc warnings in touched public APIs. Fix directly related warnings when practical.
 
 ## Public API Compatibility
