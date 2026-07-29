@@ -155,6 +155,24 @@ your PBCS instance. The `identityDomain` property is optional for Gen2
 environments. Specifying `appName` is optional, but it is used in a few examples.
 
 
+### Release Process
+
+Pushing a tag that exactly matches `v` followed by the non-SNAPSHOT Maven project
+version runs the release workflow. For example, version `3.0.0` must be tagged
+`v3.0.0`. The workflow runs the unit test suite before publishing, deploys the
+generated Javadoc, and creates the GitHub release.
+
+The following GitHub Actions secrets are required:
+
+- `MAVEN_GPG_PRIVATE_KEY`: ASCII-armored private key used to sign artifacts
+- `MAVEN_GPG_PASSPHRASE`: passphrase for that private key
+- `OSSRH_USERNAME`: Maven Central Portal user-token username
+- `OSSRH_TOKEN`: Maven Central Portal user-token password
+
+The `OSSRH_*` names are retained for compatibility, but their values must be a
+current Central Portal user-token pair.
+
+
 ### Packaging an Uber JAR
 
 PBJ can be packaged into a single JAR file to make integrating with projects simpler. For example,
