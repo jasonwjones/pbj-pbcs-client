@@ -8,7 +8,9 @@ import com.jasonwjones.pbcs.client.impl.grid.DataSliceGridPrinter;
 import com.jasonwjones.pbcs.util.GridPrinter;
 import com.jasonwjones.pbcs.util.GridUtils;
 import com.jasonwjones.pbcs.util.TextGridReader;
+import com.jasonwjones.pbcs.testing.ReadOnlyIntegrationTest;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -61,6 +63,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
  * </EssProperties>
  * </pre>
  */
+@Category(ReadOnlyIntegrationTest.class)
 public class PbcsPlanTypeAdhocIT extends AbstractVisionCubeIT {
 
     protected PbcsPlanType cube;

@@ -6,14 +6,17 @@ import com.jasonwjones.pbcs.client.PbcsApplication;
 import com.jasonwjones.pbcs.client.PbcsPlanType;
 import com.jasonwjones.pbcs.client.PbcsPlanningClient;
 import com.jasonwjones.pbcs.util.ConnectionUtils;
+import com.jasonwjones.pbcs.testing.DestructiveIntegrationTest;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 import java.util.Set;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
+@Category(DestructiveIntegrationTest.class)
 public class PbcsPlanTypeSubVarIT extends AbstractVisionIT {
 
     private static final String TEST_NAME = "_Test";

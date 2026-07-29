@@ -4,12 +4,22 @@ import com.jasonwjones.pbcs.client.PbcsApplication;
 import com.jasonwjones.pbcs.client.PbcsPlanType;
 import com.jasonwjones.pbcs.client.impl.PlanTypeConfigurationImpl;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
+import com.jasonwjones.pbcs.testing.LiveEpmTestSupport;
+import com.jasonwjones.pbcs.testing.ReadOnlyIntegrationTest;
 
 import java.util.Arrays;
 import java.util.List;
 
+@Category(ReadOnlyIntegrationTest.class)
 public class PlanTypeWalkerIT {
+
+    @BeforeClass
+    public static void requireLiveEpmCredentials() {
+        LiveEpmTestSupport.assumeDefaultConnectionAvailable();
+    }
 
     private PbcsPlanType plan;
 

@@ -5,7 +5,9 @@ import com.jasonwjones.pbcs.client.PbcsMember;
 import com.jasonwjones.pbcs.client.PbcsMemberQueryType;
 import com.jasonwjones.pbcs.client.PbcsObjectType;
 import com.jasonwjones.pbcs.client.exceptions.PbcsNoSuchObjectException;
+import com.jasonwjones.pbcs.testing.ReadOnlyIntegrationTest;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 import java.util.Collection;
 import java.util.List;
@@ -15,6 +17,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThrows;
 
+@Category(ReadOnlyIntegrationTest.class)
 public class PbcsPlanTypeImplMemberQueryIT extends AbstractVisionCubeIT {
 
     private static final String INVALID_MEMBER = "XXX_Q1";

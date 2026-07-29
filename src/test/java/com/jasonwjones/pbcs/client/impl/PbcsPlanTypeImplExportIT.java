@@ -5,11 +5,14 @@ import com.jasonwjones.pbcs.api.v3.dataslices.ExportDataSlice;
 import com.jasonwjones.pbcs.api.v3.dataslices.GridDefinition;
 import com.jasonwjones.pbcs.api.v3.dataslices.GridDefinitionBuilder;
 import com.jasonwjones.pbcs.util.SlicePrinter;
+import com.jasonwjones.pbcs.testing.ReadOnlyIntegrationTest;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 import java.util.Arrays;
 import java.util.List;
 
+@Category(ReadOnlyIntegrationTest.class)
 public class PbcsPlanTypeImplExportIT extends AbstractVisionCubeIT {
 
     private final SlicePrinter slicePrinter = new SlicePrinter();

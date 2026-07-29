@@ -2,12 +2,15 @@ package com.jasonwjones.pbcs.client.impl;
 
 import com.jasonwjones.pbcs.client.PbcsDimension;
 import com.jasonwjones.pbcs.client.PbcsMember;
+import com.jasonwjones.pbcs.testing.ReadOnlyIntegrationTest;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 
+@Category(ReadOnlyIntegrationTest.class)
 public class PbcsExplicitDimensionsPlanTypeMemberIT extends AbstractVisionCubeIT{
 
     private static final String INVALID_MEMBER = "XXX_Q1";

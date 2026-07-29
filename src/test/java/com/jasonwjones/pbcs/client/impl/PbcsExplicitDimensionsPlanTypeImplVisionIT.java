@@ -2,15 +2,18 @@ package com.jasonwjones.pbcs.client.impl;
 
 import com.jasonwjones.pbcs.client.*;
 import com.jasonwjones.pbcs.client.exceptions.PbcsInvalidDimensionException;
+import com.jasonwjones.pbcs.testing.ReadOnlyIntegrationTest;
 import org.hamcrest.CoreMatchers;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThrows;
 
+@Category(ReadOnlyIntegrationTest.class)
 public class PbcsExplicitDimensionsPlanTypeImplVisionIT extends AbstractVisionIT {
 
     public static final String ATTRIBUTE_DIM_EXAMPLE = "Market Size";

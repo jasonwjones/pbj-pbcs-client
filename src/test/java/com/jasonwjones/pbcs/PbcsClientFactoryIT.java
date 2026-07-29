@@ -5,9 +5,13 @@ import com.jasonwjones.pbcs.client.PbcsPlanningClient;
 import com.jasonwjones.pbcs.client.exceptions.PbcsInvalidCredentialsException;
 import com.jasonwjones.pbcs.client.impl.PbcsConnectionImpl;
 import com.jasonwjones.pbcs.util.ConnectionUtils;
+import com.jasonwjones.pbcs.testing.ReadOnlyIntegrationTest;
+import com.jasonwjones.pbcs.testing.LiveEpmTestSupport;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.springframework.http.client.JdkClientHttpRequestFactory;
 
 import javax.net.ssl.SSLContext;
@@ -23,9 +27,15 @@ import java.security.SecureRandom;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThrows;
 
+@Category(ReadOnlyIntegrationTest.class)
 public class PbcsClientFactoryIT {
 
     private PbcsClientFactory clientFactory;
+
+    @BeforeClass
+    public static void requireLiveEpmCredentials() {
+        LiveEpmTestSupport.assumeDefaultConnectionAvailable();
+    }
 
     @Before
     public void setUp() {

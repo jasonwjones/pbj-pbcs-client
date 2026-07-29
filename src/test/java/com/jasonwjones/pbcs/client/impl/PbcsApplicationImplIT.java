@@ -6,9 +6,11 @@ import com.jasonwjones.pbcs.client.exceptions.PbcsInvalidDimensionException;
 import com.jasonwjones.pbcs.client.exceptions.PbcsInvalidMemberException;
 import com.jasonwjones.pbcs.client.exceptions.PbcsJobLaunchException;
 import com.jasonwjones.pbcs.client.exceptions.PbcsNoSuchObjectException;
+import com.jasonwjones.pbcs.testing.DestructiveIntegrationTest;
 import org.hamcrest.CoreMatchers;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,6 +22,7 @@ import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
+@Category(DestructiveIntegrationTest.class)
 public class PbcsApplicationImplIT extends AbstractVisionIT {
 
     private static final Logger logger = LoggerFactory.getLogger(PbcsApplicationImplIT.class);

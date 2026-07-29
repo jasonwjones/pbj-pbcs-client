@@ -104,11 +104,39 @@ as just any other dependency in your own project.
 
 ### Notes on Samples in Test Folder
 
-The samples all derive from a common base class `AbstractIntegrationTest` that loads in details for a PBCS server from a local file on your computer. By default, the location of this file is here:
+Routine tests are isolated from live EPM Cloud environments:
+
+```
+mvn test
+```
+
+Surefire runs only `*Test` classes. Tests named `*IT` are opt-in and are selected
+by a JUnit category:
+
+```
+# Reads from the configured environment, but does not intentionally change it
+mvn verify -Pintegration-read-only -Dgpg.skip=true
+
+# May change data, metadata, jobs, variables, or other live state
+mvn verify -Pintegration-destructive -DallowDestructiveEpmTests=true -Dgpg.skip=true
+```
+
+The destructive profile fails during Maven's validation phase unless the
+acknowledgement property has the exact value `true`. New `*IT` classes do not run
+in either profile until they are explicitly categorized as
+`ReadOnlyIntegrationTest` or `DestructiveIntegrationTest`.
+The `gpg.skip` property avoids signing local development artifacts; omit it when
+you intentionally want the existing release-signing behavior.
+
+Live tests load connection details from a local file on your computer. By
+default, the location of this file is:
 
 ```
 System.getProperty("user.home") +"/pbcs-client.properties";
 ```
+
+Use `-Dpbcs.test.credentials=/path/to/other.properties` to select a different
+credentials file for an integration-test run.
 
 The contents of this file should look something like this:
 
@@ -120,7 +148,11 @@ password=yourpass
 appName=appname
 ```
 
-Note that all of the above values are fictitious. You will need to put in your own information to connect to your PBCS isntance. Your username will typically if not always be an email address. Specifying the appName is optional but it's used in a few examples.
+If the file or the required `server`, `username`, and `password` properties are
+absent, live tests are skipped with a clear reason. All of the example values
+above are fictitious. You will need to use your own information to connect to
+your PBCS instance. The `identityDomain` property is optional for Gen2
+environments. Specifying `appName` is optional, but it is used in a few examples.
 
 
 ### Packaging an Uber JAR

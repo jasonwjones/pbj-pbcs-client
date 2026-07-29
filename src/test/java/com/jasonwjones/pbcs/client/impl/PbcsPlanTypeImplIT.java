@@ -10,8 +10,10 @@ import com.jasonwjones.pbcs.client.exceptions.PbcsDataImportException;
 import com.jasonwjones.pbcs.client.exceptions.PbcsGeneralException;
 import com.jasonwjones.pbcs.client.impl.export.MarkdownExportCallback;
 import com.jasonwjones.pbcs.client.impl.grid.DataSliceGrid;
+import com.jasonwjones.pbcs.testing.DestructiveIntegrationTest;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,6 +29,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertThrows;
 
+@Category(DestructiveIntegrationTest.class)
 public class PbcsPlanTypeImplIT extends AbstractVisionCubeIT {
 
     private static final Logger logger = LoggerFactory.getLogger(PbcsPlanTypeImplIT.class);

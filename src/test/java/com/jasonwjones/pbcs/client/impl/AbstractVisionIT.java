@@ -5,6 +5,8 @@ import com.jasonwjones.pbcs.client.PbcsApplication;
 import com.jasonwjones.pbcs.client.PbcsPlanningClient;
 import com.jasonwjones.pbcs.util.ConnectionUtils;
 import org.junit.Before;
+import org.junit.BeforeClass;
+import com.jasonwjones.pbcs.testing.LiveEpmTestSupport;
 
 import java.util.Arrays;
 import java.util.List;
@@ -18,6 +20,11 @@ public abstract class AbstractVisionIT {
     protected PbcsApplication app;
 
     protected PlanTypeConfigurationImpl planTypeConfiguration;
+
+    @BeforeClass
+    public static void requireLiveEpmCredentials() {
+        LiveEpmTestSupport.assumeDefaultConnectionAvailable();
+    }
 
     @Before
     public void setUp() {

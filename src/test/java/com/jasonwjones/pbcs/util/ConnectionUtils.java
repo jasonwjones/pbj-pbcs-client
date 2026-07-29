@@ -2,8 +2,9 @@ package com.jasonwjones.pbcs.util;
 
 import com.jasonwjones.pbcs.client.PbcsConnection;
 import com.jasonwjones.pbcs.client.impl.PbcsConnectionImpl;
+import com.jasonwjones.pbcs.testing.LiveEpmTestSupport;
 
-import java.io.FileReader;
+import java.nio.file.Path;
 import java.util.Properties;
 
 public class ConnectionUtils {
@@ -13,17 +14,15 @@ public class ConnectionUtils {
     private ConnectionUtils() {}
 
     public static PbcsConnection defaultConnection() {
-        return connection(System.getProperty("user.home") + "/" + DEFAULT_PROPS_FILE);
+        return connection(LiveEpmTestSupport.defaultConnectionPath());
     }
 
     public static PbcsConnection connection(String filename) {
-        Properties properties = new Properties();
-        try {
-            properties.load(new FileReader(filename));
-        } catch (Exception e) {
-            System.out.println("Couldn't load properties...");
-            System.out.println("Looking for a file at " + filename + " containing server/domain/user/pw");
-        }
+        return connection(Path.of(filename));
+    }
+
+    private static PbcsConnection connection(Path path) {
+        Properties properties = LiveEpmTestSupport.loadConnectionProperties(path);
         return PbcsConnectionImpl.fromProperties(properties);
     }
 

@@ -8,10 +8,12 @@ import com.jasonwjones.pbcs.client.PbcsPlanningClient;
 import com.jasonwjones.pbcs.client.sso.IDCSDeviceCodeFlow;
 import com.jasonwjones.pbcs.client.sso.RefreshableToken;
 import org.junit.Test;
+import org.junit.Ignore;
 
 import java.util.Arrays;
 import java.util.Scanner;
 
+@Ignore("Interactive device-code example; not suitable for unattended integration runs")
 public class PbcsPlanTypeImplIdcsIT {
 
     public static final String SERVER = "appliedolapepm-test-appliedolapepm.epm.us-phoenix-1.ocs.oraclecloud.com";
