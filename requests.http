@@ -26,6 +26,42 @@ GET https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}
 Authorization: {{creds}}
 Accept: application/json
 
+### Get Plan Types
+
+GET https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/plantypes
+Authorization: {{creds}}
+Accept: application/json
+
+### Get Dimensions
+
+GET https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/plantypes/{{cube}}/dimensions
+Authorization: {{creds}}
+Accept: application/json
+
+### Get Dimension Details
+
+GET https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/plantypes/{{cube}}/dimensions/Period
+Authorization: {{creds}}
+Accept: application/json
+
+### Get Dimension Details - Entity
+
+GET https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/plantypes/{{cube}}/dimensions/Entity
+Authorization: {{creds}}
+Accept: application/json
+
+### Get Dimension Details - Market
+
+GET https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/plantypes/{{cube}}/dimensions/ENTITY_ATTRIBUTE
+Authorization: {{creds}}
+Accept: application/json
+
+### Get Member Details - Market
+
+GET https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/dimensions/ENTITY_ATTRIBUTE/members/WEST
+Authorization: {{creds}}
+Accept: application/json
+
 ### Get Member Info
 
 GET https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/dimensions/Period/members/YearTotal

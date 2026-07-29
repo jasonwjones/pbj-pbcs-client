@@ -1,0 +1,104 @@
+### Get Member Info - Currency
+
+GET https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/dimensions/Currency/members/Currency
+Authorization: {{creds}}
+Accept: application/json
+
+### Get Member Info - From Currency
+
+GET https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/dimensions/From Currency/members/From Currency
+Authorization: {{creds}}
+Accept: application/json
+
+### Get Member Info - From USD
+
+GET https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/dimensions/From Currency/members/From USD
+Authorization: {{creds}}
+Accept: application/json
+
+
+### Get Member Info - Currency
+
+GET https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/dimensions/Account/members/FCCS_System Account
+Authorization: {{creds}}
+Accept: application/json
+
+### Get Member Info - USD
+
+GET https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/dimensions/Currency/members/USD
+Authorization: {{creds}}
+Accept: application/json
+
+### Get Member Info - USD_Reporting
+
+GET https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/dimensions/Currency/members/USD_Reporting
+Authorization: {{creds}}
+Accept: application/json
+
+### Export Data Slice - From_USD, has data
+
+POST https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/plantypes/{{cube}}/exportdataslice
+Authorization: {{creds}}
+Accept: application/json
+Content-Type: application/json
+
+{
+  "exportPlanningData": false,
+  "gridDefinition": {
+    "suppressMissingBlocks": false,
+    "suppressMissingRows": false,
+    "suppressMissingColumns": false,
+    "pov": {
+      "dimensions": null,
+      "members": [
+        [
+          "From_USD"
+        ]
+      ]
+    },
+    "columns": [
+      {
+        "dimensions": [
+          "Account",
+          "Entity",
+          "View"
+        ],
+        "members": [
+          [
+            "Average Rate"
+          ],
+          [
+            "FCCS_Global Assumptions"
+          ],
+          [
+            "FCCS_Periodic"
+          ]
+        ]
+      }
+    ],
+    "rows": [
+      {
+        "dimensions": [
+          "Years",
+          "Scenario",
+          "Period",
+          "Currency"
+        ],
+        "members": [
+          [
+            "FY15"
+          ],
+          [
+            "Actual"
+          ],
+          [
+            "Jan"
+          ],
+          [
+            "USD_Reporting"
+          ]
+        ]
+      }
+    ]
+  }
+}
