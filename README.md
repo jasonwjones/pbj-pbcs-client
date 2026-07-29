@@ -67,18 +67,7 @@ The point of the PBJ (PBCS Java API) project can be summarized with the followin
  * PBJ is open source under the Apache Software License 2.0 
  * PBJ provides a fluent, expressive, and clean API for interacting with the PBCS REST API
  * PBJ serves as a common, high-quality platform for Java/Groovy/Jython programmers to easily use 
-   PBCS without reinventing the wheel.   
-
-
-## Technical Highlights
-
- * Logging using SLF4J logging API
- * Mavenized project available in Maven Central
- * Extensible
- * Fluent domain-specific language
- * Error handling 
- * Can easily build uber JAR for less hassle with dependencies
- 
+   PBCS without reinventing the wheel.
 
 ## Getting Started
 
@@ -214,73 +203,6 @@ gpg --armor --export-secret-keys BDBDB8A29B1564A1C40F7C5E5DB9AED4EF3C5FAA \
 GitHub does not allow existing secret values to be retrieved. To rotate the
 signing key, generate and publish a new GPG key first, then replace both
 `MAVEN_GPG_PRIVATE_KEY` and `MAVEN_GPG_PASSPHRASE`.
-
-
-### Packaging an Uber JAR
-
-PBJ can be packaged into a single JAR file to make integrating with projects simpler. For example,
-PBJ can be integrated with FDMEE, ODI, run in Jython, or fit other integration scenarios. PBJ can 
-be packaged into a runnable JAR using the following Maven goal:
-
-```
-mvn clean package
-```
-
-Note that PBJ uses the Maven shade plugin to build the JAR file. Additionally, some of the package
-names are renamed on the fly in order to prevent conflicts with some other Hyperion software. For 
-example, the Apache `http-client` library is renamed and the Spring Framework packages under 
-`org.springframework` are renamed (mostly to avoid a class loading issue with an older version of
-`spring-core.jar` that is shipped with FDMEE/ODI.
-
-
-## Development Status
-
-### Working
-
-- Downloading exported file from LCM service
-- Getting an application
-- Getting the API info
-- Launching business rule
-- Refreshing a cube
-- Getting job definitions
-- Getting a job status
-- Exporting a data file (but not subsequently downloading it, yet)
-
-### Not Implemented (yet)
-
-- Rule sets
-- Plan type maps
-- Other things you launch
-- Managing Planning Units (PUs, history, filters, status)  
-
-
-## Reference
-
- * [Oracle REST documentation](https://docs.oracle.com/cloud/latest/pbcs_common/CREST.pdf)
- * [John Goodwin blog article on REST API](http://john-goodwin.blogspot.com/2015/09/planning-rest-api.html)
- * [Newer? Oracle EPM REST docs](https://docs.oracle.com/cloud/latest/epm-common/PREST/PREST.pdf)
-
-
-## Old To-Do list (move to Issues)
-
-- Specify alternate REST API version if needed for Planning and LCM clients
-- Publish to Maven Central
-- Enhance upload behavior with file already exists
-- Add default service config params to factory as public final statics
-- Synchronous job execution
-- Move HTTP client request factory method to service config object so interop and p client can both use
-
-## Logging
-
-Get more detailed/wire logs:
-
-Run with VM args:
-
--Dorg.apache.commons.logging.Log=org.apache.commons.logging.impl.SimpleLog
--Dorg.apache.commons.logging.simplelog.showdatetime=true
--Dorg.apache.commons.logging.simplelog.log.org.apache.http=DEBUG
--Dorg.apache.commons.logging.simplelog.log.org.apache.http.wire=ERROR
-
 
 ## License
 
