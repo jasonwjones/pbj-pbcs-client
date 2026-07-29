@@ -32,6 +32,10 @@ public class PbcsMemberPropertiesImpl {
 
 	private List<String> usedIn;
 
+	private CurrencySettings currencySettings;
+
+	private int generation;
+
 	public String getName() {
 		return name;
 	}
@@ -39,8 +43,6 @@ public class PbcsMemberPropertiesImpl {
 	public void setName(String name) {
 		this.name = name;
 	}
-
-	private int generation;
 
 	public List<PbcsMemberPropertiesImpl> getChildren() {
 		// probably unneeded after splitting member/properties but doesn't hurt
@@ -124,6 +126,14 @@ public class PbcsMemberPropertiesImpl {
 
 	public void setUsedIn(List<String> usedIn) {
 		this.usedIn = usedIn;
+	}
+
+	public CurrencySettings getCurrencySettings() {
+		return currencySettings;
+	}
+
+	public void setCurrencySettings(CurrencySettings currencySettings) {
+		this.currencySettings = currencySettings;
 	}
 
 	public String getAlias() {
