@@ -1,9 +1,8 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.jasonwjones.pbcs</groupId>
 	<artifactId>pbj-pbcs-client</artifactId>
-	<version>3.0.0-SNAPSHOT</version>
+	<version>3.0.0</version>
 	<name>PBJ - The PBCS REST API Java Client</name>
 
 	<url>https://github.com/jasonwjones/pbj-pbcs-client</url>
@@ -27,7 +26,7 @@
 		<connection>scm:git:https://github.com/jasonwjones/pbj-pbcs-client.git</connection>
 		<developerConnection>scm:git:https://github.com/jasonwjones/pbj-pbcs-client.git</developerConnection>
 		<url>https://github.com/jasonwjones/pbj-pbcs-client</url>
-		<tag>HEAD</tag>
+		<tag>v3.0.0</tag>
 	</scm>
 
 	<developers>
