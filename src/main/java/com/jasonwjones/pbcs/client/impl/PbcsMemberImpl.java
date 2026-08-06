@@ -2,6 +2,7 @@ package com.jasonwjones.pbcs.client.impl;
 
 import com.jasonwjones.pbcs.api.v3.PbcsMemberPropertiesImpl;
 import com.jasonwjones.pbcs.client.*;
+import com.jasonwjones.pbcs.client.exceptions.PbcsInvalidMemberException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,9 +44,26 @@ public class PbcsMemberImpl extends AbstractPbcsObject implements PbcsMember {
     public List<PbcsMember> getChildren() {
         List<PbcsMember> children = new ArrayList<>();
         for (PbcsMemberPropertiesImpl child : memberProperties.getChildren()) {
-            children.add(new PbcsMemberImpl(context, application, child));
+            if (includeMember(child)) {
+                children.add(createMember(child));
+            }
         }
         return children;
+    }
+
+    boolean includeMember(PbcsMemberPropertiesImpl memberProperties) {
+        return true;
+    }
+
+    PbcsMember createMember(PbcsMemberPropertiesImpl memberProperties) {
+        return new PbcsMemberImpl(context, application, memberProperties);
+    }
+
+    PbcsMember forPlanType(PbcsPlanType planType) {
+        if (!PbcsPlanTypeMemberImpl.isAvailableInPlan(memberProperties, planType)) {
+            throw new PbcsInvalidMemberException(getName());
+        }
+        return new PbcsPlanTypeMemberImpl(context, application, planType, memberProperties);
     }
 
     @Override

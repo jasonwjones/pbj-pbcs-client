@@ -280,7 +280,11 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 
 	@Override
 	public PbcsMember getMember(String dimensionName, String memberName) {
-		return application.getMember(dimensionName, memberName);
+		PbcsMember member = application.getMember(dimensionName, memberName);
+		if (member instanceof PbcsMemberImpl memberImpl) {
+			return memberImpl.forPlanType(this);
+		}
+		return member;
 	}
 
 	// TODO: refactor to go through member resolver or similar codepath to getMemberOrAlias
