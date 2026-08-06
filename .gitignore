@@ -15,5 +15,6 @@ build/
 .idea
 dependency-reduced-pom.xml
 pom.xml.releaseBackup
+release.properties
 pbj-pbcs-client.iml
 http-client.private.env.json
