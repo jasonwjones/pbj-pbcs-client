@@ -371,7 +371,7 @@ public class PbcsApplicationImpl extends AbstractPbcsObject implements PbcsAppli
 
 	@Override
 	public PbcsPlanType getPlanType(String planTypeName) {
-		return validatePlanType(planTypeName);
+		return getPlanType(new PlanTypeConfigurationImpl.Builder(planTypeName).discoverDimensions().build());
 	}
 
 	@Override
@@ -380,7 +380,8 @@ public class PbcsApplicationImpl extends AbstractPbcsObject implements PbcsAppli
 			validatePlanType(configuration.getName());
 		}
 
-		if (configuration.isQueryDimensions() || (configuration.getExplicitDimensions() != null && !configuration.getExplicitDimensions().isEmpty())) {
+		boolean hasExplicitDimensions = configuration.getExplicitDimensions() != null && !configuration.getExplicitDimensions().isEmpty();
+		if (configuration.isDiscoverDimensions() || configuration.isQueryDimensions() || hasExplicitDimensions) {
 			return new PbcsExplicitDimensionsPlanTypeImpl(context, this, configuration);
 		} else {
 			return new PbcsPlanTypeImpl(context, this, configuration);

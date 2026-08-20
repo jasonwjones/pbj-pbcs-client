@@ -214,17 +214,27 @@ public interface PbcsApplication extends PbcsObject {
 	 * Get the list of cubes/plans in this application. The endpoint for this REST call doesn't seem to exist for FCCS
 	 * apps (need to confirm this, there may have been some sort of testing issue).
 	 *
+	 * <p>Unlike {@link #getPlanType(String)}, the plan types returned here do not have their dimensions discovered
+	 * (discovering dimensions for every plan in the application just to list them would mean one extra REST call per
+	 * plan). Use {@link #getPlanType(String)} or {@link #getPlanType(PlanTypeConfiguration)} to get a fully-capable
+	 * plan type for a specific plan by name.
+	 *
 	 * @return the list of plans for this application
 	 */
 	List<PbcsPlanType> getPlanTypes();
 
 	/**
-	 * Gets the plan with the given name. This method is easy to use, but callers are strongly encourage to use the
-	 * full {@link #getPlanType(PlanTypeConfiguration)} method, which provides much more control over how the cube
-	 * is instantiated and validated.
+	 * Gets the plan with the given name, automatically discovering its dimensions via the official plan-type
+	 * dimension list endpoint (equivalent to using {@link PlanTypeConfiguration#isDiscoverDimensions()}). Callers
+	 * needing more control (e.g., skipping the discovery call for performance, or using explicit or legacy AIF
+	 * dimensions) should use {@link #getPlanType(PlanTypeConfiguration)} instead.
+	 *
+	 * <p>Dimension discovery is not yet confirmed to be available for all application types (e.g., FCCS); if it is
+	 * unavailable for a given application, use {@link #getPlanType(PlanTypeConfiguration)} with explicit dimensions
+	 * instead.
 	 *
 	 * @param planTypeName the plan name
-	 * @return the plan/cube
+	 * @return the plan/cube, with dimensions already discovered
 	 */
 	PbcsPlanType getPlanType(String planTypeName);
 
@@ -266,8 +276,27 @@ public interface PbcsApplication extends PbcsObject {
 		 * you should still populate them through {@link #getExplicitAttributeDimensions()}.
 		 *
 		 * @return the value for query dimensions
+		 * @see #isDiscoverDimensions() for a newer, officially documented alternative that does not require
+		 * Service Administrator privileges and also identifies attribute dimensions automatically
 		 */
 		boolean isQueryDimensions();
+
+		/**
+		 * If true, an explicit dimension plan type will be created and its dimensions will be populated by calling the
+		 * official, documented, plan-type-scoped dimension list REST endpoint, rather than the older AIF endpoint used
+		 * by {@link #isQueryDimensions()}. This option is off by default. Unlike {@link #isQueryDimensions()}, this
+		 * endpoint does not require Service Administrator privileges, and it identifies attribute dimensions
+		 * automatically, so {@link #getExplicitAttributeDimensions()} is normally unnecessary when this option is
+		 * enabled; any dimensions specified there are still added, if not already discovered.
+		 *
+		 * <p>If both this option and {@link #isQueryDimensions()} are enabled, this option takes precedence. If both
+		 * this option and {@link #getExplicitDimensions()} are populated, this option also takes precedence.
+		 *
+		 * @return true to discover dimensions via the official plan-type dimension list endpoint
+		 */
+		default boolean isDiscoverDimensions() {
+			return false;
+		}
 
 		/**
 		 * Determines if a check (a REST call) should be performed to validate that the given plan name is actually valid

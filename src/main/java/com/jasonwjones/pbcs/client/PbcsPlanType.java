@@ -29,14 +29,16 @@ public interface PbcsPlanType extends PbcsObject {
 	String EXPORT_MISSING = "";
 
 	/**
-	 * Gets the list of dimensions for this plan/cube. This will be either the explicitly specified dimensions
-	 * for this cube (if defined), otherwise a call is made to the unofficial data management (DM) endpoint
-	 * that provides dimensional information. In the past, I've seen issues with permissions where low-level
-	 * users couldn't access this endpoint, so be careful how you architect your solutions with this.
+	 * Gets the list of dimensions for this plan/cube. If explicit dimensions were specified for this cube (see
+	 * {@link com.jasonwjones.pbcs.client.PbcsApplication.PlanTypeConfiguration#getExplicitDimensions()}), those are
+	 * returned as-is; otherwise, this calls the official, plan-type-scoped dimension list REST endpoint, which does
+	 * not require any special privileges.
 	 *
-	 * <p>Additionally, in the past I've also seen issues where the cube may have not been synced properly
-	 * and the list of dimensions was bogus. I don't know if this was a timing/configuration thing or
-	 * some other issue where the DM dimensions were out of sync.
+	 * <p>In the past, when this method was backed by the older, unofficial data management (DM/AIF) endpoint, I've
+	 * seen issues with permissions where low-level users couldn't access it, as well as cases where a cube that
+	 * hadn't been synced properly returned a bogus dimension list. That endpoint is no longer used by this method,
+	 * but is worth keeping in mind if you encounter similar issues, since {@link PbcsApplication.PlanTypeConfiguration#isQueryDimensions()}
+	 * still uses it.
 	 *
 	 * @return the list of dimensions for this plan/cube
 	 */

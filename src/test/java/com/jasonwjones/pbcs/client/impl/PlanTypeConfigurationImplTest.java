@@ -36,6 +36,24 @@ public class PlanTypeConfigurationImplTest {
     }
 
     @Test
+    public void discoverDimensionsIsDisabledByDefault() {
+        PbcsApplication.PlanTypeConfiguration configuration =
+                new PlanTypeConfigurationImpl.Builder("Plan1").build();
+
+        assertThat(configuration.isDiscoverDimensions(), is(false));
+    }
+
+    @Test
+    public void builderCanEnableDiscoverDimensions() {
+        PbcsApplication.PlanTypeConfiguration configuration =
+                new PlanTypeConfigurationImpl.Builder("Plan1")
+                        .discoverDimensions()
+                        .build();
+
+        assertThat(configuration.isDiscoverDimensions(), is(true));
+    }
+
+    @Test
     public void cacheMemberStoresNameAndAliasByDefault() {
         RecordingMemberResolver resolver = new RecordingMemberResolver();
         PbcsMember member = member("USD", "US Dollar");

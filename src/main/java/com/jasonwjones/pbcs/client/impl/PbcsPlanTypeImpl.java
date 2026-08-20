@@ -1,5 +1,7 @@
 package com.jasonwjones.pbcs.client.impl;
 
+import com.jasonwjones.pbcs.api.v3.PlanTypeDimension;
+import com.jasonwjones.pbcs.api.v3.PlanTypeDimensionsWrapper;
 import com.jasonwjones.pbcs.api.v3.SubstitutionVariable;
 import com.jasonwjones.pbcs.api.v3.SubstitutionVariablesWrapper;
 import com.jasonwjones.pbcs.api.v3.dataslices.*;
@@ -7,6 +9,7 @@ import com.jasonwjones.pbcs.client.*;
 import com.jasonwjones.pbcs.client.exceptions.PbcsClientException;
 import com.jasonwjones.pbcs.client.exceptions.PbcsDataExportException;
 import com.jasonwjones.pbcs.client.exceptions.PbcsDataImportException;
+import com.jasonwjones.pbcs.client.exceptions.PbcsInvalidDimensionException;
 import com.jasonwjones.pbcs.client.exceptions.PbcsNoSuchObjectException;
 import com.jasonwjones.pbcs.client.impl.grid.DataSliceGrid;
 import com.jasonwjones.pbcs.util.DataSliceDiff;
@@ -22,8 +25,9 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * Default {@link PbcsPlanType} implementation, backed by the unofficial data management (DM/AIF) endpoint
- * for dimension discovery unless explicit dimensions are configured.
+ * Default {@link PbcsPlanType} implementation. {@link #getDimensions()} is backed by the official,
+ * plan-type-scoped dimension list endpoint; {@link PbcsApplication.PlanTypeConfiguration#isQueryDimensions()}
+ * remains backed by the older, unofficial data management (DM/AIF) endpoint for compatibility.
  */
 public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType {
 
@@ -72,7 +76,45 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 
 	@Override
 	public List<PbcsDimension> getDimensions() {
-		return application.getDimensions(planType);
+		return buildDiscoveredDimensions(fetchPlanTypeDimensions(), false);
+	}
+
+	/**
+	 * Calls the official, plan-type-scoped dimension list endpoint
+	 * ({@code applications/{application}/plantypes/{planType}/dimensions}) and returns the raw
+	 * deserialized dimension entries.
+	 *
+	 * @return the list of plan-type dimension entries, empty list if none were returned
+	 */
+	protected List<PlanTypeDimension> fetchPlanTypeDimensions() {
+		PlanTypeDimensionsWrapper wrapper = get("applications/{application}/plantypes/{planType}/dimensions",
+				PlanTypeDimensionsWrapper.class, application.getName(), planType);
+		return wrapper.getItems() != null ? wrapper.getItems() : new ArrayList<>();
+	}
+
+	/**
+	 * Builds a list of {@link PbcsDimension} objects from already-deserialized plan-type dimension entries,
+	 * as returned by {@link #fetchPlanTypeDimensions()}, classifying each dimension's type from its
+	 * {@link PlanTypeDimension#getDimType()} value and, if requested, validating each dimension using the
+	 * response's own {@link PlanTypeDimension#isValid()} flag rather than issuing per-dimension REST calls.
+	 *
+	 * @param dimensions the deserialized dimension entries, in the order returned by the endpoint
+	 * @param validateDimensions if true, the first entry with {@code valid == false} causes a
+	 *                           {@link PbcsInvalidDimensionException} to be thrown for that dimension name
+	 * @return the built dimension objects, numbered in the order provided
+	 * @throws PbcsInvalidDimensionException if validateDimensions is true and a dimension has valid == false
+	 */
+	protected List<PbcsDimension> buildDiscoveredDimensions(List<PlanTypeDimension> dimensions, boolean validateDimensions) {
+		List<PbcsDimension> result = new ArrayList<>();
+		int dimNumber = 0;
+		for (PlanTypeDimension dimension : dimensions) {
+			String name = dimension.getDimensionName();
+			if (validateDimensions && !dimension.isValid()) {
+				throw new PbcsInvalidDimensionException(name);
+			}
+			result.add(new ExplicitDimension(name, dimNumber++, PbcsMemberType.fromDimType(dimension.getDimType())));
+		}
+		return result;
 	}
 
 	@Override
@@ -406,6 +448,82 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 			logger.trace("Member {} has dimension {} from cache", memberName, dimensionName);
 		}
 		return dimensionName;
+	}
+
+	/**
+	 * A {@link PbcsDimension} identified explicitly by name, number, and type, whether that identity came
+	 * from a caller-supplied explicit dimension list or was discovered via a dimension list REST endpoint.
+	 */
+	protected class ExplicitDimension extends AbstractPbcsObject implements PbcsDimension {
+
+		private final String name;
+
+		private final int number;
+
+		private final PbcsMemberType type;
+
+		/**
+		 * Constructs an instance for the given dimension identity.
+		 *
+		 * @param name the dimension name
+		 * @param number the dimension's number within its plan type
+		 * @param type the dimension's type
+		 */
+		protected ExplicitDimension(String name, int number, PbcsMemberType type) {
+			super(PbcsPlanTypeImpl.this.context);
+			this.name = name;
+			this.number = number;
+			this.type = type;
+		}
+
+		@Override
+		public String getName() {
+			return name;
+		}
+
+		@Override
+		public PbcsObjectType getObjectType() {
+			return PbcsObjectType.DIMENSION;
+		}
+
+		@Override
+		public int getNumber() {
+			return number;
+		}
+
+		@Override
+		public PbcsMember getMember(String memberName) {
+			return PbcsPlanTypeImpl.this.getMember(name, memberName);
+		}
+
+		@Override
+		public PbcsMemberType getDimensionType() {
+			return type;
+		}
+
+		@Override
+		public PbcsApplication getParent() {
+			return getApplication();
+		}
+
+		@Override
+		public boolean equals(Object o) {
+			if (this == o) return true;
+			if (o == null || getClass() != o.getClass()) return false;
+			ExplicitDimension that = (ExplicitDimension) o;
+			return name.equals(that.name);
+		}
+
+		@Override
+		public int hashCode() {
+			return Objects.hash(name);
+		}
+
+		@Override
+		public String toString() {
+			return name;
+		}
+
 	}
 
 	private static class ImportDataResultImpl implements ImportDataResult {

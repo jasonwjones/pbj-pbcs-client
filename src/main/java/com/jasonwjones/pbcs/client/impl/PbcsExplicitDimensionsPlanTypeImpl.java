@@ -1,5 +1,6 @@
 package com.jasonwjones.pbcs.client.impl;
 
+import com.jasonwjones.pbcs.api.v3.PlanTypeDimension;
 import com.jasonwjones.pbcs.api.v3.dataslices.DataSlice;
 import com.jasonwjones.pbcs.api.v3.dataslices.DimensionMembers;
 import com.jasonwjones.pbcs.api.v3.dataslices.ExportDataSlice;
@@ -23,12 +24,11 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * A plan type implementation where the known dimensions are explicitly defined. Defining the list of explicit dimensions
- * is usually handled by having an additional property on the connection settings. For example, an additional query
- * parameter can be appended to your cube/plan name, such as <code>Basic?dimensions=Period;Years;Scenario</code>.
- *
- * <p>Hopefully someday the process of getting the dimensions for a plan will be better supported by the EPM Cloud REST
- * API but for now this lets us significantly enrich functionality.
+ * A plan type implementation where the known dimensions are explicitly defined, either by the caller
+ * (see {@link PbcsApplication.PlanTypeConfiguration#getExplicitDimensions()}) or discovered automatically
+ * via {@link PbcsApplication.PlanTypeConfiguration#isDiscoverDimensions()} or the older
+ * {@link PbcsApplication.PlanTypeConfiguration#isQueryDimensions()}. Knowing the dimensions explicitly lets
+ * this class significantly enrich functionality beyond what {@link PbcsPlanTypeImpl} alone can offer.
  */
 public class PbcsExplicitDimensionsPlanTypeImpl extends PbcsPlanTypeImpl implements PbcsExplicitDimensionsPlanType {
 
@@ -41,33 +41,38 @@ public class PbcsExplicitDimensionsPlanTypeImpl extends PbcsPlanTypeImpl impleme
     PbcsExplicitDimensionsPlanTypeImpl(RestContext context, PbcsApplication application, PbcsApplication.PlanTypeConfiguration configuration) {
         super(context, application, configuration);
 
-        List<String> dimensionNames = new ArrayList<>();
+        this.explicitDimensions = new ArrayList<>();
+        int dimNumber;
 
-        if (configuration.isQueryDimensions()) {
+        if (configuration.isDiscoverDimensions()) {
+            List<PlanTypeDimension> discovered = fetchPlanTypeDimensions();
+            if (discovered.isEmpty()) {
+                throw new IllegalArgumentException("Dimension discovery returned no dimensions for plan " + configuration.getName());
+            }
+            this.explicitDimensions.addAll(buildDiscoveredDimensions(discovered, configuration.isValidateDimensions()));
+            dimNumber = this.explicitDimensions.size();
+        } else {
+            List<String> dimensionNames = new ArrayList<>();
             if (configuration.isQueryDimensions()) {
-                List<PbcsDimension> dimensions = application.getDimensions(configuration.getName());
-                for (PbcsDimension dimension : dimensions) {
+                for (PbcsDimension dimension : application.getDimensions(configuration.getName())) {
                     dimensionNames.add(dimension.getName());
                 }
+            } else {
+                if (configuration.getExplicitDimensions() == null || configuration.getExplicitDimensions().isEmpty()) throw new IllegalArgumentException("Explicit dimension list cannot be empty");
+                dimensionNames.addAll(configuration.getExplicitDimensions());
             }
-        } else {
-            if (configuration.getExplicitDimensions() == null || configuration.getExplicitDimensions().isEmpty()) throw new IllegalArgumentException("Explicit dimension list cannot be empty");
-            dimensionNames.addAll(configuration.getExplicitDimensions());
-        }
 
-        if (dimensionNames.isEmpty()) {
-            throw new IllegalArgumentException("Dimension name list cannot be empty: provide dimension names or enable query dimensions");
-        }
+            if (dimensionNames.isEmpty()) {
+                throw new IllegalArgumentException("Dimension name list cannot be empty: provide dimension names or enable query dimensions");
+            }
 
-        this.explicitDimensions = new ArrayList<>();
-
-        int dimNumber = 0;
-
-        for (String dimName : dimensionNames) {
-            PbcsMemberType type = configuration.isValidateDimensions() ?
-                    application.getMember(dimName, dimName).getType() :
-                    PbcsMemberType.UNKNOWN;
-            this.explicitDimensions.add(new ExplicitDimension(dimName, dimNumber++, type));
+            dimNumber = 0;
+            for (String dimName : dimensionNames) {
+                PbcsMemberType type = configuration.isValidateDimensions() ?
+                        application.getMember(dimName, dimName).getType() :
+                        PbcsMemberType.UNKNOWN;
+                this.explicitDimensions.add(new ExplicitDimension(dimName, dimNumber++, type));
+            }
         }
 
         processAttributeDimensions(application, configuration, dimNumber);
@@ -77,9 +82,13 @@ public class PbcsExplicitDimensionsPlanTypeImpl extends PbcsPlanTypeImpl impleme
     }
 
     private void processAttributeDimensions(PbcsApplication application, PbcsApplication.PlanTypeConfiguration configuration, int dimNumber) {
-        // add in explicit attribute dimensions, if any
+        // add in explicit attribute dimensions, if any, skipping ones already discovered
         if (configuration.getExplicitAttributeDimensions() != null) {
             for (String attribDimName : configuration.getExplicitAttributeDimensions()) {
+                if (hasDimension(attribDimName)) {
+                    logger.debug("Skipping explicit attribute dimension {} because it was already discovered", attribDimName);
+                    continue;
+                }
                 PbcsMemberType type = configuration.isValidateDimensions() ?
                         application.getMember(attribDimName, attribDimName).getType() :
                         PbcsMemberType.ATTRIBUTE;
@@ -426,71 +435,6 @@ public class PbcsExplicitDimensionsPlanTypeImpl extends PbcsPlanTypeImpl impleme
             }
         }
         return dimensions;
-    }
-
-    private class ExplicitDimension extends AbstractPbcsObject implements PbcsDimension {
-
-        private final String name;
-
-        private final int number;
-
-        private final PbcsMemberType type;
-
-        private ExplicitDimension(String name, int number, PbcsMemberType type) {
-            super(PbcsExplicitDimensionsPlanTypeImpl.this.context);
-            this.name = name;
-            this.number = number;
-            this.type = type;
-        }
-
-        @Override
-        public String getName() {
-            return name;
-        }
-
-        @Override
-        public PbcsObjectType getObjectType() {
-            return PbcsObjectType.DIMENSION;
-        }
-
-        @Override
-        public int getNumber() {
-            return number;
-        }
-
-        @Override
-        public PbcsMember getMember(String memberName) {
-            return PbcsExplicitDimensionsPlanTypeImpl.this.getMember(name, memberName);
-        }
-
-        @Override
-        public PbcsMemberType getDimensionType() {
-            return type;
-        }
-
-        @Override
-        public PbcsApplication getParent() {
-            return getApplication();
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            ExplicitDimension that = (ExplicitDimension) o;
-            return name.equals(that.name);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(name);
-        }
-
-        @Override
-        public String toString() {
-            return name;
-        }
-
     }
 
     private static class MemberSearchCallable implements Callable<PbcsMember> {

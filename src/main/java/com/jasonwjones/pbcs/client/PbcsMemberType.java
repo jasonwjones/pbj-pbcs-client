@@ -113,4 +113,40 @@ public enum PbcsMemberType {
 		return PbcsMemberType.UNKNOWN;
 	}
 
+	/**
+	 * Parses the {@code dimType} classification string returned by the REST API's plan-type-scoped
+	 * dimension list endpoint ({@code applications/{app}/plantypes/{cube}/dimensions}) into an enum member.
+	 * Known values are {@code "Account"}, {@code "Period"}, {@code "Year"}, {@code "Scenario"},
+	 * {@code "Version"}, {@code "Currency"}, {@code "Entity"}, {@code "Custom"} (user-defined dimensions),
+	 * and {@code "Attribute Dimension"}. If the type cannot be determined, this method returns
+	 * {@link #UNKNOWN}, which isn't a real type, but is included so that some heretofore unknown dimension
+	 * type name won't throw an exception.
+	 *
+	 * <p><b>Note:</b> {@code dimType} is a distinct vocabulary from {@link #getTypeName()} (which describes
+	 * the legacy {@code HSP_OBJECT_TYPE} numeric codes used by {@link #valueOf(int)}) and the two only
+	 * happen to agree for some values. In particular, {@code "Period"} maps to {@link #TIME_PERIOD} (whose
+	 * {@code typeName} is {@code "Time Period"}), {@code "Custom"} maps to {@link #USER_DEFINED} (whose
+	 * {@code typeName} is {@code "User Defined"}), and {@code "Attribute Dimension"} maps to
+	 * {@link #ATTRIBUTE} (whose {@code typeName} is just {@code "Attribute"}). Do not attempt to derive
+	 * this mapping from {@link #getTypeName()}.
+	 *
+	 * @param dimType the {@code dimType} value from the plan-type dimension list endpoint, may be null
+	 * @return the type that corresponds to that dimType value, {@link #UNKNOWN} if it's null or unrecognized
+	 */
+	public static PbcsMemberType fromDimType(String dimType) {
+		if (dimType == null) return UNKNOWN;
+		return switch (dimType) {
+			case "Account" -> ACCOUNT;
+			case "Period" -> TIME_PERIOD;
+			case "Year" -> YEAR;
+			case "Scenario" -> SCENARIO;
+			case "Version" -> VERSION;
+			case "Currency" -> CURRENCY;
+			case "Entity" -> ENTITY;
+			case "Custom" -> USER_DEFINED;
+			case "Attribute Dimension" -> ATTRIBUTE;
+			default -> UNKNOWN;
+		};
+	}
+
 }

@@ -27,6 +27,8 @@ public class PlanTypeConfigurationImpl implements PbcsApplication.PlanTypeConfig
 
     private boolean queryDimensions;
 
+    private boolean discoverDimensions;
+
     private boolean validateDimensions;
 
     private List<String> explicitDimensions;
@@ -63,6 +65,20 @@ public class PlanTypeConfigurationImpl implements PbcsApplication.PlanTypeConfig
      */
     public void setQueryDimensions(boolean queryDimensions) {
         this.queryDimensions = queryDimensions;
+    }
+
+    @Override
+    public boolean isDiscoverDimensions() {
+        return discoverDimensions;
+    }
+
+    /**
+     * Sets whether dimensions should be discovered via the official plan-type dimension list endpoint.
+     *
+     * @param discoverDimensions true to discover dimensions, false otherwise
+     */
+    public void setDiscoverDimensions(boolean discoverDimensions) {
+        this.discoverDimensions = discoverDimensions;
     }
 
     /**
@@ -186,6 +202,8 @@ public class PlanTypeConfigurationImpl implements PbcsApplication.PlanTypeConfig
         return new StringJoiner(", ", PlanTypeConfigurationImpl.class.getSimpleName() + "[", "]")
                 .add("name='" + name + "'")
                 .add("skipCheck=" + skipCheck)
+                .add("queryDimensions=" + queryDimensions)
+                .add("discoverDimensions=" + discoverDimensions)
                 .add("validateDimensions=" + validateDimensions)
                 .add("explicitDimensions=" + explicitDimensions)
                 .add("explicitAttributeDimensions=" + explicitAttributeDimensions)
@@ -230,6 +248,16 @@ public class PlanTypeConfigurationImpl implements PbcsApplication.PlanTypeConfig
          */
         public Builder queryDimensions() {
             configuration.setQueryDimensions(true);
+            return this;
+        }
+
+        /**
+         * Enables discovering dimensions via the official, documented, plan-type-scoped dimension list endpoint.
+         *
+         * @return the builder
+         */
+        public Builder discoverDimensions() {
+            configuration.setDiscoverDimensions(true);
             return this;
         }
 

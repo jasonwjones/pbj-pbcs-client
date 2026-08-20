@@ -8,6 +8,8 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
+import java.util.List;
+
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
@@ -94,6 +96,34 @@ public class PbcsExplicitDimensionsPlanTypeImplVisionIT extends AbstractVisionIT
         PbcsPlanType plan = app.getPlanType(configuration);
         assertThat(plan.isExplicitDimensions(), CoreMatchers.is(true));
         assertThat(plan.getDimension("Scenario").getDimensionType(), CoreMatchers.is(PbcsMemberType.SCENARIO));
+    }
+
+    @Test
+    public void whenDiscoverDimensionsThenValidCubeCreatedWithCorrectTypes() {
+        PbcsApplication.PlanTypeConfiguration configuration = new PlanTypeConfigurationImpl.Builder("Plan1")
+                .skipCheck()
+                .discoverDimensions()
+                .validateDimensions()
+                .build();
+
+        PbcsPlanType plan = app.getPlanType(configuration);
+        assertThat(plan.isExplicitDimensions(), CoreMatchers.is(true));
+        assertThat(plan.getDimension("Scenario").getDimensionType(), CoreMatchers.is(PbcsMemberType.SCENARIO));
+    }
+
+    @Test
+    public void whenExplicitAttributeDimensionAlreadyDiscoveredThenNotDuplicated() {
+        PlanTypeConfigurationImpl configuration = new PlanTypeConfigurationImpl();
+        configuration.setName("Plan1");
+        configuration.setSkipCheck(true);
+        configuration.setDiscoverDimensions(true);
+        // "Scenario" will already be discovered; redundantly declaring it as an explicit attribute
+        // dimension should not add a second entry.
+        configuration.setExplicitAttributeDimensions(List.of("Scenario"));
+
+        PbcsPlanType plan = app.getPlanType(configuration);
+        long scenarioCount = plan.getDimensions().stream().filter(d -> d.getName().equals("Scenario")).count();
+        assertThat(scenarioCount, CoreMatchers.is(1L));
     }
 
 }
