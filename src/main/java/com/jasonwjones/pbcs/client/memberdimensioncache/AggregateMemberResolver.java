@@ -8,8 +8,8 @@ import java.util.List;
 
 /**
  * A {@link PbcsPlanType.MemberResolver} that delegates to a list of other resolvers, checking each in order
- * and returning the first non-null result. Updates (via {@link #setMember} and {@link #addInvalidMember})
- * are propagated to all the delegate resolvers.
+ * and returning the first non-null result. Updates (via {@link #setMember}, {@link #addInvalidMember}, and
+ * {@link #setAlias}) are propagated to all the delegate resolvers.
  */
 public class AggregateMemberResolver implements PbcsPlanType.MemberResolver {
 
@@ -55,6 +55,24 @@ public class AggregateMemberResolver implements PbcsPlanType.MemberResolver {
     public void addInvalidMember(PbcsPlanType planType, String invalidMemberOrAliasName) {
         for (PbcsPlanType.MemberResolver memberResolver : memberResolvers) {
             memberResolver.addInvalidMember(planType, invalidMemberOrAliasName);
+        }
+    }
+
+    @Override
+    public String getAlias(PbcsPlanType planType, String memberName, String aliasTableName) {
+        for (PbcsPlanType.MemberResolver memberResolver : memberResolvers) {
+            String alias = memberResolver.getAlias(planType, memberName, aliasTableName);
+            if (alias != null) {
+                return alias;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public void setAlias(PbcsPlanType planType, String memberName, String aliasTableName, String alias) {
+        for (PbcsPlanType.MemberResolver memberResolver : memberResolvers) {
+            memberResolver.setAlias(planType, memberName, aliasTableName, alias);
         }
     }
 

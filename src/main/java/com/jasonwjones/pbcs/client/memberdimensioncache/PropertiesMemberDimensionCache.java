@@ -22,8 +22,8 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
- * Stores dimension/member lookup information in an XML-based Java properties file. This implementation is mostly geared
- * towards speeding up unit and other tests.
+ * Stores dimension/member lookup information, and per-alias-table member aliases, in an XML-based Java
+ * properties file. This implementation is mostly geared towards speeding up unit and other tests.
  */
 public class PropertiesMemberDimensionCache implements PbcsPlanType.MemberResolver {
 
@@ -44,6 +44,8 @@ public class PropertiesMemberDimensionCache implements PbcsPlanType.MemberResolv
     private static final String PROP_LEVEL = "level";
 
     private static final String PROP_GENERATION = "gen";
+
+    private static final String ALIAS_KEY_PREFIX = "alias:";
 
     private final File file;
 
@@ -104,6 +106,23 @@ public class PropertiesMemberDimensionCache implements PbcsPlanType.MemberResolv
         Properties properties = read();
         properties.setProperty(memberName, dimensionName);
         updateProperties(properties);
+    }
+
+    @Override
+    public String getAlias(PbcsPlanType planType, String memberName, String aliasTableName) {
+        return read().getProperty(aliasKey(memberName, aliasTableName));
+    }
+
+    @Override
+    public void setAlias(PbcsPlanType planType, String memberName, String aliasTableName, String alias) {
+        Properties properties = read();
+        properties.setProperty(aliasKey(memberName, aliasTableName), alias);
+        updateProperties(properties);
+    }
+
+    private static String aliasKey(String memberName, String aliasTableName) {
+        String table = PbcsMember.isDefaultAliasTable(aliasTableName) ? "Default" : aliasTableName;
+        return ALIAS_KEY_PREFIX + table + ":" + memberName;
     }
 
     private void updateProperties(Properties properties) {

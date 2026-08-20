@@ -46,6 +46,16 @@ public class PbcsMemberImpl extends AbstractPbcsObject implements PbcsMember {
     }
 
     @Override
+    public String getAlias(String aliasTableName) {
+        if (PbcsMember.isDefaultAliasTable(aliasTableName)) {
+            return getAlias();
+        }
+        logger.warn("{} only knows its Default alias; obtain this member through a PbcsPlanType (e.g. via " +
+                "PbcsPlanType#getMember) to resolve aliases from table {}", getName(), aliasTableName);
+        return null;
+    }
+
+    @Override
     public String getOldName() {
         return memberProperties.getOldName();
     }

@@ -1,5 +1,6 @@
 package com.jasonwjones.pbcs.client.impl;
 
+import com.jasonwjones.pbcs.api.v3.AliasedMember;
 import com.jasonwjones.pbcs.api.v3.PlanTypeDimension;
 import com.jasonwjones.pbcs.api.v3.PlanTypeDimensionsWrapper;
 import com.jasonwjones.pbcs.api.v3.SubstitutionVariable;
@@ -115,6 +116,74 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 			result.add(new ExplicitDimension(name, dimNumber++, PbcsMemberType.fromDimType(dimension.getDimType())));
 		}
 		return result;
+	}
+
+	@Override
+	public Map<String, String> getMemberAliases(String dimensionName, String aliasTableName) {
+		if (!StringUtils.hasText(dimensionName)) {
+			throw new IllegalArgumentException("Must specify a dimension name");
+		}
+		Map<String, String> aliases = flattenMemberAliases(fetchMemberAliasTree(dimensionName, aliasTableName));
+		for (Map.Entry<String, String> entry : aliases.entrySet()) {
+			memberResolver.setAlias(this, entry.getKey(), aliasTableName, entry.getValue());
+		}
+		return aliases;
+	}
+
+	@Override
+	public String getMemberAlias(String dimensionName, String memberName, String aliasTableName) {
+		String cached = memberResolver.getAlias(this, memberName, aliasTableName);
+		if (cached != null) {
+			return cached;
+		}
+		return getMemberAliases(dimensionName, aliasTableName).get(memberName);
+	}
+
+	/**
+	 * Calls the official Get Dimension Details REST endpoint
+	 * ({@code applications/{application}/plantypes/{planType}/dimensions/{dimensionName}}) requesting only
+	 * the name, alias, and children fields, and returns the raw deserialized member tree (the dimension's
+	 * root member).
+	 *
+	 * @param dimensionName the dimension name
+	 * @param aliasTableName the alias table to resolve aliases from, or null/blank to use the server's
+	 *                       default (the Default table)
+	 * @return the root of the dimension's member tree, with aliases resolved from the given table
+	 */
+	protected AliasedMember fetchMemberAliasTree(String dimensionName, String aliasTableName) {
+		if (StringUtils.hasText(aliasTableName)) {
+			return get("applications/{application}/plantypes/{planType}/dimensions/{dimensionName}?aliasTableName={aliasTableName}&fields=name,alias,children",
+					AliasedMember.class, application.getName(), planType, dimensionName, aliasTableName);
+		} else {
+			return get("applications/{application}/plantypes/{planType}/dimensions/{dimensionName}?fields=name,alias,children",
+					AliasedMember.class, application.getName(), planType, dimensionName);
+		}
+	}
+
+	/**
+	 * Flattens an already-deserialized member alias tree, as returned by {@link #fetchMemberAliasTree(String, String)},
+	 * into a map of member name to alias, omitting members that have no alias in the requested table or
+	 * whose alias is identical to their name.
+	 *
+	 * @param root the root of the member alias tree
+	 * @return the flattened member name to alias map
+	 */
+	protected Map<String, String> flattenMemberAliases(AliasedMember root) {
+		Map<String, String> aliases = new LinkedHashMap<>();
+		collectMemberAliases(root, aliases);
+		return aliases;
+	}
+
+	private static void collectMemberAliases(AliasedMember member, Map<String, String> aliases) {
+		String alias = member.getAlias();
+		if (StringUtils.hasText(alias) && !alias.equals(member.getName())) {
+			aliases.put(member.getName(), alias);
+		}
+		if (member.getChildren() != null) {
+			for (AliasedMember child : member.getChildren()) {
+				collectMemberAliases(child, aliases);
+			}
+		}
 	}
 
 	@Override

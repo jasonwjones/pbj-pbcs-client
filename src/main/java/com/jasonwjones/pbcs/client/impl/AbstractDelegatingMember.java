@@ -65,6 +65,13 @@ public abstract class AbstractDelegatingMember implements PbcsMember {
     }
 
     @Override
+    public String getAlias(String aliasTableName) {
+        return PbcsMember.isDefaultAliasTable(aliasTableName) ?
+                getAlias() :
+                planType.getMemberAlias(getDimensionName(), getName(), aliasTableName);
+    }
+
+    @Override
     public String getOldName() {
         return member().getOldName();
     }

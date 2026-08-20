@@ -31,6 +31,13 @@ final class PbcsPlanTypeMemberImpl extends PbcsMemberImpl {
         return getParentName() != null ? planType.getMember(getDimensionName(), getParentName()) : null;
     }
 
+    @Override
+    public String getAlias(String aliasTableName) {
+        return PbcsMember.isDefaultAliasTable(aliasTableName) ?
+                getAlias() :
+                planType.getMemberAlias(getDimensionName(), getName(), aliasTableName);
+    }
+
     static boolean isAvailableInPlan(PbcsMemberPropertiesImpl memberProperties, PbcsPlanType planType) {
         List<String> usedIn = memberProperties.getUsedIn();
         return usedIn == null || usedIn.isEmpty() || usedIn.contains(planType.getName());

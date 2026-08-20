@@ -86,6 +86,59 @@ public class PbcsPlanTypeMemberImplTest {
         assertThat(childNames(resolvedParent), contains("Plan1 Child"));
     }
 
+    @Test
+    public void isDefaultAliasTableTreatsNullBlankAndDefaultAsEquivalent() {
+        assertThat(PbcsMember.isDefaultAliasTable(null), is(true));
+        assertThat(PbcsMember.isDefaultAliasTable(""), is(true));
+        assertThat(PbcsMember.isDefaultAliasTable("Default"), is(true));
+        assertThat(PbcsMember.isDefaultAliasTable("DEFAULT"), is(true));
+        assertThat(PbcsMember.isDefaultAliasTable("Alias2"), is(false));
+    }
+
+    @Test
+    public void plainMemberReturnsDefaultAliasRegardlessOfHowTableIsSpecified() {
+        PbcsMemberPropertiesImpl properties = member("Actual", List.of("Plan1"));
+        properties.setAlias("DefaultAlias");
+        PbcsMember member = new PbcsMemberImpl(context, application(Collections.emptyMap()), properties);
+
+        assertThat(member.getAlias(null), is("DefaultAlias"));
+        assertThat(member.getAlias("Default"), is("DefaultAlias"));
+    }
+
+    @Test
+    public void plainMemberReturnsNullForNonDefaultTable() {
+        PbcsMemberPropertiesImpl properties = member("Actual", List.of("Plan1"));
+        properties.setAlias("DefaultAlias");
+        PbcsMember member = new PbcsMemberImpl(context, application(Collections.emptyMap()), properties);
+
+        assertThat(member.getAlias("Alias2"), is((String) null));
+    }
+
+    @Test
+    public void planScopedMemberDelegatesNonDefaultTableToThePlanType() {
+        PbcsMemberPropertiesImpl properties = member("Actual", List.of("Plan1"));
+        properties.setAlias("DefaultAlias");
+
+        List<List<Object>> recordedCalls = new java.util.ArrayList<>();
+        PbcsPlanType planTypeStub = (PbcsPlanType) Proxy.newProxyInstance(
+                PbcsPlanType.class.getClassLoader(),
+                new Class<?>[] {PbcsPlanType.class},
+                (proxy, method, args) -> {
+                    if ("getMemberAlias".equals(method.getName())) {
+                        recordedCalls.add(Arrays.asList(args));
+                        return "Alias2Value";
+                    }
+                    throw new UnsupportedOperationException(method.getName());
+                });
+        PbcsMember member = new PbcsPlanTypeMemberImpl(context, application(Collections.emptyMap()), planTypeStub, properties);
+
+        assertThat(member.getAlias("Default"), is("DefaultAlias"));
+        assertThat(recordedCalls, org.hamcrest.Matchers.empty());
+
+        assertThat(member.getAlias("Alias2"), is("Alias2Value"));
+        assertThat(recordedCalls, contains(List.of("Account", "Actual", "Alias2")));
+    }
+
     private PbcsPlanType planType(PbcsApplication application) {
         return new PbcsPlanTypeImpl(context, application, new PlanTypeConfigurationImpl.Builder("Plan1").build());
     }

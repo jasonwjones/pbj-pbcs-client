@@ -260,6 +260,48 @@ public interface PbcsPlanType extends PbcsObject {
 	PbcsMember getMemberOrAlias(String memberOrAliasName);
 
 	/**
+	 * Gets the aliases of every member of the given dimension in the given alias table, by calling the
+	 * official Get Dimension Details REST endpoint. This is useful for rendering member names using an
+	 * alias table other than Default, which {@link PbcsMember#getAlias()} cannot do, since the per-member
+	 * REST endpoint it is backed by only ever returns the Default table's alias.
+	 *
+	 * <p>Every alias returned is also written through to the configured
+	 * {@link com.jasonwjones.pbcs.client.PbcsApplication.PlanTypeConfiguration#getMemberResolver() member
+	 * resolver}'s {@link MemberResolver#setAlias(PbcsPlanType, String, String, String) setAlias}, so a
+	 * resolver that caches aliases (such as
+	 * {@link com.jasonwjones.pbcs.client.memberdimensioncache.PropertiesMemberDimensionCache}) can serve
+	 * later lookups, including {@link #getMemberAlias(String, String, String)} and
+	 * {@link PbcsMember#getAlias(String)}, without another REST call.
+	 *
+	 * @param dimensionName the dimension name
+	 * @param aliasTableName the alias table to resolve aliases from; null, blank, or {@code "Default"} all
+	 *                       resolve the same table the server uses when no alias table is requested
+	 * @return a map of member name to alias, containing only members that have an alias in that table
+	 *         which differs from their name; empty map if none do
+	 * @throws com.jasonwjones.pbcs.client.exceptions.PbcsClientException if the dimension or alias table
+	 * does not exist
+	 */
+	Map<String, String> getMemberAliases(String dimensionName, String aliasTableName);
+
+	/**
+	 * Gets a single member's alias in the given alias table. The configured member resolver's
+	 * {@link MemberResolver#getAlias(PbcsPlanType, String, String) getAlias} is consulted first; on a miss,
+	 * this falls back to {@link #getMemberAliases(String, String)} for the member's whole dimension (which
+	 * also populates the resolver's cache for the rest of that dimension), rather than issuing a REST call
+	 * scoped to just this one member.
+	 *
+	 * @param dimensionName the member's dimension name
+	 * @param memberName the member name
+	 * @param aliasTableName the alias table to resolve the alias from; null, blank, or {@code "Default"} all
+	 *                       resolve the same table the server uses when no alias table is requested
+	 * @return the member's alias in that table, or null if it has none there (or none that differs from
+	 * its name)
+	 * @throws com.jasonwjones.pbcs.client.exceptions.PbcsClientException if the dimension or alias table
+	 * does not exist
+	 */
+	String getMemberAlias(String dimensionName, String memberName, String aliasTableName);
+
+	/**
 	 * Gets the substitution variables that are specific to this cube/plan. This will not return the variables that
 	 * are set for the overall application, you should use {@link PbcsApplication#getSubstitutionVariables()} for that.
 	 *
@@ -355,6 +397,39 @@ public interface PbcsPlanType extends PbcsObject {
 		 * @param invalidMemberOrAliasName the member or alias name that failed to resolve
 		 */
 		default void addInvalidMember(PbcsPlanType planType, String invalidMemberOrAliasName) {
+			// no op
+		}
+
+		/**
+		 * Gets a cached alias for the given member in the given alias table, if this resolver has one. The
+		 * default implementation never caches anything and always returns null, matching the behavior of
+		 * {@link com.jasonwjones.pbcs.client.memberdimensioncache.NonCachingMemberDimensionCache}; resolvers
+		 * that want to participate in alias caching (such as
+		 * {@link com.jasonwjones.pbcs.client.memberdimensioncache.PropertiesMemberDimensionCache}) should
+		 * override this and {@link #setAlias(PbcsPlanType, String, String, String)}.
+		 *
+		 * @param planType the plan type the member belongs to
+		 * @param memberName the member name
+		 * @param aliasTableName the alias table
+		 * @return the cached alias, or null if this resolver has no cached alias for that member/table
+		 * combination, indicating the plan should resolve it on its own (and then update the cache via
+		 * {@link #setAlias(PbcsPlanType, String, String, String)})
+		 */
+		default String getAlias(PbcsPlanType planType, String memberName, String aliasTableName) {
+			return null;
+		}
+
+		/**
+		 * Called when a plan wants to cache a resolved alias for a member in a given alias table. The default
+		 * implementation does nothing; resolvers that want to participate in alias caching should override
+		 * this.
+		 *
+		 * @param planType the originating plan
+		 * @param memberName the member name
+		 * @param aliasTableName the alias table
+		 * @param alias the alias to cache
+		 */
+		default void setAlias(PbcsPlanType planType, String memberName, String aliasTableName, String alias) {
 			// no op
 		}
 

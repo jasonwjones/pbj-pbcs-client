@@ -34,6 +34,42 @@ public interface PbcsMember extends PbcsObject {
     String getAlias();
 
     /**
+     * Gets this member's alias in the given alias table. Unlike {@link #getAlias()}, which is always
+     * limited to the Default table, implementations that can reach a {@link PbcsPlanType} (i.e., members
+     * obtained through one, such as via {@link PbcsPlanType#getMember(String, String)}) can resolve aliases
+     * from other tables too, backed by {@link PbcsPlanType#getMemberAlias(String, String, String)}.
+     *
+     * <p>The default implementation here has no way to resolve a table other than Default, so it simply
+     * returns {@link #getAlias()} for {@link #isDefaultAliasTable(String)} tables and null otherwise.
+     * Implementations that have a plan type to resolve other tables through (such as
+     * {@link com.jasonwjones.pbcs.client.impl.PbcsPlanTypeMemberImpl}) override this to do so; those that
+     * don't (such as the plain {@link com.jasonwjones.pbcs.client.impl.PbcsMemberImpl}) override it only to
+     * log a warning that more aliases may be available if the member is obtained through a
+     * {@link PbcsPlanType} instead.
+     *
+     * @param aliasTableName the alias table; null, blank, or {@code "Default"} (see
+     *                       {@link #isDefaultAliasTable(String)}) all resolve the same table as
+     *                       {@link #getAlias()}
+     * @return the alias, or null if this member has none in that table (or none that differs from its
+     * name), or if the table couldn't be resolved
+     */
+    default String getAlias(String aliasTableName) {
+        return isDefaultAliasTable(aliasTableName) ? getAlias() : null;
+    }
+
+    /**
+     * Determines whether the given alias table name refers to the Default alias table, i.e., it is null,
+     * blank, or equal to {@code "Default"} (case-insensitively) &mdash; the REST API treats all of these
+     * the same way.
+     *
+     * @param aliasTableName the alias table name to check
+     * @return true if the given name refers to the Default alias table
+     */
+    static boolean isDefaultAliasTable(String aliasTableName) {
+        return !StringUtils.hasText(aliasTableName) || "Default".equalsIgnoreCase(aliasTableName);
+    }
+
+    /**
      * Gets the "old name" for this member. I'm not sure how this is used, but it is a property that gets returned from
      * the member info endpoint. I don't believe I have seen a value different from the actual member name.
      *
