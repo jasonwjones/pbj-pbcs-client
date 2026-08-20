@@ -5,6 +5,12 @@ package com.jasonwjones.pbcs.api.v3;
  */
 public class MetadataImportPayload extends Payload {
 
+	/**
+	 * Constructs an instance with the given job type and name.
+	 *
+	 * @param jobType the job type
+	 * @param jobName the job name
+	 */
 	public MetadataImportPayload(String jobType, String jobName) {
 		super(jobType, jobName);
 	}

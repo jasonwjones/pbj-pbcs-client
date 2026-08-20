@@ -6,6 +6,9 @@ import com.jasonwjones.pbcs.client.PbcsJobDefinition;
 import com.jasonwjones.pbcs.client.PbcsJobType;
 import com.jasonwjones.pbcs.client.PbcsObjectType;
 
+/**
+ * Default {@link PbcsJobDefinition} implementation.
+ */
 public class PbcsJobDefinitionImpl extends AbstractPbcsObject implements PbcsJobDefinition {
 
 	private final PbcsApplication application;
@@ -14,6 +17,13 @@ public class PbcsJobDefinitionImpl extends AbstractPbcsObject implements PbcsJob
 
 	private final PbcsJobType jobType;
 
+	/**
+	 * Constructs an instance for the given job definition.
+	 *
+	 * @param context the REST context to use for calls made by this object
+	 * @param application the owning application
+	 * @param jobDefinition the deserialized job definition
+	 */
 	public PbcsJobDefinitionImpl(RestContext context, PbcsApplication application, JobDefinition jobDefinition) {
 		super(context);
 		this.application = application;

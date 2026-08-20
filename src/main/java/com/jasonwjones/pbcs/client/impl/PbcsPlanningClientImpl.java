@@ -28,6 +28,13 @@ public class PbcsPlanningClientImpl extends AbstractPbcsObject implements PbcsPl
 
 	private final PbcsApi api;
 
+	/**
+	 * Constructs an instance for the given connection and service configuration.
+	 *
+	 * @param context the REST context to use for calls made by this object
+	 * @param connection the connection to use
+	 * @param serviceConfiguration the service configuration to use
+	 */
 	public PbcsPlanningClientImpl(RestContext context, PbcsConnection connection, PbcsServiceConfiguration serviceConfiguration) {
 		super(context);
 		this.connection = connection;
@@ -88,6 +95,14 @@ public class PbcsPlanningClientImpl extends AbstractPbcsObject implements PbcsPl
 		return getApplication(applicationName, false);
 	}
 
+	/**
+	 * Gets the application with the given name, optionally skipping the existence check.
+	 *
+	 * @param applicationName the application name
+	 * @param skipCheck true to skip verifying the application exists, false otherwise
+	 * @return the application
+	 * @throws PbcsClientException if the application does not exist (and skipCheck is false) or another error occurs
+	 */
 	public PbcsApplication getApplication(String applicationName, boolean skipCheck) throws PbcsClientException {
 		Assert.notNull(applicationName, "The application must not be null");
 		if (skipCheck) {

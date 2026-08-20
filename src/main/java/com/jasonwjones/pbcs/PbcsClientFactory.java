@@ -80,6 +80,13 @@ public class PbcsClientFactory {
 		return createClient(connection, config);
 	}
 
+	/**
+	 * Creates a new {@link DataManagementClient} instance using the supplied connection details and a default
+	 * service configuration.
+	 *
+	 * @param connection a connection details object
+	 * @return a new data management client instance
+	 */
 	public DataManagementClient createDataManagementClient(PbcsConnection connection) {
 		PbcsServiceConfiguration serviceConfiguration = createDefaultServiceConfiguration();
 		RestContext restContext = createRestContext(serviceConfiguration, connection);
@@ -127,6 +134,14 @@ public class PbcsClientFactory {
 		return sc;
 	}
 
+	/**
+	 * Builds the REST context (base URLs and configured {@link RestTemplate}) used by client instances.
+	 *
+	 * @param serviceConfiguration the service configuration to use
+	 * @param connection the connection details
+	 * @return a new REST context
+	 * @throws IllegalArgumentException if the connection's server contains a forward slash
+	 */
 	protected RestContext createRestContext(PbcsServiceConfiguration serviceConfiguration, PbcsConnection connection) {
 		Objects.requireNonNull(connection.getServer(), "server");
 		if (connection.getServer().contains("/")) {

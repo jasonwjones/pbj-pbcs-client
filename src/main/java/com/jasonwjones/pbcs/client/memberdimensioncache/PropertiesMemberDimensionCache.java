@@ -47,11 +47,21 @@ public class PropertiesMemberDimensionCache implements PbcsPlanType.MemberResolv
 
     private final File file;
 
+    /**
+     * Constructs an instance backed by the given file.
+     *
+     * @param file the XML properties file to store cache entries in
+     */
     public PropertiesMemberDimensionCache(File file) {
         logger.info("Creating properties member dimension cache at {}", file.getAbsolutePath());
         this.file = file;
     }
 
+    /**
+     * Deletes the backing cache file.
+     *
+     * @throws IOException if the file cannot be deleted
+     */
     public void clear() throws IOException {
         logger.info("Clearing property file member cache");
         Files.delete(file.toPath());
@@ -134,10 +144,20 @@ public class PropertiesMemberDimensionCache implements PbcsPlanType.MemberResolv
         return map;
     }
 
+    /**
+     * A {@link PbcsMember} that reads its alias, parent name, level, and generation from cached properties,
+     * falling back to the delegate member for any property not cached.
+     */
     public static class DelegatingMember extends AbstractDelegatingMember implements PbcsMember {
 
         private final Map<String, String> properties;
 
+        /**
+         * Constructs an instance from the given cached properties.
+         *
+         * @param properties the cached member properties
+         * @param planType the plan type the delegate member belongs to
+         */
         public DelegatingMember(Map<String, String> properties, PbcsPlanType planType) {
             super(planType, properties.get(PROP_NAME), properties.get(PROP_DIMENSION));
             this.properties = properties;

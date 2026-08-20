@@ -10,6 +10,9 @@ import org.springframework.lang.NonNull;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * Default, immutable {@link PbcsPov} implementation, keyed internally by dimension name.
+ */
 public class PbcsPovImpl implements PbcsPov {
 
     private final PbcsExplicitDimensionsPlanType planType;

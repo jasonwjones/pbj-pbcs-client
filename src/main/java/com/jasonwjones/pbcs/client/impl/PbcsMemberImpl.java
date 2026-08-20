@@ -11,6 +11,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
 
+/**
+ * Default {@link PbcsMember} implementation.
+ */
 public class PbcsMemberImpl extends AbstractPbcsObject implements PbcsMember {
 
     private static final Logger logger = LoggerFactory.getLogger(PbcsMemberImpl.class);
@@ -19,6 +22,13 @@ public class PbcsMemberImpl extends AbstractPbcsObject implements PbcsMember {
 
     private final PbcsMemberPropertiesImpl memberProperties;
 
+    /**
+     * Constructs an instance for the given member.
+     *
+     * @param context the REST context to use for calls made by this object
+     * @param application the owning application
+     * @param memberProperties the deserialized member properties
+     */
     public PbcsMemberImpl(RestContext context, PbcsApplication application, PbcsMemberPropertiesImpl memberProperties) {
         super(context);
         this.application = application;

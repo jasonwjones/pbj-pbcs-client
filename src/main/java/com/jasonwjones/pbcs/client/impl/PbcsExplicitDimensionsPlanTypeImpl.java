@@ -179,12 +179,23 @@ public class PbcsExplicitDimensionsPlanTypeImpl extends PbcsPlanTypeImpl impleme
         }
     }
 
+    /**
+     * Gets the names of this plan type's explicit dimensions.
+     *
+     * @return the dimension names
+     */
     protected List<String> getDimensionNames() {
         return explicitDimensions.stream()
                 .map(PbcsDimension::getName)
                 .toList();
     }
 
+    /**
+     * Whether this plan type has an explicit dimension with the given name.
+     *
+     * @param dimensionName the dimension name
+     * @return true if this plan type has that dimension, false otherwise
+     */
     public boolean hasDimension(String dimensionName) {
         for (PbcsDimension dimension : explicitDimensions) {
             if (dimension.getName().equals(dimensionName)) return true;

@@ -9,6 +9,10 @@ import org.apache.commons.codec.binary.Base64;
 
 import java.util.Objects;
 
+/**
+ * A {@link PbcsConnection} backed by an OAuth/OIDC {@link AccessToken} rather than a username and password.
+ * The username is derived from the token's JWT subject claim.
+ */
 public class PbcsConnectionToken implements PbcsConnection {
 
     private final String server;
@@ -17,6 +21,14 @@ public class PbcsConnectionToken implements PbcsConnection {
 
     private final String username;
 
+    /**
+     * Constructs an instance for the given server and access token.
+     *
+     * @param server the server, not including http and not containing anything after the TLD
+     * @param accessToken the access token to authenticate with; must be a JWT with three dot-separated parts
+     * @throws NullPointerException if accessToken is null
+     * @throws IllegalArgumentException if the access token is not a three-part JWT
+     */
     public PbcsConnectionToken(String server, AccessToken accessToken) {
         this.server = server;
         this.accessToken = Objects.requireNonNull(accessToken, "access token cannot be null");
@@ -62,6 +74,13 @@ public class PbcsConnectionToken implements PbcsConnection {
         return true;
     }
 
+    /**
+     * Decodes and parses the payload segment of a JWT, extracting just the subject claim.
+     *
+     * @param jwtToken the base64url-encoded JWT payload segment
+     * @return the parsed token
+     * @throws IllegalArgumentException if the segment cannot be decoded/parsed
+     */
     public static SimpleJwtToken readJwt(String jwtToken) {
         try {
             ObjectMapper mapper = new ObjectMapper()
@@ -72,11 +91,25 @@ public class PbcsConnectionToken implements PbcsConnection {
         }
     }
 
+    /**
+     * A minimal mapping of a JWT payload, capturing only the subject claim.
+     */
     public static class SimpleJwtToken {
 
         @JsonProperty("sub")
         private String subject;
 
+        /**
+         * Constructs an empty instance for deserialization.
+         */
+        public SimpleJwtToken() {
+        }
+
+        /**
+         * Gets the subject claim.
+         *
+         * @return the subject
+         */
         public String getSubject() {
             return subject;
         }

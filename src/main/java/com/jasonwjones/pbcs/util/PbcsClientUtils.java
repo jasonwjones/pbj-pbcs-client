@@ -21,16 +21,34 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
+/**
+ * Convenience helpers for building a client, connection, or plan type from a local
+ * {@code pbcs-client.properties} file, primarily intended for tests and ad hoc scripts.
+ */
 public class PbcsClientUtils {
 
+    /**
+     * The default location of the local connection properties file.
+     */
     public static final String PROPS = System.getProperty("user.home") + "/pbcs-client.properties";
 
     private PbcsClientUtils() {}
 
+    /**
+     * Creates a client using the connection details from the default properties file.
+     *
+     * @return a new client
+     */
     public static PbcsPlanningClient client() {
         return new PbcsClientFactory().createClient(connection());
     }
 
+    /**
+     * Loads the connection properties from the default properties file.
+     *
+     * @return the loaded properties
+     * @throws PbcsClientException if the properties file cannot be loaded
+     */
     public static Properties connectionProperties() {
         try {
             Properties properties = new Properties();
@@ -41,19 +59,40 @@ public class PbcsClientUtils {
         }
     }
 
+    /**
+     * Creates a connection using the connection details from the default properties file.
+     *
+     * @return a new connection
+     */
     public static PbcsConnection connection() {
         Properties properties = connectionProperties();
         return PbcsConnectionImpl.fromProperties(properties);
     }
 
+    /**
+     * Creates a data management client using the connection details from the default properties file.
+     *
+     * @return a new data management client
+     */
     public static DataManagementClient dataManagementClient() {
         return new PbcsClientFactory().createDataManagementClient(connection());
     }
 
+    /**
+     * Convenience method to get the "Vision" sample application.
+     *
+     * @return the Vision application
+     */
     public static PbcsApplication vision() {
         return client().getApplication("Vision");
     }
 
+    /**
+     * Builds a plan type using the application, plan, dimensions, and member resolver settings from the
+     * default properties file.
+     *
+     * @return the configured plan type
+     */
     public static PbcsPlanType planType() {
         PbcsPlanningClient client = client();
         Properties properties = connectionProperties();

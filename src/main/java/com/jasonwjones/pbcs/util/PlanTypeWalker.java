@@ -37,6 +37,15 @@ public class PlanTypeWalker {
         return walk(planType, visitor, DEFAULT_OPTIONS);
     }
 
+    /**
+     * Walks all the dimensions in the given plan using the given options, calling the visitor for various
+     * events when starting to process the overall plan, dimensions, and members.
+     *
+     * @param planType the plan to walk
+     * @param visitor the visitor delegate to call
+     * @param options the traversal options to use
+     * @return true if the walk completed within the internal timeout, false otherwise
+     */
     public static boolean walk(PbcsPlanType planType, Visitor visitor, Options options) {
         visitor.startPlan(planType);
 
@@ -71,14 +80,34 @@ public class PlanTypeWalker {
 
     }
 
+    /**
+     * A {@link Runnable} that walks a single dimension breadth-first, visiting the dimension's root member
+     * and then its children level by level.
+     */
     public static class BreadthFirstDimensionProcessor implements Runnable {
 
+        /**
+         * The plan type being walked.
+         */
         protected final PbcsPlanType planType;
 
+        /**
+         * The dimension being walked.
+         */
         protected final PbcsDimension dimension;
 
+        /**
+         * The visitor to call as members are walked.
+         */
         protected final Visitor visitor;
 
+        /**
+         * Constructs an instance for the given plan type, dimension, and visitor.
+         *
+         * @param planType the plan type being walked
+         * @param dimension the dimension to walk
+         * @param visitor the visitor to call as members are walked
+         */
         public BreadthFirstDimensionProcessor(PbcsPlanType planType, PbcsDimension dimension, Visitor visitor) {
             this.planType = planType;
             this.dimension = dimension;
@@ -103,8 +132,19 @@ public class PlanTypeWalker {
 
     }
 
+    /**
+     * A {@link Runnable} that walks a single dimension depth-first, fully visiting each member's descendants
+     * before moving to the next sibling.
+     */
     public static class DepthFirstDimensionProcessor extends BreadthFirstDimensionProcessor {
 
+        /**
+         * Constructs an instance for the given plan type, dimension, and visitor.
+         *
+         * @param planType the plan type being walked
+         * @param dimension the dimension to walk
+         * @param visitor the visitor to call as members are walked
+         */
         public DepthFirstDimensionProcessor(PbcsPlanType planType, PbcsDimension dimension, Visitor visitor) {
             super(planType, dimension, visitor);
         }
@@ -131,22 +171,59 @@ public class PlanTypeWalker {
      */
     public interface Visitor {
 
+        /**
+         * Called once, before any dimension is walked.
+         *
+         * @param plan the plan being walked
+         */
         void startPlan(PbcsPlanType plan);
 
+        /**
+         * Called once, after all dimensions have been walked.
+         *
+         * @param plan the plan being walked
+         */
         void endPlan(PbcsPlanType plan);
 
+        /**
+         * Called when starting to walk a dimension.
+         *
+         * @param dimension the dimension about to be walked
+         * @return whether the walk should continue into this dimension
+         */
         MemberVisitResult startDimension(PbcsDimension dimension);
 
+        /**
+         * Called after a dimension has been fully walked.
+         *
+         * @param dimension the dimension that was walked
+         */
         void endDimension(PbcsDimension dimension);
 
+        /**
+         * Called for each member visited.
+         *
+         * @param planType the plan type being walked
+         * @param member the member being visited
+         * @return whether the walk should continue into this member's children
+         */
         MemberVisitResult visitMember(PbcsPlanType planType, PbcsMember member);
 
     }
 
+    /**
+     * The result a {@link Visitor} returns to control whether a walk continues.
+     */
     public enum MemberVisitResult {
 
+        /**
+         * Continue the walk.
+         */
         CONTINUE,
 
+        /**
+         * Stop walking further into the current dimension/member.
+         */
         TERMINATE
 
     }
@@ -156,6 +233,12 @@ public class PlanTypeWalker {
      * that implementers only need to worry about method they care about.
      */
     public abstract static class AbstractVisitor implements Visitor {
+
+        /**
+         * Constructs an instance of this abstract visitor.
+         */
+        protected AbstractVisitor() {
+        }
 
         @Override
         public void startPlan(PbcsPlanType plan) {
@@ -181,6 +264,10 @@ public class PlanTypeWalker {
 
     }
 
+    /**
+     * Options controlling how a plan type is walked: which dimensions to include, the traversal order, and
+     * the degree of parallelism.
+     */
     public static class Options {
 
         private TraversalType traversalType = TraversalType.DEPTH_FIRST;
@@ -189,36 +276,82 @@ public class PlanTypeWalker {
 
         private int threads = Runtime.getRuntime().availableProcessors();
 
+        /**
+         * Constructs an instance with the default options: every dimension, depth-first, using a thread per
+         * available processor.
+         */
+        public Options() {
+        }
+
+        /**
+         * Gets the traversal order to use.
+         *
+         * @return the traversal type
+         */
         public TraversalType getTraversalType() {
             return traversalType;
         }
 
+        /**
+         * Sets the traversal order to use.
+         *
+         * @param traversalType the traversal type
+         */
         public void setTraversalType(TraversalType traversalType) {
             this.traversalType = traversalType;
         }
 
+        /**
+         * Gets the names of the dimensions to walk. An empty list means all dimensions.
+         *
+         * @return the dimension names
+         */
         public List<String> getDimensionNames() {
             return dimensionNames;
         }
 
+        /**
+         * Sets the names of the dimensions to walk.
+         *
+         * @param dimensionNames the dimension names
+         */
         public void setDimensionNames(List<String> dimensionNames) {
             this.dimensionNames = dimensionNames;
         }
 
+        /**
+         * Gets the number of threads to use, with one dimension processed per thread.
+         *
+         * @return the number of threads
+         */
         public int getThreads() {
             return threads;
         }
 
+        /**
+         * Sets the number of threads to use.
+         *
+         * @param threads the number of threads
+         */
         public void setThreads(int threads) {
             this.threads = threads;
         }
 
     }
 
+    /**
+     * The order in which a dimension's members are visited.
+     */
     public enum TraversalType {
 
+        /**
+         * Visit members level by level.
+         */
         BREADTH_FIRST,
 
+        /**
+         * Fully visit each member's descendants before moving to the next sibling.
+         */
         DEPTH_FIRST
 
     }

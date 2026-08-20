@@ -11,12 +11,20 @@ import java.util.StringJoiner;
 
 import static com.jasonwjones.pbcs.client.impl.export.ExportStringUtils.leftPad;
 
+/**
+ * A {@link PbcsPlanType.ExportCallback} that writes a Markdown-formatted table to the given output stream.
+ */
 public class MarkdownExportCallback implements PbcsPlanType.ExportCallback {
 
     private final PrintStream out;
 
     private final ExportPrintOptions options = new ExportPrintOptions();
 
+    /**
+     * Constructs an instance writing to the given stream.
+     *
+     * @param out the stream to write the Markdown table to
+     */
     public MarkdownExportCallback(OutputStream out) {
         this.out = new PrintStream(out);
     }

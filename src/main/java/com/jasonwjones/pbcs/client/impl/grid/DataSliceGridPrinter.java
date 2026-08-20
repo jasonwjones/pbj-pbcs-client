@@ -1,7 +1,21 @@
 package com.jasonwjones.pbcs.client.impl.grid;
 
+/**
+ * Prints a {@link DataSliceGrid} to the console for debugging purposes.
+ */
 public class DataSliceGridPrinter {
 
+    /**
+     * Constructs an instance of this utility class.
+     */
+    public DataSliceGridPrinter() {
+    }
+
+    /**
+     * Prints the given grid to {@link System#out}.
+     *
+     * @param grid the grid to print
+     */
     public static void print(DataSliceGrid grid) {
         System.out.print("POV: ");
         for (DataSliceGrid.Cell cell : grid.getPov()) {

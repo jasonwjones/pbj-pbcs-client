@@ -22,8 +22,14 @@ import com.jasonwjones.pbcs.interop.impl.InteropClientImpl;
  */
 public interface InteropClient {
 
+	/**
+	 * Snapshot type indicating an LCM export archive.
+	 */
 	String LCM = "LCM";
 
+	/**
+	 * Snapshot type indicating an externally uploaded file.
+	 */
 	String EXTERNAL = "EXTERNAL";
 
 	/**
@@ -40,6 +46,14 @@ public interface InteropClient {
 	 */
 	File downloadFile(String filename) throws PbcsClientException;
 
+	/**
+	 * Downloads a file that has been previously uploaded or otherwise exists from an export, saving it to the
+	 * given local filename.
+	 *
+	 * @param filename the remote name of the file, such as "export.txt"
+	 * @param localFilename the local filename to save the download to
+	 * @return a File object with a handle to the downloaded file
+	 */
 	File downloadFile(String filename, String localFilename);
 
 	/**
@@ -72,6 +86,12 @@ public interface InteropClient {
 	 */
 	String uploadFile(String filename, Optional<String> remoteDir);
 
+	/**
+	 * Uploads a file to PBCS so that it can be imported, without specifying a remote directory.
+	 *
+	 * @param filename the local name of the file to upload
+	 * @return response
+	 */
 	String uploadFile(String filename);
 
 	/**
@@ -99,17 +119,27 @@ public interface InteropClient {
 	 */
 	List<ApplicationSnapshot> listFiles();
 
+	/**
+	 * Gets the capability details (download/upload/export/import) for the snapshot with the given name.
+	 *
+	 * @param name the snapshot name
+	 * @return the snapshot details
+	 */
 	ApplicationSnapshotInfo getSnapshotDetails(String name);
 
 	//public MaintenanceWindow getMaintenanceWindow();
 
 	/**
-	 * TODO: Implement LCM Export functionality.
+	 * Runs an LCM export. Not yet implemented.
+	 *
+	 * @throws UnsupportedOperationException always, until this method is implemented
 	 */
 	void LcmExport();
 
 	/**
-	 * TODO: Implement LCM Import functionality.
+	 * Runs an LCM import. Not yet implemented.
+	 *
+	 * @throws UnsupportedOperationException always, until this method is implemented
 	 */
 	void LcmImport();
 
@@ -120,6 +150,7 @@ public interface InteropClient {
 	List<String> backupsList();
 
 	/**
+	 * Launches a restore of the named backup snapshot.
 	 *
 	 * @param backupName The name of the backup snapshot, as listed in the response for @{@link InteropClientImpl#backupsList()}
 	 * @param parameters Parameters for restore backup. For example targetName:

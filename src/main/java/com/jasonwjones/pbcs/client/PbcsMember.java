@@ -224,14 +224,29 @@ public interface PbcsMember extends PbcsObject {
      */
     enum DataStorage {
 
+        /**
+         * A stored member.
+         */
         STORE_DATA("Store Data"),
 
+        /**
+         * A dynamic calc member.
+         */
         DYNAMIC_CALC("Dynamic Calc"),
 
+        /**
+         * A label-only member.
+         */
         LABEL_ONLY("Label Only"),
 
+        /**
+         * A dynamic calc and store member.
+         */
         DYNAMIC_CALC_AND_STORE("Dynamic Calc and Store"),
 
+        /**
+         * A never-share member.
+         */
         NEVER_SHARE("Never Share"),
 
         /**
@@ -240,6 +255,9 @@ public interface PbcsMember extends PbcsObject {
          */
         SHARED("Shared"),
 
+        /**
+         * A data storage type not otherwise recognized by this library.
+         */
         OTHER("Other");
 
         private final String name;
@@ -248,6 +266,11 @@ public interface PbcsMember extends PbcsObject {
             this.name = name;
         }
 
+        /**
+         * Gets the REST API's string value for this data storage type.
+         *
+         * @return the data storage type name
+         */
         public String getName() {
             return name;
         }

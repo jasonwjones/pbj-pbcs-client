@@ -11,9 +11,18 @@ import org.springframework.lang.NonNull;
 
 import java.io.IOException;
 
+/**
+ * A {@link ClientHttpRequestInterceptor} that logs each request and response at debug level.
+ */
 public class LoggingInterceptor implements ClientHttpRequestInterceptor {
 
     private static final Logger logger = LoggerFactory.getLogger(LoggingInterceptor.class);
+
+    /**
+     * Constructs an instance of this interceptor.
+     */
+    public LoggingInterceptor() {
+    }
 
     @Override
     @NonNull

@@ -16,15 +16,30 @@ import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 
+/**
+ * Translates non-2xx PBCS REST API responses into the appropriate {@link PbcsClientException} subtype.
+ */
 public class MyResponseErrorHandler implements ResponseErrorHandler {
 
 	private static final Logger logger = LoggerFactory.getLogger(MyResponseErrorHandler.class);
 
 	private static final int MAX_RESPONSE_BODY_SNIPPET_LENGTH = 1000;
 
+	/**
+	 * The name of the response header PBCS uses to indicate which action was being performed.
+	 */
 	public static final String X_EPM_ACTION_HEADER = "X-EPM_ACTION";
 
+	/**
+	 * The {@link #X_EPM_ACTION_HEADER} value indicating an export data slice call.
+	 */
 	public static final String ACTION_EXPORT_DATA_SLICE = "Export Data Slice";
+
+	/**
+	 * Constructs an instance of this error handler.
+	 */
+	public MyResponseErrorHandler() {
+	}
 
 	// added because some exceptions seem to have 'detail' property, and JsonAlias isn't available yet (need Jackson 2.9+)
 	private static final ObjectMapper mapper = new ObjectMapper()

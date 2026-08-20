@@ -1,5 +1,9 @@
 package com.jasonwjones.pbcs.client;
 
+/**
+ * Base interface for objects modeled by this library that map to (or are synthesized on top of) PBCS/EPM
+ * Cloud entities, providing common name, parent, and type accessors.
+ */
 public interface PbcsObject {
 
     /**

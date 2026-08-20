@@ -2,16 +2,29 @@ package com.jasonwjones.pbcs.api.v3.dataslices;
 
 import java.util.StringJoiner;
 
+/**
+ * Represents the request payload for the "export data slice" REST endpoint.
+ */
 public class ExportDataSlice {
 
 	private boolean exportPlanningData = false;
 
 	private GridDefinition gridDefinition;
 
+	/**
+	 * Constructs an instance for the given grid definition.
+	 *
+	 * @param gridDefinition the grid definition to export
+	 */
 	public ExportDataSlice(GridDefinition gridDefinition) {
 		this.gridDefinition = gridDefinition;
 	}
 
+	/**
+	 * Gets the value for <code>exportPlanningData</code>.
+	 *
+	 * @return true if supporting details and cell notes should be exported, false otherwise
+	 */
 	public boolean isExportPlanningData() {
 		return exportPlanningData;
 	}
@@ -27,10 +40,20 @@ public class ExportDataSlice {
 		this.exportPlanningData = exportPlanningData;
 	}
 
+	/**
+	 * Gets the grid definition to export.
+	 *
+	 * @return the grid definition
+	 */
 	public GridDefinition getGridDefinition() {
 		return gridDefinition;
 	}
 
+	/**
+	 * Sets the grid definition to export.
+	 *
+	 * @param gridDefinition the grid definition
+	 */
 	public void setGridDefinition(GridDefinition gridDefinition) {
 		this.gridDefinition = gridDefinition;
 	}

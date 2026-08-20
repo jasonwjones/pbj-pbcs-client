@@ -8,10 +8,22 @@ import com.jasonwjones.pbcs.client.PbcsObjectType;
  */
 public class PbcsNoSuchObjectException extends PbcsClientException {
 
+	/**
+	 * The name of the object that doesn't exist.
+	 */
 	private final String objectName;
 
+	/**
+	 * The type of the object that doesn't exist.
+	 */
 	private final PbcsObjectType objectType;
 
+	/**
+	 * Constructs an instance for the given object name and type.
+	 *
+	 * @param objectName the name of the object that doesn't exist
+	 * @param objectType the type of the object that doesn't exist
+	 */
 	public PbcsNoSuchObjectException(String objectName, PbcsObjectType objectType) {
 		super("There is no such " + objectType + " with name " + objectName + " (or you do not have access to it)");
 		this.objectName = objectName;

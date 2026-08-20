@@ -2,6 +2,9 @@ package com.jasonwjones.pbcs.client.sso;
 
 import java.util.Objects;
 
+/**
+ * Key used to cache device codes (or their resulting tokens) by tenant, client ID, and scope.
+ */
 public class DeviceCodeCacheKey {
 
     private final String tenant;
@@ -10,6 +13,13 @@ public class DeviceCodeCacheKey {
 
     private final String scope;
 
+    /**
+     * Constructs an instance for the given tenant, client ID, and scope.
+     *
+     * @param tenant the tenant
+     * @param clientId the client ID
+     * @param scope the scope
+     */
     public DeviceCodeCacheKey(String tenant, String clientId, String scope) {
         this.tenant = tenant;
         this.clientId = clientId;

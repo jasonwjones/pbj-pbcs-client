@@ -5,12 +5,21 @@ import com.jasonwjones.pbcs.client.PbcsMember;
 import com.jasonwjones.pbcs.client.PbcsPlanType;
 import com.jasonwjones.pbcs.util.PlanTypeWalker;
 
+/**
+ * A {@link AbstractMemberVisitor} that matches members whose name or alias is exactly equal to the search
+ * query's search term.
+ */
 public class SearchMemberVisitor extends AbstractMemberVisitor {
 
     private final String memberName;
 
     private final boolean caseSensitive;
 
+    /**
+     * Constructs an instance for the given search query.
+     *
+     * @param memberSearchQuery the search query
+     */
     public SearchMemberVisitor(MemberSearchQuery memberSearchQuery) {
         super(memberSearchQuery);
         this.memberName = memberSearchQuery.getSearchTerm();

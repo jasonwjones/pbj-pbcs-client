@@ -37,6 +37,13 @@ public class IDCSAuthCodeFlow {
 
     private final RestTemplateWithUrlEncodedExtensions restTemplate;
 
+    /**
+     * Constructs an instance for the given client credentials and tenant.
+     *
+     * @param clientId the OAuth client ID
+     * @param clientSecret the OAuth client secret
+     * @param tenant the IDCS tenant
+     */
     public IDCSAuthCodeFlow(String clientId, String clientSecret, String tenant) {
         this(clientId, clientSecret,
                 "https://idcs-" + Objects.requireNonNull(tenant, "tenant cannot be null")

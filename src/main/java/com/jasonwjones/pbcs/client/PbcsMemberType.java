@@ -13,21 +13,45 @@ public enum PbcsMemberType {
 	 */
 	UNKNOWN(0, "Unknown"), // not a real row in table, just give
 
+	/**
+	 * Represents an attribute dimension member.
+	 */
 	ATTRIBUTE(30, "Attribute"),
 
+	/**
+	 * Represents a Scenario dimension member.
+	 */
 	SCENARIO(31, "Scenario"),
 
+	/**
+	 * Represents an Account dimension member.
+	 */
 	ACCOUNT(32, "Account"),
 
+	/**
+	 * Represents an Entity dimension member.
+	 */
 	ENTITY(33, "Entity"),
 
+	/**
+	 * Represents a Period (time) dimension member.
+	 */
 	TIME_PERIOD(34, "Time Period"),
 
+	/**
+	 * Represents a Version dimension member.
+	 */
 	VERSION(35, "Version"),
 
+	/**
+	 * Represents a Year dimension member.
+	 */
 	YEAR(38, "Year"),
 
 	// note that the Currency DIMENSION member itself seems to report a type of 9 while members in it are 37
+	/**
+	 * Represents a Currency dimension member.
+	 */
 	CURRENCY(37, "Currency"),
 
 	/**

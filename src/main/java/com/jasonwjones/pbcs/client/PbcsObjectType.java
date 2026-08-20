@@ -31,6 +31,9 @@ public enum PbcsObjectType {
      */
     JOB,
 
+    /**
+     * Represents the top-level client used to connect to PBCS.
+     */
     CLIENT
 
 }

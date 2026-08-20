@@ -21,10 +21,18 @@ import org.springframework.util.StringUtils;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * Default {@link PbcsPlanType} implementation, backed by the unofficial data management (DM/AIF) endpoint
+ * for dimension discovery unless explicit dimensions are configured.
+ */
 public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType {
 
 	private static final Logger logger = LoggerFactory.getLogger(PbcsPlanTypeImpl.class);
 
+	/**
+	 * The default import options used by {@link PbcsPlanType#setCell(java.util.List, String)} and similar
+	 * convenience methods.
+	 */
 	public static final ImportDataOptions DEFAULT_IMPORT_OPTIONS = new ImportDataOptionsImpl();
 
 	private final PbcsApplication application;
@@ -33,8 +41,14 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 
 	private final PbcsApplication.PlanTypeConfiguration configuration;
 
+	/**
+	 * The member dimension cache configured for this plan type.
+	 */
 	protected final MemberDimensionCache memberDimensionCache;
 
+	/**
+	 * The member resolver configured for this plan type.
+	 */
 	protected final MemberResolver memberResolver;
 
 	PbcsPlanTypeImpl(RestContext context, PbcsApplication application, PbcsApplication.PlanTypeConfiguration configuration) {
@@ -133,6 +147,12 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 		return new DataSliceGrid(this, dataSlice);
 	}
 
+	/**
+	 * Performs a retrieve for the given grid, returning the raw data slice response.
+	 *
+	 * @param grid the grid to retrieve
+	 * @return the resulting data slice
+	 */
 	protected DataSlice retrieveToSlice(PovGrid<String> grid) {
 		try {
 			GridDefinition gridDefinition = new GridDefinition(grid);
@@ -372,6 +392,12 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 		throw new IllegalStateException("Must configure explicit dimensions to search for alias");
 	}
 
+	/**
+	 * Looks up the dimension name for the given member using the configured member dimension cache.
+	 *
+	 * @param memberName the member name
+	 * @return the dimension name, or null if not resolvable from the cache
+	 */
 	public String findMemberDimensionFromCache(String memberName) {
 		String dimensionName = memberDimensionCache.getDimensionName(this, memberName);
 		if (dimensionName == null) {
@@ -410,6 +436,9 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 
 	}
 
+	/**
+	 * Default, mutable {@link ImportDataOptions} implementation.
+	 */
 	public static class ImportDataOptionsImpl implements ImportDataOptions {
 
 		private boolean aggregateData;
@@ -436,11 +465,22 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 
 		private boolean treatBlankAsMissing = false;
 
+		/**
+		 * Constructs an instance with default options.
+		 */
+		public ImportDataOptionsImpl() {
+		}
+
 		@Override
 		public boolean isAggregateData() {
 			return aggregateData;
 		}
 
+		/**
+		 * Sets whether values should be added to existing values.
+		 *
+		 * @param aggregateData true to aggregate, false otherwise
+		 */
 		public void setAggregateData(boolean aggregateData) {
 			this.aggregateData = aggregateData;
 		}
@@ -450,6 +490,11 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 			return cellNotesOption;
 		}
 
+		/**
+		 * Sets the cell notes option.
+		 *
+		 * @param cellNotesOption the cell notes option
+		 */
 		public void setCellNotesOption(CellNotesOption cellNotesOption) {
 			this.cellNotesOption = cellNotesOption;
 		}
@@ -459,6 +504,11 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 			return dateFormat;
 		}
 
+		/**
+		 * Sets the date format used to parse date-typed cell values.
+		 *
+		 * @param dateFormat the date format
+		 */
 		public void setDateFormat(String dateFormat) {
 			this.dateFormat = dateFormat;
 		}
@@ -468,6 +518,11 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 			return strictDateValidation;
 		}
 
+		/**
+		 * Sets whether strict date validation is enabled.
+		 *
+		 * @param strictDateValidation true to enable strict date validation, false otherwise
+		 */
 		public void setStrictDateValidation(boolean strictDateValidation) {
 			this.strictDateValidation = strictDateValidation;
 		}
@@ -477,6 +532,11 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 			return dryRun;
 		}
 
+		/**
+		 * Sets whether this is a dry run.
+		 *
+		 * @param dryRun true if a dry run, false otherwise
+		 */
 		public void setDryRun(boolean dryRun) {
 			this.dryRun = dryRun;
 		}
@@ -486,6 +546,11 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 			return includeRejectedCells;
 		}
 
+		/**
+		 * Sets whether rejected cells should be included in the response.
+		 *
+		 * @param includeRejectedCells true to include rejected cells, false otherwise
+		 */
 		public void setIncludeRejectedCells(boolean includeRejectedCells) {
 			this.includeRejectedCells = includeRejectedCells;
 		}
@@ -495,6 +560,11 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 			return includeRejectedCellsWithDetails;
 		}
 
+		/**
+		 * Sets whether rejected cells should include additional details.
+		 *
+		 * @param includeRejectedCellsWithDetails true to include additional details, false otherwise
+		 */
 		public void setIncludeRejectedCellsWithDetails(boolean includeRejectedCellsWithDetails) {
 			this.includeRejectedCellsWithDetails = includeRejectedCellsWithDetails;
 		}
@@ -504,6 +574,11 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 			return postDataImportRuleNames;
 		}
 
+		/**
+		 * Sets the post data import rule names.
+		 *
+		 * @param postDataImportRuleNames the post data import rule names
+		 */
 		public void setPostDataImportRuleNames(String postDataImportRuleNames) {
 			this.postDataImportRuleNames = postDataImportRuleNames;
 		}
@@ -513,6 +588,11 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 			return throwExceptionIfAnyRejectedCells;
 		}
 
+		/**
+		 * Sets whether an exception should be thrown if any cells are rejected.
+		 *
+		 * @param throwExceptionIfAnyRejectedCells true to throw on rejected cells, false otherwise
+		 */
 		public void setThrowExceptionIfAnyRejectedCells(boolean throwExceptionIfAnyRejectedCells) {
 			this.throwExceptionIfAnyRejectedCells = throwExceptionIfAnyRejectedCells;
 		}
@@ -522,6 +602,11 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 			return returnChangedCells;
 		}
 
+		/**
+		 * Sets whether updated cells should be returned.
+		 *
+		 * @param returnChangedCells true to return updated cells, false otherwise
+		 */
 		public void setReturnChangedCells(boolean returnChangedCells) {
 			this.returnChangedCells = returnChangedCells;
 		}
@@ -531,6 +616,11 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 			return treatBlankAsMissing;
 		}
 
+		/**
+		 * Sets whether blank values should be treated as missing.
+		 *
+		 * @param treatBlankAsMissing true to treat blanks as missing, false otherwise
+		 */
 		public void setTreatBlankAsMissing(boolean treatBlankAsMissing) {
 			this.treatBlankAsMissing = treatBlankAsMissing;
 		}
@@ -540,6 +630,11 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 			return treatZerosAsMissing;
 		}
 
+		/**
+		 * Sets whether zero values should be treated as missing.
+		 *
+		 * @param treatZerosAsMissing true to treat zeros as missing, false otherwise
+		 */
 		public void setTreatZerosAsMissing(boolean treatZerosAsMissing) {
 			this.treatZerosAsMissing = treatZerosAsMissing;
 		}

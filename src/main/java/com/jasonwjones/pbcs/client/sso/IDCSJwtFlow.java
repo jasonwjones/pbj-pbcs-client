@@ -43,10 +43,25 @@ public class IDCSJwtFlow {
 
     private final String tokenEndpoint;
 
+    /**
+     * Constructs an instance using an in-memory refresh token store.
+     *
+     * @param clientId the OAuth client ID
+     * @param clientSecret the OAuth client secret
+     * @param tenant the IDCS tenant
+     */
     public IDCSJwtFlow(String clientId, String clientSecret, String tenant) {
         this(clientId, clientSecret, tenant, new SimpleRefreshTokenStorage());
     }
 
+    /**
+     * Constructs an instance using the given refresh token storage.
+     *
+     * @param clientId the OAuth client ID
+     * @param clientSecret the OAuth client secret
+     * @param tenant the IDCS tenant
+     * @param refreshTokenStorage the storage to use for refresh tokens
+     */
     public IDCSJwtFlow(String clientId, String clientSecret, String tenant, RefreshTokenStorage refreshTokenStorage) {
         this(clientId, clientSecret, tenant, refreshTokenStorage,
                 "https://idcs-" + Objects.requireNonNull(tenant, "tenant cannot be null")
@@ -120,6 +135,10 @@ public class IDCSJwtFlow {
         }
     }
 
+    /**
+     * A {@link RefreshableToken} implementation that lazily exchanges a cached refresh token (or a token
+     * response already obtained during JWT exchange) for an access token, refreshing it as needed.
+     */
     public class RefreshableTokenImpl implements RefreshableToken {
 
         private final String scope;

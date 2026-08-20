@@ -15,6 +15,9 @@ import org.springframework.web.client.HttpServerErrorException;
 
 import java.util.*;
 
+/**
+ * Default {@link PbcsApplication} implementation.
+ */
 public class PbcsApplicationImpl extends AbstractPbcsObject implements PbcsApplication {
 
 	private static final Logger logger = LoggerFactory.getLogger(PbcsApplicationImpl.class);
@@ -25,6 +28,13 @@ public class PbcsApplicationImpl extends AbstractPbcsObject implements PbcsAppli
 
 	private final Application application;
 
+	/**
+	 * Constructs an instance for the given application.
+	 *
+	 * @param context the REST context to use for calls made by this object
+	 * @param client the owning client
+	 * @param application the deserialized application details
+	 */
 	public PbcsApplicationImpl(RestContext context, PbcsPlanningClient client, Application application) {
 		super(context);
 		this.client = client;
@@ -220,6 +230,11 @@ public class PbcsApplicationImpl extends AbstractPbcsObject implements PbcsAppli
 		}
 	}
 
+	/**
+	 * Gets the current user's preferences for this application.
+	 *
+	 * @return the user preferences
+	 */
 	public UserPreferences getUserPreferences() {
 		return get("applications/{application}/userpreferences", UserPreferences.class, getName());
 	}

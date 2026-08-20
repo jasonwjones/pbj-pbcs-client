@@ -4,7 +4,16 @@ import com.jasonwjones.pbcs.client.PbcsPlanType;
 
 import java.util.StringJoiner;
 
+/**
+ * Default, mutable {@link PbcsPlanType.RetrieveOptions} implementation.
+ */
 public class PbcsRetrieveOptionsImpl implements PbcsPlanType.RetrieveOptions {
+
+    /**
+     * Constructs an instance with default options.
+     */
+    public PbcsRetrieveOptionsImpl() {
+    }
 
     /**
      * The default maximum. This technically represents the maximum number of cells that can be retrieved from EPM cloud
@@ -30,6 +39,11 @@ public class PbcsRetrieveOptionsImpl implements PbcsPlanType.RetrieveOptions {
         return provideDimensionHints;
     }
 
+    /**
+     * Sets whether dimension hints should be provided on the export call.
+     *
+     * @param provideDimensionHints true to provide dimension hints, false otherwise
+     */
     public void setProvideDimensionHints(boolean provideDimensionHints) {
         this.provideDimensionHints = provideDimensionHints;
     }
@@ -39,6 +53,11 @@ public class PbcsRetrieveOptionsImpl implements PbcsPlanType.RetrieveOptions {
         return exportPlanningData;
     }
 
+    /**
+     * Sets whether supporting details should be exported along with data.
+     *
+     * @param exportPlanningData true to export supporting details, false otherwise
+     */
     public void setExportPlanningData(boolean exportPlanningData) {
         this.exportPlanningData = exportPlanningData;
     }
@@ -48,6 +67,11 @@ public class PbcsRetrieveOptionsImpl implements PbcsPlanType.RetrieveOptions {
         return suppressMissingRows;
     }
 
+    /**
+     * Sets whether missing rows should be suppressed.
+     *
+     * @param suppressMissingRows true to suppress missing rows, false otherwise
+     */
     public void setSuppressMissing(boolean suppressMissingRows) {
         this.suppressMissingRows = suppressMissingRows;
     }
@@ -57,6 +81,11 @@ public class PbcsRetrieveOptionsImpl implements PbcsPlanType.RetrieveOptions {
         return suppressMissingColumns;
     }
 
+    /**
+     * Sets whether missing columns should be suppressed.
+     *
+     * @param suppressMissingColumns true to suppress missing columns, false otherwise
+     */
     public void setSuppressMissingColumns(boolean suppressMissingColumns) {
         this.suppressMissingColumns = suppressMissingColumns;
     }
@@ -66,6 +95,11 @@ public class PbcsRetrieveOptionsImpl implements PbcsPlanType.RetrieveOptions {
         return maxCellsPerRetrieve;
     }
 
+    /**
+     * Sets the max number of cells to allow per retrieve.
+     *
+     * @param maxCellsPerRetrieve the max cells per retrieve
+     */
     public void setMaxCellsPerRetrieve(int maxCellsPerRetrieve) {
         this.maxCellsPerRetrieve = maxCellsPerRetrieve;
     }

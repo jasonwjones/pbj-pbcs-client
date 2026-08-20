@@ -28,10 +28,23 @@ public class IDCSDeviceCodeFlow {
 
     private final String tokenEndpoint;
 
+    /**
+     * Constructs an instance using an in-memory refresh token store.
+     *
+     * @param clientId the OAuth client ID
+     * @param tenant the IDCS tenant
+     */
     public IDCSDeviceCodeFlow(String clientId, String tenant) {
         this(clientId, tenant, new SimpleRefreshTokenStorage());
     }
 
+    /**
+     * Constructs an instance using the given refresh token storage.
+     *
+     * @param clientId the OAuth client ID
+     * @param tenant the IDCS tenant
+     * @param refreshTokenStorage the storage to use for refresh tokens
+     */
     public IDCSDeviceCodeFlow(String clientId, String tenant, RefreshTokenStorage refreshTokenStorage) {
         this.clientId = clientId;
         this.tenant = tenant;
@@ -39,6 +52,14 @@ public class IDCSDeviceCodeFlow {
         this.tokenEndpoint = "https://idcs-" + tenant + ".identity.oraclecloud.com/oauth2/v1/token";
     }
 
+    /**
+     * Gets a refreshable token for the given scope, using a cached refresh token if available.
+     *
+     * @param scope the OAuth scope to request
+     * @return a refreshable token for the scope
+     * @throws NoExistingRefreshTokenException if no cached refresh token exists; the exception carries the
+     * device code details needed to have the user authorize a new one
+     */
     public RefreshableToken getToken(String scope) throws NoExistingRefreshTokenException {
         String existingRefreshCode = refreshTokenStorage.getRefreshToken(tenant, clientId, scope);
         if (existingRefreshCode == null) {
@@ -64,6 +85,10 @@ public class IDCSDeviceCodeFlow {
         }
     }
 
+    /**
+     * A {@link RefreshableToken} implementation that lazily exchanges a device code (or an existing refresh
+     * token) for an access token, refreshing it as needed.
+     */
     public class RefreshableTokenImpl implements RefreshableToken {
 
         private final String scope;
@@ -76,6 +101,14 @@ public class IDCSDeviceCodeFlow {
 
         private Integer expiresIn;
 
+        /**
+         * Constructs an instance for the given scope, initialized from either a device code or an existing
+         * refresh token.
+         *
+         * @param scope the OAuth scope
+         * @param deviceCodeOrRefreshToken the device code (if isDeviceCode is true) or an existing refresh token
+         * @param isDeviceCode true if deviceCodeOrRefreshToken is a device code, false if it is a refresh token
+         */
         public RefreshableTokenImpl(String scope, String deviceCodeOrRefreshToken, boolean isDeviceCode) {
             this.scope = scope;
             if (isDeviceCode) {
@@ -138,16 +171,38 @@ public class IDCSDeviceCodeFlow {
 
     }
 
+    /**
+     * Thrown by {@link #getToken(String)} when no cached refresh token exists for the requested scope. Carries
+     * the device code details the user needs to authorize a new one; call {@link #confirm()} once they have.
+     */
     public class NoExistingRefreshTokenException extends RuntimeException {
 
+        /**
+         * The OAuth scope that was requested.
+         */
         private final String scope;
 
+        /**
+         * The device code obtained to authorize a new refresh token.
+         */
         private final String deviceCode;
 
+        /**
+         * The URI the user should visit to authorize the device.
+         */
         private final String verificationUri;
 
+        /**
+         * The user code the user must enter at the verification URI.
+         */
         private final String userCode;
 
+        /**
+         * Constructs an instance for the given scope and device code.
+         *
+         * @param scope the OAuth scope that was requested
+         * @param deviceCode the device code obtained to authorize a new refresh token
+         */
         public NoExistingRefreshTokenException(String scope, DeviceCode deviceCode) {
             this.deviceCode = deviceCode.getDeviceCode();
             this.verificationUri = deviceCode.getVerificationUri();
@@ -155,14 +210,29 @@ public class IDCSDeviceCodeFlow {
             this.userCode = deviceCode.getUserCode();
         }
 
+        /**
+         * Gets the URI the user should visit to authorize the device.
+         *
+         * @return the verification URI
+         */
         public String getVerificationUri() {
             return verificationUri;
         }
 
+        /**
+         * Gets the user code the user must enter at the verification URI.
+         *
+         * @return the user code
+         */
         public String getUserCode() {
             return userCode;
         }
 
+        /**
+         * Confirms that the user has authorized the device, exchanging the device code for a refreshable token.
+         *
+         * @return the resulting refreshable token
+         */
         public RefreshableToken confirm() {
             return new RefreshableTokenImpl(scope, deviceCode, true);
         }

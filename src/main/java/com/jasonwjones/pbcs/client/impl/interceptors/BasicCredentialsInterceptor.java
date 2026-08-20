@@ -11,10 +11,20 @@ import org.springframework.util.StringUtils;
 import java.io.IOException;
 import java.util.Base64;
 
+/**
+ * A {@link ClientHttpRequestInterceptor} that adds an HTTP Basic {@code Authorization} header built from a
+ * {@link PbcsConnection}'s credentials, handling both the gen 1 (identity domain qualified) and gen 2
+ * username formats.
+ */
 public class BasicCredentialsInterceptor implements ClientHttpRequestInterceptor {
 
     private final PbcsConnection connection;
 
+    /**
+     * Constructs an instance using credentials from the given connection.
+     *
+     * @param connection the connection to source credentials from
+     */
     public BasicCredentialsInterceptor(PbcsConnection connection) {
         this.connection = connection;
     }

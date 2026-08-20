@@ -17,10 +17,23 @@ public class SubstitutionVariable {
 
 	private String planType;
 
+	/**
+	 * The plan type value returned by the REST API for application-scoped (as opposed to plan-scoped)
+	 * substitution variables.
+	 */
 	public static final String DEFAULT_PLANTYPE = "ALL";
 
+	/**
+	 * Constructs an empty instance for deserialization.
+	 */
 	public SubstitutionVariable() {}
 
+	/**
+	 * Constructs an application-scoped instance with the given name and value.
+	 *
+	 * @param name the variable name
+	 * @param value the variable value
+	 */
 	public SubstitutionVariable(String name, String value) {
 		this.name = name;
 		this.value = value;

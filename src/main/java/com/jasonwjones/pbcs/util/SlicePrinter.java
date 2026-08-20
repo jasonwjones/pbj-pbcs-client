@@ -17,6 +17,17 @@ public class SlicePrinter {
 
 	private String template = "[%-" + defaultWidth + "s]";
 
+	/**
+	 * Constructs an instance of this printer.
+	 */
+	public SlicePrinter() {
+	}
+
+	/**
+	 * Prints the given data slice to {@link System#out}.
+	 *
+	 * @param slice the data slice to print
+	 */
 	public void print(DataSlice slice) {
 
 		// find out how many elements are on the 'left' axis
@@ -34,6 +45,13 @@ public class SlicePrinter {
 		}
 	}
 
+	/**
+	 * Prints the given data slice by calling the given delegate for each cell, instead of printing directly
+	 * to a stream.
+	 *
+	 * @param dataSlice the data slice to print
+	 * @param delegate the delegate to call for each cell
+	 */
 	public void print(DataSlice dataSlice, Delegate delegate) {
 		int column = 1;
 
@@ -64,6 +82,12 @@ public class SlicePrinter {
 		}
 	}
 
+	/**
+	 * Gets the number of member headers on the left axis of the given data slice.
+	 *
+	 * @param slice the data slice
+	 * @return the count of left-axis dimensions
+	 */
 	public int getCountOfLeftDimensions(DataSlice slice) {
 		return slice.getRows().get(0).getHeaders().size();
 	}
@@ -88,6 +112,14 @@ public class SlicePrinter {
 		}
 	}
 
+	/**
+	 * Truncates the given text to the given max length, appending the given indicator if truncated.
+	 *
+	 * @param text the text to truncate, may be null
+	 * @param maxLength the max length
+	 * @param truncIndicator the indicator to append when truncated
+	 * @return the truncated text, or null if text was null
+	 */
 	public static String truncate(String text, int maxLength, String truncIndicator) {
 		if (text == null) return null;
 		if (text.length() > maxLength) {
@@ -96,8 +128,19 @@ public class SlicePrinter {
 		return text;
 	}
 
+	/**
+	 * Callback used by {@link #print(DataSlice, Delegate)} to receive each printed cell.
+	 */
 	public static interface Delegate {
 
+		/**
+		 * Called for each cell to print.
+		 *
+		 * @param row the row of the cell
+		 * @param column the column of the cell
+		 * @param value the cell value
+		 * @param data true if this is a data cell, false if it is a header cell
+		 */
 		public void print(int row, int column, String value, boolean data);
 
 	}

@@ -17,16 +17,28 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Default {@link DataManagementClient} implementation, making calls against the unofficial data management
+ * (DM/AIF) REST endpoints.
+ */
 public class DataManagementClientImpl implements DataManagementClient {
 
     private static final Logger logger = LoggerFactory.getLogger(DataManagementClientImpl.class);
 
+    /**
+     * The default data management API version used by this client.
+     */
     public static final String DEFAULT_VERSION = "V1";
 
     private static final String AIF_BASE = "/aif/rest/";
 
     private final SimpleRestTemplate template;
 
+    /**
+     * Constructs an instance using the given REST context.
+     *
+     * @param context the REST context to use for calls made by this client
+     */
     public DataManagementClientImpl(RestContext context) {
         template = new SimpleRestTemplate(context.getTemplate(), "https://" + context.getServer() + AIF_BASE + DEFAULT_VERSION);
     }

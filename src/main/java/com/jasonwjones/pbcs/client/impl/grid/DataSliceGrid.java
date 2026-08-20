@@ -11,6 +11,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.Function;
 
+/**
+ * A {@link PovGrid} view over a {@link DataSlice}, exposing its POV, top axis, left axis, and data cells
+ * as a two-dimensional grid.
+ */
 public class DataSliceGrid implements PovGrid<DataSliceGrid.Cell> {
 
     private final PbcsPlanType planType;
@@ -29,14 +33,32 @@ public class DataSliceGrid implements PovGrid<DataSliceGrid.Cell> {
 
     private final int leftCols;
 
+    /**
+     * A shared blank cell instance, used for the region where the top and left axes meet.
+     */
     public static final Cell BLANK = new BlankCell();
 
     private final ConcurrentMap<Integer, String> axisDimensionLookups = new ConcurrentHashMap<>();
 
+    /**
+     * Constructs a grid view over the given data slice, inferring the left column count from the data slice's
+     * first row.
+     *
+     * @param planType the plan type the data slice was retrieved from
+     * @param dataSlice the data slice to wrap
+     */
     public DataSliceGrid(PbcsPlanType planType, DataSlice dataSlice) {
         this(planType, dataSlice, dataSlice.getRows().get(0).getHeaders().size());
     }
 
+    /**
+     * Constructs a grid view over the given data slice, using the given left column count hint when the
+     * data slice has no rows to infer it from.
+     *
+     * @param planType the plan type the data slice was retrieved from
+     * @param dataSlice the data slice to wrap
+     * @param leftColsHint the left column count to use if the data slice has no rows
+     */
     public DataSliceGrid(PbcsPlanType planType, DataSlice dataSlice, int leftColsHint) {
         this.planType = planType;
         this.dataSlice = dataSlice;
@@ -64,10 +86,20 @@ public class DataSliceGrid implements PovGrid<DataSliceGrid.Cell> {
         return dataSlice.getRows().get(0).getHeaders().size() + dataSlice.getRows().get(0).getData().size();
     }
 
+    /**
+     * Gets the plan type this data slice was retrieved from.
+     *
+     * @return the plan type
+     */
     public PbcsPlanType getPlanType() {
         return planType;
     }
 
+    /**
+     * Gets the underlying data slice wrapped by this grid.
+     *
+     * @return the data slice
+     */
     public DataSlice getDataSlice() {
         return dataSlice;
     }
@@ -124,6 +156,9 @@ public class DataSliceGrid implements PovGrid<DataSliceGrid.Cell> {
         throw new UnsupportedOperationException();
     }
 
+    /**
+     * Prints this grid to {@link System#out} for debugging purposes.
+     */
     public void print() {
         System.out.println("POV: " + String.join(", ", dataSlice.getPov()));
         for (int row = 0; row < rows; row++) {
@@ -158,26 +193,67 @@ public class DataSliceGrid implements PovGrid<DataSliceGrid.Cell> {
         return leftCols;
     }
 
+    /**
+     * A single cell of a {@link DataSliceGrid}, which may be a member header, a data value, or blank.
+     */
     public interface Cell {
 
+        /**
+         * Gets the type of this cell.
+         *
+         * @return the cell type
+         */
         CellType getType();
 
+        /**
+         * Gets the value of this cell: the member name for a member cell, the data value for a data cell, or
+         * null for a blank cell.
+         *
+         * @return the cell value
+         */
         String getValue(); // TODO: should we just use toString???
 
     }
 
+    /**
+     * A {@link Cell} that represents a member on one of the grid's axes.
+     */
     public interface MemberCell extends Cell {
 
+        /**
+         * Gets the name of the dimension this member belongs to.
+         *
+         * @return the dimension name
+         */
         String getDimensionName();
 
+        /**
+         * Gets the number of the dimension this member belongs to.
+         *
+         * @return the dimension number
+         */
         int getDimensionNumber();
 
     }
 
+    /**
+     * The kinds of cells that can appear in a {@link DataSliceGrid}.
+     */
     public enum CellType {
 
+        /**
+         * A cell representing a member on one of the grid's axes.
+         */
         MEMBER,
+
+        /**
+         * A cell containing a data value.
+         */
         DATA,
+
+        /**
+         * A cell in the blank region where the top and left axes meet.
+         */
         BLANK
 
     }

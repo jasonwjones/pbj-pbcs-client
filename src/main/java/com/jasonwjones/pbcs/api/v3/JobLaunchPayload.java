@@ -16,10 +16,23 @@ import com.fasterxml.jackson.annotation.JsonValue;
  */
 public class JobLaunchPayload extends Payload {
 
+	/**
+	 * Constructs an instance with the given job type and name.
+	 *
+	 * @param jobType the job type
+	 * @param jobName the job name
+	 */
 	public JobLaunchPayload(String jobType, String jobName) {
 		super(jobType, jobName);
 	}
 
+	/**
+	 * Constructs an instance with the given job type, name, and parameters.
+	 *
+	 * @param jobType the job type
+	 * @param jobName the job name
+	 * @param parameters the job launch parameters
+	 */
 	public JobLaunchPayload(String jobType, String jobName, Map<String, String> parameters) {
 		this(jobType, jobName);
 		setParameters(parameters);

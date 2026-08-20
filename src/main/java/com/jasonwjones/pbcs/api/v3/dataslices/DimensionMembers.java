@@ -64,6 +64,12 @@ public class DimensionMembers {
 	private DimensionMembers() {
 	}
 
+	/**
+	 * Constructs an instance with the given dimension names and a single member per row.
+	 *
+	 * @param dimensions the dimension names, may be null
+	 * @param members the members, one per row
+	 */
 	public DimensionMembers(List<String> dimensions, List<String> members) {
 		this.dimensions = dimensions;
 		this.members = new ArrayList<>();
@@ -74,6 +80,13 @@ public class DimensionMembers {
 		}
 	}
 
+	/**
+	 * Creates an instance with the given dimension names and rows of members.
+	 *
+	 * @param dimensions the dimension names, may be null
+	 * @param members the rows of members
+	 * @return a new dimension members instance
+	 */
 	public static DimensionMembers of(List<String> dimensions, List<List<String>> members) {
 		DimensionMembers dm = new DimensionMembers();
 		dm.dimensions = dimensions;
@@ -95,49 +108,110 @@ public class DimensionMembers {
 	}
 
 	// ??: Means DM will be one dimension with the given members?
+	/**
+	 * Creates an instance with no dimension names and one row per given member.
+	 *
+	 * @param members the members, one per row
+	 * @return a new dimension members instance
+	 */
 	public static DimensionMembers of(String... members) {
 		return new DimensionMembers(null, Arrays.asList(members));
 	}
 
+	/**
+	 * Creates an instance with no dimension names and one row per given member name.
+	 *
+	 * @param memberNames the member names, one per row
+	 * @return a new dimension members instance
+	 */
 	public static DimensionMembers ofMemberNames(List<String> memberNames) {
 		return new DimensionMembers(null, memberNames);
 	}
+
+	/**
+	 * Creates an instance representing a single dimension with a single row containing all the given members.
+	 *
+	 * @param members the members for the single row
+	 * @return a new dimension members instance
+	 */
 	public static DimensionMembers ofSingleDimension(String... members) {
 		return of(wrap(mutableList(members)));
 	}
 
+	/**
+	 * Sets the dimension names for this instance.
+	 *
+	 * @param dimensions the dimension names
+	 */
 	public void setDimensions(List<String> dimensions) {
 		this.dimensions = dimensions;
 	}
 
+	/**
+	 * Gets the rows of members.
+	 *
+	 * @return the members
+	 */
 	public List<List<String>> getMembers() {
 		return members;
 	}
 
+	/**
+	 * Sets the rows of members.
+	 *
+	 * @param members the members
+	 */
 	public void setMembers(List<List<String>> members) {
 		this.members = members;
 	}
 
+	/**
+	 * Inserts a new row of members at the beginning of the member rows.
+	 *
+	 * @param addMembers the row of members to insert
+	 */
 	public void addFirst(List<String> addMembers) {
 		this.members.add(0, addMembers);
 	}
 
+	/**
+	 * Appends the given members to the first row of members.
+	 *
+	 * @param addMembers the members to append to the first row
+	 */
 	public void addToFirst(List<String> addMembers) {
 		this.members.get(0).addAll(addMembers);
 	}
 
+	/**
+	 * Builds a mutable list containing the given items.
+	 *
+	 * @param items the items
+	 * @return a mutable list of the items
+	 */
 	public static List<String> mutableList(String... items) {
 		List<String> list = new ArrayList<>();
         Collections.addAll(list, items);
 		return list;
 	}
 
+	/**
+	 * Wraps a single list of members as a single-row list of rows.
+	 *
+	 * @param list the members to wrap
+	 * @return a single-element list containing the given list
+	 */
 	public static List<List<String>> wrap(List<String> list) {
 		List<List<String>> lists = new ArrayList<>();
 		lists.add(list);
 		return lists;
 	}
 
+	/**
+	 * Gets the dimension names for this instance.
+	 *
+	 * @return the dimension names, may be null
+	 */
 	public List<String> getDimensions() {
 		return dimensions;
 	}

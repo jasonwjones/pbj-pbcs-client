@@ -9,6 +9,11 @@ import com.jasonwjones.pbcs.client.PbcsObjectType;
  */
 public class PbcsInvalidMemberException extends PbcsNoSuchObjectException {
 
+    /**
+     * Constructs an instance for the given member name.
+     *
+     * @param memberName the invalid member name
+     */
     public PbcsInvalidMemberException(String memberName) {
         super(memberName, PbcsObjectType.MEMBER);
     }

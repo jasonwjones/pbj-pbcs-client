@@ -44,6 +44,12 @@ import com.jasonwjones.pbcs.client.PbcsServiceConfiguration;
 import com.jasonwjones.pbcs.client.exceptions.PbcsClientException;
 import com.jasonwjones.pbcs.interop.InteropClient;
 
+/**
+ * Default {@link InteropClient} implementation, making calls against the interop (LCM) REST endpoints.
+ *
+ * <p><strong>Currently disabled:</strong> the constructor unconditionally throws {@link UnsupportedOperationException}
+ * pending a refactor, so this class cannot presently be instantiated.
+ */
 public class InteropClientImpl implements InteropClient {
 
 	private static final Logger logger = LoggerFactory.getLogger(InteropClientImpl.class);
@@ -54,6 +60,13 @@ public class InteropClientImpl implements InteropClient {
 
 	private PbcsServiceConfiguration serviceConfiguration;
 
+	/**
+	 * Constructs an instance using the given connection and service configuration.
+	 *
+	 * @param connection the connection to use
+	 * @param serviceConfiguration the service configuration to use
+	 * @throws UnsupportedOperationException always, until this class is refactored and re-enabled
+	 */
 	public InteropClientImpl(PbcsConnection connection, PbcsServiceConfiguration serviceConfiguration) {
 		logger.debug("Initializing PBCS Interop API");
 		this.serviceConfiguration = serviceConfiguration;
@@ -86,6 +99,9 @@ public class InteropClientImpl implements InteropClient {
 		//Vision SS 14 Feb 2016
 	}
 
+	/**
+	 * Lists the REST API versions available at the base interop URL, logging the response.
+	 */
 	public void getApiVersions() {
 		logger.info("Listing REST API versions");
 		ResponseEntity<String> response = restTemplate.getForEntity(baseUrl, String.class);
@@ -147,6 +163,12 @@ public class InteropClientImpl implements InteropClient {
 	}
 
 	// upload local txt to zip
+	/**
+	 * Uploads multiple local files as a single archive to the given remote filename. Not yet implemented.
+	 *
+	 * @param remoteFilename the remote filename to upload to
+	 * @param localFiles the local files to upload
+	 */
 	public void uploadFile(String remoteFilename, List<String> localFiles) {
 		throw new RuntimeException("Not implemented yet");
 	}
@@ -216,6 +238,9 @@ public class InteropClientImpl implements InteropClient {
 		return exchange.toString();
 	}
 
+	/**
+	 * Lists the services available at the interop endpoint, logging the response.
+	 */
 	public void listServices() {
 		logger.info("Listing services");
 		ResponseEntity<ServiceDefinitionWrapper> response = restTemplate.getForEntity(baseUrl + serviceConfiguration.getInteropApiVersion() + "/services", ServiceDefinitionWrapper.class);
@@ -242,6 +267,11 @@ public class InteropClientImpl implements InteropClient {
 	}
 
 	//@Override
+	/**
+	 * Gets the daily maintenance window, logging the raw response.
+	 *
+	 * @return always null; response parsing is not yet implemented
+	 */
 	public MaintenanceWindow getMaintenanceWindow() {
 		ResponseEntity<String> response  = restTemplate.getForEntity(baseUrl + serviceConfiguration.getInteropApiVersion() + "/dailymaintenance", String.class);
 		System.out.println("Response: " + response.getBody());
@@ -250,14 +280,12 @@ public class InteropClientImpl implements InteropClient {
 
 	@Override
 	public void LcmExport() {
-		// TODO Auto-generated method stub
-
+		throw new UnsupportedOperationException("LCM export is not implemented yet");
 	}
 
 	@Override
 	public void LcmImport() {
-		// TODO Auto-generated method stub
-
+		throw new UnsupportedOperationException("LCM import is not implemented yet");
 	}
 
 	@Override

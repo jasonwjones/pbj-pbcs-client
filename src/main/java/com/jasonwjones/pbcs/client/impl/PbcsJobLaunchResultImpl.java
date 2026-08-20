@@ -7,6 +7,9 @@ import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Default {@link PbcsJobStatus} implementation.
+ */
 public class PbcsJobLaunchResultImpl extends AbstractPbcsObject implements PbcsJobStatus {
 
 	private static final Logger logger = LoggerFactory.getLogger(PbcsJobLaunchResultImpl.class);

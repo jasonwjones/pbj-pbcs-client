@@ -11,6 +11,9 @@ import java.util.stream.Collectors;
 
 import static com.jasonwjones.pbcs.client.impl.export.ExportStringUtils.leftPad;
 
+/**
+ * A {@link PbcsPlanType.ExportCallback} that writes a comma-delimited flat file to the given output stream.
+ */
 public class PrintStreamExportCallback implements PbcsPlanType.ExportCallback {
 
     private final PrintStream out;
@@ -22,6 +25,11 @@ public class PrintStreamExportCallback implements PbcsPlanType.ExportCallback {
     // "#.##" for with decimals
     private final String currencyFormat = "#";
 
+    /**
+     * Constructs an instance writing to the given stream.
+     *
+     * @param out the stream to write the delimited output to
+     */
     public PrintStreamExportCallback(OutputStream out) {
         this.out = new PrintStream(out);
     }

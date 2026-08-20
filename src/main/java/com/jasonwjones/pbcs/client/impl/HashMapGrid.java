@@ -5,6 +5,11 @@ import com.jasonwjones.pbcs.client.Grid;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * A {@link Grid} implementation backed by a {@link HashMap}, storing only the cells that have been set.
+ *
+ * @param <E> the cell type
+ */
 public class HashMapGrid<E> implements Grid<E> {
 
 	private final int rows;
@@ -13,6 +18,11 @@ public class HashMapGrid<E> implements Grid<E> {
 
 	private final Map<Integer, E> data;
 
+	/**
+	 * Constructs an instance by copying the contents of the given grid.
+	 *
+	 * @param grid the grid to copy
+	 */
 	public HashMapGrid(Grid<E> grid) {
 		if (grid instanceof HashMapGrid) {
 			HashMapGrid<E> hashMapGrid = (HashMapGrid<E>) grid;
@@ -31,6 +41,12 @@ public class HashMapGrid<E> implements Grid<E> {
 		}
 	}
 
+	/**
+	 * Constructs an empty instance with the given dimensions.
+	 *
+	 * @param rows the number of rows
+	 * @param columns the number of columns
+	 */
 	public HashMapGrid(int rows, int columns) {
 		this.rows = rows;
 		this.columns = columns;

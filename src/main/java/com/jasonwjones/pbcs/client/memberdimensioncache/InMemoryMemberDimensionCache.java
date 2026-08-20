@@ -12,6 +12,12 @@ public class InMemoryMemberDimensionCache implements PbcsPlanType.MemberDimensio
 
     private final ConcurrentMap<String, String> dimensionLookup = new ConcurrentHashMap<>();
 
+    /**
+     * Constructs an empty instance.
+     */
+    public InMemoryMemberDimensionCache() {
+    }
+
     @Override
     public String getDimensionName(PbcsPlanType planType, String memberName) {
         return dimensionLookup.get(memberName);

@@ -7,6 +7,11 @@ package com.jasonwjones.pbcs.client.exceptions;
  */
 public class PbcsKnownInvalidMemberException extends PbcsInvalidMemberException {
 
+    /**
+     * Constructs an instance for the given member name.
+     *
+     * @param memberName the known-invalid member name
+     */
     public PbcsKnownInvalidMemberException(String memberName) {
         super(memberName);
     }

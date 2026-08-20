@@ -345,6 +345,13 @@ public interface PbcsPlanType extends PbcsObject {
 			// no op
 		}
 
+		/**
+		 * Called when a plan wants to record that a member or alias name could not be resolved. The default
+		 * implementation does nothing; resolvers that track known-invalid members should override this.
+		 *
+		 * @param planType the originating plan
+		 * @param invalidMemberOrAliasName the member or alias name that failed to resolve
+		 */
 		default void addInvalidMember(PbcsPlanType planType, String invalidMemberOrAliasName) {
 			// no op
 		}
@@ -401,10 +408,25 @@ public interface PbcsPlanType extends PbcsObject {
 		 */
 		boolean isAggregateData();
 
+		/**
+		 * Gets the cell notes option to use when importing.
+		 *
+		 * @return the cell notes option
+		 */
 		CellNotesOption getCellNotesOption();
 
+		/**
+		 * Gets the date format used to parse date-typed cell values.
+		 *
+		 * @return the date format
+		 */
 		String getDateFormat();
 
+		/**
+		 * Whether strict date validation is enabled.
+		 *
+		 * @return true if strict date validation is enabled, false otherwise
+		 */
 		boolean isStrictDateValidation();
 
 		/**
@@ -452,8 +474,18 @@ public interface PbcsPlanType extends PbcsObject {
 		 */
 		boolean isReturnChangedCells();
 
+		/**
+		 * Whether zero values should be treated as missing.
+		 *
+		 * @return true if zeros should be treated as missing, false otherwise
+		 */
 		boolean isTreatZerosAsMissing();
 
+		/**
+		 * Whether blank values should be treated as missing.
+		 *
+		 * @return true if blanks should be treated as missing, false otherwise
+		 */
 		boolean isTreatBlankAsMissing();
 
 	}
@@ -545,12 +577,24 @@ public interface PbcsPlanType extends PbcsObject {
 
 	}
 
+	/**
+	 * The available options for handling existing cell notes during a data import.
+	 */
 	enum CellNotesOption {
 
+		/**
+		 * Overwrite any existing cell notes.
+		 */
 		OVERWRITE("Overwrite"),
 
+		/**
+		 * Append to any existing cell notes.
+		 */
 		APPEND("Append"),
 
+		/**
+		 * Leave existing cell notes unchanged.
+		 */
 		SKIP("Skip");
 
 		private final String apiCode;
@@ -559,6 +603,11 @@ public interface PbcsPlanType extends PbcsObject {
 			this.apiCode = apiCode;
 		}
 
+		/**
+		 * Gets the REST API's string value for this option.
+		 *
+		 * @return the API code
+		 */
 		public String getApiCode() {
 			return apiCode;
 		}

@@ -25,6 +25,11 @@ public class PropertiesKnownInvalidMemberResolver implements PbcsPlanType.Member
 
     private final Set<String> knownInvalidMembers;
 
+    /**
+     * Constructs an instance backed by the given file, loading any already-known invalid members from it.
+     *
+     * @param file the flat text file to store known invalid members in
+     */
     public PropertiesKnownInvalidMemberResolver(File file) {
         this.file = file;
         this.knownInvalidMembers = new HashSet<>();

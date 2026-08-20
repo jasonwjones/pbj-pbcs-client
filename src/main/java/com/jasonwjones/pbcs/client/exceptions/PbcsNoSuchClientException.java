@@ -10,6 +10,11 @@ package com.jasonwjones.pbcs.client.exceptions;
 @SuppressWarnings("serial")
 public class PbcsNoSuchClientException extends PbcsClientException {
 
+	/**
+	 * Constructs an instance for the given requested version.
+	 *
+	 * @param version the requested API version
+	 */
 	public PbcsNoSuchClientException(String version) {
 		super("There is no API available with version " + version);
 	}

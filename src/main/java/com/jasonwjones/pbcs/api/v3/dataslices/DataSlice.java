@@ -21,6 +21,9 @@ public class DataSlice {
 	 */
 	private List<HeaderDataRow> rows;
 
+	/**
+	 * Constructs an empty instance for deserialization.
+	 */
 	public DataSlice() {}
 
 	/**
@@ -58,10 +61,20 @@ public class DataSlice {
 		this.rows = Collections.singletonList(new HeaderDataRow(pov.get(pov.size() - 1), value));
 	}
 
+	/**
+	 * Gets the POV members for this data slice.
+	 *
+	 * @return the POV
+	 */
 	public List<String> getPov() {
 		return pov;
 	}
 
+	/**
+	 * Sets the POV members for this data slice.
+	 *
+	 * @param pov the POV
+	 */
 	public void setPov(List<String> pov) {
 		this.pov = pov;
 	}
@@ -76,18 +89,37 @@ public class DataSlice {
 		return columns;
 	}
 
+	/**
+	 * Sets the columns (top axis).
+	 *
+	 * @param columns the columns
+	 */
 	public void setColumns(List<List<String>> columns) {
 		this.columns = columns;
 	}
 
+	/**
+	 * Gets the rows of this data slice.
+	 *
+	 * @return the rows
+	 */
 	public List<HeaderDataRow> getRows() {
 		return rows;
 	}
 
+	/**
+	 * Sets the rows of this data slice.
+	 *
+	 * @param rows the rows
+	 */
 	public void setRows(List<HeaderDataRow> rows) {
 		this.rows = rows;
 	}
 
+	/**
+	 * Represents a single row of a {@link DataSlice}: the left-axis member headers for the row, along with
+	 * the row's data and any supporting detail.
+	 */
 	public static class HeaderDataRow {
 
 		private List<String> headers;
@@ -96,8 +128,17 @@ public class DataSlice {
 
 		private List<SupportingDetailWrapper> supportingDetail;
 
+		/**
+		 * Constructs an empty instance for deserialization.
+		 */
 		public HeaderDataRow() {}
 
+		/**
+		 * Constructs an instance with the given headers and data.
+		 *
+		 * @param headers the left-axis member headers for this row
+		 * @param data the data values for this row
+		 */
 		public HeaderDataRow(List<String> headers, List<String> data) {
 			this.headers = headers;
 			this.data = data;
@@ -113,46 +154,99 @@ public class DataSlice {
 			this(Collections.singletonList(header), Collections.singletonList(item));
 		}
 
+		/**
+		 * Gets the left-axis member headers for this row.
+		 *
+		 * @return the headers
+		 */
 		public List<String> getHeaders() {
 			return headers;
 		}
 
+		/**
+		 * Sets the left-axis member headers for this row.
+		 *
+		 * @param headers the headers
+		 */
 		public void setHeaders(List<String> headers) {
 			this.headers = headers;
 		}
 
+		/**
+		 * Gets the data values for this row.
+		 *
+		 * @return the data
+		 */
 		public List<String> getData() {
 			return data;
 		}
 
+		/**
+		 * Sets the data values for this row.
+		 *
+		 * @param data the data
+		 */
 		public void setData(List<String> data) {
 			this.data = data;
 		}
 
+		/**
+		 * Gets the supporting detail for this row, if requested and returned by the export.
+		 *
+		 * @return the supporting detail, may be null if not requested/returned
+		 */
 		public List<SupportingDetailWrapper> getSupportingDetail() {
 			return supportingDetail;
 		}
 
+		/**
+		 * Sets the supporting detail for this row.
+		 *
+		 * @param supportingDetail the supporting detail
+		 */
 		public void setSupportingDetail(List<SupportingDetailWrapper> supportingDetail) {
 			this.supportingDetail = supportingDetail;
 		}
 
 	}
 
+	/**
+	 * Wraps the list of {@link SupportingDetail} entries returned for a single data cell.
+	 */
 	public static class SupportingDetailWrapper {
 
 		private List<SupportingDetail> items;
 
+		/**
+		 * Constructs an empty instance for deserialization.
+		 */
+		public SupportingDetailWrapper() {
+		}
+
+		/**
+		 * Gets the supporting detail entries.
+		 *
+		 * @return the supporting detail entries
+		 */
 		public List<SupportingDetail> getItems() {
 			return items;
 		}
 
+		/**
+		 * Sets the supporting detail entries.
+		 *
+		 * @param items the supporting detail entries
+		 */
 		public void setItems(List<SupportingDetail> items) {
 			this.items = items;
 		}
 
 	}
 
+	/**
+	 * Represents a single supporting detail line item for a data cell, such as one operand of a dynamic
+	 * calc's formula.
+	 */
 	public static class SupportingDetail {
 
 		private String label;
@@ -166,42 +260,99 @@ public class DataSlice {
 
 		private int generation;
 
+		/**
+		 * Constructs an empty instance for deserialization.
+		 */
+		public SupportingDetail() {
+		}
+
+		/**
+		 * Gets the label for this supporting detail line.
+		 *
+		 * @return the label
+		 */
 		public String getLabel() {
 			return label;
 		}
 
+		/**
+		 * Sets the label for this supporting detail line.
+		 *
+		 * @param label the label
+		 */
 		public void setLabel(String label) {
 			this.label = label;
 		}
 
+		/**
+		 * Gets the operator for this supporting detail line, e.g. {@code ~}, {@code +}, {@code -}, {@code *}, or
+		 * {@code /}.
+		 *
+		 * @return the operator
+		 */
 		public String getOperator() {
 			return operator;
 		}
 
+		/**
+		 * Sets the operator for this supporting detail line.
+		 *
+		 * @param operator the operator
+		 */
 		public void setOperator(String operator) {
 			this.operator = operator;
 		}
 
+		/**
+		 * Gets the value for this supporting detail line.
+		 *
+		 * @return the value
+		 */
 		public String getValue() {
 			return value;
 		}
 
+		/**
+		 * Sets the value for this supporting detail line.
+		 *
+		 * @param value the value
+		 */
 		public void setValue(String value) {
 			this.value = value;
 		}
 
+		/**
+		 * Gets the position of this supporting detail line within its parent.
+		 *
+		 * @return the position
+		 */
 		public int getPosition() {
 			return position;
 		}
 
+		/**
+		 * Sets the position of this supporting detail line.
+		 *
+		 * @param position the position
+		 */
 		public void setPosition(int position) {
 			this.position = position;
 		}
 
+		/**
+		 * Gets the generation of this supporting detail line.
+		 *
+		 * @return the generation
+		 */
 		public int getGeneration() {
 			return generation;
 		}
 
+		/**
+		 * Sets the generation of this supporting detail line.
+		 *
+		 * @param generation the generation
+		 */
 		public void setGeneration(int generation) {
 			this.generation = generation;
 		}

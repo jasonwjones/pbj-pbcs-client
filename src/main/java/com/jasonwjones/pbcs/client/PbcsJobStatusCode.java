@@ -3,20 +3,44 @@ package com.jasonwjones.pbcs.client;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * The numeric job status codes returned by the PBCS REST API for a launched job.
+ */
 public enum PbcsJobStatusCode {
 
+	/**
+	 * The job is still running.
+	 */
 	IN_PROGRESS(-1, "In Progress"),
 
+	/**
+	 * The job completed successfully.
+	 */
 	SUCCESS(0, "Success"),
 
+	/**
+	 * The job failed with an error.
+	 */
 	ERROR(1, "Error"),
 
+	/**
+	 * A cancellation of the job has been requested but not yet completed.
+	 */
 	CANCEL_PENDING(2, "Cancel Pending"),
 
+	/**
+	 * The job was cancelled.
+	 */
 	CANCELLED(3, "Cancelled"),
 
+	/**
+	 * The job was launched with an invalid parameter.
+	 */
 	INVALID_PARAMETER(4, "Invalid Parameter"),
 
+	/**
+	 * A status code not otherwise recognized by this library.
+	 */
 	UNKNOWN(Integer.MAX_VALUE, "Unknown");
 
 	private final int code;
@@ -32,6 +56,12 @@ public enum PbcsJobStatusCode {
 		}
 	}
 
+	/**
+	 * Looks up the enum value for the given numeric status code.
+	 *
+	 * @param code the numeric status code
+	 * @return the matching enum value, or {@link #UNKNOWN} if not recognized
+	 */
 	public static PbcsJobStatusCode valueOf(int code) {
 		return lookups.getOrDefault(code, PbcsJobStatusCode.UNKNOWN);
 	}
@@ -41,10 +71,20 @@ public enum PbcsJobStatusCode {
 		this.description = description;
 	}
 
+	/**
+	 * Gets the numeric status code.
+	 *
+	 * @return the status code
+	 */
 	public int getCode() {
 		return code;
 	}
 
+	/**
+	 * Gets a human-readable description of this status.
+	 *
+	 * @return the description
+	 */
 	public String getDescription() {
 		return description;
 	}

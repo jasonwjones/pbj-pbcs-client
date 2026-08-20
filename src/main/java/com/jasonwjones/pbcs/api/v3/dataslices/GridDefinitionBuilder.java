@@ -6,6 +6,10 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * A fluent builder for constructing a {@link GridDefinition}, specifying its POV, top axis, and left axis
+ * members incrementally.
+ */
 public class GridDefinitionBuilder {
 
 	private List<String> povMembers;
@@ -14,17 +18,32 @@ public class GridDefinitionBuilder {
 
 	private List<DimensionMembers> topMembers;
 
+	/**
+	 * Constructs an empty builder.
+	 */
 	public GridDefinitionBuilder() {
 		this.povMembers = new ArrayList<String>();
 		this.leftMembers = new ArrayList<DimensionMembers>();
 		this.topMembers = new ArrayList<DimensionMembers>();
 	}
 
+	/**
+	 * Adds a single member to the POV.
+	 *
+	 * @param member the member to add
+	 * @return the builder
+	 */
 	public GridDefinitionBuilder pov(String member) {
 		povMembers.add(member);
 		return this;
 	}
 
+	/**
+	 * Adds all non-null members from the given rows to the POV.
+	 *
+	 * @param members the members to add
+	 * @return the builder
+	 */
 	public GridDefinitionBuilder pov(String[][] members) {
 		List<String> nonNullMembers = new ArrayList<String>();
 		for (String[] row : members) {
@@ -37,21 +56,45 @@ public class GridDefinitionBuilder {
 		return pov(nonNullMembers);
 	}
 
+	/**
+	 * Adds all the given members to the POV.
+	 *
+	 * @param members the members to add
+	 * @return the builder
+	 */
 	public GridDefinitionBuilder pov(Collection<String> members) {
 		povMembers.addAll(members);
 		return this;
 	}
 
+	/**
+	 * Adds a dimension to the left axis with the given members, one per row.
+	 *
+	 * @param members the members for the new left axis dimension
+	 * @return the builder
+	 */
 	public GridDefinitionBuilder left(List<String> members) {
 		leftMembers.add(new DimensionMembers(null, members));
 		return this;
 	}
 
+	/**
+	 * Adds a dimension to the top axis with the given members.
+	 *
+	 * @param members the members for the new top axis dimension
+	 * @return the builder
+	 */
 	public GridDefinitionBuilder top(String... members) {
 		topMembers.add(DimensionMembers.of(members));
 		return this;
 	}
 
+	/**
+	 * Adds a dimension to the top axis with the given members, one per row.
+	 *
+	 * @param members the members for the new top axis dimension
+	 * @return the builder
+	 */
 	public GridDefinitionBuilder top(List<String> members) {
 		topMembers.add(new DimensionMembers(null, members));
 		return this;
@@ -112,14 +155,32 @@ public class GridDefinitionBuilder {
 		return topWithLists(outerToInner);
 	}
 
+	/**
+	 * Array-based convenience form of {@link #topWithListsNatural(List)}.
+	 *
+	 * @param data the data, in natural (row-major) orientation
+	 * @return the builder
+	 */
 	public GridDefinitionBuilder topWithArraysNatural(String[][] data) {
 		return topWithListsNatural(toLists(data));
 	}
 
+	/**
+	 * Adds one left axis dimension per given list, using each list's contents as that dimension's rows.
+	 *
+	 * @param memberLists the member lists, one per left axis dimension
+	 * @return the builder
+	 */
 	public GridDefinitionBuilder leftWithLists(List<List<String>> memberLists) {
 		return withLists(leftMembers, memberLists);
 	}
 
+	/**
+	 * Array-based convenience form of {@link #leftWithLists(List)}.
+	 *
+	 * @param memberLists the member lists, one per left axis dimension
+	 * @return the builder
+	 */
 	public GridDefinitionBuilder leftWithArrays(String[][] memberLists) {
 		return leftWithLists(toLists(memberLists));
 	}
@@ -143,6 +204,12 @@ public class GridDefinitionBuilder {
 		return this;
 	}
 
+	/**
+	 * Inserts the given members at the start of every existing left axis dimension.
+	 *
+	 * @param members the members to insert
+	 * @return the builder
+	 */
 	public GridDefinitionBuilder leftAdd(String... members) {
 		List<String> items = toList(members);
 		for (DimensionMembers dm : leftMembers) {
@@ -167,6 +234,14 @@ public class GridDefinitionBuilder {
 		return this;
 	}
 
+	/**
+	 * Automatically lays out the given members: the first becomes the sole top axis member, the second the
+	 * sole left axis member, and the rest are added to the POV.
+	 *
+	 * @param members the members to lay out, at least 2
+	 * @return the builder
+	 * @throws IllegalArgumentException if fewer than 2 members are given
+	 */
 	public GridDefinitionBuilder auto(Collection<String> members) {
 		if (members.size() < 2) {
 			throw new IllegalArgumentException("Auto layout requires at least 2 members");
@@ -178,6 +253,15 @@ public class GridDefinitionBuilder {
 		return this;
 	}
 
+	/**
+	 * Automatically lays out the given members, using the specified members as the sole left and top axis
+	 * members and adding the rest to the POV.
+	 *
+	 * @param members the full set of members
+	 * @param left the member to use as the sole left axis member
+	 * @param top the member to use as the sole top axis member
+	 * @return the builder
+	 */
 	public GridDefinitionBuilder auto(Collection<String> members, String left, String top) {
 		Set<String> memberSet = new LinkedHashSet<String>(members);
 		memberSet.remove(left);
@@ -188,11 +272,22 @@ public class GridDefinitionBuilder {
 		return this;
 	}
 
+	/**
+	 * Removes the given members from the POV.
+	 *
+	 * @param pov the members to remove
+	 * @return the builder
+	 */
 	public GridDefinitionBuilder removePov(String... pov) {
 		povMembers.removeAll(toList(pov));
 		return this;
 	}
 
+	/**
+	 * Swaps the top and left axis definitions.
+	 *
+	 * @return the builder
+	 */
 	public GridDefinitionBuilder pivot() {
 		List<DimensionMembers> temp = leftMembers;
 		leftMembers = topMembers;
@@ -200,6 +295,11 @@ public class GridDefinitionBuilder {
 		return this;
 	}
 
+	/**
+	 * Builds the grid definition from the POV, top axis, and left axis specified so far.
+	 *
+	 * @return the resulting grid definition
+	 */
 	public GridDefinition build() {
 		GridDefinition gridDefinition = new GridDefinition();
 		gridDefinition.setPov(new DimensionMembers(null, povMembers));

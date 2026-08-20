@@ -8,10 +8,22 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Flattens a {@link PovGrid} into a map of full member-path headers to cell values, primarily intended for
+ * diffing or comparing sparse grids.
+ */
 public class PovGridWalker {
 
     private PovGridWalker() {}
 
+    /**
+     * Flattens the given grid into a map keyed by each cell's full set of headers (the grid's POV plus the
+     * member headers for that cell's row and column), with the cell value as the map value.
+     *
+     * @param grid the grid to flatten
+     * @param <E> the cell type
+     * @return the flattened grid
+     */
     public static <E> Map<List<E>, E> walk(PovGrid<E> grid) {
         final int firstRow = GridUtils.firstInColumn(grid, 0, v -> v != null && v != DataSliceGrid.BLANK);
         final int firstCol = GridUtils.firstInRow(grid, 0, v -> v != null && v != DataSliceGrid.BLANK);

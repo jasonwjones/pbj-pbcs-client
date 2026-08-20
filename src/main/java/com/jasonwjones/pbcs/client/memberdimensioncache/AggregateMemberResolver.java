@@ -6,14 +6,29 @@ import com.jasonwjones.pbcs.client.PbcsPlanType;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * A {@link PbcsPlanType.MemberResolver} that delegates to a list of other resolvers, checking each in order
+ * and returning the first non-null result. Updates (via {@link #setMember} and {@link #addInvalidMember})
+ * are propagated to all the delegate resolvers.
+ */
 public class AggregateMemberResolver implements PbcsPlanType.MemberResolver {
 
     private final List<PbcsPlanType.MemberResolver> memberResolvers;
 
+    /**
+     * Constructs an instance that delegates to the given resolvers, in the order given.
+     *
+     * @param memberResolvers the delegate resolvers
+     */
     public AggregateMemberResolver(PbcsPlanType.MemberResolver... memberResolvers) {
         this(Arrays.asList(memberResolvers));
     }
 
+    /**
+     * Constructs an instance that delegates to the given resolvers, in the order given.
+     *
+     * @param memberResolvers the delegate resolvers
+     */
     public AggregateMemberResolver(List<PbcsPlanType.MemberResolver> memberResolvers) {
         this.memberResolvers = memberResolvers;
     }

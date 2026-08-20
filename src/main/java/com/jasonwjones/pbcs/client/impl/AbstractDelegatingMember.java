@@ -18,12 +18,25 @@ public abstract class AbstractDelegatingMember implements PbcsMember {
 
     private PbcsMember member;
 
+    /**
+     * Constructs an instance delegating to the member with the given name and dimension in the given plan type.
+     *
+     * @param planType the plan type the delegate member belongs to
+     * @param memberName the delegate member's name
+     * @param dimensionName the delegate member's dimension name
+     * @throws NullPointerException if any argument is null
+     */
     protected AbstractDelegatingMember(PbcsPlanType planType, String memberName, String dimensionName) {
         this.planType = Objects.requireNonNull(planType, "Plan type must not be null");
         this.memberName = Objects.requireNonNull(memberName, "Member name must not be null");
         this.dimensionName = Objects.requireNonNull(dimensionName, "Dimension name must not be null");
     }
 
+    /**
+     * Resolves (and caches) the delegate member from the plan type.
+     *
+     * @return the delegate member
+     */
     protected PbcsMember member() {
         if (member == null) {
             member = planType.getMember(getDimensionName(), getName());

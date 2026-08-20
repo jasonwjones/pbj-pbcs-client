@@ -12,6 +12,13 @@ public class NonCachingMemberDimensionCache implements PbcsPlanType.MemberResolv
 
     private static final NonCachingMemberDimensionCache INSTANCE = new NonCachingMemberDimensionCache();
 
+    /**
+     * Constructs an instance of this cache. Prefer {@link #getInstance()} since this implementation is
+     * stateless.
+     */
+    public NonCachingMemberDimensionCache() {
+    }
+
     @Override
     public PbcsMember getMember(PbcsPlanType planType, String memberOrAliasName) {
         return null;
@@ -32,6 +39,11 @@ public class NonCachingMemberDimensionCache implements PbcsPlanType.MemberResolv
         // nothing
     }
 
+    /**
+     * Gets the shared instance of this cache.
+     *
+     * @return the shared instance
+     */
     public static NonCachingMemberDimensionCache getInstance() {
         return INSTANCE;
     }

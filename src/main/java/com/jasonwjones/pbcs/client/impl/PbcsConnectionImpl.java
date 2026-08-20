@@ -7,6 +7,9 @@ import org.springframework.util.Assert;
 
 import com.jasonwjones.pbcs.client.PbcsConnection;
 
+/**
+ * Default {@link PbcsConnection} implementation, backed by a plain username and password.
+ */
 public class PbcsConnectionImpl implements PbcsConnection {
 
 	private final String server;
@@ -36,6 +39,14 @@ public class PbcsConnectionImpl implements PbcsConnection {
 		this.password = password;
 	}
 
+    /**
+     * Copies a non-token connection into a new {@link PbcsConnectionImpl}.
+     *
+     * @param connection the connection to copy
+     * @return a new connection with the same details
+     * @throws NullPointerException if connection is null
+     * @throws IllegalArgumentException if connection is a token-based connection
+     */
     public static PbcsConnectionImpl from(PbcsConnection connection) {
         Objects.requireNonNull(connection, "Connection may not be null");
         if (connection.isToken()) throw new IllegalArgumentException("Cannot copy token connection into regular connection");

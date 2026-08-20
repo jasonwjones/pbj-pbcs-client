@@ -111,6 +111,14 @@ public interface PbcsApplication extends PbcsObject {
      */
     PbcsJobStatus launchBusinessRule(String ruleName, Map<String, String> parameters);
 
+	/**
+	 * Adds a new member to the given dimension under the given parent.
+	 *
+	 * @param dimensionName the dimension to add the member to
+	 * @param memberName the name of the new member
+	 * @param parentName the name of the parent member to add the new member under
+	 * @return the newly added member
+	 */
 	PbcsMember addMember(String dimensionName, String memberName, String parentName);
 
 	/**

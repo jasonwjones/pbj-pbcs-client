@@ -5,6 +5,9 @@ import java.util.Set;
 import com.jasonwjones.pbcs.aif.AifDimension;
 import com.jasonwjones.pbcs.client.*;
 
+/**
+ * Default {@link PbcsAppDimension} implementation.
+ */
 public class PbcsDimensionImpl extends AbstractPbcsObject implements PbcsAppDimension {
 
 	private final Set<String> plans;

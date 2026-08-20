@@ -7,12 +7,23 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+/**
+ * Default {@link PovGrid} implementation, pairing a fixed POV with a delegate {@link Grid} for the cells.
+ *
+ * @param <E> the cell type
+ */
 public class PovGridImpl<E> implements PovGrid<E> {
 
     private final List<E> pov;
 
     private final Grid<E> grid;
 
+    /**
+     * Constructs an instance with the given POV and cell grid.
+     *
+     * @param pov the POV
+     * @param grid the cell grid
+     */
     public PovGridImpl(List<E> pov, Grid<E> grid) {
         this.pov = pov;
         this.grid = grid;
@@ -36,6 +47,15 @@ public class PovGridImpl<E> implements PovGrid<E> {
         return new PovGridImpl<>(pov, grid);
     }
 
+    /**
+     * Creates a new grid that's a copy of the given grid, applying the given conversion function to each cell.
+     *
+     * @param sourceGrid the grid to copy
+     * @param conversion the conversion function
+     * @param <E> the source cell type
+     * @param <R> the result cell type
+     * @return a new grid that is a copy of the source grid after applying the conversion function to each cell
+     */
     public static <E, R> PovGrid<R> copy(PovGrid<E> sourceGrid, Function<E, R> conversion) {
         List<R> pov = sourceGrid.getPov().stream().map(conversion).collect(Collectors.toList());
         Grid<R> grid = new HashMapGrid<>(sourceGrid.getRows(), sourceGrid.getColumns());
