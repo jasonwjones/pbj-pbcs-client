@@ -21,6 +21,7 @@ import java.util.List;
 import static com.jasonwjones.pbcs.matchers.DataSliceGridMatcher.hasDimensions;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.empty;
 
 /**
  * Notes on ad hoc options:
@@ -66,8 +67,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 @Category(ReadOnlyIntegrationTest.class)
 public class PbcsPlanTypeAdhocIT extends AbstractVisionCubeIT {
 
-    protected PbcsPlanType cube;
-
     public static final List<String> BASE_DIMENSIONS = Arrays.asList("Account", "Currency", "Entity", "Period", "Product", "Scenario", "Version", "Year");
 
     /**
@@ -89,15 +88,25 @@ public class PbcsPlanTypeAdhocIT extends AbstractVisionCubeIT {
         DataSliceGridPrinter.print(dataSliceGrid);
     }
 
-    // this is a quick test to ensure that PBCS supports retrieving without a POV (and therefore, a fully-qualified
-    // or fully-stacked grid
+    // Ensure that PBCS supports retrieving a fully-qualified/fully-stacked grid without a POV while using dimensions
+    // discovered from the official plan-type dimension endpoint and supplying those dimensions as export hints.
     @Test
-    public void getFullyStacked() throws IOException {
-        Grid<String> grid = new TextGridReader().read("grids/fully-stacked.txt");
-        GridPrinter.print(grid);
+    public void retrieveFullyStackedWithDiscoveredDimensionsAndNoPov() throws IOException {
+        PbcsPlanType discoveredCube = app.getPlanType(PLAN);
+        assertThat(discoveredCube.isExplicitDimensions(), is(true));
+        for (String dimension : BASE_DIMENSIONS) {
+            assertThat(discoveredCube.getDimension(dimension).getName(), is(dimension));
+        }
 
-        DataSliceGrid dataSliceGrid = cube.retrieve(Collections.emptyList(), grid);
-        DataSliceGridPrinter.print(dataSliceGrid);
+        Grid<String> grid = new TextGridReader().read("grids/fully-stacked.txt");
+        PovGrid<String> povGrid = new PovGridImpl<>(Collections.emptyList(), grid);
+        PbcsRetrieveOptionsImpl retrieveOptions = new PbcsRetrieveOptionsImpl();
+        retrieveOptions.setProvideDimensionHints(true);
+
+        DataSliceGrid dataSliceGrid = discoveredCube.retrieve(povGrid, retrieveOptions);
+
+        assertThat(dataSliceGrid.getDataSlice().getPov(), empty());
+        assertThat(dataSliceGrid, hasDimensions(grid));
     }
 
     @Test
@@ -164,7 +173,9 @@ public class PbcsPlanTypeAdhocIT extends AbstractVisionCubeIT {
     private DataSliceGrid retrieve(PovGrid<String> grid) {
         GridPrinter.print(grid);
 
-        DataSliceGrid dataSliceGrid = cube.retrieve(grid, null);
+        PbcsRetrieveOptionsImpl retrieveOptions = new PbcsRetrieveOptionsImpl();
+        retrieveOptions.setProvideDimensionHints(true);
+        DataSliceGrid dataSliceGrid = cube.retrieve(grid, retrieveOptions);
         DataSliceGridPrinter.print(dataSliceGrid);
         return dataSliceGrid;
     }
