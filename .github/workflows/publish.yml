@@ -37,7 +37,7 @@ jobs:
             exit 1
           fi
       - name: Test and publish to Maven Central
-        run: ./mvnw -B --no-transfer-progress deploy
+        run: ./mvnw -B --no-transfer-progress deploy -Dgpg.skip=false
         env:
           MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
           OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
