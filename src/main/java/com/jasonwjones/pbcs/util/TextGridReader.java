@@ -4,7 +4,6 @@ import com.jasonwjones.pbcs.client.Grid;
 import com.jasonwjones.pbcs.client.PovGrid;
 import com.jasonwjones.pbcs.client.impl.HashMapGrid;
 import com.jasonwjones.pbcs.client.impl.PovGridImpl;
-import org.apache.commons.io.IOUtils;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.util.StringUtils;
@@ -48,7 +47,7 @@ public class TextGridReader {
      * @throws IOException if the stream cannot be read
      */
     public Grid<String> read(InputStream inputStream, String separator) throws IOException {
-        String gridText = IOUtils.toString(inputStream, StandardCharsets.UTF_8.name());
+        String gridText = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
         return read(gridText, separator);
     }
 
@@ -61,7 +60,7 @@ public class TextGridReader {
      */
     public PovGrid<String> readPovGridFromFile(String resourceName) throws IOException {
         Resource resource = new ClassPathResource(resourceName);
-        String gridText = IOUtils.toString(resource.getInputStream(), StandardCharsets.UTF_8.name());
+        String gridText = new String(resource.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
         return readPovGrid(gridText, ",");
     }
 

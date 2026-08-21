@@ -1,6 +1,5 @@
 package com.jasonwjones.pbcs.client.impl.interceptors;
 
-import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpRequest;
@@ -38,7 +37,7 @@ public class LoggingInterceptor implements ClientHttpRequestInterceptor {
         ClientHttpResponse response = execution.execute(request, body);
 
         if (logger.isDebugEnabled()) {
-            String responseBody = new String(IOUtils.toByteArray(response.getBody()));
+            String responseBody = new String(response.getBody().readAllBytes());
             logger.debug("Received {} from {} to {}: {}", response.getStatusCode(), request.getMethod(), request.getURI(), responseBody);
         }
 

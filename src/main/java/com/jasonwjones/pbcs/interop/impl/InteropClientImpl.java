@@ -6,6 +6,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -14,8 +15,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
@@ -145,7 +144,7 @@ public class InteropClientImpl implements InteropClient {
 			final RequestCallback requestCallback = request -> {
 				request.getHeaders()
 					   .add("Content-type", "application/octet-stream");
-				IOUtils.copy(fis, request.getBody());
+				fis.transferTo(request.getBody());
 			};
 			final HttpMessageConverterExtractor<String> responseExtractor = new HttpMessageConverterExtractor<>(String.class,
 																												restTemplate.getMessageConverters());
@@ -217,7 +216,7 @@ public class InteropClientImpl implements InteropClient {
 		try {
 			File outputFile = new File(localFilename);
 			// TODO: add file extension if the target file does not end with it
-			FileUtils.writeByteArrayToFile(outputFile, response.getBody());
+			Files.write(outputFile.toPath(), response.getBody());
 			return outputFile;
 		} catch (IOException e) {
 			logger.error("Unable to write local file", e);
@@ -381,7 +380,7 @@ public class InteropClientImpl implements InteropClient {
 				public Void extractData(ClientHttpResponse response) throws IOException {
 					try (InputStream body = response.getBody()) {
 						FileOutputStream output = new FileOutputStream(outputFile);
-						IOUtils.copy(body, output);
+						body.transferTo(output);
 						return null;
 					}
 				}

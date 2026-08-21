@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jasonwjones.pbcs.client.exceptions.PbcsClientException;
 import com.jasonwjones.pbcs.client.exceptions.PbcsGeneralException;
 import com.jasonwjones.pbcs.client.exceptions.PbcsInvalidCredentialsException;
-import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpMethod;
@@ -49,7 +48,7 @@ public class MyResponseErrorHandler implements ResponseErrorHandler {
 	public void handleError(URI url, HttpMethod method, ClientHttpResponse response) throws IOException {
 		// pull the response body and pass separately since the first read of the stream off of
 		// ClientHttpResponse would eat it and make subsequent attempts fail
-		String responseBody = IOUtils.toString(response.getBody(), StandardCharsets.UTF_8);
+		String responseBody = new String(response.getBody().readAllBytes(), StandardCharsets.UTF_8);
 		int statusCode = response.getStatusCode().value();
 		String statusText = response.getStatusText();
 
