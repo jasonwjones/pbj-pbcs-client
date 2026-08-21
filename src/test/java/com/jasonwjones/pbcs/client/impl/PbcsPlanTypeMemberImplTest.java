@@ -45,6 +45,21 @@ public class PbcsPlanTypeMemberImplTest {
     }
 
     @Test
+    public void planMemberFiltersDifferentlyNamedAliasOccurrenceFromAnotherPlan() {
+        PbcsMemberPropertiesImpl plan1NoProduct = member("P_000", List.of("Plan1"));
+        plan1NoProduct.setAlias("No Product");
+        PbcsMemberPropertiesImpl plan2NoProduct = member("No Product", List.of("Plan2"));
+        plan2NoProduct.setAlias("No Product");
+        PbcsMemberPropertiesImpl product = member("Product", Arrays.asList("Plan1", "Plan2"),
+                plan1NoProduct, plan2NoProduct);
+
+        PbcsMember member = planType(application(Map.of("Product", product))).getMember("Product", "Product");
+
+        assertThat(childNames(member), contains("P_000"));
+        assertThat(member.getChildren().stream().map(PbcsMember::getAlias).collect(toList()), contains("No Product"));
+    }
+
+    @Test
     public void planMemberTreatsEmptyUsedInAsUnscoped() {
         PbcsMemberPropertiesImpl child = member("Empty UsedIn", Collections.emptyList());
         PbcsMemberPropertiesImpl root = member("Account", List.of("Plan1"), child);
