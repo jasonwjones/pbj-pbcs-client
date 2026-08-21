@@ -182,26 +182,25 @@ public class PbcsApplicationImpl extends AbstractPbcsObject implements PbcsAppli
 		updateSubstitutionVariables(subVar);
 	}
 
-	/**
-	 * CREST doc: Adds a new member to the application outline in the specified
-	 * dimension and plan type and under the specified parent member.
-	 * Prerequisite: The parent member must be enabled for dynamic children and
-	 * a cube refresh must have happened after the parent was enabled.
-	 */
-
-	// TODO: currently getting a BAD request 400 possibly because it's not enable dynamic children.
 	@Override
 	public PbcsMember addMember(String dimensionName, String memberName, String parentName) {
-		//MemberAdd ma = new MemberAdd(memberName, parentName);
-        throw new UnsupportedOperationException("Needs to be refactored");
-        //post("applications/{application}/dimensions/{dimName}/members")
+		Assert.hasText(dimensionName, "Must specify a dimension name");
+		Assert.hasText(memberName, "Must specify a member name");
+		Assert.hasText(parentName, "Must specify a parent member name");
 
-		// ResponseEntity<PbcsMemberPropertiesImpl> memberResponse =
-		// PbcsMemberPropertiesImpl.class, application.getName(), dimensionName,
-		// memberName);
-		// return memberResponse.getBody();
-
-		// TODO Auto-generated method stub
+		logger.info("Adding member {} under parent {} in dimension {} for {}", memberName, parentName, dimensionName, getName());
+		try {
+			PbcsMemberPropertiesImpl properties = post("applications/{application}/dimensions/{dimName}/members",
+					new MemberAdd(memberName, parentName), PbcsMemberPropertiesImpl.class, getName(), dimensionName);
+			return new PbcsMemberImpl(context, this, properties);
+		} catch (PbcsGeneralException e) {
+			// see PbcsMemberAddException javadoc for the exact message the REST API returns for this case, confirmed
+			// live; anything else is left as the general exception rather than guessed at
+			if (e.getMessage() != null && e.getMessage().toLowerCase().contains("not enabled for dynamic children")) {
+				throw new PbcsMemberAddException(memberName, parentName, dimensionName);
+			}
+			throw e;
+		}
 	}
 
 	@Override

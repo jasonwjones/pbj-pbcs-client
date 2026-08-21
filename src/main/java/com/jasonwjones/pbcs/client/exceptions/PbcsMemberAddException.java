@@ -1,70 +1,68 @@
 package com.jasonwjones.pbcs.client.exceptions;
 
 /**
- * Future use: thrown when there's a problem adding a member to a cube
- * 
- * @author jasonwjones
- *
+ * Thrown when {@link com.jasonwjones.pbcs.client.PbcsApplication#addMember(String, String, String)} fails because
+ * the given parent member is not enabled for dynamic children in the outline. Confirmed against a live EPM Cloud
+ * tenant, the REST API returns a 400 with a detail message of the form "Cannot add member &lt;X&gt; because its
+ * parent &lt;Y&gt; is not enabled for dynamic children."
  */
 @SuppressWarnings("serial")
 public class PbcsMemberAddException extends PbcsClientException {
 
 	/**
-	 * The instance value from the error payload, if any.
+	 * The name of the member that failed to be added.
 	 */
-	private String instance;
+	private final String memberName;
 
 	/**
-	 * The type value from the error payload, if any.
+	 * The name of the parent member, which is not enabled for dynamic children.
 	 */
-	private String type;
+	private final String parentName;
 
 	/**
-	 * The detail value from the error payload, if any.
+	 * The dimension the member was being added to.
 	 */
-	private String detail;
+	private final String dimensionName;
 
 	/**
-	 * The numeric status code from the error payload, if any.
+	 * Constructs an instance for the given member, parent, and dimension.
+	 *
+	 * @param memberName the name of the member that failed to be added
+	 * @param parentName the name of the parent member, which is not enabled for dynamic children
+	 * @param dimensionName the dimension the member was being added to
 	 */
-	private Integer status;
+	public PbcsMemberAddException(String memberName, String parentName, String dimensionName) {
+		super("Cannot add member " + memberName + " to dimension " + dimensionName + " because its parent " + parentName + " is not enabled for dynamic children");
+		this.memberName = memberName;
+		this.parentName = parentName;
+		this.dimensionName = dimensionName;
+	}
 
 	/**
-	 * The error path from the error payload, if any.
+	 * Gets the name of the member that failed to be added.
+	 *
+	 * @return the member name
 	 */
-	private String errorPath;
+	public String getMemberName() {
+		return memberName;
+	}
 
 	/**
-	 * The title value from the error payload, if any.
+	 * Gets the name of the parent member, which is not enabled for dynamic children.
+	 *
+	 * @return the parent member name
 	 */
-	private String title;
-
-	// might really be an int
-	/**
-	 * The error code from the error payload, if any.
-	 */
-	private String errorCode;
+	public String getParentName() {
+		return parentName;
+	}
 
 	/**
-	 * The error details from the error payload, if any.
+	 * Gets the name of the dimension the member was being added to.
+	 *
+	 * @return the dimension name
 	 */
-	private String errorDetails;
-
-	/**
-	 * The message from the error payload, if any.
-	 */
-	private String message;
-
-	/**
-	 * The localized message from the error payload, if any.
-	 */
-	private String localizedMessage;
-
-	/**
-	 * Constructs an instance with a default message.
-	 */
-	public PbcsMemberAddException() {
-		super("Error adding member");
+	public String getDimensionName() {
+		return dimensionName;
 	}
 
 }

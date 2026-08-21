@@ -113,11 +113,15 @@ public interface PbcsApplication extends PbcsObject {
     PbcsJobStatus launchBusinessRule(String ruleName, Map<String, String> parameters);
 
 	/**
-	 * Adds a new member to the given dimension under the given parent.
+	 * Adds a new member to the given dimension under the given parent. The parent member must already be enabled
+	 * for dynamic children in the outline (with a cube refresh having occurred since), or the REST API rejects the
+	 * request with a 400 error; this method does not itself enable dynamic children on the parent. Requires the
+	 * Service Administrator role.
 	 *
 	 * @param dimensionName the dimension to add the member to
 	 * @param memberName the name of the new member
-	 * @param parentName the name of the parent member to add the new member under
+	 * @param parentName the name of the parent member to add the new member under; must already be enabled for
+	 *                    dynamic children
 	 * @return the newly added member
 	 */
 	PbcsMember addMember(String dimensionName, String memberName, String parentName);

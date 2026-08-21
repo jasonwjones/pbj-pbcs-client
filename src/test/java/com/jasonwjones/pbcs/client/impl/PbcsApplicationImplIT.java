@@ -5,6 +5,7 @@ import com.jasonwjones.pbcs.client.*;
 import com.jasonwjones.pbcs.client.exceptions.PbcsInvalidDimensionException;
 import com.jasonwjones.pbcs.client.exceptions.PbcsInvalidMemberException;
 import com.jasonwjones.pbcs.client.exceptions.PbcsJobLaunchException;
+import com.jasonwjones.pbcs.client.exceptions.PbcsMemberAddException;
 import com.jasonwjones.pbcs.client.exceptions.PbcsNoSuchObjectException;
 import com.jasonwjones.pbcs.testing.DestructiveIntegrationTest;
 import org.hamcrest.CoreMatchers;
@@ -172,11 +173,33 @@ public class PbcsApplicationImplIT extends AbstractVisionIT {
         System.out.println(prefs);
     }
 
+    // "Enterprise Global" is not currently enabled for dynamic children on Vision, so this exercises the
+    // PbcsMemberAddException translation path rather than a successful add. If dynamic children are ever
+    // enabled on this member, pick a different, still-disabled parent so this keeps testing the failure path.
+    @Test
+    public void whenAddMemberUnderParentNotEnabledForDynamicChildren() {
+        PbcsMemberAddException exception = assertThrows(PbcsMemberAddException.class,
+                () -> app.addMember("Entity", "North America", "Enterprise Global"));
+        assertThat(exception.getMemberName(), is("North America"));
+        assertThat(exception.getParentName(), is("Enterprise Global"));
+        assertThat(exception.getDimensionName(), is("Entity"));
+    }
+
+    // One-time, manual verification of the happy path: requires "Enterprise Global" to be temporarily
+    // enabled for dynamic children in the Vision outline (an outline setting PBJ has no API to set), and
+    // the added member needs to be removed manually afterward, since PBJ has no deleteMember API and the
+    // REST API isn't idempotent here (adding the same member twice fails). Uses a clearly test-specific
+    // name since Essbase/Planning enforces member-name uniqueness across the whole application, not just
+    // within one parent; "North America" collided with an existing member elsewhere in the outline.
+    // Left @Ignore'd so it doesn't run as part of the normal destructive-test suite.
     @Ignore
     @Test
-    public void whenAddMember() {
-        PbcsMember member = app.addMember("Entity", "North America", "Enterprise Global");
-        assertThat(member.getName(), is("North America"));
+    public void whenAddMemberUnderParentEnabledForDynamicChildren() {
+        final String testMemberName = "PBJ Add Member Test";
+        PbcsMember member = app.addMember("Entity", testMemberName, "Enterprise Global");
+        assertThat(member.getName(), is(testMemberName));
+        assertThat(member.getParentName(), is("Enterprise Global"));
+        assertThat(member.getDimensionName(), is("Entity"));
         printMember(member, 0);
     }
 
