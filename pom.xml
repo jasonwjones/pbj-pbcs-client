@@ -39,6 +39,9 @@
         <maven.compiler.release>17</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.surefire.version>3.5.4</maven.surefire.version>
+        <!-- Signing is only relevant when actually publishing; a plain install/verify shouldn't require a
+             GPG key. Pass -Dgpg.skip=false to sign, e.g. when running mvn clean deploy. -->
+        <gpg.skip>true</gpg.skip>
     </properties>
 
 	<dependencies>
