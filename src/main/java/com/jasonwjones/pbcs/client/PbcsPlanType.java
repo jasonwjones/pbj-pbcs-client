@@ -8,6 +8,7 @@ import com.jasonwjones.pbcs.util.DataSliceDiff;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Executor;
 
 /**
  * Represents a particular plan type (cube) contained as part of a {@link PbcsApplication}. The PBCS REST API doesn't
@@ -629,6 +630,26 @@ public interface PbcsPlanType extends PbcsObject {
 		 * @return the max numbers of cells that will be allowed per retrieve before breaking them up
 		 */
 		int getMaxCellsPerRetrieve();
+
+		/**
+		 * The maximum number of paged export requests that may execute concurrently for one retrieve. This setting is
+		 * only used when a retrieve exceeds {@link #getMaxCellsPerRetrieve()} and is split into multiple requests.
+		 *
+		 * @return the maximum concurrent requests; defaults to one
+		 */
+		default int getMaxConcurrentRetrieveRequests() {
+			return 1;
+		}
+
+		/**
+		 * The executor used for paged export requests. The caller owns the executor and its lifecycle. The default
+		 * executor runs work on the calling thread, preserving sequential behavior.
+		 *
+		 * @return the executor used for paged requests
+		 */
+		default Executor getRetrieveExecutor() {
+			return Runnable::run;
+		}
 
 	}
 

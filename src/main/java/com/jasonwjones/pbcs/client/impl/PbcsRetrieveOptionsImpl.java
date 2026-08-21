@@ -2,7 +2,9 @@ package com.jasonwjones.pbcs.client.impl;
 
 import com.jasonwjones.pbcs.client.PbcsPlanType;
 
+import java.util.Objects;
 import java.util.StringJoiner;
+import java.util.concurrent.Executor;
 
 /**
  * Default, mutable {@link PbcsPlanType.RetrieveOptions} implementation.
@@ -33,6 +35,10 @@ public class PbcsRetrieveOptionsImpl implements PbcsPlanType.RetrieveOptions {
     private boolean suppressMissingColumns;
 
     private int maxCellsPerRetrieve = DEFAULT_MAX_CELLS_PER_RETRIEVE;
+
+    private int maxConcurrentRetrieveRequests = 1;
+
+    private Executor retrieveExecutor = Runnable::run;
 
     @Override
     public boolean isProvideDimensionHints() {
@@ -105,10 +111,43 @@ public class PbcsRetrieveOptionsImpl implements PbcsPlanType.RetrieveOptions {
     }
 
     @Override
+    public int getMaxConcurrentRetrieveRequests() {
+        return maxConcurrentRetrieveRequests;
+    }
+
+    /**
+     * Sets the maximum number of paged export requests that may execute concurrently for one retrieve. Values below
+     * one are rejected. This setting has no effect when the retrieve fits in a single request.
+     *
+     * @param maxConcurrentRetrieveRequests the maximum concurrent requests
+     */
+    public void setMaxConcurrentRetrieveRequests(int maxConcurrentRetrieveRequests) {
+        if (maxConcurrentRetrieveRequests < 1) {
+            throw new IllegalArgumentException("Max concurrent retrieve requests must be at least one");
+        }
+        this.maxConcurrentRetrieveRequests = maxConcurrentRetrieveRequests;
+    }
+
+    @Override
+    public Executor getRetrieveExecutor() {
+        return retrieveExecutor;
+    }
+
+    /**
+     * Sets the executor used for paged export requests. The caller owns the executor and its lifecycle.
+     *
+     * @param retrieveExecutor the executor used for paged export requests
+     */
+    public void setRetrieveExecutor(Executor retrieveExecutor) {
+        this.retrieveExecutor = Objects.requireNonNull(retrieveExecutor, "Retrieve executor cannot be null");
+    }
+
+    @Override
     public String toString() {
         return new StringJoiner(", ", PbcsRetrieveOptionsImpl.class.getSimpleName() + "[", "]")
                 .add("exportPlanningData=" + exportPlanningData)
                 .add("maxCellsPerRetrieve=" + maxCellsPerRetrieve)
+                .add("maxConcurrentRetrieveRequests=" + maxConcurrentRetrieveRequests)
                 .add("provideDimensionHints=" + provideDimensionHints)
                 .add("suppressMissingColumns=" + suppressMissingColumns)
                 .add("suppressMissingRows=" + suppressMissingRows)
