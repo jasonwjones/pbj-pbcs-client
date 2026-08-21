@@ -52,6 +52,22 @@ public interface PbcsPlanningClient extends PbcsObject {
 	 * @return an application object for the application
 	 * @throws PbcsClientException if the application is not found
 	 */
-	PbcsApplication getApplication(String applicationName) throws PbcsClientException;
+	default PbcsApplication getApplication(String applicationName) throws PbcsClientException {
+		return getApplication(applicationName, false);
+	}
+
+	/**
+	 * Returns an application with the specific name, optionally skipping the existence check. By default
+	 * (skipCheck false), this pulls the whole list of applications and filters for the one you want, same as
+	 * {@link #getApplication(String)}. With skipCheck true, no call is made to the server at all - an application
+	 * reference is simply constructed locally, which is useful when you already know the application exists (or
+	 * are prepared to find out later, e.g. on the first real call made against it) and want to avoid the round trip.
+	 *
+	 * @param applicationName the name of the application to return, case-sensitive
+	 * @param skipCheck true to skip verifying the application exists, false otherwise
+	 * @return an application object for the application
+	 * @throws PbcsClientException if the application does not exist (and skipCheck is false) or another error occurs
+	 */
+	PbcsApplication getApplication(String applicationName, boolean skipCheck) throws PbcsClientException;
 
 }

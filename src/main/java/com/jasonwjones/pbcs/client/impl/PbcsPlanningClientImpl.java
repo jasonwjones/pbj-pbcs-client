@@ -91,18 +91,6 @@ public class PbcsPlanningClientImpl extends AbstractPbcsObject implements PbcsPl
 	}
 
 	@Override
-	public PbcsApplication getApplication(String applicationName) throws PbcsClientException {
-		return getApplication(applicationName, false);
-	}
-
-	/**
-	 * Gets the application with the given name, optionally skipping the existence check.
-	 *
-	 * @param applicationName the application name
-	 * @param skipCheck true to skip verifying the application exists, false otherwise
-	 * @return the application
-	 * @throws PbcsClientException if the application does not exist (and skipCheck is false) or another error occurs
-	 */
 	public PbcsApplication getApplication(String applicationName, boolean skipCheck) throws PbcsClientException {
 		Assert.notNull(applicationName, "The application must not be null");
 		if (skipCheck) {
