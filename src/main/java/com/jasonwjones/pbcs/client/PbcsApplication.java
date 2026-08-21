@@ -1,6 +1,7 @@
 package com.jasonwjones.pbcs.client;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -335,6 +336,17 @@ public interface PbcsApplication extends PbcsObject {
 		 * @return the list of dimension names that are attribute dimensions
 		 */
 		List<String> getExplicitAttributeDimensions();
+
+		/**
+		 * Gets the alias tables known to exist for this plan type. Cloud EPM does not provide a supported REST API
+		 * for enumerating alias tables, so these names are supplied by the caller and are not validated when the plan
+		 * is created. The Default table is always known.
+		 *
+		 * @return the configured alias table names, including Default
+		 */
+		default List<String> getAliasTables() {
+			return Collections.singletonList("Default");
+		}
 
 		/**
 		 * Gets the member dimension cache that will be used for the plan type. The default implementation is generally

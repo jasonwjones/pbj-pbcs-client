@@ -6,16 +6,36 @@ import com.jasonwjones.pbcs.client.PbcsPlanType;
 import org.junit.Test;
 
 import java.lang.reflect.Proxy;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasKey;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 
 public class PlanTypeConfigurationImplTest {
+
+    @Test
+    public void defaultAliasTableIsAlwaysKnown() {
+        PbcsApplication.PlanTypeConfiguration configuration =
+                new PlanTypeConfigurationImpl.Builder("Plan1").build();
+
+        assertThat(configuration.getAliasTables(), contains("Default"));
+    }
+
+    @Test
+    public void builderAddsKnownAliasTablesWithoutDuplicatingDefault() {
+        PbcsApplication.PlanTypeConfiguration configuration =
+                new PlanTypeConfigurationImpl.Builder("Plan1")
+                        .aliasTables(Arrays.asList("Alias2", "default", " French "))
+                        .build();
+
+        assertThat(configuration.getAliasTables(), contains("Default", "Alias2", "French"));
+    }
 
     @Test
     public void ignoreAliasesIsDisabledByDefault() {

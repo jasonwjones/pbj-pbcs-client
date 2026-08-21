@@ -6,6 +6,7 @@ import com.jasonwjones.pbcs.client.memberdimensioncache.InMemoryMemberDimensionC
 import com.jasonwjones.pbcs.client.memberdimensioncache.NonCachingMemberDimensionCache;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.StringJoiner;
 
@@ -34,6 +35,8 @@ public class PlanTypeConfigurationImpl implements PbcsApplication.PlanTypeConfig
     private List<String> explicitDimensions;
 
     private List<String> explicitAttributeDimensions;
+
+    private List<String> aliasTables = new ArrayList<>(Collections.singletonList("Default"));
 
     private PbcsPlanType.MemberDimensionCache memberDimensionCache = new InMemoryMemberDimensionCache();
 
@@ -146,6 +149,34 @@ public class PlanTypeConfigurationImpl implements PbcsApplication.PlanTypeConfig
         this.explicitAttributeDimensions = explicitAttributeDimensions;
     }
 
+    @Override
+    public List<String> getAliasTables() {
+        return aliasTables;
+    }
+
+    /**
+     * Sets the alias tables known to exist for this plan type. Names are trusted without contacting Cloud EPM, and
+     * Default is included automatically.
+     *
+     * @param aliasTables the known alias table names
+     */
+    public void setAliasTables(List<String> aliasTables) {
+        this.aliasTables = new ArrayList<>(Collections.singletonList("Default"));
+        if (aliasTables != null) {
+            for (String aliasTable : aliasTables) {
+                addAliasTable(aliasTable);
+            }
+        }
+    }
+
+    private void addAliasTable(String aliasTable) {
+        if (aliasTable == null || aliasTable.trim().isEmpty()) return;
+        String name = aliasTable.trim();
+        if (aliasTables.stream().noneMatch(existing -> existing.equalsIgnoreCase(name))) {
+            aliasTables.add(name);
+        }
+    }
+
     /**
      * Sets the member dimension cache to use.
      *
@@ -207,6 +238,7 @@ public class PlanTypeConfigurationImpl implements PbcsApplication.PlanTypeConfig
                 .add("validateDimensions=" + validateDimensions)
                 .add("explicitDimensions=" + explicitDimensions)
                 .add("explicitAttributeDimensions=" + explicitAttributeDimensions)
+                .add("aliasTables=" + aliasTables)
                 .add("memberDimensionCache=" + memberDimensionCache.getClass().getSimpleName())
                 .add("memberResolver=" + (memberResolver != null ? memberResolver.getClass().getSimpleName() : "null"))
                 .add("memberSearchThreads=" + memberSearchThreads)
@@ -282,6 +314,30 @@ public class PlanTypeConfigurationImpl implements PbcsApplication.PlanTypeConfig
         public Builder dimensions(List<String> dimensions) {
             for (String dimension : dimensions) {
                 dimension(dimension);
+            }
+            return this;
+        }
+
+        /**
+         * Adds an alias table that is known to exist for the plan type. The name is not validated against Cloud EPM.
+         *
+         * @param aliasTable the alias table name to add
+         * @return the builder
+         */
+        public Builder aliasTable(String aliasTable) {
+            configuration.addAliasTable(aliasTable);
+            return this;
+        }
+
+        /**
+         * Adds alias tables that are known to exist for the plan type. The names are not validated against Cloud EPM.
+         *
+         * @param aliasTables the alias table names to add
+         * @return the builder
+         */
+        public Builder aliasTables(List<String> aliasTables) {
+            for (String aliasTable : aliasTables) {
+                aliasTable(aliasTable);
             }
             return this;
         }

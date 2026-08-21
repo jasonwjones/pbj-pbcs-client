@@ -45,6 +45,16 @@ public interface PbcsPlanType extends PbcsObject {
 	List<PbcsDimension> getDimensions();
 
 	/**
+	 * Gets the alias tables configured as known for this plan type. The names are caller-supplied metadata and are
+	 * not discovered or validated against Cloud EPM when the plan is created.
+	 *
+	 * @return the configured alias table names, including Default
+	 */
+	default List<String> getAliasTables() {
+		return getConfiguration().getAliasTables();
+	}
+
+	/**
 	 * Gets the list of jobs that are specific to this plan type.
 	 *
 	 * @return the list of jobs specific to this plan, empty list if none
