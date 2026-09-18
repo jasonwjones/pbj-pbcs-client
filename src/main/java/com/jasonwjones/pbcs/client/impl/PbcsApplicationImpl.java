@@ -141,6 +141,11 @@ public class PbcsApplicationImpl extends AbstractPbcsObject implements PbcsAppli
 	}
 
 	@Override
+	public Application getDetails() {
+		return application;
+	}
+
+	@Override
 	public PbcsAppType getAppType() {
 		for (PbcsAppType appType : PbcsAppType.values()) {
 			if (appType.getCode().equals(application.getAppType())) {

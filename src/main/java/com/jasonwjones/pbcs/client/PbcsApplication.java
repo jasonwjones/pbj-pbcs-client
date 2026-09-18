@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.jasonwjones.pbcs.api.v3.Application;
 import com.jasonwjones.pbcs.api.v3.SubstitutionVariable;
 import com.jasonwjones.pbcs.api.v3.dataslices.DataSlice;
 import com.jasonwjones.pbcs.api.v3.dataslices.ExportDataSlice;
@@ -42,6 +43,19 @@ public interface PbcsApplication extends PbcsObject {
 	 * @return the product type
 	 */
 	String getType();
+
+	/**
+	 * Gets the application details exactly as the applications endpoint returned them.
+	 *
+	 * <p>{@link #getName()}, {@link #getType()} and {@link #isDpEnabled()} are the three of these worth
+	 * a method of their own; the rest - the storage mode, the workspace and help server URLs, whether
+	 * the application is in admin mode or Unicode - are read rarely enough that promoting each one
+	 * would be more interface than they earn. A caller that wants them, or that wants to render
+	 * whatever the endpoint happens to return without knowing the field names, takes the bean.
+	 *
+	 * @return the deserialized application details
+	 */
+	Application getDetails();
 
 	/**
 	 * Gets the app type, which is essentially whether it's a Planning or FCCS application.
