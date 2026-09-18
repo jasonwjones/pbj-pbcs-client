@@ -1,5 +1,6 @@
 package com.jasonwjones.pbcs.client.impl;
 
+import com.jasonwjones.pbcs.api.v3.PbcsMemberPropertiesImpl;
 import com.jasonwjones.pbcs.client.*;
 
 import java.util.List;
@@ -89,6 +90,11 @@ public abstract class AbstractDelegatingMember implements PbcsMember {
     @Override
     public String getDescription() {
         return member().getDescription();
+    }
+
+    @Override
+    public PbcsMemberPropertiesImpl getDetails() {
+        return member().getDetails();
     }
 
     @Override

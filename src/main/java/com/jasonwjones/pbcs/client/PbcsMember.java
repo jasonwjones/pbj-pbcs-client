@@ -1,5 +1,6 @@
 package com.jasonwjones.pbcs.client;
 
+import com.jasonwjones.pbcs.api.v3.PbcsMemberPropertiesImpl;
 import org.springframework.util.StringUtils;
 
 import java.util.LinkedHashSet;
@@ -157,6 +158,19 @@ public interface PbcsMember extends PbcsObject {
      * @return the original object type value
      */
     Integer getObjectNumericType();
+
+    /**
+     * Gets the member properties exactly as the member info endpoint returned them.
+     *
+     * <p>Every other accessor on this interface reads one field out of that payload; this hands back the
+     * whole thing, for a caller that wants to render whatever came back without naming the fields, or that
+     * wants one of the properties this interface never promoted to a method of its own. The bean is inert -
+     * reading it is never a round trip - which the rest of this interface is not: {@link #getChildren()},
+     * {@link #getParentMember()} and {@link #getMaxGeneration()} all can be.
+     *
+     * @return the deserialized member properties
+     */
+    PbcsMemberPropertiesImpl getDetails();
 
     /**
      * Gets the member type, corresponding to the known planning member types, such as Scenario or Account. If the type

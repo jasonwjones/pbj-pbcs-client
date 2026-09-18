@@ -181,6 +181,11 @@ public class PbcsMemberImpl extends AbstractPbcsObject implements PbcsMember {
     }
 
     @Override
+    public PbcsMemberPropertiesImpl getDetails() {
+        return memberProperties;
+    }
+
+    @Override
     public PbcsObjectType getObjectType() {
         return PbcsObjectType.MEMBER;
     }
