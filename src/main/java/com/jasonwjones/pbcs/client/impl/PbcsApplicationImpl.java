@@ -362,15 +362,49 @@ public class PbcsApplicationImpl extends AbstractPbcsObject implements PbcsAppli
 
 	@Override
 	public List<PbcsPlanType> getPlanTypes() {
-		ResponseEntity<AifApplication> result = this.context.getTemplate().getForEntity(this.context.getAifUrl("/applications/" + this.application.getName()), AifApplication.class);
-		AifApplication application = result.getBody();
 		List<PbcsPlanType> planTypes = new ArrayList<>();
-		for (String plan : application.getAllPlans()) {
-			PlanTypeConfiguration configuration = new PlanTypeConfigurationImpl.Builder(plan).build();
-			PbcsPlanTypeImpl planTypeImpl = new PbcsPlanTypeImpl(context, this, configuration);
-			planTypes.add(planTypeImpl);
+		for (PlanTypeEntry entry : fetchPlanTypes()) {
+			PlanTypeConfiguration configuration = new PlanTypeConfigurationImpl.Builder(entry.getPlanTypeName()).build();
+			PbcsPlanTypeImpl planType = new PbcsPlanTypeImpl(context, this, configuration);
+			planType.setDetails(entry);
+			planTypes.add(planType);
 		}
 		return planTypes;
+	}
+
+	/**
+	 * Gets the names of this application's plan types, in the order the server lists them.
+	 *
+	 * <p>Asks Planning, through the plan type list endpoint. This used to read {@code plan1Name}
+	 * through {@code plan6Name} off a Data Management application record, because Planning had no
+	 * endpoint for it at the time. It does now, and the difference is not only tidiness: those six
+	 * fields are BSO plan type slots, so an aggregate storage reporting cube - or a seventh plan type
+	 * of any kind - was simply absent from the list.
+	 *
+	 * @return the plan type names, empty list if the application has none
+	 */
+	private List<String> getPlanTypeNames() {
+		List<String> names = new ArrayList<>();
+		for (PlanTypeEntry entry : fetchPlanTypes()) {
+			names.add(entry.getPlanTypeName());
+		}
+		return names;
+	}
+
+	/**
+	 * Calls the plan type list endpoint and returns the entries as they came back.
+	 *
+	 * @return the plan type entries, empty list if the application has none
+	 */
+	private List<PlanTypeEntry> fetchPlanTypes() {
+		String url = this.context.getBaseUrl() + "applications/{application}/plantypes";
+		ResponseEntity<PlanTypesWrapper> response = this.context.getTemplate()
+				.getForEntity(url, PlanTypesWrapper.class, this.application.getName());
+		PlanTypesWrapper body = response.getBody();
+		if (body == null || body.getItems() == null) {
+			return new ArrayList<>();
+		}
+		return body.getItems();
 	}
 
 	@Override
@@ -397,18 +431,12 @@ public class PbcsApplicationImpl extends AbstractPbcsObject implements PbcsAppli
 	 *
 	 * @param planTypeName the name of the plan to validate
 	 */
-	private PbcsPlanType validatePlanType(String planTypeName) {
-		List<PbcsPlanType> planTypes = getPlanTypes();
-		for (PbcsPlanType planType : planTypes) {
-			if (planType.getName().equals(planTypeName)) {
-				return planType;
-			}
+	private void validatePlanType(String planTypeName) {
+		List<String> available = getPlanTypeNames();
+		if (available.contains(planTypeName)) {
+			return;
 		}
-		List<String> availablePlanTypeNames = new ArrayList<>();
-		for (PbcsPlanType planType : planTypes) {
-			availablePlanTypeNames.add(planType.getName());
-		}
-		logger.warn("PBCS application {} does not contain plan type {}; available plan type names are {}", application.getName(), planTypeName, availablePlanTypeNames);
+		logger.warn("PBCS application {} does not contain plan type {}; available plan type names are {}", application.getName(), planTypeName, available);
 		throw new PbcsNoSuchObjectException(planTypeName, PbcsObjectType.PLAN);
 	}
 

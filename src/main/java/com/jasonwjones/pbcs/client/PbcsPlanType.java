@@ -1,5 +1,6 @@
 package com.jasonwjones.pbcs.client;
 
+import com.jasonwjones.pbcs.api.v3.PlanTypeEntry;
 import com.jasonwjones.pbcs.api.v3.SubstitutionVariable;
 import com.jasonwjones.pbcs.api.v3.dataslices.DimensionMembers;
 import com.jasonwjones.pbcs.client.impl.grid.DataSliceGrid;
@@ -94,6 +95,21 @@ public interface PbcsPlanType extends PbcsObject {
 	 * @return the application for this plan/cube
 	 */
 	PbcsApplication getApplication();
+
+	/**
+	 * Gets this plan type's entry from the plan type list endpoint, if it came from one.
+	 *
+	 * <p>Holds what that endpoint reports and this interface never promoted to methods of its own -
+	 * the cube's storage model and its dimension count, most usefully, which is the only way to tell a
+	 * block storage plan type from an aggregate storage reporting cube. The bean is inert: reading it
+	 * is never a round trip.
+	 *
+	 * @return the plan type details, or null for a plan type that was opened by name rather than
+	 * listed, which never had them
+	 */
+	default PlanTypeEntry getDetails() {
+		return null;
+	}
 
 	/**
 	 * Gets a single data cell from the top of the house across all dimensions. This isn't generally going to

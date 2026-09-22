@@ -2,6 +2,7 @@ package com.jasonwjones.pbcs.client.impl;
 
 import com.jasonwjones.pbcs.api.v3.AliasedMember;
 import com.jasonwjones.pbcs.api.v3.PlanTypeDimension;
+import com.jasonwjones.pbcs.api.v3.PlanTypeEntry;
 import com.jasonwjones.pbcs.api.v3.PlanTypeDimensionsWrapper;
 import com.jasonwjones.pbcs.api.v3.SubstitutionVariable;
 import com.jasonwjones.pbcs.api.v3.SubstitutionVariablesWrapper;
@@ -73,6 +74,26 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 	@Override
 	public PbcsObjectType getObjectType() {
 		return PbcsObjectType.PLAN;
+	}
+
+	private PlanTypeEntry details;
+
+	/**
+	 * Records the listing entry this plan type was built from.
+	 *
+	 * <p>Set after construction rather than passed in, so that the subclass constructor chain does not
+	 * have to carry a value only one of the two creation paths ever has: a plan type opened by name was
+	 * never listed and has none.
+	 *
+	 * @param details the entry from the plan type list endpoint
+	 */
+	void setDetails(PlanTypeEntry details) {
+		this.details = details;
+	}
+
+	@Override
+	public PlanTypeEntry getDetails() {
+		return details;
 	}
 
 	@Override
