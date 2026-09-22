@@ -24,6 +24,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
 
 /**
@@ -91,14 +93,51 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 		this.details = details;
 	}
 
+	/**
+	 * Why this plan type cannot do something, and what to do about it.
+	 *
+	 * <p>These used to say the plan had no explicit dimensions, which is true and is almost never what
+	 * the caller needs to hear: explicit dimensions are a configuration knob, and the usual cause is
+	 * having taken a plan out of {@link PbcsApplication#getPlanTypes()}, which returns plans for listing
+	 * an application's cubes rather than for working with them. Nothing distinguishes the two at the
+	 * call site - same interface, same type - so the message is the only place a caller can find out.
+	 *
+	 * @param what the operation that cannot be performed, as a verb phrase
+	 * @return the message
+	 */
+	private String cannotWithoutDimensions(String what) {
+		return "Cannot " + what + " on plan type " + planType + ": it has no dimensions to work from."
+				+ " Plans from getPlanTypes() are for listing an application's cubes; get one that can"
+				+ " do this with application.getPlanType(\"" + planType + "\"), or configure explicit"
+				+ " dimensions with getPlanType(PlanTypeConfiguration).";
+	}
+
 	@Override
 	public PlanTypeEntry getDetails() {
 		return details;
 	}
 
+	private volatile List<PbcsDimension> dimensions;
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>Fetched once and kept. This used to call the endpoint on every invocation, which is affordable
+	 * for a caller asking once and ruinous for anything asking per member - and asking per member is
+	 * what resolving a member or an alias does. A plan type's dimensions do not change under a running
+	 * application often enough to be worth a round trip each time; a caller who needs to see an outline
+	 * change opens the plan again.
+	 */
 	@Override
 	public List<PbcsDimension> getDimensions() {
-		return buildDiscoveredDimensions(fetchPlanTypeDimensions(), false);
+		List<PbcsDimension> cached = dimensions;
+		if (cached == null) {
+			// Two callers racing here both fetch and the second wins, which costs one extra call in a
+			// case that barely happens and avoids holding a lock across a REST request.
+			cached = buildDiscoveredDimensions(fetchPlanTypeDimensions(), false);
+			dimensions = cached;
+		}
+		return cached;
 	}
 
 	/**
@@ -148,7 +187,26 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 		for (Map.Entry<String, String> entry : aliases.entrySet()) {
 			memberResolver.setAlias(this, entry.getKey(), aliasTableName, entry.getValue());
 		}
+		aliasTrees.put(aliasTreeKey(dimensionName, aliasTableName), aliases);
 		return aliases;
+	}
+
+	/**
+	 * Alias tables already read, whole, by dimension.
+	 *
+	 * <p>Aliases arrive a dimension at a time, so the answer for one member is a lookup in a map that
+	 * was already downloaded to answer it. Kept here rather than inferred from the resolver because a
+	 * resolver answers null both for a member it has not seen and for one it has seen to have no alias,
+	 * and those need telling apart: without that, every member without an alias re-downloaded its whole
+	 * dimension on every ask - which, in a grid, is most of them, most of the time. Reading it from the
+	 * resolver instead would also make correctness depend on which resolver is configured, and one that
+	 * deliberately keeps nothing would turn every alias into null.
+	 */
+	private final ConcurrentMap<String, Map<String, String>> aliasTrees = new ConcurrentHashMap<>();
+
+	private static String aliasTreeKey(String dimensionName, String aliasTableName) {
+		return dimensionName + '@'
+				+ (PbcsMember.isDefaultAliasTable(aliasTableName) ? "Default" : aliasTableName);
 	}
 
 	@Override
@@ -157,7 +215,11 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 		if (cached != null) {
 			return cached;
 		}
-		return getMemberAliases(dimensionName, aliasTableName).get(memberName);
+		Map<String, String> tree = aliasTrees.get(aliasTreeKey(dimensionName, aliasTableName));
+		if (tree == null) {
+			tree = getMemberAliases(dimensionName, aliasTableName);
+		}
+		return tree.get(memberName);
 	}
 
 	/**
@@ -248,7 +310,7 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 
 	@Override
 	public String getCell() {
-		throw new UnsupportedOperationException("Cannot get default cell when using plan without explicit dimensions");
+		throw new UnsupportedOperationException(cannotWithoutDimensions("get the default cell"));
 	}
 
 	@Override
@@ -261,7 +323,7 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 
 	@Override
 	public DataSliceGrid retrieve() {
-		throw new UnsupportedOperationException("Cannot retrieve default cell when using plan without explicit dimensions");
+		throw new UnsupportedOperationException(cannotWithoutDimensions("retrieve the default grid"));
 	}
 
 	@Override
@@ -297,7 +359,7 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 
 	@Override
 	public DataSliceGrid retrieve(PovGrid<String> grid, RetrieveOptions options) {
-		throw new UnsupportedOperationException("Can only retrieve with options on explicit dimension plan");
+		throw new UnsupportedOperationException(cannotWithoutDimensions("retrieve"));
 	}
 
 	@Override
@@ -502,7 +564,7 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 
 	@Override
 	public List<PbcsMember> searchMembers(MemberSearchQuery query) {
-		throw new UnsupportedOperationException();
+		throw new UnsupportedOperationException(cannotWithoutDimensions("search members"));
 	}
 
 	private static void processChildren(List<PbcsMember> members, PbcsMember currentMember) {
@@ -521,7 +583,7 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 
 	@Override
 	public PbcsMember getMemberOrAlias(String memberOrAliasName) {
-		throw new IllegalStateException("Must configure explicit dimensions to search for alias");
+		throw new IllegalStateException(cannotWithoutDimensions("resolve a member or alias by name"));
 	}
 
 	/**

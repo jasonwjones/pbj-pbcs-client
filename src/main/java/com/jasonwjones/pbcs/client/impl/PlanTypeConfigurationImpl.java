@@ -3,6 +3,7 @@ package com.jasonwjones.pbcs.client.impl;
 import com.jasonwjones.pbcs.client.PbcsApplication;
 import com.jasonwjones.pbcs.client.PbcsPlanType;
 import com.jasonwjones.pbcs.client.memberdimensioncache.InMemoryMemberDimensionCache;
+import com.jasonwjones.pbcs.client.memberdimensioncache.InMemoryMemberResolver;
 import com.jasonwjones.pbcs.client.memberdimensioncache.NonCachingMemberDimensionCache;
 
 import java.util.ArrayList;
@@ -40,7 +41,15 @@ public class PlanTypeConfigurationImpl implements PbcsApplication.PlanTypeConfig
 
     private PbcsPlanType.MemberDimensionCache memberDimensionCache = new InMemoryMemberDimensionCache();
 
-    private PbcsPlanType.MemberResolver memberResolver = NonCachingMemberDimensionCache.getInstance();
+    /**
+     * Caching, and a fresh one per configuration so that one plan type's answers stay its own.
+     *
+     * <p>The default was {@link NonCachingMemberDimensionCache}, beside a member-dimension cache that
+     * was already in memory - an asymmetry with no reason behind it, and an expensive one: see
+     * {@link InMemoryMemberResolver} for what it cost to resolve an alias. Pass
+     * {@code NonCachingMemberDimensionCache.getInstance()} to get the old behaviour back.
+     */
+    private PbcsPlanType.MemberResolver memberResolver = new InMemoryMemberResolver();
 
     private int memberSearchThreads = 1;
 
