@@ -5,11 +5,13 @@ import com.jasonwjones.pbcs.client.*;
 import com.jasonwjones.pbcs.client.exceptions.PbcsInvalidDimensionException;
 import com.jasonwjones.pbcs.client.exceptions.PbcsInvalidMemberException;
 import com.jasonwjones.pbcs.client.exceptions.PbcsJobLaunchException;
+import com.jasonwjones.pbcs.client.exceptions.PbcsClientException;
 import com.jasonwjones.pbcs.client.exceptions.PbcsMemberAddException;
 import com.jasonwjones.pbcs.client.exceptions.PbcsNoSuchObjectException;
 import com.jasonwjones.pbcs.testing.DestructiveIntegrationTest;
 import org.hamcrest.CoreMatchers;
 import org.junit.Ignore;
+import org.junit.Assume;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.slf4j.Logger;
@@ -20,6 +22,7 @@ import java.util.*;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
@@ -173,13 +176,25 @@ public class PbcsApplicationImplIT extends AbstractVisionIT {
         System.out.println(prefs);
     }
 
-    // "Enterprise Global" is not currently enabled for dynamic children on Vision, so this exercises the
-    // PbcsMemberAddException translation path rather than a successful add. If dynamic children are ever
-    // enabled on this member, pick a different, still-disabled parent so this keeps testing the failure path.
+    // Exercises the PbcsMemberAddException translation path, which needs a parent that is NOT enabled for
+    // dynamic children. Whether any given member is, is an outline setting with no API to read or set it,
+    // so this fixture can only be maintained by hand in the web interface - and it has already drifted
+    // once: "Enterprise Global" was disabled when this was written and is not now, which the server shows
+    // by attempting the add and failing for another reason ("Failed to add dynamic member") instead of
+    // refusing it. That makes the premise unmet rather than the translation wrong, so it skips and says
+    // what to change rather than failing and looking like a regression.
     @Test
     public void whenAddMemberUnderParentNotEnabledForDynamicChildren() {
-        PbcsMemberAddException exception = assertThrows(PbcsMemberAddException.class,
+        PbcsClientException thrown = assertThrows(PbcsClientException.class,
                 () -> app.addMember("Entity", "North America", "Enterprise Global"));
+        String message = String.valueOf(thrown.getMessage()).toLowerCase();
+        Assume.assumeFalse("Enterprise Global is enabled for dynamic children now, so this no longer"
+                        + " reaches the path it is testing - point it at a parent that is not, or turn"
+                        + " dynamic children off for this one. Server said: " + thrown.getMessage(),
+                message.contains("failed to add dynamic member"));
+
+        assertThat(thrown, instanceOf(PbcsMemberAddException.class));
+        PbcsMemberAddException exception = (PbcsMemberAddException) thrown;
         assertThat(exception.getMemberName(), is("North America"));
         assertThat(exception.getParentName(), is("Enterprise Global"));
         assertThat(exception.getDimensionName(), is("Entity"));
