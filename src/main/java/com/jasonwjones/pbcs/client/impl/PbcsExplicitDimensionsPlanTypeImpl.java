@@ -519,13 +519,42 @@ public class PbcsExplicitDimensionsPlanTypeImpl extends PbcsPlanTypeImpl impleme
 
     static int cacheMember(PbcsPlanType.MemberResolver memberResolver, PbcsPlanType planType, PbcsMember member, boolean ignoreAliases) {
         memberResolver.setMember(planType, member.getName(), member);
-
-        String alias = member.getAlias();
-        if (!ignoreAliases && alias != null && !alias.isEmpty() && !member.getName().equals(alias)) {
-            memberResolver.setMember(planType, alias, member);
-            return 2;
+        int cached = 1;
+        if (ignoreAliases) {
+            return cached;
         }
-        return 1;
+        for (String alias : aliasesOf(planType, member)) {
+            memberResolver.setMember(planType, alias, member);
+            cached++;
+        }
+        return cached;
+    }
+
+    /**
+     * Every alias a member has, across the alias tables the plan was told about.
+     *
+     * <p>This used to be {@code member.getAlias()} alone, which is the Default table - so a bulk
+     * {@link #cache()} left every other table's aliases unresolvable, and the cache a caller had just
+     * paid to build did not contain the names they were about to look up.
+     *
+     * <p>Costs one dimension read per alias table, not one per member: the alias tree is fetched whole
+     * and cached, so walking an outline asks the server once per dimension and table however many
+     * members it visits. An alias identical to the member's name is left out, as is a repeat - there is
+     * no sense in mapping one name to two members, and first past the post is what the reverse index
+     * does too.
+     */
+    private static List<String> aliasesOf(PbcsPlanType planType, PbcsMember member) {
+        List<String> aliases = new ArrayList<>();
+        for (String aliasTable : planType.getAliasTables()) {
+            String alias = PbcsMember.isDefaultAliasTable(aliasTable)
+                    ? member.getAlias()
+                    : planType.getMemberAlias(member.getDimensionName(), member.getName(), aliasTable);
+            if (alias != null && !alias.isEmpty()
+                    && !alias.equals(member.getName()) && !aliases.contains(alias)) {
+                aliases.add(alias);
+            }
+        }
+        return aliases;
     }
 
 }
