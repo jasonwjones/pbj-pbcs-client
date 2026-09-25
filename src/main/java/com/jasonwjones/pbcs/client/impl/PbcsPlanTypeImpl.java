@@ -777,6 +777,12 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 			}
 			synchronized (this) {
 				if (root == null) {
+					// The one place a dimension is actually fetched, and the expensive thing in
+					// resolving a member: the response carries every descendant. Logged here rather
+					// than at the cache miss that led to it, because a miss does not imply a request -
+					// most are answered from a dimension already in hand. Expect one of these per
+					// dimension per plan type, and no more.
+					logger.info("Fetching dimension {} of {}", name, PbcsPlanTypeImpl.this.getName());
 					root = getMember(name);
 				}
 				return root;

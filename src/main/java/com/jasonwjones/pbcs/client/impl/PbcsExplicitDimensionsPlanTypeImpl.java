@@ -137,13 +137,18 @@ public class PbcsExplicitDimensionsPlanTypeImpl extends PbcsPlanTypeImpl impleme
             if (member != null) {
                 return member;
             } else {
-                logger.warn("Resolving {} from source", memberOrAliasName);
+                // A miss on the member cache, and no more than that. It used to say "from source",
+                // which was true when every miss meant a download; now the dimensions are kept, so a
+                // miss is usually answered from a tree already in memory and nothing leaves the
+                // process. Where a request really does happen is logged where it happens - see
+                // ExplicitDimension.getRoot.
+                logger.warn("{} is not cached; searching dimensions", memberOrAliasName);
                 PbcsMember matchingMember = oneOffSearchInDimension(memberOrAliasName);
                 if (matchingMember != null) {
                     // Cached, like every other way of succeeding here. Without this the cheap path was
                     // the one that never got cheaper: a name whose dimension is known walks that
                     // dimension's tree, returns, and is asked for again from scratch on the next call -
-                    // forever, logging "Resolving X from source" every time. Anything that had already
+                    // forever, logging the miss every time. Anything that had already
                     // been through getMember, which fills the dimension cache and not this one, landed
                     // in exactly that state.
                     memberResolver.setMember(this, memberOrAliasName, matchingMember);
