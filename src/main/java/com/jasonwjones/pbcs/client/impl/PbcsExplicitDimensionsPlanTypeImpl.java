@@ -38,6 +38,9 @@ public class PbcsExplicitDimensionsPlanTypeImpl extends PbcsPlanTypeImpl impleme
 
     private final ExecutorService executorService;
 
+    /** How many dimensions may be searched at once; see {@link #search}. */
+    private final int searchThreads;
+
     PbcsExplicitDimensionsPlanTypeImpl(RestContext context, PbcsApplication application, PbcsApplication.PlanTypeConfiguration configuration) {
         super(context, application, configuration);
 
@@ -78,7 +81,8 @@ public class PbcsExplicitDimensionsPlanTypeImpl extends PbcsPlanTypeImpl impleme
         processAttributeDimensions(application, configuration, dimNumber);
 
         logger.debug("{} will use {} thread(s) to perform member name/alias search", this, configuration.getMemberSearchThreads());
-        executorService = Executors.newFixedThreadPool(configuration.getMemberSearchThreads());
+        searchThreads = configuration.getMemberSearchThreads();
+        executorService = Executors.newFixedThreadPool(searchThreads);
     }
 
     private void processAttributeDimensions(PbcsApplication application, PbcsApplication.PlanTypeConfiguration configuration, int dimNumber) {
@@ -159,7 +163,7 @@ public class PbcsExplicitDimensionsPlanTypeImpl extends PbcsPlanTypeImpl impleme
                 }
 
                 try {
-                    member = executorService.invokeAny(searchers);
+                    member = search(searchers);
                     logger.debug("Found member {} (via {}) in dimension {}", member.getName(), memberOrAliasName, member.getDimensionName());
                     memberDimensionCache.setDimension(this, memberOrAliasName, member.getDimensionName());
                     memberResolver.setMember(this, memberOrAliasName, member);
@@ -184,6 +188,38 @@ public class PbcsExplicitDimensionsPlanTypeImpl extends PbcsPlanTypeImpl impleme
             logger.debug("Encountered known invalid member: {}", e.getObjectName());
         }
         return null;
+    }
+
+    /**
+     * Runs the dimension searches, stopping at the first that finds the member.
+     *
+     * <p>Sequentially when only one search thread is configured, which is the default, because
+     * {@code invokeAny} on a one-thread pool buys no parallelism and costs real work: it submits every
+     * search, and when one succeeds it cancels the others - interrupting whichever was already running.
+     * That search has usually just downloaded a dimension, and the interruption throws the download
+     * away before the dimension can keep it, so the same dimension is fetched again on the next lookup,
+     * and the next. Measured against Vision: resolving successive members of Period re-fetched Product
+     * every time, for ever.
+     *
+     * <p>A caller who asked for several threads asked for the speculation, and gets it.
+     */
+    private PbcsMember search(List<MemberSearchCallable> searchers)
+            throws InterruptedException, ExecutionException {
+        if (searchThreads > 1) {
+            return executorService.invokeAny(searchers);
+        }
+        Exception lastFailure = null;
+        for (MemberSearchCallable searcher : searchers) {
+            try {
+                PbcsMember found = searcher.call();
+                if (found != null) {
+                    return found;
+                }
+            } catch (Exception notHere) {
+                lastFailure = notHere;
+            }
+        }
+        throw new ExecutionException("No dimension had that member", lastFailure);
     }
 
     /**
