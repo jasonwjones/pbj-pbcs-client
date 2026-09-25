@@ -455,7 +455,11 @@ public class PbcsExplicitDimensionsPlanTypeImpl extends PbcsPlanTypeImpl impleme
                 return post("applications/{application}/plantypes/{planType}/exportdataslice", pageRequest,
                         DataSlice.class, getApplication().getName(), getName());
             });
-            return new DataSliceGrid(this, slice, leftDims.size());
+            // firstColWithCell rather than leftDims.size(): both count the row-header columns, but the
+            // hints are optional and null when they were not asked for - so reading the size off them
+            // made a retrieve without dimension hints fail with a NullPointerException instead of
+            // returning a grid.
+            return new DataSliceGrid(this, slice, firstColWithCell);
         } catch (Exception e) {
             throw new PbcsDataExportException(grid, e);
         }

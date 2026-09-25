@@ -1,6 +1,7 @@
 package com.jasonwjones.pbcs.client.impl;
 
 import com.jasonwjones.pbcs.client.Grid;
+import com.jasonwjones.pbcs.client.PbcsExplicitDimensionsPlanType;
 import com.jasonwjones.pbcs.client.PbcsPlanType;
 import com.jasonwjones.pbcs.client.PovGrid;
 import com.jasonwjones.pbcs.client.impl.grid.DataSliceGrid;
@@ -149,11 +150,27 @@ public class PbcsPlanTypeAdhocIT extends AbstractVisionCubeIT {
         DataSliceGridPrinter.print(dataSliceGrid);
     }
 
+    /**
+     * Attribute dimensions have to be declared for a grid that names one to be resolvable.
+     *
+     * <p>Its own plan type rather than the shared one, which deliberately knows only the eight base
+     * dimensions: several tests assert exactly that list, so declaring the attributes for everyone to
+     * make this one work would break those instead. Hinting is what makes the difference - the same
+     * grid retrieves without it, because then nothing has to say which dimension a member belongs to.
+     */
     @Test
     // -Dhttps.proxyHost=localhost -Dhttps.proxyPort=8080
     public void retrieveWithAttributesUseHinting() {
+        PlanTypeConfigurationImpl configuration = new PlanTypeConfigurationImpl();
+        configuration.setName(PLAN);
+        configuration.setSkipCheck(true);
+        configuration.setExplicitDimensions(BASE_DIMENSIONS);
+        configuration.setExplicitAttributeDimensions(Arrays.asList("Type", "Resource"));
+        PbcsExplicitDimensionsPlanType withAttributes =
+                (PbcsExplicitDimensionsPlanType) app.getPlanType(configuration);
+
         PovGrid<String> grid = grid("grids/simple-attribute2.txt");
-        DataSliceGrid dataSliceGrid = retrieve(grid);
+        DataSliceGrid dataSliceGrid = retrieve(withAttributes, grid);
         // can't use until we read a PovGrid directly and chop the POV
         //assertThat(dataSliceGrid, hasDimensions(grid));
         assertThat(dataSliceGrid, hasDimensions(3, 3));
@@ -170,12 +187,12 @@ public class PbcsPlanTypeAdhocIT extends AbstractVisionCubeIT {
         }
     }
 
-    private DataSliceGrid retrieve(PovGrid<String> grid) {
+    private DataSliceGrid retrieve(PbcsExplicitDimensionsPlanType plan, PovGrid<String> grid) {
         GridPrinter.print(grid);
 
         PbcsRetrieveOptionsImpl retrieveOptions = new PbcsRetrieveOptionsImpl();
         retrieveOptions.setProvideDimensionHints(true);
-        DataSliceGrid dataSliceGrid = cube.retrieve(grid, retrieveOptions);
+        DataSliceGrid dataSliceGrid = plan.retrieve(grid, retrieveOptions);
         DataSliceGridPrinter.print(dataSliceGrid);
         return dataSliceGrid;
     }
