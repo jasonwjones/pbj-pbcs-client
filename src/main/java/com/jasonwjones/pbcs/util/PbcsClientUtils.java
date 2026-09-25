@@ -30,7 +30,20 @@ public class PbcsClientUtils {
     /**
      * The default location of the local connection properties file.
      */
-    public static final String PROPS = System.getProperty("user.home") + "/pbcs-client.properties";
+    /**
+     * The system property that names a different connection file, for running against a second pod or
+     * a cut-down configuration without editing the one in the home directory.
+     */
+    public static final String CREDENTIALS_PATH_PROPERTY = "pbcs.test.credentials";
+
+    public static final String PROPS = resolveProps();
+
+    private static String resolveProps() {
+        String configured = System.getProperty(CREDENTIALS_PATH_PROPERTY);
+        return configured == null || configured.isBlank()
+                ? System.getProperty("user.home") + "/pbcs-client.properties"
+                : configured;
+    }
 
     private PbcsClientUtils() {}
 
@@ -101,13 +114,22 @@ public class PbcsClientUtils {
         PlanTypeConfigurationImpl planTypeConfiguration = new PlanTypeConfigurationImpl();
         planTypeConfiguration.setName(properties.getProperty("plan"));
 
-        List<String> dimensions = Arrays.asList(properties.getProperty("dimensions").split(";"));
-        planTypeConfiguration.setExplicitDimensions(dimensions);
+        // Discovery unless the properties name the dimensions, because the plan-type dimension
+        // endpoint returns them all - attribute dimensions included, typed as ATTRIBUTE - so a
+        // properties file that lists them is a copy of something the server will say for itself, and
+        // goes stale when the outline changes. Both keys are still honoured for a pod or a test that
+        // wants a particular list.
+        String dimensionDefinition = properties.getProperty("dimensions");
+        if (dimensionDefinition == null || dimensionDefinition.isBlank()) {
+            planTypeConfiguration.setDiscoverDimensions(true);
+        } else {
+            planTypeConfiguration.setExplicitDimensions(Arrays.asList(dimensionDefinition.split(";")));
 
-        String attributeDimensionDefinition = properties.getProperty("attributeDimensions");
-        if (attributeDimensionDefinition != null) {
-            List<String> attributeDimensions = Arrays.asList(attributeDimensionDefinition.split(";"));
-            planTypeConfiguration.setExplicitAttributeDimensions(attributeDimensions);
+            String attributeDimensionDefinition = properties.getProperty("attributeDimensions");
+            if (attributeDimensionDefinition != null) {
+                List<String> attributeDimensions = Arrays.asList(attributeDimensionDefinition.split(";"));
+                planTypeConfiguration.setExplicitAttributeDimensions(attributeDimensions);
+            }
         }
 
 

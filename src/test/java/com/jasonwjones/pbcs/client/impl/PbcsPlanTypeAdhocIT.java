@@ -151,23 +151,22 @@ public class PbcsPlanTypeAdhocIT extends AbstractVisionCubeIT {
     }
 
     /**
-     * Attribute dimensions have to be declared for a grid that names one to be resolvable.
+     * Attribute dimensions have to be known for a grid that names one to be resolvable.
      *
-     * <p>Its own plan type rather than the shared one, which deliberately knows only the eight base
-     * dimensions: several tests assert exactly that list, so declaring the attributes for everyone to
-     * make this one work would break those instead. Hinting is what makes the difference - the same
-     * grid retrieves without it, because then nothing has to say which dimension a member belongs to.
+     * <p>Discovered rather than declared: the plan-type dimension endpoint returns attribute
+     * dimensions along with the rest, typed as ATTRIBUTE, so nothing here has to know that this pod's
+     * are called Type and Resource. Its own plan type rather than the shared one, which deliberately
+     * knows only the eight base dimensions - several tests assert exactly that list.
+     *
+     * <p>Hinting is what makes the difference: the same grid retrieves without it, because then
+     * nothing has to say which dimension a member belongs to.
      */
     @Test
     // -Dhttps.proxyHost=localhost -Dhttps.proxyPort=8080
     public void retrieveWithAttributesUseHinting() {
-        PlanTypeConfigurationImpl configuration = new PlanTypeConfigurationImpl();
-        configuration.setName(PLAN);
-        configuration.setSkipCheck(true);
-        configuration.setExplicitDimensions(BASE_DIMENSIONS);
-        configuration.setExplicitAttributeDimensions(Arrays.asList("Type", "Resource"));
-        PbcsExplicitDimensionsPlanType withAttributes =
-                (PbcsExplicitDimensionsPlanType) app.getPlanType(configuration);
+        PbcsExplicitDimensionsPlanType withAttributes = (PbcsExplicitDimensionsPlanType)
+                app.getPlanType(new PlanTypeConfigurationImpl.Builder(PLAN)
+                        .discoverDimensions().build());
 
         PovGrid<String> grid = grid("grids/simple-attribute2.txt");
         DataSliceGrid dataSliceGrid = retrieve(withAttributes, grid);
