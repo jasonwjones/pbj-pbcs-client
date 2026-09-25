@@ -188,6 +188,9 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 			memberResolver.setAlias(this, entry.getKey(), aliasTableName, entry.getValue());
 		}
 		aliasTrees.put(aliasTreeKey(dimensionName, aliasTableName), aliases);
+		// The reverse index is derived from this, so a re-read invalidates it rather than leaving a
+		// stale one that disagrees with the map it was built from.
+		membersByAlias.remove(aliasTreeKey(dimensionName, aliasTableName));
 		return aliases;
 	}
 
@@ -203,6 +206,58 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 	 * deliberately keeps nothing would turn every alias into null.
 	 */
 	private final ConcurrentMap<String, Map<String, String>> aliasTrees = new ConcurrentHashMap<>();
+
+	/**
+	 * The same tables read the other way round: alias to member name, per dimension and table.
+	 *
+	 * <p>Needed because the two directions are asked for by different things. Rendering a grid asks
+	 * for a member's alias, which the forward map answers. Retrieving one asks the opposite - here is
+	 * a name off a sheet, which member is it - and only the Default table could answer that, because
+	 * the only reverse lookup there was is {@link PbcsMember#searchForDescendant(String)} comparing
+	 * {@code getAlias()}, and that is the Default alias by definition.
+	 *
+	 * <p>Derived from the forward map rather than fetched, so it costs no extra request: the tree it
+	 * inverts was downloaded to answer the forward question anyway.
+	 */
+	private final ConcurrentMap<String, Map<String, String>> membersByAlias = new ConcurrentHashMap<>();
+
+	/**
+	 * Which member an alias belongs to, for one dimension and one alias table.
+	 *
+	 * <p>Aliases are unique per table in a well-formed outline, but not always in a real one - an FCCS
+	 * Currency dimension is the standing example - so a repeat is kept as the first member that
+	 * claimed it and logged rather than silently overwriting. Picking the last one would make which
+	 * member an alias resolves to depend on dimension ordering, which is nobody's intent.
+	 *
+	 * @param dimensionName  the dimension whose aliases to read
+	 * @param aliasTableName the alias table; null, blank, and {@code Default} are the same table
+	 * @return alias to member name, empty if the table gives this dimension no aliases
+	 */
+	protected Map<String, String> getMembersByAlias(String dimensionName, String aliasTableName) {
+		String key = aliasTreeKey(dimensionName, aliasTableName);
+		Map<String, String> known = membersByAlias.get(key);
+		if (known != null) {
+			return known;
+		}
+		// Built outside a computeIfAbsent, because fetching the forward map invalidates this one - and
+		// a mapping function that touches the map it is populating is a "Recursive update" from
+		// ConcurrentHashMap, not a deadlock-free reentrancy. Two threads racing here both build the
+		// same answer from the same tree, so the last one winning costs nothing.
+		Map<String, String> forward = aliasTrees.get(key);
+		if (forward == null) {
+			forward = getMemberAliases(dimensionName, aliasTableName);
+		}
+		Map<String, String> reverse = new LinkedHashMap<>();
+		for (Map.Entry<String, String> entry : forward.entrySet()) {
+			String existing = reverse.putIfAbsent(entry.getValue(), entry.getKey());
+			if (existing != null && !existing.equals(entry.getKey())) {
+				logger.warn("Alias {} in table {} belongs to both {} and {} in dimension {}; keeping {}",
+						entry.getValue(), aliasTableName, existing, entry.getKey(), dimensionName, existing);
+			}
+		}
+		membersByAlias.put(key, reverse);
+		return reverse;
+	}
 
 	private static String aliasTreeKey(String dimensionName, String aliasTableName) {
 		return dimensionName + '@'
@@ -315,6 +370,7 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 
 	@Override
 	public String getCell(List<String> dataPoint) {
+		dataPoint = canonicalMemberNames(dataPoint);
 		// just lean on the implementation available in the application to avoid duplication
 		DataSlice dataSlice = this.application.exportDataSlice(getName(), new ExportDataSlice(new GridDefinition(dataPoint)));
 		DataSlice.HeaderDataRow headerDataRow = dataSlice.getRows().get(0);
@@ -328,7 +384,7 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 
 	@Override
 	public DataSliceGrid retrieve(List<String> dataPoint) {
-		GridDefinition gridDefinition = new GridDefinition(dataPoint);
+		GridDefinition gridDefinition = new GridDefinition(canonicalMemberNames(dataPoint));
 		ExportDataSlice exportDataSlice = new ExportDataSlice(gridDefinition);
         DataSlice dataSlice = post("applications/{application}/plantypes/{planType}/exportdataslice", exportDataSlice, DataSlice.class, application.getName(), planType);
         return new DataSliceGrid(this, dataSlice);
@@ -584,6 +640,57 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 	@Override
 	public PbcsMember getMemberOrAlias(String memberOrAliasName) {
 		throw new IllegalStateException(cannotWithoutDimensions("resolve a member or alias by name"));
+	}
+
+	/**
+	 * The name to put in a grid for a name that may be an alias the server will not take.
+	 *
+	 * <p>Established live: Cloud EPM resolves an alias from the <em>Default</em> table itself - a grid
+	 * naming {@code Average Salaries} retrieves as happily as one naming {@code 9800} - and rejects an
+	 * alias from any other table outright, with "The member X does not exist for the specified cube".
+	 * So an alias from a configured table has to be turned back into its member before the request is
+	 * built, because there is no asking the server to do it.
+	 *
+	 * <p>Costs nothing for a plan that was told about no alias tables beyond Default, which is every
+	 * plan that has not asked for this: the loop has nothing to iterate and the name is returned as it
+	 * came in. For one that has, it is a map lookup after the first, and the maps are the ones the
+	 * forward direction downloaded anyway.
+	 *
+	 * @param name a member name, or an alias from any configured table
+	 * @return the member's own name, or {@code name} unchanged if it is not a known alias
+	 */
+	protected String canonicalMemberName(String name) {
+		if (name == null) {
+			return null;
+		}
+		for (String aliasTable : getAliasTables()) {
+			if (PbcsMember.isDefaultAliasTable(aliasTable)) {
+				continue;
+			}
+			for (PbcsDimension dimension : getDimensions()) {
+				String memberName = getMembersByAlias(dimension.getName(), aliasTable).get(name);
+				if (memberName != null) {
+					logger.debug("Sending {} as {}, its member in alias table {}", name, memberName, aliasTable);
+					return memberName;
+				}
+			}
+		}
+		return name;
+	}
+
+	/** {@link #canonicalMemberName(String)} over a list, returning the same list when nothing changed. */
+	protected List<String> canonicalMemberNames(List<String> names) {
+		if (names == null || getAliasTables().stream().allMatch(PbcsMember::isDefaultAliasTable)) {
+			return names;
+		}
+		List<String> canonical = new ArrayList<>(names.size());
+		boolean changed = false;
+		for (String name : names) {
+			String resolved = canonicalMemberName(name);
+			changed |= !Objects.equals(resolved, name);
+			canonical.add(resolved);
+		}
+		return changed ? canonical : names;
 	}
 
 	/**

@@ -160,10 +160,61 @@ public class PbcsExplicitDimensionsPlanTypeImpl extends PbcsPlanTypeImpl impleme
                 } catch (ExecutionException e) {
                     logger.warn("Unable to find member {}", memberOrAliasName);
                 }
+
+                // Last, because it is the only step that can cost a download per dimension, and because
+                // by here the name is neither a member nor a Default alias. The search above compares
+                // PbcsMember#getAlias(), which is the Default table by definition, so an alias from any
+                // other configured table gets this far and no further without it.
+                PbcsMember byAlias = searchConfiguredAliasTables(memberOrAliasName);
+                if (byAlias != null) {
+                    return byAlias;
+                }
             }
             memberResolver.addInvalidMember(this, memberOrAliasName);
         } catch (PbcsKnownInvalidMemberException e) {
             logger.debug("Encountered known invalid member: {}", e.getObjectName());
+        }
+        return null;
+    }
+
+    /**
+     * Looks for a name among the aliases of the configured non-Default alias tables.
+     *
+     * <p>Cloud EPM does not enumerate alias tables, so the ones to look in are the ones the caller
+     * named - see {@link PbcsApplication.PlanTypeConfiguration#getAliasTables()}. A plan told about no
+     * tables looks in none and this costs nothing, which is what makes it safe to put on the path of
+     * every failed lookup.
+     *
+     * <p>Whatever it finds is written into both caches under the alias that found it, so the next ask
+     * is a map lookup: the dimension cache learns where the alias lives, and the member resolver learns
+     * the member itself. That is the same pair {@code getMemberOrAlias} writes for a name it resolved
+     * the ordinary way.
+     *
+     * @param aliasName the name to look for
+     * @return the member it is an alias of, or null if no configured table has it
+     */
+    private PbcsMember searchConfiguredAliasTables(String aliasName) {
+        for (String aliasTable : getAliasTables()) {
+            if (PbcsMember.isDefaultAliasTable(aliasTable)) {
+                continue;
+            }
+            for (PbcsDimension dimension : explicitDimensions) {
+                String memberName = getMembersByAlias(dimension.getName(), aliasTable).get(aliasName);
+                if (memberName == null) {
+                    continue;
+                }
+                PbcsMember member = getMember(dimension.getName(), memberName);
+                if (member == null) {
+                    logger.warn("Alias {} in table {} names member {} in {}, which does not resolve",
+                            aliasName, aliasTable, memberName, dimension.getName());
+                    continue;
+                }
+                logger.debug("Found member {} (via alias {} in table {}) in dimension {}",
+                        memberName, aliasName, aliasTable, dimension.getName());
+                memberDimensionCache.setDimension(this, aliasName, dimension.getName());
+                memberResolver.setMember(this, aliasName, member);
+                return member;
+            }
         }
         return null;
     }
@@ -322,7 +373,7 @@ public class PbcsExplicitDimensionsPlanTypeImpl extends PbcsPlanTypeImpl impleme
                 null;
 
         for (int col = firstColWithCell; col <= lastNonNullCol; col++) {
-            List<String> members = GridUtils.col(grid, col, 0, firstRowWithCell);
+            List<String> members = canonicalMemberNames(GridUtils.col(grid, col, 0, firstRowWithCell));
             DimensionMembers dimensionMembers = new DimensionMembers(topDims, members);
             top.add(dimensionMembers);
         }
@@ -333,12 +384,15 @@ public class PbcsExplicitDimensionsPlanTypeImpl extends PbcsPlanTypeImpl impleme
                 null;
 
         for (int row = firstRowWithCell; row < grid.getRows(); row++) {
-            List<String> members = GridUtils.row(grid, row, 0, firstColWithCell);
+            List<String> members = canonicalMemberNames(GridUtils.row(grid, row, 0, firstColWithCell));
             DimensionMembers dimensionMembers = new DimensionMembers(leftDims, members);
             left.add(dimensionMembers);
         }
 
-        GridDefinition gridDefinition = new GridDefinition(grid.getPov(), top, left);
+        // The POV as well: an alias is as likely there as on an axis, and the server rejects the whole
+        // request over one member it cannot place.
+        GridDefinition gridDefinition =
+                new GridDefinition(canonicalMemberNames(grid.getPov()), top, left);
         gridDefinition.setSuppressMissingRows(retrieveOptions.isSuppressMissingRows());
         gridDefinition.setSuppressMissingColumns(retrieveOptions.isSuppressMissingColumns());
         ExportDataSlice exportDataSlice = new ExportDataSlice(gridDefinition);
