@@ -722,6 +722,20 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 		private final PbcsMemberType type;
 
 		/**
+		 * The dimension's root, fetched once.
+		 *
+		 * <p>Fetching it downloads the whole dimension - the response carries every descendant - and it
+		 * is fetched to answer questions that walk that tree: resolving a member searches each
+		 * dimension in turn, and each search asked for the root again. So a grid that zoomed three
+		 * times paid for the same trees over and over, tens of downloads to place a handful of members
+		 * it had already been sent.
+		 *
+		 * <p>Held for the life of the plan type, like everything else cached here, so an outline edited
+		 * underneath one that has already been read will not be noticed - open the plan again for that.
+		 */
+		private volatile PbcsMember root;
+
+		/**
 		 * Constructs an instance for the given dimension identity.
 		 *
 		 * @param name the dimension name
@@ -753,6 +767,20 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 		@Override
 		public PbcsMember getMember(String memberName) {
 			return PbcsPlanTypeImpl.this.getMember(name, memberName);
+		}
+
+		@Override
+		public PbcsMember getRoot() {
+			PbcsMember known = root;
+			if (known != null) {
+				return known;
+			}
+			synchronized (this) {
+				if (root == null) {
+					root = getMember(name);
+				}
+				return root;
+			}
 		}
 
 		@Override
