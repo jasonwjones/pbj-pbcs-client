@@ -6,6 +6,8 @@ import com.jasonwjones.pbcs.api.v3.dataslices.GridDefinition;
 import com.jasonwjones.pbcs.api.v3.dataslices.GridDefinitionBuilder;
 import com.jasonwjones.pbcs.util.SlicePrinter;
 import com.jasonwjones.pbcs.testing.ReadOnlyIntegrationTest;
+import org.junit.Before;
+import org.junit.Assume;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
@@ -15,7 +17,24 @@ import java.util.List;
 @Category(ReadOnlyIntegrationTest.class)
 public class PbcsPlanTypeImplExportIT extends AbstractVisionCubeIT {
 
+    /** The cube these grids describe, which is not one Vision has. */
+    private static final String EXPORT_CUBE = "PlanPL";
+
     private final SlicePrinter slicePrinter = new SlicePrinter();
+
+    /**
+     * Skips unless the environment actually holds the cube these grids were written against.
+     *
+     * <p>The dimensions here - Analysis, Company, Comparison, Department - and the POV members below
+     * belong to a particular customer application rather than to Vision, so against a Vision tenant the
+     * export fails with "Invalid cube was specified" before it can test anything. Skipping says that,
+     * where a failure claimed the export was broken.
+     */
+    @Before
+    public void requireTheExportCube() {
+        Assume.assumeTrue("Skipping: this environment has no " + EXPORT_CUBE + " cube",
+                app.getPlanTypes().stream().anyMatch(plan -> EXPORT_CUBE.equals(plan.getName())));
+    }
 
     @Test
     public void whenExport1() {
@@ -107,7 +126,7 @@ public class PbcsPlanTypeImplExportIT extends AbstractVisionCubeIT {
 
     public DataSlice test(GridDefinition gridDefinition) {
         ExportDataSlice eds = new ExportDataSlice(gridDefinition);
-        DataSlice slice = app.exportDataSlice("PlanPL", eds);
+        DataSlice slice = app.exportDataSlice(EXPORT_CUBE, eds);
         slicePrinter.print(slice);
         return slice;
     }
