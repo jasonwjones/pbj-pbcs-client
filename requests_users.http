@@ -2,7 +2,7 @@
 # Not documented, but works
 
 GET https://{{server}}/interop/rest/
-Authorization: {{creds}}
+Authorization: Basic {{username}} {{password}}
 Accept: application/json
 Content-Type: application/json
 
@@ -23,7 +23,7 @@ Content-Type: application/json
 # advertises /services, /applications, and /applicationsnapshots -- but don't seem to work
 
 GET https://{{server}}/interop/rest/11.1.2.3.600
-Authorization: {{creds}}
+Authorization: Basic {{username}} {{password}}
 Accept: application/json
 Content-Type: application/json
 
@@ -31,21 +31,21 @@ Content-Type: application/json
 # Not documented, but works
 
 GET https://appliedolapepm-test-appliedolapepm.epm.us-phoenix-1.ocs.oraclecloud.com:443/interop/rest/v2/applications
-Authorization: {{creds}}
+Authorization: Basic {{username}} {{password}}
 Accept: application/json
 Content-Type: application/json
 
 ### Get User Group Report
 
 GET https://{{server}}/interop/rest/security/v2/report/usergroupreport
-Authorization: {{creds}}
+Authorization: Basic {{username}} {{password}}
 Accept: application/json
 Content-Type: application/json
 
 ### Get Available Roles
 
 GET https://{{server}}/interop/rest/security/v2/role/getavailableroles
-Authorization: {{creds}}
+Authorization: Basic {{username}} {{password}}
 Accept: application/json
 Content-Type: application/json
 
@@ -53,7 +53,7 @@ Content-Type: application/json
 # WTF is v1???
 
 POST https://{{server}}/interop/rest/security/v1/roleassignmentreport/
-Authorization: {{creds}}
+Authorization: Basic {{username}} {{password}}
 Accept: application/json
 Content-Type: application/json
 
@@ -61,21 +61,21 @@ Content-Type: application/json
 # WTF is v1???
 
 GET https://{{server}}/interop/rest/security/v2/report/usergroupreport
-Authorization: {{creds}}
+Authorization: Basic {{username}} {{password}}
 Accept: application/json
 Content-Type: application/json
 
 ### Get Essbase query governor time
 
 GET https://{{server}}/interop/rest/v2/config/services/essbaseqrygovexectime
-Authorization: {{creds}}
+Authorization: Basic {{username}} {{password}}
 Accept: application/json
 Content-Type: application/json
 
 ### Send an email (didn't seem to work, perhaps attachment is required?)
 # "attachments":"apr/Feedback 2022-03-01 07_42_04/access_log.zip"
 POST https://{{server}}/interop/rest/v2/mails/send
-Authorization: {{creds}}
+Authorization: Basic {{username}} {{password}}
 Accept: application/json
 Content-Type: application/json
 
@@ -90,6 +90,6 @@ Content-Type: application/json
 
 ### Get Essbase email job details
 POST https://{{server}}/interop/rest/v2/status/jobs/81960945213340578
-Authorization: {{creds}}
+Authorization: Basic {{username}} {{password}}
 Accept: application/json
 Content-Type: application/json

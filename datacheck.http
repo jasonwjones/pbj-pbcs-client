@@ -1,7 +1,7 @@
 ### Import Data Slice
 
 POST https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/plantypes/Plan1/importdataslice
-Authorization: {{creds}}
+Authorization: Basic {{username}} {{password}}
 Accept: application/json
 Content-Type: application/json
 
@@ -51,7 +51,7 @@ Content-Type: application/json
 # You can use this to verify that the previous request (importdataslice) actually worked.
 
 POST https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/plantypes/{{cube}}/exportdataslice
-Authorization: {{creds}}
+Authorization: Basic {{username}} {{password}}
 Accept: application/json
 Content-Type: application/json
 
@@ -88,7 +88,7 @@ Content-Type: application/json
 #
 # The trailing slash is required
 GET https://{{server}}/HyperionPlanning/rest/
-Authorization: {{creds}}
+Authorization: Basic {{username}} {{password}}
 Accept: application/json
 
 ### Get API Version Info
@@ -97,37 +97,37 @@ Accept: application/json
 # a redirect of some kind that doesn't work here. It works in a web browser though, after having authenticated.
 
 GET https://{{server}}/HyperionPlanning/rest/v3
-Authorization: {{creds}}
+Authorization: Basic {{username}} {{password}}
 Accept: application/json
 
 ### Get Applications
 
 GET https://{{server}}/HyperionPlanning/rest/v3/applications
-Authorization: {{creds}}
+Authorization: Basic {{username}} {{password}}
 Accept: application/json
 
 ### Get Application
 
 GET https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}
-Authorization: {{creds}}
+Authorization: Basic {{username}} {{password}}
 Accept: application/json
 
 ### Get Member Info
 
 GET https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/dimensions/Period/members/YearTotal
-Authorization: {{creds}}
+Authorization: Basic {{username}} {{password}}
 Accept: application/json
 
 ### Get Member Info
 
 GET https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/dimensions/Year/members/Year
-Authorization: {{creds}}
+Authorization: Basic {{username}} {{password}}
 Accept: application/json
 
 ### Get Member Info -- child has share
 
 GET https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/dimensions/Entity/members/Sales Director 1
-Authorization: {{creds}}
+Authorization: Basic {{username}} {{password}}
 Accept: application/json
 
 ### Get Member Info -- child has share
@@ -137,46 +137,46 @@ Accept: application/json
 # Doesn't seem possible to query on 'uniqueName' value such as [Sales Director 1].[240]
 
 GET https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/dimensions/Entity/members/240
-Authorization: {{creds}}
+Authorization: Basic {{username}} {{password}}
 Accept: application/json
 
 ### Get Member Info (Dimension)
 # object type 34
 
 GET https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/dimensions/Period/members/Jan
-Authorization: {{creds}}
+Authorization: Basic {{username}} {{password}}
 Accept: application/json
 
 ### Get Product Dimension
 # object type 34
 
 GET https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/dimensions/Product/members/Product
-Authorization: {{creds}}
+Authorization: Basic {{username}} {{password}}
 Accept: application/json
 
 ### Get Member Info (Scenario)
 # object type 34
 
 GET https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/dimensions/Scenario/members/Scenario
-Authorization: {{creds}}
+Authorization: Basic {{username}} {{password}}
 Accept: application/json
 
 ### Get Member Info
 
 GET https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/dimensions/Entity/members/Sales
-Authorization: {{creds}}
+Authorization: Basic {{username}} {{password}}
 Accept: application/json
 
 ### Get Member Info - Attribute Dimension Member
 
 GET https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/dimensions/Market Size/members/Small
-Authorization: {{creds}}
+Authorization: Basic {{username}} {{password}}
 Accept: application/json
 
 ### Get Member Info - Attribute Dimension Member
 
 GET https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/dimensions/Source/members/GAAP Reporting
-Authorization: {{creds}}
+Authorization: Basic {{username}} {{password}}
 Accept: application/json
 
 ### Get Member Info - Attribute Dimension (Root)
@@ -184,7 +184,7 @@ Accept: application/json
 # Object type 30
 
 GET https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/dimensions/Market Size/members/Market Size
-Authorization: {{creds}}
+Authorization: Basic {{username}} {{password}}
 Accept: application/json
 
 ### Get Member Info - Attribute Dimension (Root)
@@ -192,72 +192,72 @@ Accept: application/json
 # Object type 30
 
 GET https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/dimensions/Currency/members/Currency
-Authorization: {{creds}}
+Authorization: Basic {{username}} {{password}}
 Accept: application/json
 
 ### Get Member Info - 4110
 
 GET https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/dimensions/Period/members/Jan
-Authorization: {{creds}}
+Authorization: Basic {{username}} {{password}}
 Accept: application/json
 
 ### Get Member Info - No Period
 
 GET https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/dimensions/Period/members/No%20Period
-Authorization: {{creds}}
+Authorization: Basic {{username}} {{password}}
 Accept: application/json
 
 ### Get Member Info - Period
 # Shows an exmaple of querying on dimension root. The parentName is omitted/null
 
 GET https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/dimensions/Period/members/Period
-Authorization: {{creds}}
+Authorization: Basic {{username}} {{password}}
 Accept: application/json
 
 ### Get Member Info - Smart List
 # Shows an exmaple of querying on dimension root. The parentName is omitted/null
 
 GET https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/dimensions/Account/members/4170_Test
-Authorization: {{creds}}
+Authorization: Basic {{username}} {{password}}
 Accept: application/json
 
 ### Get Member Info - Accrued Liabilities Total
 
 GET https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/dimensions/Account/members/Accrued%20Liabilities%20Total
-Authorization: {{creds}}
+Authorization: Basic {{username}} {{password}}
 Accept: application/json
 
 ### Get Member Info - Q1
 
 GET https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/dimensions/Period/members/Q1
-Authorization: {{creds}}
+Authorization: Basic {{username}} {{password}}
 Accept: application/json
 
 ### Get Member Info - 000
 
 GET https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/dimensions/Entity/members/000
-Authorization: {{creds}}
+Authorization: Basic {{username}} {{password}}
 Accept: application/json
 
 
 ### Get Job Definitions
 
 GET https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/jobdefinitions
-Authorization: {{creds}}
+Authorization: Basic {{username}} {{password}}
 Accept: application/json
 
 ### Get Job Definitions (Specific Type)
 # Someone messed up their parameter definitions on this call...
 
 GET https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/jobdefinitions?q={"jobType":"RULES"}
-Authorization: {{creds}}
+Authorization: Basic {{username}} {{password}}
 Accept: application/json
 
 ### Execute Job (Calc)
 # seems to absolute require the Content-Type header here, reporting a 415 if not set
 
 POST https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/jobs
-Authorization: {{creds}}
+Authorization: Basic {{username}} {{password}}
 Content-Type: application/json
 
 {
@@ -270,7 +270,7 @@ Content-Type: application/json
 # seems to absolute require the Content-Type header here, reporting a 415 if not set
 
 POST https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/jobs
-Authorization: {{creds}}
+Authorization: Basic {{username}} {{password}}
 Content-Type: application/json
 
 {
@@ -286,7 +286,7 @@ Content-Type: application/json
 # seems to absolute require the Content-Type header here, reporting a 415 if not set
 
 POST https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/jobs
-Authorization: {{creds}}
+Authorization: Basic {{username}} {{password}}
 Content-Type: application/json
 
 {
@@ -298,14 +298,14 @@ Content-Type: application/json
 ### Get Job Status
 
 GET https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/jobs/42
-Authorization: {{creds}}
+Authorization: Basic {{username}} {{password}}
 Accept: application/json
 
 
 ### Import Data Slice
 
 POST https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/plantypes/Plan1/importdataslice
-Authorization: {{creds}}
+Authorization: Basic {{username}} {{password}}
 Accept: application/json
 Content-Type: application/json
 
@@ -352,7 +352,7 @@ Content-Type: application/json
 ### Import Data Slice to Smart List
 
 POST https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/plantypes/Plan1/importdataslice
-Authorization: {{creds}}
+Authorization: Basic {{username}} {{password}}
 Accept: application/json
 Content-Type: application/json
 
@@ -396,7 +396,7 @@ Content-Type: application/json
 ### Import Data Slice to Regular Member
 
 POST https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/plantypes/Plan1/importdataslice
-Authorization: {{creds}}
+Authorization: Basic {{username}} {{password}}
 Accept: application/json
 Content-Type: application/json
 
@@ -440,7 +440,7 @@ Content-Type: application/json
 # You can use this to verify that the previous request (importdataslice) actually worked.
 
 POST https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/plantypes/{{cube}}/exportdataslice
-Authorization: {{creds}}
+Authorization: Basic {{username}} {{password}}
 Accept: application/json
 Content-Type: application/json
 
@@ -477,7 +477,7 @@ Content-Type: application/json
 ### Export Data Slice
 
 POST https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/plantypes/{{cube}}/exportdataslice
-Authorization: {{creds}}
+Authorization: Basic {{username}} {{password}}
 Accept: application/json
 Content-Type: application/json
 
@@ -509,7 +509,7 @@ Content-Type: application/json
 ### Export Data Slice (Alternate Arrangement)
 
 POST https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/plantypes/Plan1/exportdataslice
-Authorization: {{creds}}
+Authorization: Basic {{username}} {{password}}
 Accept: application/json
 Content-Type: application/json
 
@@ -543,7 +543,7 @@ Content-Type: application/json
 ### Export Data Slice (Alternate Arrangement 2x2)
 
 POST https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/plantypes/Plan1/exportdataslice
-Authorization: {{creds}}
+Authorization: Basic {{username}} {{password}}
 Accept: application/json
 Content-Type: application/json
 
@@ -576,7 +576,7 @@ Content-Type: application/json
 ### Export Data Slice (No POV)
 
 POST https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/plantypes/Plan1/exportdataslice
-Authorization: {{creds}}
+Authorization: Basic {{username}} {{password}}
 Accept: application/json
 Content-Type: application/json
 
@@ -613,7 +613,7 @@ Content-Type: application/json
 ### Export Data Slice (Test multiple dim members)
 
 POST https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/plantypes/Plan1/exportdataslice
-Authorization: {{creds}}
+Authorization: Basic {{username}} {{password}}
 Accept: application/json
 Content-Type: application/json
 
@@ -652,7 +652,7 @@ Content-Type: application/json
 ### Export Data Slice (Single Cell)
 
 POST https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/plantypes/Plan1/exportdataslice
-Authorization: {{creds}}
+Authorization: Basic {{username}} {{password}}
 Accept: application/json
 Content-Type: application/json
 
@@ -684,7 +684,7 @@ Content-Type: application/json
 ### Export Data Slice - Attribute dims in columns (works)
 
 POST https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/plantypes/Plan1/exportdataslice
-Authorization: {{creds}}
+Authorization: Basic {{username}} {{password}}
 Accept: application/json
 Content-Type: application/json
 
@@ -722,7 +722,7 @@ Content-Type: application/json
 ### Export Data Slice - Attribute dims in POV (works)
 
 POST https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/plantypes/Plan1/exportdataslice
-Authorization: {{creds}}
+Authorization: Basic {{username}} {{password}}
 Accept: application/json
 Content-Type: application/json
 
@@ -761,7 +761,7 @@ Content-Type: application/json
 # Also shows that when you have duplicate row definitions in the same rows object, they get collapsed
 
 POST https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/plantypes/Plan1/exportdataslice
-Authorization: {{creds}}
+Authorization: Basic {{username}} {{password}}
 Accept: application/json
 Content-Type: application/json
 
@@ -800,7 +800,7 @@ Content-Type: application/json
 # collapsing
 
 POST https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/plantypes/Plan1/exportdataslice
-Authorization: {{creds}}
+Authorization: Basic {{username}} {{password}}
 Accept: application/json
 Content-Type: application/json
 
@@ -845,7 +845,7 @@ Content-Type: application/json
 # Shows that in order to have an attribute dim in the row orientation, you MUST provide the dimension hints
 
 POST https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/plantypes/Plan1/exportdataslice
-Authorization: {{creds}}
+Authorization: Basic {{username}} {{password}}
 Accept: application/json
 Content-Type: application/json
 
@@ -888,7 +888,7 @@ Content-Type: application/json
 ### Export Data Slice - Multi Row
 
 POST https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/plantypes/Plan1/exportdataslice
-Authorization: {{creds}}
+Authorization: Basic {{username}} {{password}}
 Accept: application/json
 Content-Type: application/json
 
@@ -920,7 +920,7 @@ Content-Type: application/json
 ### Export Data Slice - Bad
 
 POST https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/plantypes/Plan1/exportdataslice
-Authorization: {{creds}}
+Authorization: Basic {{username}} {{password}}
 Accept: application/json
 Content-Type: application/json
 
@@ -954,7 +954,7 @@ Content-Type: application/json
 ### Export Data Slice - Attribute Dims
 
 POST https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/plantypes/Plan1/exportdataslice
-Authorization: {{creds}}
+Authorization: Basic {{username}} {{password}}
 Accept: application/json
 Content-Type: application/json
 
@@ -1103,7 +1103,7 @@ Content-Type: application/json
 ### Export Data Slice (Single Cell2)
 
 POST https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/plantypes/Plan1/exportdataslice
-Authorization: {{creds}}
+Authorization: Basic {{username}} {{password}}
 Accept: application/json
 Content-Type: application/json
 
@@ -1112,7 +1112,7 @@ Content-Type: application/json
 ### Export Data Slice 2
 
 POST https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/plantypes/Plan1/exportdataslice
-Authorization: {{creds}}
+Authorization: Basic {{username}} {{password}}
 Accept: application/json
 Content-Type: application/json
 
@@ -1193,7 +1193,7 @@ Content-Type: application/json
 ### Export Data Slice 3
 
 POST https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/plantypes/Plan1/exportdataslice
-Authorization: {{creds}}
+Authorization: Basic {{username}} {{password}}
 Accept: application/json
 Content-Type: application/json
 
@@ -1275,7 +1275,7 @@ Content-Type: application/json
 # You can use this to verify that the previous request (importdataslice) actually worked.
 
 POST https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/plantypes/{{cube}}/exportdataslice
-Authorization: {{creds}}
+Authorization: Basic {{username}} {{password}}
 Accept: application/json
 Content-Type: application/json
 
@@ -1317,35 +1317,35 @@ Accept: application/json
 # it's an oversight in the documentation of some kind. The documented URL contains "epm" such as:
 
 GET https://{{server}}/HyperionPlanning/rest/epm/{api_version}/applications/{application}/connections/{connectionRef}
-Authorization: {{creds}}
+Authorization: Basic {{username}} {{password}}
 Accept: application/json
 Content-Type: application/json
 
 ### View Connections -- Works -- V1??
 
 GET https://{{server}}/HyperionPlanning/rest/epm/v1/applications/{{app}}/connections
-Authorization: {{creds}}
+Authorization: Basic {{username}} {{password}}
 Accept: application/json
 Content-Type: application/json
 
 ### Get Sub Variables
 
 GET https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/substitutionvariables
-Authorization: {{creds}}
+Authorization: Basic {{username}} {{password}}
 Accept: application/json
 Content-Type: application/json
 
 ### Get Sub Variables For Plan
 
 GET https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/plantypes/Consol/substitutionvariables
-Authorization: {{creds}}
+Authorization: Basic {{username}} {{password}}
 Accept: application/json
 Content-Type: application/json
 
 ### Get User Preferences
 
 GET https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/userpreferences
-Authorization: {{creds}}
+Authorization: Basic {{username}} {{password}}
 Accept: application/json
 Content-Type: application/json
 
@@ -1353,6 +1353,6 @@ Content-Type: application/json
 ### Get User Preferences
 
 GET https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/journals?q={"scenario":"Actual","year":"FY22","period":"P1","consolidation":"FCCS_Entity Input","status": "WORKING","group":"group1" ,"label":"J1" ,"description":"JournalDesc","entity":"FCCS_Total Geography"}&offset=0&limit=5
-Authorization: {{creds}}
+Authorization: Basic {{username}} {{password}}
 Accept: application/json
 Content-Type: application/json

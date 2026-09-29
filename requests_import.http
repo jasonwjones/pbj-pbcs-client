@@ -1,7 +1,7 @@
 ### Import Data Slice
 
 POST https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/plantypes/Plan1/importdataslice
-Authorization: {{creds}}
+Authorization: Basic {{username}} {{password}}
 Accept: application/json
 Content-Type: application/json
 
@@ -49,7 +49,7 @@ Content-Type: application/json
 # You can use this to verify that the previous request (importdataslice) actually worked.
 
 POST https://{{server}}/HyperionPlanning/rest/v3/applications/{{app}}/plantypes/{{cube}}/exportdataslice
-Authorization: {{creds}}
+Authorization: Basic {{username}} {{password}}
 Accept: application/json
 Content-Type: application/json
 

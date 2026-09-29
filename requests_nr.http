@@ -4,5 +4,5 @@
 # lacking this module or not being setup
 
 GET https://{{server}}/epm/rest/
-Authorization: {{creds}}
+Authorization: Basic {{username}} {{password}}
 Accept: application/json
