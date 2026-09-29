@@ -114,6 +114,9 @@
 					<includes>
 						<include>**/*Test.java</include>
 					</includes>
+					<!-- Nothing here draws today, but any code that touches AWT in a forked JVM
+					     without this registers as a windowed app and takes the screen on macOS. -->
+					<argLine>-Djava.awt.headless=true</argLine>
 				</configuration>
 			</plugin>
 			<plugin>
