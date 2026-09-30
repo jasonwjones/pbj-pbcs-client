@@ -453,6 +453,11 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 
 	@Override
 	public ImportDataResult setCell(List<String> pov, String value, ImportDataOptions importDataOptions) {
+		// Aliases resolved to member names first, as getCell and retrieve already do. Without it a read
+		// took an alias and the matching write did not - and not by failing: importdataslice accepts a
+		// cell it cannot place, reports it accepted, rejects nothing, and stores nothing. A write that
+		// reports success and does not happen is the worst shape a bug can take.
+		pov = canonicalMemberNames(pov, true);
 		ImportDataSlice importDataSlice = new ImportDataSlice(pov, value);
 		logger.info("Updating {}.{} to set cell {} to {}", application.getName(), planType, pov, value);
 		return importDataSlice(importDataSlice, importDataOptions);
@@ -465,6 +470,8 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 
 	@Override
 	public ImportDataResult setCells(List<String> pov, Grid<String> values, ImportDataOptions importDataOptions) {
+		// As setCell: an alias anywhere in the POV is accepted and quietly not written.
+		pov = canonicalMemberNames(pov, true);
 		ImportDataSlice importDataSlice = new ImportDataSlice();
 		DataSlice dataSlice = createDataSlice(pov, values, importDataOptions);
 		importDataSlice.setDataGrid(dataSlice);
@@ -492,7 +499,7 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 		for (int row = 0; row < firstRowWithCell; row++) {
 			List<String> column = new ArrayList<>();
 			for (int col = firstColWithCell; col < grid.getColumns(); col++) {
-				column.add(grid.getCell(row, col));
+				column.add(canonicalMemberName(grid.getCell(row, col), true));
 			}
 			columns.add(column);
 		}
@@ -501,7 +508,7 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 		for (int row = firstRowWithCell; row < grid.getRows(); row++) {
 			List<String> headers = new ArrayList<>();
 			for (int col = 0; col < firstColWithCell; col++) {
-				headers.add(grid.getCell(row, col));
+				headers.add(canonicalMemberName(grid.getCell(row, col), true));
 			}
 			List<String> data = new ArrayList<>();
 			for (int col = firstColWithCell; col < grid.getColumns(); col++) {
@@ -664,11 +671,28 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 	 * @return the member's own name, or {@code name} unchanged if it is not a known alias
 	 */
 	protected String canonicalMemberName(String name) {
+		return canonicalMemberName(name, false);
+	}
+
+	/**
+	 * As {@link #canonicalMemberName(String)}, optionally resolving the Default table's aliases too.
+	 *
+	 * <p>Reads leave Default alone because the server resolves it for them: exportdataslice takes a
+	 * Default alias and returns the cell. Writes cannot, and this is the asymmetry that matters -
+	 * importdataslice takes the same Default alias, reports the cell accepted, rejects nothing, and
+	 * stores nothing at all. A write that reports success and does not happen is the worst shape a
+	 * bug can take, so the write path pays for the lookup and the read path still does not.
+	 *
+	 * @param name a member name, or an alias from any configured table
+	 * @param includeDefaultTable whether to resolve aliases from the Default table as well
+	 * @return the member's own name, or {@code name} unchanged if it is not a known alias
+	 */
+	protected String canonicalMemberName(String name, boolean includeDefaultTable) {
 		if (name == null) {
 			return null;
 		}
 		for (String aliasTable : getAliasTables()) {
-			if (PbcsMember.isDefaultAliasTable(aliasTable)) {
+			if (!includeDefaultTable && PbcsMember.isDefaultAliasTable(aliasTable)) {
 				continue;
 			}
 			for (PbcsDimension dimension : getDimensions()) {
@@ -684,13 +708,19 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 
 	/** {@link #canonicalMemberName(String)} over a list, returning the same list when nothing changed. */
 	protected List<String> canonicalMemberNames(List<String> names) {
-		if (names == null || getAliasTables().stream().allMatch(PbcsMember::isDefaultAliasTable)) {
+		return canonicalMemberNames(names, false);
+	}
+
+	/** {@link #canonicalMemberName(String, boolean)} over a list, returning the same list when nothing changed. */
+	protected List<String> canonicalMemberNames(List<String> names, boolean includeDefaultTable) {
+		if (names == null
+				|| (!includeDefaultTable && getAliasTables().stream().allMatch(PbcsMember::isDefaultAliasTable))) {
 			return names;
 		}
 		List<String> canonical = new ArrayList<>(names.size());
 		boolean changed = false;
 		for (String name : names) {
-			String resolved = canonicalMemberName(name);
+			String resolved = canonicalMemberName(name, includeDefaultTable);
 			changed |= !Objects.equals(resolved, name);
 			canonical.add(resolved);
 		}
