@@ -464,9 +464,14 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 		// reports success and does not happen is the worst shape a bug can take.
 		pov = canonicalMemberNames(pov, true);
 		value = importValue(value, importDataOptions);
+		String before = importDataOptions.isReturnChangedCells() ? getCell(pov) : null;
 		ImportDataSlice importDataSlice = new ImportDataSlice(pov, value);
 		logger.info("Updating {}.{} to set cell {} to {}", application.getName(), planType, pov, value);
-		return importDataSlice(importDataSlice, importDataOptions);
+		ImportDataResultImpl result = importDataSlice(importDataSlice, importDataOptions);
+		if (importDataOptions.isReturnChangedCells()) {
+			result.setChanges(changedCell(pov, before));
+		}
+		return result;
 	}
 
 	@Override
@@ -489,12 +494,48 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 		ImportDataResultImpl importDataResult = importDataSlice(importDataSlice, importDataOptions);
 
 		if (importDataOptions.isReturnChangedCells()) {
-			DataSlice afterSlice = retrieveToSlice(povGrid);
-			Map<Set<String>, DataSliceDiff.ValChange> changes = DataSliceDiff.diff(beforeSlice, afterSlice);
-			importDataResult.setChanges(changes);
+			// As in changedCell: the write is done, so a failure to read it back is not a failure of
+			// the write, and throwing here would say otherwise.
+			try {
+				DataSlice afterSlice = retrieveToSlice(povGrid);
+				importDataResult.setChanges(DataSliceDiff.diff(beforeSlice, afterSlice));
+			} catch (RuntimeException couldNotReadBack) {
+				logger.warn("Wrote the grid at {} but could not read it back to say what changed; the"
+						+ " write itself succeeded", pov, couldNotReadBack);
+			}
 		}
 
 		return importDataResult;
+	}
+
+	/**
+	 * What the cell holds now, against what it held before, for a write that asked to be checked.
+	 *
+	 * <p>Read back rather than inferred, because the counts cannot answer it: importdataslice reports
+	 * a cell accepted that it never stored, and numUpdateCells is not returned by every pod. Reading
+	 * the cell is the only answer that is about the cube rather than about the request.
+	 *
+	 * <p>A failure here is not a failure of the write. The write has already happened by this point,
+	 * so letting the read throw would report a successful write as a broken one - the worst way to be
+	 * wrong about it. The change set is advisory; the write is not.
+	 *
+	 * @param pov the cell, in canonical member names
+	 * @param before what it held before the write
+	 * @return the one change, or empty if nothing moved or it could not be read back
+	 */
+	private Map<Set<String>, DataSliceDiff.ValChange> changedCell(List<String> pov, String before) {
+		String after;
+		try {
+			after = getCell(pov);
+		} catch (RuntimeException couldNotReadBack) {
+			logger.warn("Wrote {} but could not read it back to say what changed; the write itself"
+					+ " succeeded", pov, couldNotReadBack);
+			return Collections.emptyMap();
+		}
+		if (Objects.equals(before, after)) {
+			return Collections.emptyMap();
+		}
+		return Collections.singletonMap(new HashSet<>(pov), new DataSliceDiff.ValChange(before, after));
 	}
 
 	/**
