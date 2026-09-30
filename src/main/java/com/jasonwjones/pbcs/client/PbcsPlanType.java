@@ -481,6 +481,16 @@ public interface PbcsPlanType extends PbcsObject {
 		int getAcceptedCells();
 
 		/**
+		 * The number of cells whose value in the cube actually changed.
+		 *
+		 * <p>A cell submitted with the value it already had is accepted and not updated, so an import
+		 * that accepted everything and updated nothing changed nothing.
+		 *
+		 * @return the number of cells
+		 */
+		int getUpdatedCells();
+
+		/**
 		 * The number of cells that were rejected to be updated in the cube.
 		 *
 		 * @return the number of cells

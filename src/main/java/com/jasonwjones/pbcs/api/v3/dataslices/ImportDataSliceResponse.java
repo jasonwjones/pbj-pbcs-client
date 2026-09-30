@@ -9,6 +9,8 @@ public class ImportDataSliceResponse {
 
     private int numAcceptedCells;
 
+    private int numUpdateCells;
+
     private int numRejectedCells;
 
     private List<String> rejectedCells;
@@ -37,6 +39,28 @@ public class ImportDataSliceResponse {
      */
     public void setNumAcceptedCells(int numAcceptedCells) {
         this.numAcceptedCells = numAcceptedCells;
+    }
+
+    /**
+     * Gets the number of cells the import actually changed in Essbase.
+     *
+     * <p>Not the same as the accepted count, and the difference is the useful part: a cell whose new
+     * value equals its old one is accepted and not updated. A submit that accepts everything and
+     * updates nothing has done exactly nothing, and says so here rather than looking like a success.
+     *
+     * @return the updated cell count
+     */
+    public int getNumUpdateCells() {
+        return numUpdateCells;
+    }
+
+    /**
+     * Sets the number of cells the import actually changed.
+     *
+     * @param numUpdateCells the updated cell count
+     */
+    public void setNumUpdateCells(int numUpdateCells) {
+        this.numUpdateCells = numUpdateCells;
     }
 
     /**

@@ -533,7 +533,9 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 		ResponseEntity<ImportDataSliceResponse> response = this.context.getTemplate().postForEntity(this.context.getBaseUrl() + "applications/{application}/plantypes/{planType}/importdataslice", importDataSlice, ImportDataSliceResponse.class, application.getName(), planType);
 		if (response.getStatusCode().is2xxSuccessful()) {
 			ImportDataSliceResponse importDataSliceResponse = response.getBody();
-			logger.info("Update cell result: {} accepted cells, {} rejected cells", importDataSliceResponse.getNumAcceptedCells(), importDataSliceResponse.getNumRejectedCells());
+			logger.info("Update cell result: {} accepted cells, {} updated cells, {} rejected cells",
+					importDataSliceResponse.getNumAcceptedCells(), importDataSliceResponse.getNumUpdateCells(),
+					importDataSliceResponse.getNumRejectedCells());
 			if (importDataOptions.isThrowExceptionIfAnyRejectedCells() && importDataSliceResponse.getNumRejectedCells() > 0) {
 				throw new PbcsDataImportException(importDataSliceResponse);
 			}
@@ -831,6 +833,10 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 
 		public int getAcceptedCells() {
 			return response.getNumAcceptedCells();
+		}
+
+		public int getUpdatedCells() {
+			return response.getNumUpdateCells();
 		}
 
 		public int getRejectedCells() {
