@@ -439,7 +439,12 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 		for (DataSlice.HeaderDataRow row : slice.getRows()) {
 			List<PbcsMember> members = new ArrayList<>();
 			for (String header : row.getHeaders()) {
-				PbcsMember member = getMember(header);
+				// getMemberOrAlias, because a header is whichever of the two the retrieve happened to
+				// return: a grid fetched with aliases on names its rows by alias. getMember means "by
+				// member name" and says so, and asking it for something else got an exception naming a
+				// member that plainly exists. The heavier lookup belongs here, at the one call that
+				// cannot know which it is holding, rather than inside a method whose name is a promise.
+				PbcsMember member = getMemberOrAlias(header);
 				members.add(member);
 			}
 			exportCallback.printRow(members, row.getData());

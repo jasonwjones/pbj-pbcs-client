@@ -331,15 +331,6 @@ public class PbcsExplicitDimensionsPlanTypeImpl extends PbcsPlanTypeImpl impleme
             logger.debug("Member dimension cache does not contain entry for {}, will search explicit dimensions {}", memberName, explicitDimensions);
             dimensionName = findMemberDimensionFromExplicit(memberName);
             if (dimensionName == null) {
-                // It may be an alias rather than a member name. A grid that was retrieved with aliases
-                // on hands its headers back as aliases, so exporting one asked this for a name no
-                // dimension has - and got an exception naming a member that plainly exists. Tried only
-                // after the plain search fails, so a name that is a name costs nothing extra.
-                String canonical = canonicalMemberName(memberName, true);
-                if (!memberName.equals(canonical)) {
-                    logger.debug("{} is an alias of {}; looking that up instead", memberName, canonical);
-                    return getMember(canonical);
-                }
                 throw new PbcsClientException("Unable to determine dimension for member " + memberName + " after searching explicit dimensions");
             }
         }
