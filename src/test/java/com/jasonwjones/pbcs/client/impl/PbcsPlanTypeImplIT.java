@@ -69,14 +69,34 @@ public class PbcsPlanTypeImplIT extends AbstractVisionCubeIT {
         assertThat(1, is(result.getAcceptedCells()));
     }
 
+    /**
+     * Clearing a cell by submitting a blank, which takes saying that a blank means that.
+     *
+     * <p>EPM reads a blank as "leave this alone" and only empties a cell for the word #Missing, so
+     * the option is what turns one into the other. It went unread by setCell until now - setCells
+     * applied it and setCell walked past it - which made a cleared cell a silent no-op.
+     */
     @Test
     public void whenSetCellBlank() {
         cube.setCell(LEVEL0_TEST_CELL, CELL_TEST_VALUE);
         assertThat(CELL_TEST_VALUE, is(cube.getCell(LEVEL0_TEST_CELL)));
 
-        PbcsPlanType.ImportDataResult result = cube.setCell(LEVEL0_TEST_CELL, PbcsPlanType.EXPORT_MISSING);
+        PbcsPlanTypeImpl.ImportDataOptionsImpl options = new PbcsPlanTypeImpl.ImportDataOptionsImpl();
+        options.setTreatBlankAsMissing(true);
+        PbcsPlanType.ImportDataResult result =
+                cube.setCell(LEVEL0_TEST_CELL, PbcsPlanType.EXPORT_MISSING, options);
         assertThat(cube.getCell(LEVEL0_TEST_CELL), is(PbcsPlanType.EXPORT_MISSING));
         assertThat(1, is(result.getAcceptedCells()));
+    }
+
+    /** And without saying so, a blank leaves the cell as it was, which is EPM's own reading of one. */
+    @Test
+    public void whenSetCellBlankWithoutTreatingBlankAsMissing() {
+        cube.setCell(LEVEL0_TEST_CELL, CELL_TEST_VALUE);
+
+        cube.setCell(LEVEL0_TEST_CELL, PbcsPlanType.EXPORT_MISSING);
+
+        assertThat(cube.getCell(LEVEL0_TEST_CELL), is(CELL_TEST_VALUE));
     }
 
     @Test

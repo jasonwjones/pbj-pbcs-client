@@ -458,6 +458,7 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 		// cell it cannot place, reports it accepted, rejects nothing, and stores nothing. A write that
 		// reports success and does not happen is the worst shape a bug can take.
 		pov = canonicalMemberNames(pov, true);
+		value = importValue(value, importDataOptions);
 		ImportDataSlice importDataSlice = new ImportDataSlice(pov, value);
 		logger.info("Updating {}.{} to set cell {} to {}", application.getName(), planType, pov, value);
 		return importDataSlice(importDataSlice, importDataOptions);
@@ -491,6 +492,28 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 		return importDataResult;
 	}
 
+	/**
+	 * A cell value as the import should carry it, honouring the options that say what counts as empty.
+	 *
+	 * <p>setCells has always applied these while building its grid and setCell went straight past
+	 * them, so the same option worked through one write method and was ignored by the other. That is
+	 * how a cleared cell came to be a silent no-op: EPM reads a blank as "leave it alone", and only
+	 * the word #Missing empties it.
+	 *
+	 * @param value the value as the caller gave it
+	 * @param importDataOptions the options for this import
+	 * @return the value to send
+	 */
+	private String importValue(String value, ImportDataOptions importDataOptions) {
+		if (importDataOptions.isTreatZerosAsMissing() && NumberUtil.isNumeric(value) && Double.parseDouble(value) == 0) {
+			return PbcsPlanType.IMPORT_MISSING;
+		}
+		if (importDataOptions.isTreatBlankAsMissing() && !StringUtils.hasText(value)) {
+			return PbcsPlanType.IMPORT_MISSING;
+		}
+		return value;
+	}
+
 	private DataSlice createDataSlice(List<String> pov, Grid<String> grid, ImportDataOptions importDataOptions) {
 		int firstRowWithCell = GridUtils.firstNonNullInColumn(grid, 0);
 		int firstColWithCell = GridUtils.firstNonNullInRow(grid, 0);
@@ -512,13 +535,7 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 			}
 			List<String> data = new ArrayList<>();
 			for (int col = firstColWithCell; col < grid.getColumns(); col++) {
-				String dataCell = grid.getCell(row, col);
-				if (importDataOptions.isTreatZerosAsMissing() && NumberUtil.isNumeric(dataCell) && Double.parseDouble(dataCell) == 0) {
-					dataCell = PbcsPlanType.IMPORT_MISSING;
-				} else if (importDataOptions.isTreatBlankAsMissing() && !StringUtils.hasText(dataCell)) {
-					dataCell = PbcsPlanType.IMPORT_MISSING;
-				}
-				data.add(dataCell);
+				data.add(importValue(grid.getCell(row, col), importDataOptions));
 			}
 			DataSlice.HeaderDataRow headerDataRow = new DataSlice.HeaderDataRow(headers, data);
 			rows.add(headerDataRow);
