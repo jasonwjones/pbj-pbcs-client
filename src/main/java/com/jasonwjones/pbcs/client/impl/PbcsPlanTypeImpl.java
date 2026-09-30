@@ -874,7 +874,9 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 
 		private final ImportDataSliceResponse response;
 
-		private Map<Set<String>, DataSliceDiff.ValChange> changes;
+		// Empty rather than null, as the interface says. setCells fills it and setCell never has, so a
+		// caller that looped over it worked through one write method and threw through the other.
+		private Map<Set<String>, DataSliceDiff.ValChange> changes = Collections.emptyMap();
 
 		public ImportDataResultImpl(ImportDataSliceResponse response) {
 			this.response = response;
