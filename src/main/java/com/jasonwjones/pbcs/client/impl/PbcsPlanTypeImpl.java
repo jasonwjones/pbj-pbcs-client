@@ -534,7 +534,9 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 		if (response.getStatusCode().is2xxSuccessful()) {
 			ImportDataSliceResponse importDataSliceResponse = response.getBody();
 			logger.info("Update cell result: {} accepted cells, {} updated cells, {} rejected cells",
-					importDataSliceResponse.getNumAcceptedCells(), importDataSliceResponse.getNumUpdateCells(),
+					importDataSliceResponse.getNumAcceptedCells(),
+					importDataSliceResponse.isUpdateCountReported()
+							? importDataSliceResponse.getNumUpdateCells() : "(not reported)",
 					importDataSliceResponse.getNumRejectedCells());
 			if (importDataOptions.isThrowExceptionIfAnyRejectedCells() && importDataSliceResponse.getNumRejectedCells() > 0) {
 				throw new PbcsDataImportException(importDataSliceResponse);
@@ -837,6 +839,10 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 
 		public int getUpdatedCells() {
 			return response.getNumUpdateCells();
+		}
+
+		public boolean isUpdatedCountReported() {
+			return response.isUpdateCountReported();
 		}
 
 		public int getRejectedCells() {

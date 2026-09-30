@@ -491,6 +491,16 @@ public interface PbcsPlanType extends PbcsObject {
 		int getUpdatedCells();
 
 		/**
+		 * Whether the server reported an updated cell count at all.
+		 *
+		 * <p>{@link #getUpdatedCells()} reads as zero when it did not, which is not the same thing:
+		 * a caller deciding whether an import achieved anything has to know which it is looking at.
+		 *
+		 * @return true if the count was reported, false otherwise
+		 */
+		boolean isUpdatedCountReported();
+
+		/**
 		 * The number of cells that were rejected to be updated in the cube.
 		 *
 		 * @return the number of cells

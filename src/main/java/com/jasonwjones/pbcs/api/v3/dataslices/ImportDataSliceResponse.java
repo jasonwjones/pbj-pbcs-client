@@ -9,7 +9,10 @@ public class ImportDataSliceResponse {
 
     private int numAcceptedCells;
 
-    private int numUpdateCells;
+    // Boxed on purpose: a server that does not report this field at all is not the same as one
+    // reporting zero, and an int cannot tell the two apart. Jackson only calls the setter when the
+    // field is present, so null means "not reported" and a caller can decline to draw a conclusion.
+    private Integer numUpdateCells;
 
     private int numRejectedCells;
 
@@ -51,7 +54,20 @@ public class ImportDataSliceResponse {
      * @return the updated cell count
      */
     public int getNumUpdateCells() {
-        return numUpdateCells;
+        return numUpdateCells == null ? 0 : numUpdateCells;
+    }
+
+    /**
+     * Whether the server reported an updated cell count at all.
+     *
+     * <p>Not every pod returns {@code numUpdateCells}, and one that does not is indistinguishable
+     * from one reporting zero unless this is asked. Treating an unreported count as zero would call
+     * a perfectly good import a failure.
+     *
+     * @return true if the count was reported, false otherwise
+     */
+    public boolean isUpdateCountReported() {
+        return numUpdateCells != null;
     }
 
     /**
@@ -59,7 +75,7 @@ public class ImportDataSliceResponse {
      *
      * @param numUpdateCells the updated cell count
      */
-    public void setNumUpdateCells(int numUpdateCells) {
+    public void setNumUpdateCells(Integer numUpdateCells) {
         this.numUpdateCells = numUpdateCells;
     }
 

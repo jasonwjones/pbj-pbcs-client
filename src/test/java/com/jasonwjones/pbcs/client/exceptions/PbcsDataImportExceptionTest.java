@@ -95,4 +95,23 @@ public class PbcsDataImportExceptionTest {
 		assertThat(exception.getNumAcceptedCells(), is(3));
 	}
 
+	/**
+	 * A server that never mentions the updated count is not a server reporting zero.
+	 *
+	 * <p>The difference decides whether a caller may call an import a no-op, and an int cannot hold
+	 * it - which is how a write that landed perfectly well came to be reported as having changed
+	 * nothing.
+	 */
+	@Test
+	public void anUnreportedUpdateCountIsNotZero() {
+		ImportDataSliceResponse silent = new ImportDataSliceResponse();
+		assertThat(silent.isUpdateCountReported(), is(false));
+		assertThat(silent.getNumUpdateCells(), is(0));
+
+		ImportDataSliceResponse reported = new ImportDataSliceResponse();
+		reported.setNumUpdateCells(0);
+		assertThat(reported.isUpdateCountReported(), is(true));
+		assertThat(reported.getNumUpdateCells(), is(0));
+	}
+
 }
