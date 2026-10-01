@@ -486,9 +486,15 @@ public interface PbcsPlanType extends PbcsObject {
 		 * <p>A cell submitted with the value it already had is accepted and not updated, so an import
 		 * that accepted everything and updated nothing changed nothing.
 		 *
+		 * <p>The default returns zero, alongside a false {@link #isUpdatedCountReported()}, so that an
+		 * implementation written against an earlier version of this interface still compiles and reports
+		 * the state it is really in: no updated count to give.
+		 *
 		 * @return the number of cells
 		 */
-		int getUpdatedCells();
+		default int getUpdatedCells() {
+			return 0;
+		}
 
 		/**
 		 * Whether the server reported an updated cell count at all.
@@ -496,9 +502,14 @@ public interface PbcsPlanType extends PbcsObject {
 		 * <p>{@link #getUpdatedCells()} reads as zero when it did not, which is not the same thing:
 		 * a caller deciding whether an import achieved anything has to know which it is looking at.
 		 *
+		 * <p>The default returns false, which is the honest answer for an implementation that predates
+		 * this pair and so never had a count to report.
+		 *
 		 * @return true if the count was reported, false otherwise
 		 */
-		boolean isUpdatedCountReported();
+		default boolean isUpdatedCountReported() {
+			return false;
+		}
 
 		/**
 		 * The number of cells that were rejected to be updated in the cube.
