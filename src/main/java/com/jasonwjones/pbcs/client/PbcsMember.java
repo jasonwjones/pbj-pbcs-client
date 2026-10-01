@@ -1,6 +1,6 @@
 package com.jasonwjones.pbcs.client;
 
-import com.jasonwjones.pbcs.api.v3.PbcsMemberPropertiesImpl;
+import com.jasonwjones.pbcs.api.v3.CurrencySettings;
 import org.springframework.util.StringUtils;
 
 import java.util.LinkedHashSet;
@@ -160,17 +160,23 @@ public interface PbcsMember extends PbcsObject {
     Integer getObjectNumericType();
 
     /**
-     * Gets the member properties exactly as the member info endpoint returned them.
+     * Gets the currency display settings for this member - precision, scale, symbol, the separators and
+     * how a negative is rendered.
      *
-     * <p>Every other accessor on this interface reads one field out of that payload; this hands back the
-     * whole thing, for a caller that wants to render whatever came back without naming the fields, or that
-     * wants one of the properties this interface never promoted to a method of its own. The bean is inert -
-     * reading it is never a round trip - which the rest of this interface is not: {@link #getChildren()},
-     * {@link #getParentMember()} and {@link #getMaxGeneration()} all can be.
+     * <p>This is the one property of the member info payload that the rest of this interface does not
+     * promote to an accessor of its own. Reading it is never a round trip.
      *
-     * @return the deserialized member properties
+     * <p>The default returns null, so that an implementation written against an earlier version of this
+     * interface still compiles. An implementation that wraps or delegates to another member should
+     * override this to forward the call rather than answer null; {@link
+     * com.jasonwjones.pbcs.client.impl.AbstractDelegatingMember} already does.
+     *
+     * @return the currency settings, or null if the member has none or the implementation cannot supply
+     * them
      */
-    PbcsMemberPropertiesImpl getDetails();
+    default CurrencySettings getCurrencySettings() {
+        return null;
+    }
 
     /**
      * Gets the member type, corresponding to the known planning member types, such as Scenario or Account. If the type

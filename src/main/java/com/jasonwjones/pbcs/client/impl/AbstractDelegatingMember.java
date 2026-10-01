@@ -1,6 +1,6 @@
 package com.jasonwjones.pbcs.client.impl;
 
-import com.jasonwjones.pbcs.api.v3.PbcsMemberPropertiesImpl;
+import com.jasonwjones.pbcs.api.v3.CurrencySettings;
 import com.jasonwjones.pbcs.client.*;
 
 import java.util.List;
@@ -93,8 +93,8 @@ public abstract class AbstractDelegatingMember implements PbcsMember {
     }
 
     @Override
-    public PbcsMemberPropertiesImpl getDetails() {
-        return member().getDetails();
+    public CurrencySettings getCurrencySettings() {
+        return member().getCurrencySettings();
     }
 
     @Override

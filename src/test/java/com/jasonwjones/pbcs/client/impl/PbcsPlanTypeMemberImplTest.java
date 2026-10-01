@@ -1,5 +1,6 @@
 package com.jasonwjones.pbcs.client.impl;
 
+import com.jasonwjones.pbcs.api.v3.CurrencySettings;
 import com.jasonwjones.pbcs.api.v3.PbcsMemberPropertiesImpl;
 import com.jasonwjones.pbcs.client.PbcsApplication;
 import com.jasonwjones.pbcs.client.PbcsMember;
@@ -19,6 +20,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertThrows;
 
 public class PbcsPlanTypeMemberImplTest {
@@ -152,6 +154,45 @@ public class PbcsPlanTypeMemberImplTest {
 
         assertThat(member.getAlias("Alias2"), is("Alias2Value"));
         assertThat(recordedCalls, contains(List.of("Account", "Actual", "Alias2")));
+    }
+
+    @Test
+    public void memberExposesTheCurrencySettingsFromItsPayload() {
+        PbcsMemberPropertiesImpl properties = member("Actual", List.of("Plan1"));
+        CurrencySettings currencySettings = currencySettings();
+        properties.setCurrencySettings(currencySettings);
+
+        PbcsMember member = new PbcsMemberImpl(context, application(Collections.emptyMap()), properties);
+
+        assertThat(member.getCurrencySettings(), is(sameInstance(currencySettings)));
+    }
+
+    @Test
+    public void delegatingMemberForwardsCurrencySettingsRatherThanAnsweringTheDefaultNull() {
+        PbcsMemberPropertiesImpl properties = member("Actual", List.of("Plan1"));
+        CurrencySettings currencySettings = currencySettings();
+        properties.setCurrencySettings(currencySettings);
+        PbcsPlanType planType = planType(application(Map.of("Actual", properties)));
+
+        PbcsMember member = new AbstractDelegatingMember(planType, "Actual", "Account") {
+        };
+
+        assertThat(member.getCurrencySettings(), is(sameInstance(currencySettings)));
+    }
+
+    @Test
+    public void memberWithoutCurrencySettingsReturnsNull() {
+        PbcsMember member = new PbcsMemberImpl(context, application(Collections.emptyMap()),
+                member("Actual", List.of("Plan1")));
+
+        assertThat(member.getCurrencySettings(), is((CurrencySettings) null));
+    }
+
+    private static CurrencySettings currencySettings() {
+        CurrencySettings currencySettings = new CurrencySettings();
+        currencySettings.setSymbol("$");
+        currencySettings.setPrecision(-1);
+        return currencySettings;
     }
 
     private PbcsPlanType planType(PbcsApplication application) {

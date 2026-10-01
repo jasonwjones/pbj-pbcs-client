@@ -1,5 +1,6 @@
 package com.jasonwjones.pbcs.client.impl;
 
+import com.jasonwjones.pbcs.api.v3.CurrencySettings;
 import com.jasonwjones.pbcs.api.v3.PbcsMemberPropertiesImpl;
 import com.jasonwjones.pbcs.client.*;
 import com.jasonwjones.pbcs.client.exceptions.PbcsInvalidMemberException;
@@ -181,8 +182,8 @@ public class PbcsMemberImpl extends AbstractPbcsObject implements PbcsMember {
     }
 
     @Override
-    public PbcsMemberPropertiesImpl getDetails() {
-        return memberProperties;
+    public CurrencySettings getCurrencySettings() {
+        return memberProperties.getCurrencySettings();
     }
 
     @Override
