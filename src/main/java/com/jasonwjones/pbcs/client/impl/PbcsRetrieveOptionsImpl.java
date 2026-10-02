@@ -60,9 +60,9 @@ public class PbcsRetrieveOptionsImpl implements PbcsPlanType.RetrieveOptions {
     }
 
     /**
-     * Sets whether supporting details should be exported along with data.
+     * Sets whether supporting details and cell notes should be exported along with data.
      *
-     * @param exportPlanningData true to export supporting details, false otherwise
+     * @param exportPlanningData true to export supporting details and cell notes, false otherwise
      */
     public void setExportPlanningData(boolean exportPlanningData) {
         this.exportPlanningData = exportPlanningData;
