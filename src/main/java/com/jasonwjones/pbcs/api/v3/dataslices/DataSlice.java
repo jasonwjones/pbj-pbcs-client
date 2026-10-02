@@ -200,7 +200,9 @@ public class DataSlice {
 		}
 
 		/**
-		 * Gets the supporting detail for this row, if requested and returned by the export.
+		 * Gets the supporting detail for this row, if requested and returned by the export. Like
+		 * {@link #getCellNotes()}, the list is positional against {@link #getData()}, with a null element for
+		 * each cell that has no supporting detail.
 		 *
 		 * @return the supporting detail, may be null if not requested/returned
 		 */
@@ -209,9 +211,23 @@ public class DataSlice {
 		}
 
 		/**
-		 * Sets the supporting detail for this row.
+		 * Sets the supporting detail for this row, for sending with an import. The list is positional against
+		 * {@link #getData()} and must be exactly as long; the server fails the whole request otherwise. For
+		 * each cell:
+		 * <ul>
+		 *     <li>a wrapper with lines replaces the cell's supporting detail, but only alongside a non-blank
+		 *     value in {@code data}; with a blank value the lines are silently ignored. The server stores the
+		 *     value as sent and does not check it against the lines, so the caller must send their total;</li>
+		 *     <li>a wrapper with no lines deletes the cell's supporting detail, and a blank value then leaves the
+		 *     cell's value as it was;</li>
+		 *     <li>a null element leaves the cell's supporting detail alone, provided its value is blank.</li>
+		 * </ul>
 		 *
-		 * @param supportingDetail the supporting detail
+		 * <p>Writing any non-blank value to a cell deletes its supporting detail unless new lines are sent with
+		 * it, even when the value is unchanged and whether or not this list is set. Supporting detail on an
+		 * upper-level member is rejected with the rest of the cell.
+		 *
+		 * @param supportingDetail the supporting detail, one (possibly null) wrapper per data cell
 		 */
 		public void setSupportingDetail(List<SupportingDetailWrapper> supportingDetail) {
 			this.supportingDetail = supportingDetail;
@@ -330,6 +346,16 @@ public class DataSlice {
 		}
 
 		/**
+		 * Constructs an instance holding the given supporting detail entries.
+		 *
+		 * @param items the supporting detail entries; an empty list, sent with an import, deletes the cell's
+		 *              supporting detail
+		 */
+		public SupportingDetailWrapper(List<SupportingDetail> items) {
+			this.items = items;
+		}
+
+		/**
 		 * Gets the supporting detail entries.
 		 *
 		 * @return the supporting detail entries
@@ -350,16 +376,23 @@ public class DataSlice {
 	}
 
 	/**
-	 * Represents a single supporting detail line item for a data cell, such as one operand of a dynamic
-	 * calc's formula.
+	 * Represents a single supporting detail line for a data cell: a labelled value that, together with the
+	 * cell's other lines, makes up the cell's value.
+	 *
+	 * <p>A cell's lines are evaluated in order, not by operator precedence: each line's operator combines
+	 * its value with the running total of the lines before it at the same {@link #getGeneration() generation}.
+	 * A line followed by lines one generation deeper is a parent whose value is the total of those lines.
 	 */
 	public static class SupportingDetail {
 
 		private String label;
 
-		// appears that these can be ~, +, -, * and /
+		// The server accepts only ~, +, -, * and /, and answers any other with a 400 that blames JSON syntax.
 		private String operator;
 
+		// Absent rather than null on the wire: a parent line stored without a value comes back with no
+		// value field at all, and that is the shape the server is known to accept.
+		@JsonInclude(JsonInclude.Include.NON_NULL)
 		private String value;
 
 		private int position;
@@ -370,6 +403,35 @@ public class DataSlice {
 		 * Constructs an empty instance for deserialization.
 		 */
 		public SupportingDetail() {
+		}
+
+		/**
+		 * Constructs a top-level line (generation zero).
+		 *
+		 * @param label the label for the line
+		 * @param operator how the line combines with the lines before it: {@code +}, {@code -}, {@code *},
+		 *                 {@code /}, or {@code ~} to ignore it
+		 * @param value the line's numeric value, or null for a blank line
+		 */
+		public SupportingDetail(String label, String operator, String value) {
+			this(label, operator, value, 0);
+		}
+
+		/**
+		 * Constructs a line at the given generation, where zero is top level and each deeper generation nests
+		 * under the nearest preceding line one generation up.
+		 *
+		 * @param label the label for the line
+		 * @param operator how the line combines with the lines before it: {@code +}, {@code -}, {@code *},
+		 *                 {@code /}, or {@code ~} to ignore it
+		 * @param value the line's numeric value, or null for a blank line or a parent line
+		 * @param generation the line's depth, zero for top level
+		 */
+		public SupportingDetail(String label, String operator, String value, int generation) {
+			this.label = label;
+			this.operator = operator;
+			this.value = value;
+			this.generation = generation;
 		}
 
 		/**
