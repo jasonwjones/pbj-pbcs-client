@@ -2,6 +2,7 @@ package com.jasonwjones.pbcs.client;
 
 import com.jasonwjones.pbcs.api.v3.PlanTypeEntry;
 import com.jasonwjones.pbcs.api.v3.SubstitutionVariable;
+import com.jasonwjones.pbcs.api.v3.dataslices.DataSlice;
 import com.jasonwjones.pbcs.api.v3.dataslices.DimensionMembers;
 import com.jasonwjones.pbcs.client.impl.grid.DataSliceGrid;
 import com.jasonwjones.pbcs.util.DataSliceDiff;
@@ -126,6 +127,8 @@ public interface PbcsPlanType extends PbcsObject {
 	 * method uses the default import options defined in {@link com.jasonwjones.pbcs.client.impl.PbcsPlanTypeImpl#DEFAULT_IMPORT_OPTIONS},
 	 * use the related method if you need full control over how the data import is specified.
 	 *
+	 * <p>Writing a non-blank value deletes any supporting detail on the cell, even when the value is unchanged.
+	 *
 	 * @param pov the pov
 	 * @param value the cell value
 	 * @return the data import results
@@ -137,6 +140,8 @@ public interface PbcsPlanType extends PbcsObject {
 	 * Sets the value for a single cell. Internally, this method just wraps the "import data slice" endpoint
 	 * and provides the convenience of being able to set a single cell without all the ceremony of creating a grid
 	 *
+	 * <p>Writing a non-blank value deletes any supporting detail on the cell, even when the value is unchanged.
+	 *
 	 * @param pov the pov
 	 * @param value the cell value
 	 * @param importDataOptions the options to use when importing
@@ -147,6 +152,8 @@ public interface PbcsPlanType extends PbcsObject {
 	/**
 	 * Update multiple cells using the POV and the given grid. A simple parsing strategy will be used on the grid.
 	 *
+	 * <p>Writing a non-blank value to a cell deletes any supporting detail on it, even when the value is unchanged.
+	 *
 	 * @param pov the pov
 	 * @param values the cell values
 	 * @return the data import results
@@ -156,6 +163,8 @@ public interface PbcsPlanType extends PbcsObject {
 
 	/**
 	 * Update multiple cells using the POV and the given grid. A simple parsing strategy will be used on the grid.
+	 *
+	 * <p>Writing a non-blank value to a cell deletes any supporting detail on it, even when the value is unchanged.
 	 *
 	 * @param pov the pov
 	 * @param values the cell values
@@ -223,6 +232,47 @@ public interface PbcsPlanType extends PbcsObject {
 	 */
 	default List<String> setCellNotes(List<String> dataPoint, List<String> notes, CellNotesOption cellNotesOption) {
 		throw new UnsupportedOperationException("Cell notes are not supported by " + getClass().getName());
+	}
+
+	/**
+	 * Retrieves the supporting detail on a single cell.
+	 *
+	 * @param dataPoint the data point, one member from every dimension
+	 * @return the cell's supporting detail lines, in position order; empty if it has none
+	 * @throws UnsupportedOperationException if this implementation does not support supporting detail
+	 * @see #setSupportingDetail(List, List)
+	 */
+	default List<DataSlice.SupportingDetail> getSupportingDetail(List<String> dataPoint) {
+		throw new UnsupportedOperationException("Supporting detail is not supported by " + getClass().getName());
+	}
+
+	/**
+	 * Replaces the supporting detail on a single cell, and sets the cell's value to what the lines add up to,
+	 * as the Planning UI does when it saves. An empty list deletes the cell's supporting detail and leaves its
+	 * value as it was.
+	 *
+	 * <p>The total is worked out here because the server will not: it stores whatever value it is sent beside
+	 * the lines. Lines are evaluated in order, not by operator precedence, each operator combining the line's
+	 * value with the running total of the lines before it at the same generation; a line with no value or
+	 * with the {@code ~} operator is skipped. A line followed by lines one generation deeper is a parent, and
+	 * its value is replaced with their total. Positions are assigned from the order of the list; the
+	 * positions on the given lines are ignored, and the given lines are not changed.
+	 *
+	 * <p>The cell is read back after the write, which costs one more request.
+	 *
+	 * @param dataPoint the data point, one member from every dimension
+	 * @param supportingDetail the lines, in order
+	 * @return the cell's supporting detail lines after the write, read back from the server
+	 * @throws IllegalArgumentException if a line has an operator other than {@code +}, {@code -}, {@code *},
+	 *                                  {@code /} or {@code ~}, has a non-numeric value, is more than one
+	 *                                  generation deeper than the line before it, or divides by zero; or if
+	 *                                  no line contributes a value, which would leave nothing to store
+	 * @throws com.jasonwjones.pbcs.client.exceptions.PbcsDataImportException if the server rejects the cell,
+	 *                                  as it does for an upper-level member
+	 * @throws UnsupportedOperationException if this implementation does not support supporting detail
+	 */
+	default List<DataSlice.SupportingDetail> setSupportingDetail(List<String> dataPoint, List<DataSlice.SupportingDetail> supportingDetail) {
+		throw new UnsupportedOperationException("Supporting detail is not supported by " + getClass().getName());
 	}
 
 	/**

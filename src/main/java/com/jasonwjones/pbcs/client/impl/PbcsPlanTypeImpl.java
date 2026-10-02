@@ -476,15 +476,58 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 
 	@Override
 	public List<String> getCellNotes(List<String> dataPoint) {
+		DataSliceGrid.DataCell cell = planningDataCell(dataPoint);
+		return cell == null ? Collections.emptyList() : cell.getCellNotes();
+	}
+
+	@Override
+	public List<DataSlice.SupportingDetail> getSupportingDetail(List<String> dataPoint) {
+		DataSliceGrid.DataCell cell = planningDataCell(dataPoint);
+		return cell == null ? Collections.emptyList() : cell.getSupportingDetail();
+	}
+
+	/** Exports a single cell with its planning data (notes and supporting detail), or null if none came back. */
+	private DataSliceGrid.DataCell planningDataCell(List<String> dataPoint) {
 		dataPoint = canonicalMemberNames(dataPoint);
 		ExportDataSlice exportDataSlice = new ExportDataSlice(new GridDefinition(dataPoint));
 		exportDataSlice.setExportPlanningData(true);
 		DataSlice dataSlice = post("applications/{application}/plantypes/{planType}/exportdataslice", exportDataSlice, DataSlice.class, application.getName(), planType);
 		if (dataSlice.getRows().isEmpty()) {
-			return Collections.emptyList();
+			return null;
 		}
 		DataSliceGrid grid = new DataSliceGrid(this, dataSlice);
-		return ((DataSliceGrid.DataCell) grid.getCell(grid.getTopRows(), grid.getLeftCols())).getCellNotes();
+		return (DataSliceGrid.DataCell) grid.getCell(grid.getTopRows(), grid.getLeftCols());
+	}
+
+	@Override
+	public List<DataSlice.SupportingDetail> setSupportingDetail(List<String> dataPoint, List<DataSlice.SupportingDetail> supportingDetail) {
+		// Validated and totalled before anything is sent: the server reports a bad operator as malformed
+		// JSON, and stores a value that does not match the lines without a word.
+		String value = "";
+		List<DataSlice.SupportingDetail> lines = Collections.emptyList();
+		if (!supportingDetail.isEmpty()) {
+			SupportingDetailCalculator calculation = SupportingDetailCalculator.calculate(supportingDetail);
+			if (calculation.getTotal() == null) {
+				throw new IllegalArgumentException("Supporting detail adds up to nothing, so there is no value to store it with: " + supportingDetail.size() + " line(s) and none contributes a value");
+			}
+			value = calculation.getTotal();
+			lines = calculation.getLines();
+		}
+		// As setCell: an alias the server cannot place is accepted and quietly not written.
+		dataPoint = canonicalMemberNames(dataPoint, true);
+
+		// An empty wrapper deletes the cell's supporting detail, and with it the blank value leaves the cell's
+		// value as it was. Lines are only stored beside a non-blank value, which is why the total is sent.
+		ImportDataSlice importDataSlice = new ImportDataSlice(dataPoint, value);
+		importDataSlice.getDataGrid().getRows().get(0).setSupportingDetail(Collections.singletonList(new DataSlice.SupportingDetailWrapper(lines)));
+		// Unlike a note, supporting detail on a cell that cannot take it is rejected rather than dropped, so
+		// the rejection is worth an exception.
+		ImportDataOptionsImpl importDataOptions = new ImportDataOptionsImpl();
+		importDataOptions.setThrowExceptionIfAnyRejectedCells(true);
+
+		logger.info("Updating {}.{} to set {} line(s) of supporting detail totalling {} at {}", application.getName(), planType, lines.size(), value.isEmpty() ? "(unchanged)" : value, dataPoint);
+		importDataSlice(importDataSlice, importDataOptions);
+		return getSupportingDetail(dataPoint);
 	}
 
 	@Override
