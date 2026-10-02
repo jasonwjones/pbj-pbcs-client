@@ -174,6 +174,58 @@ public interface PbcsPlanType extends PbcsObject {
 	String getCell(List<String> dataPoint);
 
 	/**
+	 * Retrieves the cell notes (shown as "comments" in the Planning UI) on a single cell. Notes carry only
+	 * their contents, returned exactly as stored; the REST API provides no author, timestamp, or identifier.
+	 * The server does not return notes in any guaranteed order.
+	 *
+	 * @param dataPoint the data point, one member from every dimension
+	 * @return the contents of each note on the cell; empty if it has none
+	 * @throws UnsupportedOperationException if this implementation does not support cell notes
+	 * @see #setCellNotes(List, List, CellNotesOption)
+	 */
+	default List<String> getCellNotes(List<String> dataPoint) {
+		throw new UnsupportedOperationException("Cell notes are not supported by " + getClass().getName());
+	}
+
+	/**
+	 * Replaces every note on a single cell with the given notes, leaving the cell's value alone. An empty
+	 * list deletes the cell's notes. This is {@link #setCellNotes(List, List, CellNotesOption)} with
+	 * {@link CellNotesOption#OVERWRITE}.
+	 *
+	 * @param dataPoint the data point, one member from every dimension
+	 * @param notes the contents of each note the cell should have
+	 * @return the contents of each note on the cell after the write, read back from the server
+	 * @throws UnsupportedOperationException if this implementation does not support cell notes
+	 */
+	default List<String> setCellNotes(List<String> dataPoint, List<String> notes) {
+		return setCellNotes(dataPoint, notes, CellNotesOption.OVERWRITE);
+	}
+
+	/**
+	 * Writes notes to a single cell, leaving the cell's value alone. With {@link CellNotesOption#OVERWRITE}
+	 * the given notes replace the cell's notes, and an empty list deletes them. With
+	 * {@link CellNotesOption#APPEND} they are added to the cell's existing notes, so writing the same note
+	 * twice leaves two copies.
+	 *
+	 * <p>The cell is read back after the write, which costs one more request. The import's response cannot
+	 * report on notes: its accepted and updated counts cover values only, and stay at zero for a write of
+	 * notes alone. And the server silently drops notes it will not store without rejecting the cell, such
+	 * as notes on an upper-level member or with empty contents. The returned list is therefore the only
+	 * evidence that the notes were stored.
+	 *
+	 * @param dataPoint the data point, one member from every dimension
+	 * @param notes the contents of each note to write
+	 * @param cellNotesOption how to combine the given notes with the cell's existing notes; must not be
+	 *                        {@link CellNotesOption#SKIP}, which would write nothing
+	 * @return the contents of each note on the cell after the write, read back from the server
+	 * @throws IllegalArgumentException if {@code cellNotesOption} is {@link CellNotesOption#SKIP}
+	 * @throws UnsupportedOperationException if this implementation does not support cell notes
+	 */
+	default List<String> setCellNotes(List<String> dataPoint, List<String> notes, CellNotesOption cellNotesOption) {
+		throw new UnsupportedOperationException("Cell notes are not supported by " + getClass().getName());
+	}
+
+	/**
 	 * Perform a "default" retrieve against this plan/cube. This only works when the dimensions have been specified
 	 * using explicit dimensions (e.g., using {@link PbcsApplication#getPlanType(PbcsApplication.PlanTypeConfiguration)})
 	 * where the configuration has a list of dimensions provided. Internally, the retrieve is performed using the standard
@@ -642,9 +694,14 @@ public interface PbcsPlanType extends PbcsObject {
 		boolean isProvideDimensionHints();
 
 		/**
-		 * Whether to return supporting details with the export request.
+		 * Whether to return Planning data (supporting details and cell notes) with the export request. Cell
+		 * notes are then available from each {@link DataSliceGrid.DataCell} of the resulting grid.
 		 *
-		 * @return true if supporting details should be exported along with data, false otherwise
+		 * <p>Suppression applies to notes too: a cell with a note but no value is dropped along with its row
+		 * by {@link #isSuppressMissingRows()}, and along with its block by missing-block suppression, so the
+		 * note is not returned.
+		 *
+		 * @return true if supporting details and cell notes should be exported along with data, false otherwise
 		 */
 		boolean isExportPlanningData();
 

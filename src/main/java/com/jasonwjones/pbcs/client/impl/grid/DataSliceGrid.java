@@ -6,6 +6,7 @@ import com.jasonwjones.pbcs.client.PovGrid;
 import com.jasonwjones.pbcs.client.impl.PovGridImpl;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -146,9 +147,24 @@ public class DataSliceGrid implements PovGrid<DataSliceGrid.Cell> {
                 int axisPosition = povMemberCount + dataSlice.getColumns().size() + column;
                 return new MemberCellImpl(dataSlice.getRows().get(row - topRows).getHeaders().get(column), axisPosition);
             } else { // data
-                return new DataCell(dataSlice.getRows().get(row - topRows).getData().get(column - leftCols));
+                DataSlice.HeaderDataRow dataRow = dataSlice.getRows().get(row - topRows);
+                int dataIndex = column - leftCols;
+                return new DataCellImpl(dataRow.getData().get(dataIndex), cellNotes(dataRow, dataIndex));
             }
         }
+    }
+
+    // A row has no notes list at all unless planning data was exported and one of its cells has a note.
+    private static List<String> cellNotes(DataSlice.HeaderDataRow dataRow, int dataIndex) {
+        List<List<DataSlice.CellNote>> rowNotes = dataRow.getCellNotes();
+        if (rowNotes == null || dataIndex >= rowNotes.size() || rowNotes.get(dataIndex) == null) {
+            return Collections.emptyList();
+        }
+        List<String> contents = new ArrayList<>();
+        for (DataSlice.CellNote note : rowNotes.get(dataIndex)) {
+            if (note != null) contents.add(note.getContents());
+        }
+        return Collections.unmodifiableList(contents);
     }
 
     @Override
@@ -237,6 +253,23 @@ public class DataSliceGrid implements PovGrid<DataSliceGrid.Cell> {
     }
 
     /**
+     * A {@link Cell} that holds a data value, along with any cell notes on that intersection.
+     */
+    public interface DataCell extends Cell {
+
+        /**
+         * Gets the cell notes (shown as "comments" in the Planning UI) on this cell. Notes are only exported
+         * when the retrieve was made with {@link PbcsPlanType.RetrieveOptions#isExportPlanningData()} set, so
+         * this is always empty for a grid retrieved without it.
+         *
+         * @return the contents of each note on this cell, in the order the server returned them; empty if
+         * there are none or they were not exported
+         */
+        List<String> getCellNotes();
+
+    }
+
+    /**
      * The kinds of cells that can appear in a {@link DataSliceGrid}.
      */
     public enum CellType {
@@ -303,15 +336,23 @@ public class DataSliceGrid implements PovGrid<DataSliceGrid.Cell> {
 
     }
 
-    private static class DataCell extends AnyCell {
+    private static class DataCellImpl extends AnyCell implements DataCell {
 
-        private DataCell(String value) {
+        private final List<String> cellNotes;
+
+        private DataCellImpl(String value, List<String> cellNotes) {
             super(value);
+            this.cellNotes = cellNotes;
         }
 
         @Override
         public CellType getType() {
             return CellType.DATA;
+        }
+
+        @Override
+        public List<String> getCellNotes() {
+            return cellNotes;
         }
 
     }

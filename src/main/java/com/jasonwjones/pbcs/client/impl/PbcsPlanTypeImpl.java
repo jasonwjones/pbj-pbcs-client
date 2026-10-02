@@ -475,6 +475,44 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 	}
 
 	@Override
+	public List<String> getCellNotes(List<String> dataPoint) {
+		dataPoint = canonicalMemberNames(dataPoint);
+		ExportDataSlice exportDataSlice = new ExportDataSlice(new GridDefinition(dataPoint));
+		exportDataSlice.setExportPlanningData(true);
+		DataSlice dataSlice = post("applications/{application}/plantypes/{planType}/exportdataslice", exportDataSlice, DataSlice.class, application.getName(), planType);
+		if (dataSlice.getRows().isEmpty()) {
+			return Collections.emptyList();
+		}
+		DataSliceGrid grid = new DataSliceGrid(this, dataSlice);
+		return ((DataSliceGrid.DataCell) grid.getCell(grid.getTopRows(), grid.getLeftCols())).getCellNotes();
+	}
+
+	@Override
+	public List<String> setCellNotes(List<String> dataPoint, List<String> notes, CellNotesOption cellNotesOption) {
+		if (cellNotesOption == CellNotesOption.SKIP) {
+			throw new IllegalArgumentException("Writing cell notes with " + cellNotesOption + " would write nothing");
+		}
+		// As setCell: an alias the server cannot place is accepted and quietly not written.
+		dataPoint = canonicalMemberNames(dataPoint, true);
+		List<DataSlice.CellNote> cellNotes = new ArrayList<>(notes.size());
+		for (String note : notes) {
+			cellNotes.add(new DataSlice.CellNote(note));
+		}
+
+		// The blank value is what leaves the cell's value alone; see importValue.
+		ImportDataSlice importDataSlice = new ImportDataSlice(dataPoint, "");
+		importDataSlice.getDataGrid().getRows().get(0).setCellNotes(Collections.singletonList(cellNotes));
+		ImportDataOptionsImpl importDataOptions = new ImportDataOptionsImpl();
+		importDataOptions.setCellNotesOption(cellNotesOption);
+
+		logger.info("Updating {}.{} to {} {} cell note(s) at {}", application.getName(), planType, cellNotesOption, notes.size(), dataPoint);
+		importDataSlice(importDataSlice, importDataOptions);
+		// Read back because nothing else can say whether the notes landed: the import's counts cover values
+		// only, and a note on a cell that will not take one is dropped without being rejected.
+		return getCellNotes(dataPoint);
+	}
+
+	@Override
 	public ImportDataResult setCells(List<String> pov, Grid<String> values) {
 		return setCells(pov, values, DEFAULT_IMPORT_OPTIONS);
 	}

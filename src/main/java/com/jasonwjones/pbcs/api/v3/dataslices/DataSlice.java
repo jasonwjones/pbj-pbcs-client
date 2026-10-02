@@ -1,7 +1,10 @@
 package com.jasonwjones.pbcs.api.v3.dataslices;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.StringJoiner;
 
 /**
@@ -128,6 +131,12 @@ public class DataSlice {
 
 		private List<SupportingDetailWrapper> supportingDetail;
 
+		// Left out of the JSON when null so an import that carries no notes sends the same payload it
+		// always has. Null elements inside the list are still written: they are how a single cell says
+		// "leave my notes alone" under the Overwrite option.
+		@JsonInclude(JsonInclude.Include.NON_NULL)
+		private List<List<CellNote>> cellNotes;
+
 		/**
 		 * Constructs an empty instance for deserialization.
 		 */
@@ -206,6 +215,103 @@ public class DataSlice {
 		 */
 		public void setSupportingDetail(List<SupportingDetailWrapper> supportingDetail) {
 			this.supportingDetail = supportingDetail;
+		}
+
+		/**
+		 * Gets the cell notes (shown as "comments" in the Planning UI) for this row. The list is positional
+		 * against {@link #getData()}: element {@code i} holds the notes for data cell {@code i}, and a cell
+		 * may have several notes. An export only returns notes when it is made with
+		 * {@link ExportDataSlice#setExportPlanningData(boolean)} set to true, and even then omits this
+		 * list entirely for a row whose cells have no notes.
+		 *
+		 * @return the cell notes, may be null if not requested/returned
+		 */
+		public List<List<CellNote>> getCellNotes() {
+			return cellNotes;
+		}
+
+		/**
+		 * Sets the cell notes for this row, for sending with an import. What the server does with them depends
+		 * on {@link ImportDataSlice#getCellNotesOption()}:
+		 * <ul>
+		 *     <li>{@code Overwrite} replaces a cell's notes with the given list; an empty list deletes the cell's
+		 *     notes, and a null element leaves that cell's notes as they are.</li>
+		 *     <li>{@code Append} adds the given notes to the cell's existing ones, duplicates included.</li>
+		 *     <li>{@code Skip} ignores them.</li>
+		 * </ul>
+		 *
+		 * <p>The list must be exactly as long as {@link #getData()}; the server fails the whole request
+		 * otherwise. Each noted cell still needs an entry in {@code data}, and a blank entry leaves the cell's
+		 * value alone. The server silently drops notes it will not store, without rejecting the cell: notes on
+		 * upper-level members and notes with empty contents.
+		 *
+		 * @param cellNotes the cell notes, one (possibly null or empty) list per data cell, or null to send none
+		 */
+		public void setCellNotes(List<List<CellNote>> cellNotes) {
+			this.cellNotes = cellNotes;
+		}
+
+	}
+
+	/**
+	 * A single cell note, shown as a "comment" in the Planning UI. The REST API carries only the note's
+	 * contents: no author, timestamp, or identifier. The contents are stored and returned exactly as sent,
+	 * with no HTML conversion, although notes entered through the Planning UI may hold HTML markup.
+	 *
+	 * <p>The import endpoint rejects the whole request if a note has any field besides {@code contents},
+	 * so this class serializes that field only.
+	 */
+	public static class CellNote {
+
+		private String contents;
+
+		/**
+		 * Constructs an empty instance for deserialization.
+		 */
+		public CellNote() {}
+
+		/**
+		 * Constructs a note with the given contents.
+		 *
+		 * @param contents the contents of the note
+		 */
+		public CellNote(String contents) {
+			this.contents = contents;
+		}
+
+		/**
+		 * Gets the contents of this note.
+		 *
+		 * @return the contents
+		 */
+		public String getContents() {
+			return contents;
+		}
+
+		/**
+		 * Sets the contents of this note.
+		 *
+		 * @param contents the contents
+		 */
+		public void setContents(String contents) {
+			this.contents = contents;
+		}
+
+		@Override
+		public boolean equals(Object o) {
+			if (this == o) return true;
+			if (!(o instanceof CellNote)) return false;
+			return Objects.equals(contents, ((CellNote) o).contents);
+		}
+
+		@Override
+		public int hashCode() {
+			return Objects.hashCode(contents);
+		}
+
+		@Override
+		public String toString() {
+			return contents;
 		}
 
 	}
