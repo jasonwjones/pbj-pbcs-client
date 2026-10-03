@@ -28,7 +28,13 @@ import java.util.Set;
  *     <li>A line followed by lines one generation deeper is a parent, and its value is their total.</li>
  * </ul>
  */
-final class SupportingDetailCalculator {
+public final class SupportingDetailCalculator {
+
+	// Public so that a caller editing supporting detail can show what the cell is about to become.
+	// Writing detail replaces the cell's value with this total, and an editor that did not say so
+	// would let someone discover it afterwards. Exposed rather than described, because the arithmetic
+	// is not the one anybody guesses: it runs in row order rather than by operator precedence, so
+	// 10 +, 2 +, 3 * is 36 and not 16, and a second implementation of that would be wrong quietly.
 
 	private static final Set<String> OPERATORS = Set.of("+", "-", "*", "/", "~");
 
@@ -53,7 +59,7 @@ final class SupportingDetailCalculator {
 	 *                                  generation that does not nest under the line before it, or if the
 	 *                                  lines divide by zero
 	 */
-	static SupportingDetailCalculator calculate(List<DataSlice.SupportingDetail> lines) {
+	public static SupportingDetailCalculator calculate(List<DataSlice.SupportingDetail> lines) {
 		List<DataSlice.SupportingDetail> copies = new ArrayList<>(lines.size());
 		int previousGeneration = -1;
 		for (int position = 0; position < lines.size(); position++) {
@@ -81,7 +87,7 @@ final class SupportingDetailCalculator {
 	 *
 	 * @return the lines to send
 	 */
-	List<DataSlice.SupportingDetail> getLines() {
+	public List<DataSlice.SupportingDetail> getLines() {
 		return lines;
 	}
 
@@ -90,7 +96,7 @@ final class SupportingDetailCalculator {
 	 *
 	 * @return the total, or null if the lines add up to nothing (no line contributed a value)
 	 */
-	String getTotal() {
+	public String getTotal() {
 		return total == null ? null : format(total);
 	}
 
