@@ -1,5 +1,7 @@
 package com.jasonwjones.pbcs.api.v3.dataslices;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
+
 import java.util.List;
 
 /**
@@ -60,9 +62,8 @@ public class ImportDataSliceResponse {
     /**
      * Whether the server reported an updated cell count at all.
      *
-     * <p>Not every pod returns {@code numUpdateCells}, and one that does not is indistinguishable
-     * from one reporting zero unless this is asked. Treating an unreported count as zero would call
-     * a perfectly good import a failure.
+     * <p>A response without the count is indistinguishable from one reporting zero unless this is
+     * asked. Treating an unreported count as zero would call a perfectly good import a failure.
      *
      * @return true if the count was reported, false otherwise
      */
@@ -73,8 +74,13 @@ public class ImportDataSliceResponse {
     /**
      * Sets the number of cells the import actually changed.
      *
+     * <p>Pods name the field {@code numUpdatedCells}. This class first read it as
+     * {@code numUpdateCells}, a spelling no pod has been seen to send, so the count was dropped
+     * without a word and every import looked as if its pod had not reported one. Both are read.
+     *
      * @param numUpdateCells the updated cell count
      */
+    @JsonAlias("numUpdatedCells")
     public void setNumUpdateCells(Integer numUpdateCells) {
         this.numUpdateCells = numUpdateCells;
     }

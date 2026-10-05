@@ -20,9 +20,8 @@ import static org.hamcrest.Matchers.is;
  *
  * <p>The option existed and setCell read straight past it, so a caller who asked was handed an empty
  * map and no hint that nothing had looked. It matters more here than it sounds: the counts EPM
- * returns cannot answer the question - a cell is reported accepted that was never stored, and
- * numUpdateCells is not returned at all by some pods - so reading the cell back is the only answer
- * that is about the cube rather than about the request.
+ * returns cannot answer the question - a cell is reported accepted that was never stored - so
+ * reading the cell back is the only answer that is about the cube rather than about the request.
  */
 @Category(DestructiveIntegrationTest.class)
 public class PbcsPlanTypeChangedCellsIT extends AbstractVisionCubeIT {

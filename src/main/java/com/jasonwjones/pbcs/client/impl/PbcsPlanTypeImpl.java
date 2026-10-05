@@ -593,8 +593,8 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 	 * What the cell holds now, against what it held before, for a write that asked to be checked.
 	 *
 	 * <p>Read back rather than inferred, because the counts cannot answer it: importdataslice reports
-	 * a cell accepted that it never stored, and numUpdateCells is not returned by every pod. Reading
-	 * the cell is the only answer that is about the cube rather than about the request.
+	 * a cell accepted that it never stored. Reading the cell is the only answer that is about the
+	 * cube rather than about the request.
 	 *
 	 * <p>A failure here is not a failure of the write. The write has already happened by this point,
 	 * so letting the read throw would report a successful write as a broken one - the worst way to be
