@@ -1,11 +1,13 @@
 package com.jasonwjones.pbcs.client.impl;
 
 import com.jasonwjones.pbcs.api.v3.PlanTypeDimension;
+import com.jasonwjones.pbcs.api.v3.PlanTypeDimensionsWrapper;
 import com.jasonwjones.pbcs.client.PbcsApplication;
 import com.jasonwjones.pbcs.client.PbcsDimension;
 import com.jasonwjones.pbcs.client.PbcsMemberType;
 import com.jasonwjones.pbcs.client.exceptions.PbcsInvalidDimensionException;
 import org.junit.Test;
+import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 
 import java.lang.reflect.Proxy;
 import java.util.Arrays;
@@ -58,6 +60,27 @@ public class PbcsPlanTypeImplDiscoverDimensionsTest {
                 () -> planType.buildDiscoveredDimensions(dimensions, true));
 
         assertThat(exception.getObjectName(), is("BadDimension"));
+    }
+
+    /**
+     * A dimension in the shape a live pod's endpoint sends it: no {@code valid} field at all. Read as a primitive,
+     * that silence made every discovered dimension invalid, so discovery with validation failed on its first one.
+     */
+    @Test
+    public void aDimensionTheEndpointSaysNothingAboutIsNotRejected() throws Exception {
+        String json = "{\"items\":["
+                + "{\"links\":[],\"name\":\"Account\",\"id\":\"a1\",\"dimName\":\"Account\",\"level\":0,\"generation\":1,"
+                + "\"usedIn\":[\"Plan1\",\"Vision\"],\"numMembers\":2000,\"objectTypeId\":2,\"dimType\":\"Account\","
+                + "\"density\":\"Dense\",\"enforceSecurity\":false,\"evaluationOrder\":1,\"objectType\":\"Dimension\"},"
+                + "{\"links\":[],\"name\":\"Type\",\"id\":\"a9\",\"dimName\":\"Type\",\"level\":0,\"generation\":1,"
+                + "\"usedIn\":[\"Plan1\",\"Vision\"],\"numMembers\":5,\"objectTypeId\":38,\"dimType\":\"Attribute Dimension\","
+                + "\"density\":\"Sparse\",\"enforceSecurity\":false,\"evaluationOrder\":9,\"objectType\":\"Dimension\"}]}";
+        PlanTypeDimensionsWrapper wrapper = Jackson2ObjectMapperBuilder.json().build().readValue(json, PlanTypeDimensionsWrapper.class);
+
+        List<PbcsDimension> dimensions = planType().buildDiscoveredDimensions(wrapper.getItems(), true);
+
+        assertThat(dimensions.stream().map(PbcsDimension::getName).toList(), contains("Account", "Type"));
+        assertThat(dimensions.get(1).getDimensionType(), is(PbcsMemberType.ATTRIBUTE));
     }
 
     @Test

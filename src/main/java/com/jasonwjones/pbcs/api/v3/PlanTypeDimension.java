@@ -35,7 +35,9 @@ public class PlanTypeDimension {
 
 	private List<String> usedIn;
 
-	private boolean valid;
+	// Boxed on purpose: the endpoint on current pods does not send this field at all, and a primitive
+	// would read that silence as "invalid". Null means not reported.
+	private Boolean valid;
 
 	private boolean invalidDueToValidIntersection;
 
@@ -261,10 +263,14 @@ public class PlanTypeDimension {
 	/**
 	 * Whether this dimension is currently valid/consistent in the outline.
 	 *
-	 * @return true if valid, false otherwise
+	 * <p>Only a response that says {@code "valid": false} makes a dimension invalid. The endpoint on
+	 * current pods leaves the field out altogether, and a dimension it lists without comment is taken
+	 * as valid rather than rejected.
+	 *
+	 * @return false if the server reported the dimension invalid, true otherwise
 	 */
 	public boolean isValid() {
-		return valid;
+		return !Boolean.FALSE.equals(valid);
 	}
 
 	/**
