@@ -1,11 +1,11 @@
 package com.jasonwjones.pbcs.client.impl;
 
-import com.jasonwjones.pbcs.api.v3.SubstitutionVariable;
 import com.jasonwjones.pbcs.api.v3.dataslices.DimensionMembers;
 import com.jasonwjones.pbcs.client.PbcsAppDimension;
 import com.jasonwjones.pbcs.client.PbcsJobDefinition;
 import com.jasonwjones.pbcs.client.PbcsPlanType;
 import com.jasonwjones.pbcs.client.PbcsPov;
+import com.jasonwjones.pbcs.client.PbcsSubstitutionVariable;
 import com.jasonwjones.pbcs.client.exceptions.PbcsDataImportException;
 import com.jasonwjones.pbcs.client.exceptions.PbcsGeneralException;
 import com.jasonwjones.pbcs.client.impl.export.MarkdownExportCallback;
@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -172,9 +171,9 @@ public class PbcsPlanTypeImplIT extends AbstractVisionCubeIT {
 
     @Test
     public void whenGetSubstitutionVariables() {
-        Set<SubstitutionVariable> vars = app.getSubstitutionVariables();
+        List<PbcsSubstitutionVariable> vars = app.getVariables();
         System.out.println("Count of variables: " + vars.size());
-        for (SubstitutionVariable var : vars) {
+        for (PbcsSubstitutionVariable var : vars) {
             logger.info("Variable: {}", var);
         }
     }
@@ -183,7 +182,7 @@ public class PbcsPlanTypeImplIT extends AbstractVisionCubeIT {
     public void whenGetPlanVariables() {
         for (PbcsPlanType planType : app.getPlanTypes()) {
             logger.info("Sub vars in {}", planType);
-            for (SubstitutionVariable variable : planType.getSubstitutionVariables()) {
+            for (PbcsSubstitutionVariable variable : planType.getVariables()) {
                 logger.info(" Var: {}", variable);
             }
         }

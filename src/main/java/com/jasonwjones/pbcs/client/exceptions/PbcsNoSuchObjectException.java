@@ -25,7 +25,20 @@ public class PbcsNoSuchObjectException extends PbcsClientException {
 	 * @param objectType the type of the object that doesn't exist
 	 */
 	public PbcsNoSuchObjectException(String objectName, PbcsObjectType objectType) {
-		super("There is no such " + objectType + " with name " + objectName + " (or you do not have access to it)");
+		this("There is no such " + objectType + " with name " + objectName + " (or you do not have access to it)", objectName, objectType);
+	}
+
+	/**
+	 * Constructs an instance with a message of its own, for subclasses that can say more about where the object was
+	 * looked for.
+	 *
+	 * @param message the detail message
+	 * @param objectName the name of the object that doesn't exist
+	 * @param objectType the type of the object that doesn't exist
+	 * @since 3.1.0
+	 */
+	protected PbcsNoSuchObjectException(String message, String objectName, PbcsObjectType objectType) {
+		super(message);
 		this.objectName = objectName;
 		this.objectType = objectType;
 	}

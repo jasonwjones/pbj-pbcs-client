@@ -1,5 +1,6 @@
 package com.jasonwjones.pbcs.client.impl;
 
+import com.jasonwjones.pbcs.api.v3.Application;
 import com.jasonwjones.pbcs.client.PbcsApplication;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpRequest;
@@ -31,13 +32,18 @@ class StubRestServer implements ClientHttpRequestInterceptor {
     /** The last path segment of each request, in the order they were made. */
     final List<String> endpoints = new ArrayList<>();
 
+    /** The path of each request after {@code rest/v3/}, in the order they were made. */
+    final List<String> paths = new ArrayList<>();
+
     /** The body of each request, in the order they were made. */
     final List<String> bodies = new ArrayList<>();
 
     /**
-     * Answers every request to the given endpoint with the given JSON.
+     * Answers every request to the given endpoint with the given JSON. A full path wins over a last segment, so
+     * endpoints that end alike can answer differently.
      *
-     * @param endpoint the last path segment, such as {@code importdataslice}
+     * @param endpoint the last path segment, such as {@code importdataslice}, or the path after {@code rest/v3/},
+     *                 such as {@code applications/Vision/substitutionvariables}
      * @param body the JSON to answer with
      */
     void respond(String endpoint, String body) {
@@ -51,10 +57,7 @@ class StubRestServer implements ClientHttpRequestInterceptor {
      * @return the plan type
      */
     PbcsPlanTypeImpl planType() {
-        RestTemplate template = new RestTemplate();
-        template.getInterceptors().add(this);
-        RestContext context = new RestContext(template, "example.test", "https://example.test/HyperionPlanning/rest/v3/", null);
-        return new PbcsPlanTypeImpl(context, application(), new PlanTypeConfigurationImpl.Builder("Plan1").build()) {
+        return new PbcsPlanTypeImpl(context(), applicationProxy(), new PlanTypeConfigurationImpl.Builder("Plan1").build()) {
             @Override
             protected List<String> canonicalMemberNames(List<String> names, boolean includeDefaultTable) {
                 return names;
@@ -62,23 +65,56 @@ class StubRestServer implements ClientHttpRequestInterceptor {
         };
     }
 
+    /**
+     * The Vision application, with no client, whose requests come here.
+     *
+     * @return the application
+     */
+    PbcsApplicationImpl application() {
+        return new PbcsApplicationImpl(context(), null, applicationDetails());
+    }
+
+    /**
+     * A REST context whose requests come here.
+     *
+     * @return the context
+     */
+    RestContext context() {
+        RestTemplate template = new RestTemplate();
+        template.getInterceptors().add(this);
+        return new RestContext(template, "example.test", "https://example.test/HyperionPlanning/rest/v3/", null);
+    }
+
+    /**
+     * The details the REST API would give for the Vision application.
+     *
+     * @return the application details
+     */
+    static Application applicationDetails() {
+        Application application = new Application();
+        application.setName("Vision");
+        return application;
+    }
+
     @Override
     public ClientHttpResponse intercept(HttpRequest request, byte[] body, ClientHttpRequestExecution execution) {
         String path = request.getURI().getPath();
         String endpoint = path.substring(path.lastIndexOf('/') + 1);
+        String relativePath = path.substring(path.indexOf("/rest/v3/") + "/rest/v3/".length());
         endpoints.add(endpoint);
+        paths.add(relativePath);
         bodies.add(new String(body, StandardCharsets.UTF_8));
-        String response = responses.get(endpoint);
+        String response = responses.getOrDefault(relativePath, responses.get(endpoint));
         if (response == null) throw new AssertionError("Unexpected request to " + path);
         return new JsonResponse(response);
     }
 
-    private static PbcsApplication application() {
+    private static PbcsApplication applicationProxy() {
         return (PbcsApplication) Proxy.newProxyInstance(
                 PbcsApplication.class.getClassLoader(),
                 new Class<?>[] {PbcsApplication.class},
                 (proxy, method, args) -> switch (method.getName()) {
-                    case "getName" -> "Vision";
+                    case "getName", "getQualifiedName" -> "Vision";
                     case "getParent" -> null;
                     default -> throw new UnsupportedOperationException(method.getName());
                 });

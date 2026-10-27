@@ -158,10 +158,69 @@ public interface PbcsApplication extends PbcsObject {
 	DataSlice exportDataSlice(String planType, ExportDataSlice dataSlice);
 
 	/**
+	 * Gets all of the application's substitution variables: those defined for the whole application and those
+	 * defined for each of its plan types. Every one is a {@link PbcsApplicationSubstitutionVariable}; check its
+	 * {@link PbcsSubstitutionVariable#getScope() scope}, and cast those at
+	 * {@link PbcsSubstitutionVariableScope#PLAN_TYPE} to {@link PbcsPlanTypeSubstitutionVariable}.
+	 *
+	 * @return the variables, in the order the server lists them; an empty list if there are none
+	 * @throws UnsupportedOperationException if this implementation doesn't support substitution variables
+	 * @since 3.1.0
+	 */
+	default List<PbcsSubstitutionVariable> getVariables() {
+		throw new UnsupportedOperationException("Substitution variables are not supported by " + getClass().getName());
+	}
+
+	/**
+	 * Gets a substitution variable defined for the whole application. A plan type's variable with the same name is
+	 * not returned; use {@link PbcsPlanType#getVariable(String)} for that.
+	 *
+	 * @param name the name of the variable, matched exactly
+	 * @return the variable
+	 * @throws com.jasonwjones.pbcs.client.exceptions.PbcsNoSuchVariableException if the application has no variable
+	 * with that name
+	 * @throws UnsupportedOperationException if this implementation doesn't support substitution variables
+	 * @since 3.1.0
+	 */
+	default PbcsApplicationSubstitutionVariable getVariable(String name) {
+		throw new UnsupportedOperationException("Substitution variables are not supported by " + getClass().getName());
+	}
+
+	/**
+	 * Sets the value of a substitution variable defined for the whole application, creating the variable if it
+	 * doesn't exist. To set a plan type's variable, use {@link PbcsPlanType#updateVariable(String, String)}.
+	 *
+	 * @param name the name of the variable
+	 * @param value the value to set
+	 * @throws UnsupportedOperationException if this implementation doesn't support substitution variables
+	 * @since 3.1.0
+	 */
+	default void updateVariable(String name, String value) {
+		throw new UnsupportedOperationException("Substitution variables are not supported by " + getClass().getName());
+	}
+
+	/**
+	 * Sets substitution variables of either scope in one request, creating any that don't exist. Each variable is
+	 * set at its own scope. Variables not in the collection are left alone, contrary to what the REST API
+	 * documentation seems to imply. To change existing variables, pass copies made with
+	 * {@link PbcsSubstitutionVariable#withValue(String)}.
+	 *
+	 * @param variables the variables to set
+	 * @throws UnsupportedOperationException if this implementation doesn't support substitution variables
+	 * @since 3.1.0
+	 */
+	default void updateVariables(Collection<? extends PbcsSubstitutionVariable> variables) {
+		throw new UnsupportedOperationException("Substitution variables are not supported by " + getClass().getName());
+	}
+
+	/**
 	 * Gets all substitution variables in the application, including variables that are defined for a specific plan.
 	 *
 	 * @return a set of the substitution variables, an empty set if there are none
+	 * @deprecated This returns the REST API's payload class, which won't be part of the public API in 4.0. Use
+	 * {@link #getVariables()}, which returns the same variables as {@link PbcsSubstitutionVariable}s.
 	 */
+	@Deprecated(since = "3.1.0")
 	Set<SubstitutionVariable> getSubstitutionVariables();
 
 	/**
@@ -170,7 +229,11 @@ public interface PbcsApplication extends PbcsObject {
 	 *
 	 * @param name the name of the variable to fetch
 	 * @return the variable object, if it exists
+	 * @deprecated This returns the REST API's payload class, which won't be part of the public API in 4.0. Use
+	 * {@link #getVariable(String)}. Note that it only returns a variable defined for the whole application, where this
+	 * method returns the first variable of either scope with the name.
 	 */
+	@Deprecated(since = "3.1.0")
 	SubstitutionVariable getSubstitutionVariable(String name);
 
 	/**
@@ -180,7 +243,10 @@ public interface PbcsApplication extends PbcsObject {
 	 * imply)
 	 *
 	 * @param variables the variables to update
+	 * @deprecated This takes the REST API's payload class, which won't be part of the public API in 4.0. Use
+	 * {@link #updateVariables(Collection)}.
 	 */
+	@Deprecated(since = "3.1.0")
 	void updateSubstitutionVariables(Collection<SubstitutionVariable> variables);
 
 	/**
@@ -188,7 +254,10 @@ public interface PbcsApplication extends PbcsObject {
 	 *
 	 * @param name the name of the variable
 	 * @param value the value of the variable
+	 * @deprecated Use {@link #updateVariable(String, String)}, which does the same; it's renamed to match the other
+	 * substitution variable methods.
 	 */
+	@Deprecated(since = "3.1.0")
 	void updateSubstitutionVariable(String name, String value);
 
 	/**

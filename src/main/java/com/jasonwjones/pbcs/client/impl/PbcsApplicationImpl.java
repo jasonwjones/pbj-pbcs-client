@@ -24,6 +24,8 @@ public class PbcsApplicationImpl extends AbstractPbcsObject implements PbcsAppli
 
 	private static final String JOBS_ENDPOINT = "applications/{application}/jobs";
 
+	private static final String SUBSTITUTION_VARIABLES_ENDPOINT = "applications/{application}/substitutionvariables";
+
 	private final PbcsPlanningClient client;
 
 	private final Application application;
@@ -152,12 +154,49 @@ public class PbcsApplicationImpl extends AbstractPbcsObject implements PbcsAppli
 	}
 
 	@Override
-	public Set<SubstitutionVariable> getSubstitutionVariables() {
-		logger.info("Getting substitution variables for {}", application.getName());
-        SubstitutionVariablesWrapper wrapper = get("applications/{application}/substitutionvariables", SubstitutionVariablesWrapper.class, getName());
-		return new HashSet<>(wrapper.getItems());
+	@SuppressWarnings("deprecation") // maps the REST payload, which is only deprecated as public API
+	public List<PbcsSubstitutionVariable> getVariables() {
+		List<PbcsSubstitutionVariable> variables = new ArrayList<>();
+		for (SubstitutionVariable payload : fetchSubstitutionVariables()) {
+			variables.add(SubstitutionVariablePayloads.fromPayload(this, payload));
+		}
+		return variables;
 	}
 
+	@Override
+	public PbcsApplicationSubstitutionVariable getVariable(String name) {
+		for (PbcsSubstitutionVariable variable : getVariables()) {
+			if (variable.getScope() == PbcsSubstitutionVariableScope.APPLICATION && variable.getName().equals(name)) {
+				return (PbcsApplicationSubstitutionVariable) variable;
+			}
+		}
+		throw new PbcsNoSuchVariableException(application.getName(), name);
+	}
+
+	@Override
+	public void updateVariable(String name, String value) {
+		updateVariables(Collections.singletonList(new PbcsApplicationSubstitutionVariableImpl(this, name, value)));
+	}
+
+	@Override
+	public void updateVariables(Collection<? extends PbcsSubstitutionVariable> variables) {
+		post(SUBSTITUTION_VARIABLES_ENDPOINT, SubstitutionVariablePayloads.updateRequest(variables), String.class, getName());
+	}
+
+	@SuppressWarnings("deprecation") // reads the REST payload, which is only deprecated as public API
+	private List<SubstitutionVariable> fetchSubstitutionVariables() {
+		logger.info("Getting substitution variables for {}", application.getName());
+		SubstitutionVariablesWrapper wrapper = get(SUBSTITUTION_VARIABLES_ENDPOINT, SubstitutionVariablesWrapper.class, getName());
+		return wrapper.getItems() != null ? wrapper.getItems() : Collections.emptyList();
+	}
+
+	@Deprecated(since = "3.1.0")
+	@Override
+	public Set<SubstitutionVariable> getSubstitutionVariables() {
+		return new HashSet<>(fetchSubstitutionVariables());
+	}
+
+	@Deprecated(since = "3.1.0")
 	@Override
 	public SubstitutionVariable getSubstitutionVariable(String variableName) {
 		logger.info("Retrieving value of substitution variable");
@@ -169,13 +208,15 @@ public class PbcsApplicationImpl extends AbstractPbcsObject implements PbcsAppli
 		throw new PbcsNoSuchVariableException(application.getName(), variableName);
 	}
 
+	@Deprecated(since = "3.1.0")
 	@Override
 	public void updateSubstitutionVariables(Collection<SubstitutionVariable> variables) {
 		SubstitutionVariableUpdateWrapper subs = new SubstitutionVariableUpdateWrapper();
 		subs.setItems(new ArrayList<>(variables));
-		post("applications/{application}/substitutionvariables", subs, String.class, getName());
+		post(SUBSTITUTION_VARIABLES_ENDPOINT, subs, String.class, getName());
 	}
 
+	@Deprecated(since = "3.1.0")
 	@Override
 	public void updateSubstitutionVariable(String name, String value) {
 		Collection<SubstitutionVariable> subVar = Collections.singletonList(new SubstitutionVariable(name, value));

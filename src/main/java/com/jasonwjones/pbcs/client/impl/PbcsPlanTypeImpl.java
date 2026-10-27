@@ -13,6 +13,7 @@ import com.jasonwjones.pbcs.client.exceptions.PbcsDataExportException;
 import com.jasonwjones.pbcs.client.exceptions.PbcsDataImportException;
 import com.jasonwjones.pbcs.client.exceptions.PbcsInvalidDimensionException;
 import com.jasonwjones.pbcs.client.exceptions.PbcsNoSuchObjectException;
+import com.jasonwjones.pbcs.client.exceptions.PbcsNoSuchVariableException;
 import com.jasonwjones.pbcs.client.impl.grid.DataSliceGrid;
 import com.jasonwjones.pbcs.util.DataSliceDiff;
 import com.jasonwjones.pbcs.util.GridDrawing;
@@ -786,10 +787,42 @@ public class PbcsPlanTypeImpl extends AbstractPbcsObject implements PbcsPlanType
 	}
 
 	@Override
+	@SuppressWarnings("deprecation") // maps the REST payload, which is only deprecated as public API
+	public List<PbcsPlanTypeSubstitutionVariable> getVariables() {
+		List<PbcsPlanTypeSubstitutionVariable> variables = new ArrayList<>();
+		for (SubstitutionVariable payload : fetchSubstitutionVariables()) {
+			variables.add(new PbcsPlanTypeSubstitutionVariableImpl(this, payload.getName(), payload.getValue()));
+		}
+		return variables;
+	}
+
+	@Override
+	public PbcsPlanTypeSubstitutionVariable getVariable(String name) {
+		for (PbcsPlanTypeSubstitutionVariable variable : getVariables()) {
+			if (variable.getName().equals(name)) {
+				return variable;
+			}
+		}
+		throw new PbcsNoSuchVariableException(application.getName(), getName(), name);
+	}
+
+	@Override
+	public void updateVariable(String name, String value) {
+		// The application's endpoint sets each variable at the scope it names, the same path updateVariables takes
+		PbcsPlanTypeSubstitutionVariable variable = new PbcsPlanTypeSubstitutionVariableImpl(this, name, value);
+		post("applications/{application}/substitutionvariables", SubstitutionVariablePayloads.updateRequest(Collections.singletonList(variable)), String.class, application.getName());
+	}
+
+	@SuppressWarnings("deprecation") // reads the REST payload, which is only deprecated as public API
+	private List<SubstitutionVariable> fetchSubstitutionVariables() {
+		SubstitutionVariablesWrapper wrapper = get("applications/{application}/plantypes/{planType}/substitutionvariables", SubstitutionVariablesWrapper.class, application.getName(), getName());
+		return wrapper.getItems() != null ? wrapper.getItems() : Collections.emptyList();
+	}
+
+	@Deprecated(since = "3.1.0")
+	@Override
 	public Set<SubstitutionVariable> getSubstitutionVariables() {
-		String url = this.context.getBaseUrl() + "applications/{application}/plantypes/{planType}/substitutionvariables";
-		ResponseEntity<SubstitutionVariablesWrapper> response = this.context.getTemplate().getForEntity(url, SubstitutionVariablesWrapper.class, application.getName(), getName());
-		return new HashSet<>(response.getBody().getItems());
+		return new HashSet<>(fetchSubstitutionVariables());
 	}
 
 	@Override

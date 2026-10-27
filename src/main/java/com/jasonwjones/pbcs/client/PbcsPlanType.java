@@ -431,11 +431,54 @@ public interface PbcsPlanType extends PbcsObject {
 	String getMemberAlias(String dimensionName, String memberName, String aliasTableName);
 
 	/**
+	 * Gets the substitution variables defined for this plan type. Variables defined for the whole application, which
+	 * this plan type can also use, are not included; use {@link PbcsApplication#getVariables()} for those.
+	 *
+	 * @return the variables, in the order the server lists them; an empty list if there are none
+	 * @throws UnsupportedOperationException if this implementation doesn't support substitution variables
+	 * @since 3.1.0
+	 */
+	default List<PbcsPlanTypeSubstitutionVariable> getVariables() {
+		throw new UnsupportedOperationException("Substitution variables are not supported by " + getClass().getName());
+	}
+
+	/**
+	 * Gets a substitution variable defined for this plan type. A variable with the same name defined for the whole
+	 * application is not returned; use {@link PbcsApplication#getVariable(String)} for that.
+	 *
+	 * @param name the name of the variable, matched exactly
+	 * @return the variable
+	 * @throws com.jasonwjones.pbcs.client.exceptions.PbcsNoSuchVariableException if this plan type has no variable
+	 * with that name
+	 * @throws UnsupportedOperationException if this implementation doesn't support substitution variables
+	 * @since 3.1.0
+	 */
+	default PbcsPlanTypeSubstitutionVariable getVariable(String name) {
+		throw new UnsupportedOperationException("Substitution variables are not supported by " + getClass().getName());
+	}
+
+	/**
+	 * Sets the value of a substitution variable defined for this plan type, creating the variable if it doesn't
+	 * exist. A variable with the same name defined for the whole application is left alone.
+	 *
+	 * @param name the name of the variable
+	 * @param value the value to set
+	 * @throws UnsupportedOperationException if this implementation doesn't support substitution variables
+	 * @since 3.1.0
+	 */
+	default void updateVariable(String name, String value) {
+		throw new UnsupportedOperationException("Substitution variables are not supported by " + getClass().getName());
+	}
+
+	/**
 	 * Gets the substitution variables that are specific to this cube/plan. This will not return the variables that
 	 * are set for the overall application, you should use {@link PbcsApplication#getSubstitutionVariables()} for that.
 	 *
 	 * @return substitution variables specific to this plan
+	 * @deprecated This returns the REST API's payload class, which won't be part of the public API in 4.0. Use
+	 * {@link #getVariables()}, which returns the same variables as {@link PbcsPlanTypeSubstitutionVariable}s.
 	 */
+	@Deprecated(since = "3.1.0")
 	Set<SubstitutionVariable> getSubstitutionVariables();
 
 	/**

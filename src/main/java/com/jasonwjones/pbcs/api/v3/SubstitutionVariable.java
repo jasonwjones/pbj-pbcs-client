@@ -5,10 +5,15 @@ import org.springframework.util.Assert;
 import java.util.Objects;
 
 /**
- * Represents a substitution variable within a PBCS application.
+ * The REST API's payload for a substitution variable within a PBCS application.
  *
  * @author jasonwjones
+ * @deprecated since 3.1.0. This is the wire format, which earlier versions exposed directly from
+ * {@link com.jasonwjones.pbcs.client.PbcsApplication} and {@link com.jasonwjones.pbcs.client.PbcsPlanType}. Use
+ * {@link com.jasonwjones.pbcs.client.PbcsSubstitutionVariable} and its subtypes instead. The library still uses it
+ * to talk to the server, but it won't be part of the public API in 4.0.
  */
+@Deprecated(since = "3.1.0")
 public class SubstitutionVariable {
 
 	private String name;
