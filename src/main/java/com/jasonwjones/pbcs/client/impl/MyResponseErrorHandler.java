@@ -7,7 +7,9 @@ import com.jasonwjones.pbcs.client.exceptions.PbcsGeneralException;
 import com.jasonwjones.pbcs.client.exceptions.PbcsInvalidCredentialsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.web.client.ResponseErrorHandler;
 
@@ -65,20 +67,14 @@ public class MyResponseErrorHandler implements ResponseErrorHandler {
 			case 503:
 				throw new PbcsClientException("Service currently unavailable; likely in maintenance mode");
 			case 401:
-				// TODO: there is a little more info coming back on the www-authenticate header that might be useful to
-				// show: Bearer error="invalid_token", error_description="Token Expired"
-				throw new PbcsInvalidCredentialsException("Unable to login to PBCS due to invalid credentials");
+				throw new PbcsInvalidCredentialsException(unauthorizedMessage(url, method, response.getHeaders(), responseBody));
 			case 400: // Bad Request
 			default: {
 				if (errorResponse != null) {
 					throw new PbcsGeneralException(errorResponse);
 				}
 
-				String responseBodySnippet = responseBody.replaceAll("\\s+", " ").trim();
-				if (responseBodySnippet.length() > MAX_RESPONSE_BODY_SNIPPET_LENGTH) {
-					responseBodySnippet = responseBodySnippet.substring(0, MAX_RESPONSE_BODY_SNIPPET_LENGTH) + "...";
-				}
-
+				String responseBodySnippet = snippet(responseBody);
 				String message = "HTTP " + statusCode + " " + statusText
 						+ " from " + method + " " + url;
 				if (!responseBodySnippet.isEmpty()) {
@@ -87,6 +83,42 @@ public class MyResponseErrorHandler implements ResponseErrorHandler {
 				throw new PbcsGeneralException(message);
 			}
 		}
+	}
+
+	/**
+	 * Describes a 401 by the call that was refused and whatever EPM Cloud said about it. A 401 is not always bad
+	 * credentials: an expired token is refused the same way, and says so only in its WWW-Authenticate challenge
+	 * ({@code Bearer error="invalid_token", error_description="Token Expired"}). A fixed "invalid credentials"
+	 * message hid that, and which call it was.
+	 *
+	 * @param url the URL of the refused call, may be null
+	 * @param method the HTTP method of the refused call
+	 * @param headers the response headers
+	 * @param responseBody the response body, may be empty
+	 * @return the message
+	 */
+	static String unauthorizedMessage(URI url, HttpMethod method, HttpHeaders headers, String responseBody) {
+		StringBuilder message = new StringBuilder("EPM Cloud answered HTTP 401 Unauthorized to ")
+				.append(method).append(' ').append(url == null ? "(unknown URL)" : url.getPath());
+		String challenge = headers.getFirst(HttpHeaders.WWW_AUTHENTICATE);
+		if (challenge != null && !challenge.isBlank()) {
+			message.append("; ").append(HttpHeaders.WWW_AUTHENTICATE).append(": ").append(challenge.trim());
+		}
+		// the gateway's own 401 is a stock HTML page that says nothing the status doesn't
+		boolean html = headers.getContentType() != null && headers.getContentType().isCompatibleWith(MediaType.TEXT_HTML);
+		String responseBodySnippet = snippet(responseBody);
+		if (!html && !responseBodySnippet.isEmpty()) {
+			message.append("; response: ").append(responseBodySnippet);
+		}
+		return message.toString();
+	}
+
+	private static String snippet(String responseBody) {
+		String snippet = responseBody.replaceAll("\\s+", " ").trim();
+		if (snippet.length() > MAX_RESPONSE_BODY_SNIPPET_LENGTH) {
+			snippet = snippet.substring(0, MAX_RESPONSE_BODY_SNIPPET_LENGTH) + "...";
+		}
+		return snippet;
 	}
 
 	@Override
