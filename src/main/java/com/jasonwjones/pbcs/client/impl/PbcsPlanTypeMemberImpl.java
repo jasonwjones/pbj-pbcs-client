@@ -40,7 +40,13 @@ final class PbcsPlanTypeMemberImpl extends PbcsMemberImpl {
 
     static boolean isAvailableInPlan(PbcsMemberPropertiesImpl memberProperties, PbcsPlanType planType) {
         List<String> usedIn = memberProperties.getUsedIn();
-        return usedIn == null || usedIn.isEmpty() || usedIn.contains(planType.getName());
+        if (usedIn == null || usedIn.isEmpty()) {
+            return true;
+        }
+        // EPM matches plan type names without regard to case, so a plan type opened as "CONSOL" works against a
+        // cube EPM calls "Consol" - but usedIn carries EPM's spelling, not the caller's
+        String planTypeName = planType.getName();
+        return usedIn.stream().anyMatch(name -> name != null && name.equalsIgnoreCase(planTypeName));
     }
 
 }

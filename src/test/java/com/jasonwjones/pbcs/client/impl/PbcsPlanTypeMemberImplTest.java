@@ -89,6 +89,21 @@ public class PbcsPlanTypeMemberImplTest {
     }
 
     @Test
+    public void directLookupAcceptsPlanTypeNameInAnyCase() {
+        PbcsMember member = planType(application(Collections.emptyMap()), "PLAN1").getMember("Account", "Account");
+
+        assertThat(member, instanceOf(PbcsPlanTypeMemberImpl.class));
+    }
+
+    @Test
+    public void planMemberFiltersChildrenWhateverThePlanTypeNameCase() {
+        PbcsMember member = planType(application(Collections.emptyMap()), "plan1").getMember("Account", "Account");
+
+        assertThat(childNames(member), contains("Plan1 Child", "Unscoped Child"));
+        assertThat(childNames(member.getChildren().get(0)), contains("Plan1 Grandchild"));
+    }
+
+    @Test
     public void parentLookupRemainsPlanScoped() {
         PbcsMemberPropertiesImpl parent = member("Account", List.of("Plan1"),
                 member("Plan1 Child", List.of("Plan1")),
@@ -196,7 +211,11 @@ public class PbcsPlanTypeMemberImplTest {
     }
 
     private PbcsPlanType planType(PbcsApplication application) {
-        return new PbcsPlanTypeImpl(context, application, new PlanTypeConfigurationImpl.Builder("Plan1").build());
+        return planType(application, "Plan1");
+    }
+
+    private PbcsPlanType planType(PbcsApplication application, String planTypeName) {
+        return new PbcsPlanTypeImpl(context, application, new PlanTypeConfigurationImpl.Builder(planTypeName).build());
     }
 
     private PbcsApplication application(Map<String, PbcsMemberPropertiesImpl> members) {
